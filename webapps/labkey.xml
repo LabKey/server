@@ -1,0 +1,45 @@
+<Context path="/labkey" docBase="@@appDocBase@@" debug="0"
+	 reloadable="true" crossContext="true">
+
+          <!-- DBSchemas -->
+          <Environment name="dbschema/--default--" value="@@dbschema/default@@" type="java.lang.String"/>
+
+	  <Resource name="jdbc/cpasDataSource" auth="Container"
+           type="javax.sql.DataSource"
+	   username="@@jdbcUser@@"
+           password="@@jdbcPassword@@"
+           driverClassName="@@jdbcDriverClassName@@"
+           url="@@jdbcURLCpas@@"
+           maxActive="20"
+           maxIdle="10" accessToUnderlyingConnectionAllowed="true"/>
+
+          <!-- To use SQLServer, comment out the jdbc/cpasDataSource Resource above
+               and remove the comments around the one below, filling in the
+               appropriate username, password, and url for your server. -->
+               
+          <!--
+	  <Resource name="jdbc/cpasDataSource" auth="Container"
+           type="javax.sql.DataSource"
+	   username="sa"
+           password="sa"
+           driverClassName="net.sourceforge.jtds.jdbc.Driver"
+           url="jdbc:jtds:sqlserver://localhost/cpas"
+           maxActive="20"
+           maxIdle="10"/>
+          -->
+
+	  <Resource name="mail/Session" auth="Container"
+           type="javax.mail.Session"
+           mail.smtp.host="@@smtpHost@@"
+           mail.smtp.user="@@smtpUser@@"
+           mail.smtp.port="@@smtpPort@@"/>
+
+	  <Resource name="drive/@@networkDriveLetter@@" auth="Container"
+           type="org.fhcrc.cpas.util.NetworkDrive"
+           factory="org.apache.naming.factory.BeanFactory"
+           path="@@networkDrivePath@@"
+           user="@@networkDriveUser@@"
+           password="@@networkDrivePassword@@"/>
+           
+           <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
+</Context>

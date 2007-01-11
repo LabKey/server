@@ -4,7 +4,7 @@
           <!-- DBSchemas -->
           <Environment name="dbschema/--default--" value="@@dbschema/default@@" type="java.lang.String"/>
 
-	  <Resource name="jdbc/cpasDataSource" auth="Container"
+	  <Resource name="jdbc/labkeyDataSource" auth="Container"
            type="javax.sql.DataSource"
 	   username="@@jdbcUser@@"
            password="@@jdbcPassword@@"

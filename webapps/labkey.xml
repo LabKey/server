@@ -9,21 +9,21 @@
 	   username="@@jdbcUser@@"
            password="@@jdbcPassword@@"
            driverClassName="@@jdbcDriverClassName@@"
-           url="@@jdbcURLCpas@@"
+           url="@@jdbcURL@@"
            maxActive="20"
            maxIdle="10" accessToUnderlyingConnectionAllowed="true"/>
 
-          <!-- To use SQLServer, comment out the jdbc/cpasDataSource Resource above
+          <!-- To use SQLServer, comment out the jdbc/labkeyDataSource Resource above
                and remove the comments around the one below, filling in the
                appropriate username, password, and url for your server. -->
                
           <!--
-	  <Resource name="jdbc/cpasDataSource" auth="Container"
+	  <Resource name="jdbc/labkeyDataSource" auth="Container"
            type="javax.sql.DataSource"
 	   username="sa"
            password="sa"
            driverClassName="net.sourceforge.jtds.jdbc.Driver"
-           url="jdbc:jtds:sqlserver://localhost/cpas"
+           url="jdbc:jtds:sqlserver://localhost/labkey"
            maxActive="20"
            maxIdle="10"/>
           -->

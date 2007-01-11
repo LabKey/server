@@ -1,12 +1,12 @@
 <Context path="/labkey" docBase="@@appDocBase@@" debug="0"
 	 reloadable="true" crossContext="true">
 
-          <!-- DBSchemas -->
-          <Environment name="dbschema/--default--" value="@@dbschema/default@@" type="java.lang.String"/>
+      <!-- DBSchemas -->
+      <Environment name="dbschema/--default--" value="jdbc/labkeyDataSource" type="java.lang.String"/>
 
 	  <Resource name="jdbc/labkeyDataSource" auth="Container"
            type="javax.sql.DataSource"
-	   username="@@jdbcUser@@"
+	       username="@@jdbcUser@@"
            password="@@jdbcPassword@@"
            driverClassName="@@jdbcDriverClassName@@"
            url="@@jdbcURL@@"
@@ -16,11 +16,10 @@
           <!-- To use SQLServer, comment out the jdbc/labkeyDataSource Resource above
                and remove the comments around the one below, filling in the
                appropriate username, password, and url for your server. -->
-               
           <!--
 	  <Resource name="jdbc/labkeyDataSource" auth="Container"
            type="javax.sql.DataSource"
-	   username="sa"
+           username="sa"
            password="sa"
            driverClassName="net.sourceforge.jtds.jdbc.Driver"
            url="jdbc:jtds:sqlserver://localhost/labkey"

@@ -5,6 +5,8 @@ import org.apache.catalina.loader.WebappClassLoader;
 import javax.naming.directory.DirContext;
 import javax.naming.NamingException;
 import java.util.*;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 import java.io.*;
 
 /**
@@ -13,10 +15,11 @@ import java.io.*;
  */
 public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 {
-    private Map<File, ModuleClassLoader> _classLoaderMap = new HashMap<File, ModuleClassLoader>();
+    private Set<File> _moduleFiles;
+    private List<ModuleFileWatcher> _watchers = new ArrayList<ModuleFileWatcher>();
 
-    private final Map<String, ClassCacheEntry> _classCache = Collections.synchronizedMap(new HashMap<String, ClassCacheEntry>());
-    private final Map<String, ClassCacheEntry> _moduleClassCache = Collections.synchronizedMap(new HashMap<String, ClassCacheEntry>());
+    public static final String MODULE_ARCHIVE_EXTENSION = ".module";
+
     private File _modulesDir;
 
     public LabkeyServerBootstrapClassLoader()
@@ -29,7 +32,16 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         super(parent);
     }
 
-    private File[] getModuleFiles()
+    /**
+     * This method is accessed via reflection from within the main webapp.
+     * Do not rename or remove it without updating its usage in ModuleLoader.
+     */
+    public Set<File> getModuleFiles()
+    {
+        return _moduleFiles;
+    }
+
+    public Set<File> examineModuleFiles()
     {
         if (!_modulesDir.isDirectory())
         {
@@ -47,12 +59,17 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
             {
                 public boolean accept(File dir, String name)
                 {
-                    return name.toLowerCase().endsWith(ModuleClassLoader.MODULE_ARCHIVE_EXTENSION);
+                    return name.toLowerCase().endsWith(MODULE_ARCHIVE_EXTENSION);
                 }
             });
         Arrays.sort(moduleArchives);
+        Set<File> result = new LinkedHashSet<File>();
+        for (File f : moduleArchives)
+        {
+            result.add(f);
+        }
 
-        return moduleArchives;
+        return result;
     }
 
     protected void clearReferences()
@@ -65,7 +82,11 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         try
         {
             File webappDir = new File(resources.getNameInNamespace());
-            String moduleProperty = System.getProperty("cpas.modulesDir");
+            String moduleProperty = System.getProperty("labkey.modulesDir");
+            if (moduleProperty == null)
+            {
+                moduleProperty = System.getProperty("cpas.modulesDir");
+            }
             if (moduleProperty != null)
             {
                 _modulesDir = new File(moduleProperty);
@@ -76,13 +97,37 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                 _modulesDir = new File(parentDir, "modules");
             }
 
-            File[] moduleArchives = getModuleFiles();
-            ModuleParentClassLoader moduleParent = new ModuleParentClassLoader(this);
+            _moduleFiles = examineModuleFiles();
 
-            for (File moduleArchive : moduleArchives)
+            for (File moduleArchive : _moduleFiles)
             {
-                ModuleClassLoader moduleClassLoader = new ModuleClassLoader(moduleParent, moduleArchive, moduleArchive.getParentFile(), this, webappDir);
-                _classLoaderMap.put(moduleArchive, moduleClassLoader);
+                File moduleLibDir = new File(_modulesDir, "moduleLibDir");
+                ModuleFileWatcher moduleFileWatcher = new ModuleFileWatcher(moduleArchive, webappDir);
+
+                JarFile f = null;
+                try
+                {
+                    f = new JarFile(moduleArchive);
+                    String moduleName = moduleArchive.getName().substring(0, moduleArchive.getName().length() - MODULE_ARCHIVE_EXTENSION.length());
+                    File targetDir = new File(moduleLibDir, moduleName);
+
+                    for (Enumeration<JarEntry> entries = f.entries(); entries.hasMoreElements(); )
+                    {
+                        JarEntry entry = entries.nextElement();
+                        if (entry.getName().toLowerCase().startsWith("meta-inf/lib") && !entry.isDirectory())
+                        {
+                            File extractedFile = extractEntry(entry, f, targetDir);
+                            moduleFileWatcher.addLibraryJar(extractedFile, extractedFile.lastModified());
+                            addURL(extractedFile.toURI().toURL());
+                        }
+                    }
+                }
+                finally
+                {
+                    if (f != null) { try { f.close(); } catch (IOException e) {}}
+                }
+
+                _watchers.add(moduleFileWatcher);
             }
         }
         catch (NamingException e)
@@ -95,129 +140,45 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         }
     }
 
-    /**
-     * This method is accessed via reflection from within the main webapp.
-     * Do not rename or remove it without updating its usage in ModuleLoader.
-     */
-
-    public Map<File, ModuleClassLoader> getClassLoaders()
+    protected static File extractEntry(JarEntry entry, JarFile moduleArchive, File targetDir) throws IOException
     {
-        return _classLoaderMap;
-    }
+        targetDir.mkdirs();
 
-    public void closeJARs(boolean force)
-    {
-        super.closeJARs(force);
-        for (ModuleClassLoader loader : _classLoaderMap.values())
+        File destFile = new File(targetDir, entry.getName().substring(entry.getName().lastIndexOf('/') + 1));
+
+        if (!destFile.exists() ||
+            entry.getTime() == -1 ||
+            entry.getTime() < (destFile.lastModified() - 2000) ||
+            entry.getTime() > (destFile.lastModified() + 2000) ||
+            entry.getSize() == -1 ||
+            entry.getSize() != destFile.length())
         {
-            // Todo - close these JARs
-        }
-    }
-
-    public InputStream getResourceAsStream(String name)
-    {
-        return getResourceAsStream(name, true);
-    }
-
-    // Todo - handle other delegating to module classloaders for other resources?
-
-    public InputStream getResourceAsStream(String name, boolean searchModules)
-    {
-        InputStream result = super.getResourceAsStream(name);
-        if (result == null && searchModules)
-        {
-            for (ModuleClassLoader moduleLoader : _classLoaderMap.values())
+            BufferedInputStream bIn = null;
+            BufferedOutputStream bOut = null;
+            try
             {
-                result = moduleLoader.getResourceAsStream(name);
-                if (result != null)
+                bIn = new BufferedInputStream(moduleArchive.getInputStream(entry));
+                bOut = new BufferedOutputStream(new FileOutputStream(destFile));
+                byte[] b = new byte[8192];
+                int i;
+                while ((i = bIn.read(b)) != -1)
                 {
-                    break;
+                    bOut.write(b, 0, i);
                 }
             }
-        }
-        return result;
-    }
-
-    public Class loadClass(String name, boolean resolve) throws ClassNotFoundException
-    {
-        return loadClass(name, resolve, true);
-    }
-
-    private static class ClassCacheEntry
-    {
-        private Class _class;
-
-        public ClassCacheEntry(Class c)
-        {
-            _class = c;
-        }
-
-        public Class getCachedClass()
-        {
-            return _class;
-        }
-    }
-
-    public Class loadClass(String name, boolean resolve, boolean searchModules) throws ClassNotFoundException
-    {
-        ClassCacheEntry cacheEntry = _classCache.get(name);
-        if (cacheEntry != null)
-        {
-            if (cacheEntry.getCachedClass() == null)
+            finally
             {
-                if (searchModules)
-                {
-                    ClassCacheEntry moduleCacheEntry = _moduleClassCache.get(name);
-                    if (moduleCacheEntry != null)
-                    {
-                        if (moduleCacheEntry.getCachedClass() == null)
-                        {
-                            throw new ClassNotFoundException(name);
-                        }
-                        else
-                        {
-                            return moduleCacheEntry.getCachedClass();
-                        }
-                    }
-                }
-                else
-                {
-                    throw new ClassNotFoundException(name);
-                }
+                if (bIn != null) { try { bIn.close(); } catch (IOException e) {}}
+                if (bOut != null) { try { bOut.close(); } catch (IOException e) {}}
             }
-
-            if (cacheEntry.getCachedClass() != null)
+            if (entry.getTime() != -1)
             {
-                return cacheEntry.getCachedClass();
+                destFile.setLastModified(entry.getTime());
             }
         }
-
-        try
-        {
-            Class result = super.loadClass(name, resolve);
-            _classCache.put(name, new ClassCacheEntry(result));
-            return result;
-        }
-        catch (ClassNotFoundException e)
-        {
-            _classCache.put(name, new ClassCacheEntry(null));
-            if (searchModules && !_classLoaderMap.isEmpty())
-            {
-                for (ModuleClassLoader moduleLoader : _classLoaderMap.values())
-                {
-                    try
-                    {
-                        Class result = moduleLoader.loadClass(name);
-                        _moduleClassCache.put(name, new ClassCacheEntry(result));
-                        return result;
-                    }
-                    catch (ClassNotFoundException e2) {}
-                }
-                _moduleClassCache.put(name, new ClassCacheEntry(null));
-            }
-            throw e;
-        }
+        return destFile;
     }
+
 
     public boolean modified()
     {
@@ -227,16 +188,16 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
             return true;
         }
 
-        Set<File> oldModuleFiles = _classLoaderMap.keySet();
-        Set<File> newModuleFiles = new HashSet<File>(Arrays.asList(getModuleFiles()));
+        Set<File> oldModuleFiles = _moduleFiles;
+        Set<File> newModuleFiles = examineModuleFiles();
         if (!oldModuleFiles.equals(newModuleFiles))
         {
             return true;
         }
 
-        for (ModuleClassLoader moduleClassLoader : _classLoaderMap.values())
+        for (ModuleFileWatcher moduleFileWatcher : _watchers)
         {
-            if (moduleClassLoader.modified())
+            if (moduleFileWatcher.modified())
             {
                 return true;
             }

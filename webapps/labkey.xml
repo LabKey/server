@@ -34,7 +34,7 @@
            mail.smtp.port="@@smtpPort@@"/>
 
 	  <Resource name="drive/@@networkDriveLetter@@" auth="Container"
-           type="org.labkey.common.util.NetworkDrive"
+           type="org.labkey.api.util.NetworkDrive"
            factory="org.apache.naming.factory.BeanFactory"
            path="@@networkDrivePath@@"
            user="@@networkDriveUser@@"

@@ -21,6 +21,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     public static final String MODULE_ARCHIVE_EXTENSION = ".module";
 
     private File _modulesDir;
+    private File _externalModulesDir;
 
     public LabkeyServerBootstrapClassLoader()
     {
@@ -63,18 +64,30 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
             }
         }
 
-        File[] moduleArchives = _modulesDir.listFiles(new FilenameFilter()
+        FilenameFilter filter = new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
             {
-                public boolean accept(File dir, String name)
-                {
-                    return name.toLowerCase().endsWith(MODULE_ARCHIVE_EXTENSION);
-                }
-            });
+                return name.toLowerCase().endsWith(MODULE_ARCHIVE_EXTENSION);
+            }
+        };
+
+        File[] moduleArchives = _modulesDir.listFiles(filter);
         Arrays.sort(moduleArchives);
         Set<File> result = new LinkedHashSet<File>();
         for (File f : moduleArchives)
         {
             result.add(f);
+        }
+
+        if (_externalModulesDir.isDirectory())
+        {
+            File[] externalModuleArchives = _externalModulesDir.listFiles(filter);
+            Arrays.sort(externalModuleArchives);
+            for (File f : externalModuleArchives)
+            {
+                result.add(f);
+            }
         }
 
         return result;
@@ -105,11 +118,26 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                 _modulesDir = new File(parentDir, "modules");
             }
 
+            String externalModuleProperty = System.getProperty("labkey.externalModulesDir");
+            if (externalModuleProperty != null)
+            {
+                _externalModulesDir = new File(externalModuleProperty);
+                if (!_externalModulesDir.isDirectory())
+                {
+                    throw new IllegalArgumentException("Could not find external modules directory (-Dlabkey.externalModulesDir) " + _externalModulesDir);
+                }
+            }
+            else
+            {
+                File parentDir = webappDir.getParentFile();
+                _externalModulesDir = new File(parentDir, "externalModules");
+            }
+
             _moduleFiles = examineModuleFiles();
 
             for (File moduleArchive : _moduleFiles)
             {
-                File moduleLibDir = new File(_modulesDir, "moduleLibDir");
+                File moduleLibDir = new File(moduleArchive.getParentFile(), "moduleLibDir");
                 ModuleFileWatcher moduleFileWatcher = new ModuleFileWatcher(moduleArchive, webappDir);
 
                 JarFile f = null;

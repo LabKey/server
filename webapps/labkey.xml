@@ -33,12 +33,5 @@
            mail.smtp.user="@@smtpUser@@"
            mail.smtp.port="@@smtpPort@@"/>
 
-	  <Resource name="drive/@@networkDriveLetter@@" auth="Container"
-           type="org.labkey.api.util.NetworkDrive"
-           factory="org.apache.naming.factory.BeanFactory"
-           path="@@networkDrivePath@@"
-           user="@@networkDriveUser@@"
-           password="@@networkDrivePassword@@"/>
-           
            <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 </Context>

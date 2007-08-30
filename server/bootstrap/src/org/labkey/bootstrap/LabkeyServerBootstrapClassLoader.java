@@ -56,11 +56,11 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         {
             try
             {
-                throw new IllegalArgumentException("Unable to find modules directory - " + _modulesDir.getCanonicalPath() + ", this can be set with -Dcpas.modulesDir=<modulesDir>");
+                throw new IllegalArgumentException("Unable to find modules directory - " + _modulesDir.getCanonicalPath() + ", this can be set with -Dlabkey.modulesDir=<modulesDir>");
             }
             catch (IOException e)
             {
-                throw new IllegalArgumentException("Unable to find modules directory - " + _modulesDir.getAbsolutePath() + ", this can be set with -Dcpas.modulesDir=<modulesDir>");
+                throw new IllegalArgumentException("Unable to find modules directory - " + _modulesDir.getAbsolutePath() + ", this can be set with -Dlabkey.modulesDir=<modulesDir>");
             }
         }
 

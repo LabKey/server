@@ -11,6 +11,13 @@
         maxActive="20"
         maxIdle="10" accessToUnderlyingConnectionAllowed="true"/>
 
+    <Resource name="jms/ConnectionFactory" auth="Container"
+        type="org.apache.activemq.ActiveMQConnectionFactory"
+        factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+        description="JMS Connection Factory"
+        brokerURL="vm://localhost?broker.persistent=false&amp;broker.useJmx=false"
+        brokerName="LocalActiveMQBroker"/>
+
     <Resource name="mail/Session" auth="Container"
         type="javax.mail.Session"
         mail.smtp.host="@@smtpHost@@"

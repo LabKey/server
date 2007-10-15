@@ -26,4 +26,6 @@
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
+<!--    <Parameter name="org.mule.webapp.classpath" value="C:\mule-config"/>  -->
+
 </Context>

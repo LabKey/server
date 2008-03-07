@@ -26,6 +26,6 @@
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
-<!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->
+    <Parameter name="org.labkey.api.pipeline.config" value="C:\Temp\ms1\pipeline-config"/>
 
 </Context>

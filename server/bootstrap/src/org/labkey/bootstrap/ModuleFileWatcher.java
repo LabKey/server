@@ -101,7 +101,7 @@ public class ModuleFileWatcher
                         File location = getHotDeployLocation(entry);
                         if (location != null)
                         {
-                            LabkeyServerBootstrapClassLoader.extractEntry(entry, f, location);
+                            ModuleExtractor.extractEntry(entry, f, location);
                         }
                     }
                 }
@@ -130,7 +130,7 @@ public class ModuleFileWatcher
         return sb.toString();
     }
 
-    public void addLibraryJar(File extractedFile, long l)
+    public void addLibraryJar(File extractedFile)
     {
         _libraryJarLastModifiedTimes.put(extractedFile, extractedFile.lastModified());
     }

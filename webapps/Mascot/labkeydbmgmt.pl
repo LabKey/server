@@ -35,6 +35,7 @@
 #     2007-Feb-18  Wong Chee-Hong  Initial Version
 #                  Bioinformatics Institute
 #     2007-Mar-15  Wong Chee-Hong  Mechanism to try using Digest::SHA1, Digest::SHA or Digest::SHA::PurePerl
+#	  2008-Mar-13  Bill Nelson	   Added get enzymes method.
 #####
 
 $|++;
@@ -76,6 +77,8 @@ if (defined $q->request_method()) {
     getDBInfoWeb();
   } elsif ($command eq "downloaddb") {
     downloadDB();
+  } elsif ($command eq "getenzymes") {
+    getEnzymes();
   } else {
     print $q->header(-type=>'text/html');
     print 'STATUS=UNRECOGNISED COMMAND';
@@ -392,6 +395,30 @@ sub downloadDB {
     print $q->header(-type=>'text/html');
     print 'STATUS=NOT FOUND',"\n";
     print 'DETAIL='.$statusMsg,"\n";
+  }
+  
+  sub getEnzymes {
+	my $statusMsg = -1;
+	my $filename = "../config/enzymes";
+	print $q->header(-type=>'text/plain');
+	if (!open(ENZYMESFILE, $filename)){
+		$statusMsg = $!;
+		print 'STATUS=NOT FOUND',"\n";
+		print 'DETAIL=Fail to open ',$filename,': ',$statusMsg,"\n";
+		return;
+	}
+	my @enzymes=<ENZYMESFILE>;
+	if(!close(ENZYMESFILE)) {
+		$statusMsg = $!;
+		print 'STATUS=NOT FOUND',"\n";
+		print 'DETAIL=Fail to close ',$filename,': ',$statusMsg,"\n";
+		return;
+	}
+	my $i = 0;
+	while($enzymes[$i]) {
+		print $enzymes[$i],"\n";
+		$i++;
+	}
   }
 
 }

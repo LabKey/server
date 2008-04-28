@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 {
     private ModuleExtractor _moduleExtractor;
+    private Set<File> _moduleDirectories;
 
     public LabkeyServerBootstrapClassLoader()
     {
@@ -43,6 +44,16 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     {
         return _moduleExtractor.getModuleFiles();
     }
+    
+    /**
+     * This method is accessed via reflection from within the main webapp.
+     * Do not rename or remove it without updating its usage in ModuleLoader.
+     * @return all the directories that might contain .module files
+     */
+    public Collection<File> getModuleDirectories()
+    {
+        return _moduleDirectories;
+    }
 
     protected void clearReferences()
     {
@@ -60,7 +71,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                 moduleProperty = System.getProperty("cpas.modulesDir");
             }
 
-            List<File> moduleDirectories = new ArrayList<File>();
+            _moduleDirectories = new LinkedHashSet<File>();
 
             File modulesDir;
             if (moduleProperty != null)
@@ -84,7 +95,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                     throw new IllegalArgumentException("Unable to find modules directory - " + modulesDir.getAbsolutePath() + ", this can be set with -Dlabkey.modulesDir=<modulesDir>");
                 }
             }
-            moduleDirectories.add(modulesDir);
+            _moduleDirectories.add(modulesDir);
 
             String externalModuleProperty = System.getProperty("labkey.externalModulesDir");
             File externalModulesDir;
@@ -103,10 +114,10 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
             }
             if (externalModulesDir.isDirectory())
             {
-                moduleDirectories.add(externalModulesDir);
+                _moduleDirectories.add(externalModulesDir);
             }
 
-            _moduleExtractor = new ModuleExtractor(moduleDirectories);
+            _moduleExtractor = new ModuleExtractor(_moduleDirectories);
 
             List<File> jars = _moduleExtractor.extractModules(webappDir).getJarFiles();
             for (File jar : jars)

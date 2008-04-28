@@ -11,14 +11,14 @@ import java.util.jar.JarEntry;
  */
 public class ModuleExtractor
 {
-    private List<File> _moduleDirectories;
+    private Collection<File> _moduleDirectories;
     private Set<File> _moduleFiles;
 
     private List<ModuleFileWatcher> _watchers = new ArrayList<ModuleFileWatcher>();
 
     public static final String MODULE_ARCHIVE_EXTENSION = ".module";
 
-    public ModuleExtractor(List<File> moduleDirs)
+    public ModuleExtractor(Collection<File> moduleDirs)
     {
         _moduleDirectories = moduleDirs;
     }

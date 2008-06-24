@@ -26,7 +26,7 @@
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
-<!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->
+    <!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->
 
     <Resource name="services/NotificationConsumerService/home"
         type="org.globus.wsrf.impl.notification.NotificationConsumerHome"

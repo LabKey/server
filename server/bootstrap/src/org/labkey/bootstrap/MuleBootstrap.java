@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.labkey.bootstrap;
 
-import java.util.List;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.io.File;
 
-/**
- * User: jeckels
- * Date: Apr 10, 2008
- */
-public class ClusterBootstrap
+/*
+* User: jeckels
+* Date: Jun 26, 2008
+*/
+public class MuleBootstrap
 {
     public static void main(String... rawArgs) throws Exception
     {
@@ -40,7 +43,7 @@ public class ClusterBootstrap
         ClassLoader classLoader = config.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        Class runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterJobRunner");
+        Class runnerClass = classLoader.loadClass("org.labkey.pipeline.mule.MuleStartup");
         Object runner = runnerClass.newInstance();
         Method runMethod = runnerClass.getMethod("run", String[].class, String[].class);
 
@@ -55,7 +58,7 @@ public class ClusterBootstrap
             System.err.println();
         }
 
-        System.err.println("java " + ClusterBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] <JOB_XML_FILE>");
+        System.err.println("java " + MuleBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>]");
 
         System.exit(1);
     }

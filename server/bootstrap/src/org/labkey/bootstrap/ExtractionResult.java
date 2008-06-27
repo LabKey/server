@@ -18,6 +18,9 @@ package org.labkey.bootstrap;
 
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * User: jeckels
@@ -25,18 +28,31 @@ import java.util.List;
  */
 public class ExtractionResult
 {
-    private List<File> _jarFiles;
+    private List<URL> _jarFileURLs;
     private List<File> _springConfigFiles;
 
     public ExtractionResult(List<File> jarFiles, List<File> springConfigFiles)
     {
-        _jarFiles = jarFiles;
         _springConfigFiles = springConfigFiles;
+
+        _jarFileURLs = new ArrayList<URL>();
+        for (File jarFile : jarFiles)
+        {
+            try
+            {
+                _jarFileURLs.add(jarFile.toURI().toURL());
+            }
+            catch (MalformedURLException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
-    public List<File> getJarFiles()
+    public List<URL> getJarFileURLs()
     {
-        return _jarFiles;
+        return _jarFileURLs;
     }
 
     public List<File> getSpringConfigFiles()

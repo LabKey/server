@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 import java.util.*;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * User: jeckels
@@ -135,17 +136,12 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 
             _moduleExtractor = new ModuleExtractor(_moduleDirectories);
 
-            List<File> jars = _moduleExtractor.extractModules(webappDir).getJarFiles();
-            for (File jar : jars)
+            for (URL url : _moduleExtractor.extractModules(webappDir).getJarFileURLs())
             {
-                addURL(jar.toURI().toURL());
+                addURL(url);
             }
         }
         catch (NamingException e)
-        {
-            throw new RuntimeException(e);
-        }
-        catch (MalformedURLException e)
         {
             throw new RuntimeException(e);
         }

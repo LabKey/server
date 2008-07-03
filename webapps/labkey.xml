@@ -11,13 +11,6 @@
         maxActive="20"
         maxIdle="10" accessToUnderlyingConnectionAllowed="true"/>
 
-    <!--        brokerURL="tcp://localhost:61616" -->
-    <Resource name="jms/ConnectionFactory" auth="Container"
-        type="org.apache.activemq.ActiveMQConnectionFactory"
-        factory="org.apache.activemq.jndi.JNDIReferenceFactory"
-        description="JMS Connection Factory"
-        brokerURL="vm://localhost?broker.persistent=false&amp;broker.useJmx=false"
-        brokerName="LocalActiveMQBroker"/>
     <Resource name="mail/Session" auth="Container"
         type="javax.mail.Session"
         mail.smtp.host="@@smtpHost@@"
@@ -26,9 +19,17 @@
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
+    <!-- Pipeline configuration -->
     <!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->
 
-    <Resource name="services/NotificationConsumerService/home"
+    <!--        brokerURL="tcp://localhost:61616" -->
+    <!-- <Resource name="jms/ConnectionFactory" auth="Container"
+        type="org.apache.activemq.ActiveMQConnectionFactory"
+        factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+        description="JMS Connection Factory"
+        brokerURL="vm://localhost?broker.persistent=false&amp;broker.useJmx=false"
+        brokerName="LocalActiveMQBroker"/> -->
+    <!-- <Resource name="services/NotificationConsumerService/home"
         type="org.globus.wsrf.impl.notification.NotificationConsumerHome"
         factory="org.globus.wsrf.jndi.BeanFactory"
         resourceClass="org.globus.wsrf.impl.NotificationConsumerCallbackManagerImpl"
@@ -38,16 +39,15 @@
         type="org.globus.wsrf.impl.timer.TimerManagerImpl"
         factory="org.globus.wsrf.jndi.BeanFactory" />
     <Resource name="topic/ContainerTopicExpressionEngine"
-              type="org.globus.wsrf.impl.TopicExpressionEngineImpl"
-              factory="org.globus.wsrf.jndi.BeanFactory" />
+        type="org.globus.wsrf.impl.TopicExpressionEngineImpl"
+        factory="org.globus.wsrf.jndi.BeanFactory" />
     <Resource name="query/eval/xpath"
-               type="org.globus.wsrf.impl.XPathExpressionEvaluator"
-               factory="org.globus.wsrf.jndi.BeanFactory" />
-     <Resource name="query/ContainerQueryEngine"
-               type="org.globus.wsrf.impl.QueryEngineImpl"
-               factory="org.globus.wsrf.jndi.BeanFactory" />
+        type="org.globus.wsrf.impl.XPathExpressionEvaluator"
+        factory="org.globus.wsrf.jndi.BeanFactory" />
+    <Resource name="query/ContainerQueryEngine"
+        type="org.globus.wsrf.impl.QueryEngineImpl"
+        factory="org.globus.wsrf.jndi.BeanFactory" />
     <Resource name="topic/eval/simple"
-              type="org.globus.wsrf.impl.SimpleTopicExpressionEvaluator"
-              factory="org.globus.wsrf.jndi.BeanFactory" />
-    
+        type="org.globus.wsrf.impl.SimpleTopicExpressionEvaluator"
+        factory="org.globus.wsrf.jndi.BeanFactory" /> -->
 </Context>

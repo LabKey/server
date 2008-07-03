@@ -125,6 +125,10 @@ public class ModuleExtractor
     protected static File extractEntry(JarEntry entry, JarFile moduleArchive, File targetDir) throws IOException
     {
         targetDir.mkdirs();
+        if (!targetDir.isDirectory())
+        {
+            throw new IOException("Failed to create directory " + targetDir.getPath() + ", the user account may not have sufficient permissions");
+        }
 
         File destFile = new File(targetDir, entry.getName().substring(entry.getName().lastIndexOf('/') + 1));
 

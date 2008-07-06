@@ -16,17 +16,12 @@
 package org.labkey.bootstrap;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.io.File;
 
 /*
 * User: jeckels
 * Date: Jun 26, 2008
 */
-public class MuleBootstrap
+public class RemoteServerBootstrap
 {
     public static void main(String... rawArgs) throws Exception
     {
@@ -58,7 +53,7 @@ public class MuleBootstrap
             System.err.println();
         }
 
-        System.err.println("java " + MuleBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>]");
+        System.err.println("java " + RemoteServerBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>]");
 
         System.exit(1);
     }

@@ -61,10 +61,16 @@ public class ModuleFileWatcher
         {
             return null;
         }
-        String name = entry.getName().toLowerCase();
-        if (name.toLowerCase().startsWith("meta-inf/jsp"))
+        String name = entry.getName();
+        String lowerName = name.toLowerCase();
+        if (lowerName.startsWith("meta-inf/jsp"))
         {
             return new File(_webappDir, "WEB-INF/jsp");
+        }
+        if (!lowerName.startsWith("meta-inf/") && !lowerName.startsWith("web-inf/"))
+        {
+            File f = new File(_webappDir, name);
+            return f.getParentFile();
         }
         return null;
     }
@@ -115,7 +121,7 @@ public class ModuleFileWatcher
                     {
                         JarEntry entry = entries.nextElement();
                         File location = getHotDeployLocation(entry);
-                        if (location != null)
+                        if (location != null && !entry.isDirectory())
                         {
                             ModuleExtractor.extractEntry(entry, f, location);
                         }

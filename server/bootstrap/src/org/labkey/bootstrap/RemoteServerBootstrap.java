@@ -23,26 +23,38 @@ import java.lang.reflect.Method;
 */
 public class RemoteServerBootstrap
 {
-    public static void main(String... rawArgs) throws Exception
+    public static void main(String... rawArgs)
     {
-        PipelineBootstrapConfig config = null;
         try
         {
-            config = new PipelineBootstrapConfig(rawArgs);
+            PipelineBootstrapConfig config = null;
+            try
+            {
+                config = new PipelineBootstrapConfig(rawArgs);
+            }
+            catch (ConfigException e)
+            {
+                printUsage(e.getMessage());
+            }
+
+            ClassLoader classLoader = config.getClassLoader();
+            Thread.currentThread().setContextClassLoader(classLoader);
+
+            Class runnerClass = classLoader.loadClass("org.labkey.pipeline.mule.MuleStartup");
+            Object runner = runnerClass.newInstance();
+            Method runMethod = runnerClass.getMethod("run", String[].class, String[].class);
+
+            runMethod.invoke(runner, config.getSpringConfigPaths(), config.getProgramArgs());
+
+            synchronized(runner)
+            {
+                runner.wait();
+            }
         }
-        catch (ConfigException e)
+        catch (Throwable t)
         {
-            printUsage(e.getMessage());
+            t.printStackTrace(System.err);
         }
-
-        ClassLoader classLoader = config.getClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
-
-        Class runnerClass = classLoader.loadClass("org.labkey.pipeline.mule.MuleStartup");
-        Object runner = runnerClass.newInstance();
-        Method runMethod = runnerClass.getMethod("run", String[].class, String[].class);
-
-        runMethod.invoke(runner, config.getSpringConfigPaths(), config.getProgramArgs());
     }
 
     private static void printUsage(String error)

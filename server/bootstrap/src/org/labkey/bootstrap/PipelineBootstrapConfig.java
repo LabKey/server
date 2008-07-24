@@ -77,7 +77,7 @@ public class PipelineBootstrapConfig
 
         if (!_webappDir.isDirectory())
         {
-            throw new ConfigException("Could not find webapp directory at " + _modulesDir.getAbsolutePath());
+            throw new ConfigException("Could not find webapp directory at " + _webappDir.getAbsolutePath());
         }
 
         File webinfDir = new File(_webappDir, "WEB-INF");

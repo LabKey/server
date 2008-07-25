@@ -39,7 +39,7 @@ public class PipelineBootstrapConfig
     private File _configDir;
     private String[] _args;
     private URLClassLoader _classLoader;
-    private List<File> _moduleSpringConfigFiles;
+    private List<File> _moduleSpringContextFiles;
     private List<File> _customSpringConfigFiles;
 
     public PipelineBootstrapConfig(String[] rawArgs) throws IOException, ConfigException
@@ -151,7 +151,7 @@ public class PipelineBootstrapConfig
                 }
             }
 
-            _moduleSpringConfigFiles = extractionResult.getSpringConfigFiles();
+            _moduleSpringContextFiles = extractionResult.getSpringConfigFiles();
             _customSpringConfigFiles = new ArrayList<File>();
             if (_configDir != null)
             {
@@ -164,28 +164,23 @@ public class PipelineBootstrapConfig
 
     public String[] getSpringConfigPaths()
     {
-        List<String> moduleConfigURIs = new ArrayList<String>();
-        for (File file : _moduleSpringConfigFiles)
+        // Merge and correctly order the paths.  They need to be in the same
+        // order as they get loaded for the web server.
+        List<ConfigPath> configPaths = new ArrayList<ConfigPath>();
+        for (File file : _moduleSpringContextFiles)
         {
-            moduleConfigURIs.add(file.getAbsoluteFile().toURI().toString());
+            configPaths.add(new ConfigPath(file.getAbsoluteFile().toURI().toString(), 0));
         }
-
-        List<String> customConfigURIs = new ArrayList<String>();
         for (File file : _customSpringConfigFiles)
         {
-            customConfigURIs.add(file.getAbsoluteFile().toURI().toString());
+            configPaths.add(new ConfigPath(file.getAbsoluteFile().toURI().toString(), 1));
         }
+        Collections.sort(configPaths, new ConfigComparator());
 
-        ConfigComparator comparator = new ConfigComparator();
-
-        // Shuffle the configs around so the pipeline is the first within each category
-        Collections.sort(moduleConfigURIs, comparator);
-        Collections.sort(customConfigURIs, comparator);
-
+        // Convert to array of strings and return
         List<String> configURIs = new ArrayList<String>();
-        configURIs.addAll(moduleConfigURIs);
-        configURIs.addAll(customConfigURIs);
-
+        for (ConfigPath cp : configPaths)
+            configURIs.add(cp.toString());
         return configURIs.toArray(new String[configURIs.size()]);
     }
 
@@ -214,23 +209,61 @@ public class PipelineBootstrapConfig
         _customSpringConfigFiles.addAll(Arrays.asList(xmlFiles));
     }
 
-    private static class ConfigComparator implements Comparator<String>
+    private static class ConfigPath
     {
-        public int compare(String o1, String o2)
-        {
-            boolean pipeline1 = o1.toLowerCase().contains("pipeline");
-            boolean pipeline2 = o2.toLowerCase().contains("pipeline");
+        private String _uri;
+        private int _order;
 
-            if (pipeline1 && !pipeline2)
-            {
-                return -1;
-            }
-            if (!pipeline1 && pipeline2)
-            {
-                return 1;
-            }
-            return o1.compareTo(o2);
+        private ConfigPath(String uri, int order)
+        {
+            _uri = uri;
+            _order = order;
+        }
+
+        public String toString()
+        {
+            return _uri;
+        }
+
+        public int getOrder()
+        {
+            return _order;
         }
     }
 
+    private static class ConfigComparator implements Comparator<ConfigPath>
+    {
+        // TODO: Move module dependencies to somewhere we can use to build this
+        //       list dynamically.
+        private static String[] _moduleOrder =
+                {
+                    "pipeline",
+                    "experiment",
+                    "ms2",
+                    "ms1"
+                };
+
+        public int getPosition(String uri)
+        {
+            // Get only the file name.
+            uri = uri.substring(uri.lastIndexOf('/') + 1);
+
+            int i = 0;
+            while (i < _moduleOrder.length)
+            {
+                if (uri.toLowerCase().startsWith(_moduleOrder[i]))
+                    return i;
+                i++;
+            }
+            return i;
+        }
+
+        public int compare(ConfigPath c1, ConfigPath c2)
+        {
+            int diff = getPosition(c1.toString()) - getPosition(c2.toString());
+            if (diff != 0)
+                return diff;
+            return c1.getOrder() - c2.getOrder();            
+        }
+    }
 }

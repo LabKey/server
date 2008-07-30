@@ -169,4 +169,36 @@ public class ModuleExtractor
     {
         return _watchers;
     }
+
+    /**
+     * Extract .module files
+     * @param args
+     */
+    public static void main(String... args) throws ConfigException, IOException
+    {
+        try
+        {
+            PipelineBootstrapConfig config = new PipelineBootstrapConfig(args);
+
+            ModuleExtractor extractor = new ModuleExtractor(Collections.singleton(config.getModulesDir()));
+            extractor.extractModules(config.getWebappDir());
+        }
+        catch (ConfigException e)
+        {
+            printUsage(e.getMessage());
+        }
+    }
+
+    private static void printUsage(String error)
+    {
+        if (error != null)
+        {
+            System.err.println(error);
+            System.err.println();
+        }
+
+        System.err.println("java " + ModuleExtractor.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>]");
+
+        System.exit(1);
+    }
 }

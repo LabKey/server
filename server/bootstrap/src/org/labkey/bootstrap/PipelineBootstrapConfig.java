@@ -41,6 +41,7 @@ public class PipelineBootstrapConfig
     private URLClassLoader _classLoader;
     private List<File> _moduleSpringContextFiles;
     private List<File> _customSpringConfigFiles;
+    private List<File> _moduleFiles;
 
     public PipelineBootstrapConfig(String[] rawArgs) throws IOException, ConfigException
     {
@@ -137,6 +138,7 @@ public class PipelineBootstrapConfig
         {
             ModuleExtractor extractor = new ModuleExtractor(Arrays.asList(_modulesDir));
             ExtractionResult extractionResult = extractor.extractModules(null);
+            _moduleFiles = new ArrayList<File>(extractor.getModuleFiles());
             List<URL> jarURLs = extractionResult.getJarFileURLs();
 
             for (File file : _libDir.listFiles())
@@ -162,26 +164,14 @@ public class PipelineBootstrapConfig
         }
     }
 
-    public String[] getSpringConfigPaths()
+    public List<File> getModuleSpringConfigFiles()
     {
-        // Merge and correctly order the paths.  They need to be in the same
-        // order as they get loaded for the web server.
-        List<ConfigPath> configPaths = new ArrayList<ConfigPath>();
-        for (File file : _moduleSpringContextFiles)
-        {
-            configPaths.add(new ConfigPath(file.getAbsoluteFile().toURI().toString(), 0));
-        }
-        for (File file : _customSpringConfigFiles)
-        {
-            configPaths.add(new ConfigPath(file.getAbsoluteFile().toURI().toString(), 1));
-        }
-        Collections.sort(configPaths, new ConfigComparator());
+        return _moduleSpringContextFiles;
+    }
 
-        // Convert to array of strings and return
-        List<String> configURIs = new ArrayList<String>();
-        for (ConfigPath cp : configPaths)
-            configURIs.add(cp.toString());
-        return configURIs.toArray(new String[configURIs.size()]);
+    public List<File> getCustomSpringConfigFiles()
+    {
+        return _customSpringConfigFiles;
     }
 
     // Traverse the directory structure looking for files that match **/*.xml
@@ -209,61 +199,8 @@ public class PipelineBootstrapConfig
         _customSpringConfigFiles.addAll(Arrays.asList(xmlFiles));
     }
 
-    private static class ConfigPath
+    public List<File> getModuleFiles()
     {
-        private String _uri;
-        private int _order;
-
-        private ConfigPath(String uri, int order)
-        {
-            _uri = uri;
-            _order = order;
-        }
-
-        public String toString()
-        {
-            return _uri;
-        }
-
-        public int getOrder()
-        {
-            return _order;
-        }
-    }
-
-    private static class ConfigComparator implements Comparator<ConfigPath>
-    {
-        // TODO: Move module dependencies to somewhere we can use to build this
-        //       list dynamically.
-        private static String[] _moduleOrder =
-                {
-                    "pipeline",
-                    "experiment",
-                    "ms2",
-                    "ms1"
-                };
-
-        public int getPosition(String uri)
-        {
-            // Get only the file name.
-            uri = uri.substring(uri.lastIndexOf('/') + 1);
-
-            int i = 0;
-            while (i < _moduleOrder.length)
-            {
-                if (uri.toLowerCase().startsWith(_moduleOrder[i]))
-                    return i;
-                i++;
-            }
-            return i;
-        }
-
-        public int compare(ConfigPath c1, ConfigPath c2)
-        {
-            int diff = getPosition(c1.toString()) - getPosition(c2.toString());
-            if (diff != 0)
-                return diff;
-            return c1.getOrder() - c2.getOrder();            
-        }
+        return _moduleFiles;
     }
 }

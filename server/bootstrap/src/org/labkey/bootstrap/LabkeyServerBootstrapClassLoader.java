@@ -62,16 +62,6 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         return _moduleExtractor.getModuleFiles();
     }
     
-    /**
-     * This method is accessed via reflection from within the main webapp.
-     * Do not rename or remove it without updating its usage in ModuleLoader.
-     * @return all the directories that might contain .module files
-     */
-    public Collection<File> getModuleDirectories()
-    {
-        return _moduleDirectories;
-    }
-
     protected void clearReferences()
     {
     }

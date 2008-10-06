@@ -22,7 +22,7 @@
     <!-- Pipeline configuration -->
     <!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->
 
-    <!--        brokerURL="tcp://localhost:61616" -->
+    <!--        brokerURL="tcp://localhost:61616" userName="username" password="password" -->
     <!-- <Resource name="jms/ConnectionFactory" auth="Container"
         type="org.apache.activemq.ActiveMQConnectionFactory"
         factory="org.apache.activemq.jndi.JNDIReferenceFactory"

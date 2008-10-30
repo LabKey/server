@@ -18,12 +18,13 @@ package org.labkey.bootstrap;
 
 import org.apache.catalina.loader.WebappClassLoader;
 
-import javax.naming.directory.DirContext;
 import javax.naming.NamingException;
-import java.util.*;
-import java.io.*;
-import java.net.MalformedURLException;
+import javax.naming.directory.DirContext;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * User: jeckels
@@ -161,5 +162,4 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         }
         return false;
     }
-
 }

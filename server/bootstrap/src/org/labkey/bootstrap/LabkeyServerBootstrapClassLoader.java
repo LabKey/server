@@ -33,7 +33,6 @@ import java.util.Set;
 public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 {
     private ModuleExtractor _moduleExtractor;
-    private Set<File> _moduleDirectories;
 
     public LabkeyServerBootstrapClassLoader()
     {
@@ -79,7 +78,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                 moduleProperty = System.getProperty("cpas.modulesDir");
             }
 
-            _moduleDirectories = new LinkedHashSet<File>();
+            Set<File> moduleDirectories = new LinkedHashSet<File>();
 
             File modulesDir;
             if (moduleProperty != null)
@@ -103,7 +102,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                     throw new IllegalArgumentException("Unable to find modules directory - " + modulesDir.getAbsolutePath() + ", this can be set with -Dlabkey.modulesDir=<modulesDir>");
                 }
             }
-            _moduleDirectories.add(modulesDir);
+            moduleDirectories.add(modulesDir);
 
             String externalModuleProperty = System.getProperty("labkey.externalModulesDir");
             File externalModulesDir;
@@ -122,10 +121,10 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
             }
             if (externalModulesDir.isDirectory())
             {
-                _moduleDirectories.add(externalModulesDir);
+                moduleDirectories.add(externalModulesDir);
             }
 
-            _moduleExtractor = new ModuleExtractor(_moduleDirectories);
+            _moduleExtractor = new ModuleExtractor(moduleDirectories);
 
             for (URL url : _moduleExtractor.extractModules(webappDir).getJarFileURLs())
             {

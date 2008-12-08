@@ -63,11 +63,11 @@ public class ModuleFileWatcher
         }
         String name = entry.getName();
         String lowerName = name.toLowerCase();
-        if (lowerName.startsWith("meta-inf/jsp"))
+        if (lowerName.endsWith("_jsp.jar"))
         {
             return new File(_webappDir, "WEB-INF/jsp");
         }
-        if (!lowerName.startsWith("meta-inf/") && !lowerName.startsWith("web-inf/"))
+        if (lowerName.startsWith("web/"))
         {
             File f = new File(_webappDir, name);
             return f.getParentFile();

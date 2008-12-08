@@ -59,7 +59,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
      */
     public Set<File> getModuleFiles()
     {
-        return _moduleExtractor.getModuleFiles();
+        return _moduleExtractor.getExplodedModules();
     }
     
     protected void clearReferences()

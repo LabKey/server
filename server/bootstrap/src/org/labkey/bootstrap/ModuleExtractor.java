@@ -16,10 +16,12 @@
 
 package org.labkey.bootstrap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.*;
-import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * User: jeckels
@@ -27,10 +29,34 @@ import java.util.jar.JarEntry;
  */
 public class ModuleExtractor
 {
+    private static Log _log = LogFactory.getLog(ModuleExtractor.class);
     private Collection<File> _moduleDirectories;
     private Set<File> _moduleFiles;
+    private Set<File> _explodedModules = new LinkedHashSet<File>();
 
     private List<ModuleFileWatcher> _watchers = new ArrayList<ModuleFileWatcher>();
+    private FilenameFilter _moduleFilter = new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
+            {
+                return name.toLowerCase().endsWith(MODULE_ARCHIVE_EXTENSION);
+            }
+        };
+
+    private FilenameFilter _jarFilter = new FilenameFilter(){
+                                public boolean accept(File dir, String name)
+                                {
+                                    String lowerName = name.toLowerCase();
+                                    return lowerName.endsWith(".jar") && !(lowerName.endsWith("_jsp.jar"));
+                                }
+                            };
+
+    private FilenameFilter _springContextFilter = new FilenameFilter(){
+                                public boolean accept(File dir, String name)
+                                {
+                                    return name.toLowerCase().endsWith("context.xml");
+                                }
+                            };
 
     public static final String MODULE_ARCHIVE_EXTENSION = ".module";
 
@@ -44,21 +70,18 @@ public class ModuleExtractor
         return _moduleFiles;
     }
 
+    public Set<File> getExplodedModules()
+    {
+        return _explodedModules;
+    }
+
     public Set<File> examineModuleFiles()
     {
-        FilenameFilter filter = new FilenameFilter()
-        {
-            public boolean accept(File dir, String name)
-            {
-                return name.toLowerCase().endsWith(MODULE_ARCHIVE_EXTENSION);
-            }
-        };
-
         Set<File> result = new LinkedHashSet<File>();
 
         for (File dir : _moduleDirectories)
         {
-            File[] moduleArchives = dir.listFiles(filter);
+            File[] moduleArchives = dir.listFiles(_moduleFilter);
             Arrays.sort(moduleArchives);
             result.addAll(Arrays.asList(moduleArchives));
         }
@@ -78,42 +101,80 @@ public class ModuleExtractor
         try
         {
             _moduleFiles = examineModuleFiles();
+            _log.info("Extracting modules...");
 
-            for (File moduleArchive : _moduleFiles)
+            for (File moduleFile : _moduleFiles)
             {
-                File moduleLibDir = new File(moduleArchive.getParentFile(), "moduleLibDir");
-                ModuleFileWatcher moduleFileWatcher = new ModuleFileWatcher(moduleArchive, webappDir);
+                String moduleName = moduleFile.getName().substring(0, moduleFile.getName().length() - MODULE_ARCHIVE_EXTENSION.length());
+                File targetBaseDir = new File(moduleFile.getParentFile(), moduleName);
+                if(!targetBaseDir.exists() || moduleFile.lastModified() > targetBaseDir.lastModified())
+                    _log.info("Extracting the module " + moduleFile + "...");
 
-                JarFile f = null;
-                try
+                //if the moduleArchive is a compressed file, explode it into a peer directory
+                if(moduleFile.isFile())
                 {
-                    f = new JarFile(moduleArchive);
-                    String moduleName = moduleArchive.getName().substring(0, moduleArchive.getName().length() - MODULE_ARCHIVE_EXTENSION.length());
-                    File targetDir = new File(moduleLibDir, moduleName);
-
-                    for (Enumeration<JarEntry> entries = f.entries(); entries.hasMoreElements(); )
+                    JarFile f = null;
+                    try
                     {
-                        JarEntry entry = entries.nextElement();
-                        if (entry.getName().toLowerCase().startsWith("meta-inf/lib") && !entry.isDirectory())
+                        f = new JarFile(moduleFile);
+
+                        //enumerate the entries and extract them all into an exploded form
+                        for (Enumeration<JarEntry> entries = f.entries(); entries.hasMoreElements(); )
                         {
-                            File extractedFile = extractEntry(entry, f, targetDir);
-                            moduleFileWatcher.addLibraryJar(extractedFile);
-                            jarFiles.add(extractedFile);
+                            extractEntry(entries.nextElement(), f, targetBaseDir);
                         }
-                        else if (entry.getName().equalsIgnoreCase("web-inf/" + moduleName + "/" + moduleName + "context.xml"))
+
+                        targetBaseDir.setLastModified(moduleFile.lastModified());
+
+                        ModuleFileWatcher moduleFileWatcher = new ModuleFileWatcher(moduleFile, webappDir);
+
+                        //add the JAR files from the exploded module dir to the module watcher
+                        File libDir = new File(targetBaseDir, "lib");
+                        if(libDir.exists())
                         {
-                            File extractedFile = extractEntry(entry, f, targetDir);
-                            springConfigFiles.add(extractedFile);
+                            for(File libFile : libDir.listFiles(_jarFilter))
+                            {
+                                moduleFileWatcher.addLibraryJar(libFile);
+                            }
                         }
+
+                        _watchers.add(moduleFileWatcher);
+
+                    }
+                    finally
+                    {
+                        if (f != null) { try { f.close(); } catch (IOException e) {}}
                     }
                 }
-                finally
-                {
-                    if (f != null) { try { f.close(); } catch (IOException e) {}}
-                }
-
-                _watchers.add(moduleFileWatcher);
             }
+
+            //the .module files are now extracted into peer directories in the module directories
+            //and there may also be other exploded module directories that were there already
+            //iterrate over the module directories to build up the extraction result
+            for(File dir : _moduleDirectories)
+            {
+                for(File explodedModuleDir : dir.listFiles())
+                {
+                    if(explodedModuleDir.isDirectory())
+                    {
+                        _explodedModules.add(explodedModuleDir);
+
+                        //add any jar files to the jar files list
+                        File libDir = new File(explodedModuleDir, "lib");
+                        if(libDir.exists())
+                            jarFiles.addAll(Arrays.asList(libDir.listFiles(_jarFilter)));
+
+                        //add any Spring config files to the springConfigFiles list
+                        File configDir = new File(explodedModuleDir, "config");
+                        if(configDir.exists())
+                            springConfigFiles.addAll(Arrays.asList(configDir.listFiles(_springContextFilter)));
+
+                    }
+                }
+            }
+
+            _log.info("Module extraction complete.");
+
             return new ExtractionResult(jarFiles, springConfigFiles);
         }
         catch (IOException e)
@@ -130,7 +191,14 @@ public class ModuleExtractor
             throw new IOException("Failed to create directory " + targetDir.getPath() + ", the user account may not have sufficient permissions");
         }
 
-        File destFile = new File(targetDir, entry.getName().substring(entry.getName().lastIndexOf('/') + 1));
+        File destFile = new File(targetDir, entry.getName());
+
+        //if entry is a directory, just make the dirs and return
+        if(entry.isDirectory())
+        {
+            destFile.mkdirs();
+            return destFile;
+        }
 
         if (!destFile.exists() ||
             entry.getTime() == -1 ||
@@ -180,7 +248,8 @@ public class ModuleExtractor
         {
             PipelineBootstrapConfig config = new PipelineBootstrapConfig(args);
 
-            ModuleExtractor extractor = new ModuleExtractor(Collections.singleton(config.getModulesDir()));
+            ModuleExtractor extractor = new ModuleExtractor(Collections.singleton(config.getModulesDir())
+            );
             extractor.extractModules(config.getWebappDir());
         }
         catch (ConfigException e)

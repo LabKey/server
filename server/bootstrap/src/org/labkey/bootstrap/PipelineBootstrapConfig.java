@@ -138,7 +138,7 @@ public class PipelineBootstrapConfig
         {
             ModuleExtractor extractor = new ModuleExtractor(Arrays.asList(_modulesDir));
             ExtractionResult extractionResult = extractor.extractModules(null);
-            _moduleFiles = new ArrayList<File>(extractor.getModuleFiles());
+            _moduleFiles = new ArrayList<File>(extractor.getExplodedModules());
             List<URL> jarURLs = extractionResult.getJarFileURLs();
 
             for (File file : _libDir.listFiles())

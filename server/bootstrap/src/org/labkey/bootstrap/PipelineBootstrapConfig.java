@@ -136,31 +136,32 @@ public class PipelineBootstrapConfig
     {
         if (_classLoader == null)
         {
-            ModuleExtractor extractor = new ModuleExtractor(Arrays.asList(_modulesDir));
-            ExtractionResult extractionResult = extractor.extractModules(null);
-            _moduleFiles = new ArrayList<File>(extractor.getExplodedModules());
-            List<URL> jarURLs = extractionResult.getJarFileURLs();
+            ModuleExtractor extractor = new ModuleExtractor(getWebappDir());
+            Collection<ExplodedModule> explodedModules = extractor.extractModules();
+            _moduleFiles = new ArrayList<File>(extractor.getExplodedModuleDirectories());
+            _moduleSpringContextFiles = new ArrayList<File>();
 
-            for (File file : _libDir.listFiles())
+            List<URL> jarUrls = new ArrayList<URL>();
+            for(ExplodedModule explodedModule : explodedModules)
             {
                 try
                 {
-                    jarURLs.add(file.toURI().toURL());
+                    jarUrls.addAll(Arrays.asList(explodedModule.getJarFileUrls()));
+                    _moduleSpringContextFiles.addAll(Arrays.asList(explodedModule.getSpringConfigFiles()));
                 }
-                catch (MalformedURLException e)
+                catch(MalformedURLException e)
                 {
                     throw new RuntimeException(e);
                 }
             }
 
-            _moduleSpringContextFiles = extractionResult.getSpringConfigFiles();
             _customSpringConfigFiles = new ArrayList<File>();
             if (_configDir != null)
             {
                 addConfigFiles(_configDir);
             }
 
-            _classLoader = new URLClassLoader(jarURLs.toArray(new URL[jarURLs.size()]), ClusterBootstrap.class.getClassLoader());
+            _classLoader = new URLClassLoader(jarUrls.toArray(new URL[jarUrls.size()]), ClusterBootstrap.class.getClassLoader());
         }
     }
 

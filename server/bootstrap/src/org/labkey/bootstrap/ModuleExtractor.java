@@ -20,227 +20,162 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 /**
- * User: jeckels
- * Date: Apr 10, 2008
+ * Extracts modules into exploded module directories
  */
 public class ModuleExtractor
 {
-    private static Log _log = LogFactory.getLog(ModuleExtractor.class);
-    private Collection<File> _moduleDirectories;
-    private Set<File> _moduleFiles;
-    private Set<File> _explodedModules = new LinkedHashSet<File>();
-
-    private List<ModuleFileWatcher> _watchers = new ArrayList<ModuleFileWatcher>();
-    private FilenameFilter _moduleFilter = new FilenameFilter()
+    public final FilenameFilter moduleArchiveFilter = new FilenameFilter(){
+        public boolean accept(File dir, String name)
         {
-            public boolean accept(File dir, String name)
+            return name.toLowerCase().endsWith(ModuleArchive.FILE_EXTENSION);
+        }
+    };
+
+    protected final File _webAppDirectory;
+    protected final ModuleDirectories _moduleDirectories;
+
+    private Set<File> _moduleArchiveFiles;
+    private Set<ExplodedModule> _explodedModules;
+
+    private static final Log _log = LogFactory.getLog(ModuleExtractor.class);
+
+    public ModuleExtractor(File webAppDirectory)
+    {
+        _webAppDirectory = webAppDirectory;
+        _moduleDirectories = new ModuleDirectories(_webAppDirectory);
+    }
+
+    public Collection<ExplodedModule> extractModules()
+    {
+        _moduleArchiveFiles = new HashSet<File>();
+
+        //explode all module archives
+        for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
+        {
+            for(File moduleArchiveFile : moduleDir.listFiles(moduleArchiveFilter))
             {
-                return name.toLowerCase().endsWith(MODULE_ARCHIVE_EXTENSION);
+                try
+                {
+                    ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile);
+                    moduleArchive.extractAll();
+                    _moduleArchiveFiles.add(moduleArchiveFile);
+                }
+                catch(IOException e)
+                {
+                    _log.error("Unable to extract the module archive " + moduleArchiveFile.getPath() + "!", e);
+                }
             }
-        };
+        }
 
-    private FilenameFilter _jarFilter = new FilenameFilter(){
-                                public boolean accept(File dir, String name)
-                                {
-                                    String lowerName = name.toLowerCase();
-                                    return lowerName.endsWith(".jar") && !(lowerName.endsWith("_jsp.jar"));
-                                }
-                            };
+        //gather all the exploded module directories
+        _explodedModules = new HashSet<ExplodedModule>();
+        for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
+        {
+            for(File dir : moduleDir.listFiles())
+            {
+                if(dir.isDirectory())
+                {
+                    try
+                    {
+                        ExplodedModule explodedModule = new ExplodedModule(dir);
+                        explodedModule.deployToWebApp(_webAppDirectory);
+                        _explodedModules.add(explodedModule);
+                    }
+                    catch(IOException e)
+                    {
+                        _log.error("Unable to deploy the resources from the exploded module " + dir.getPath() + " to the web app directory!");
+                    }
+                }
+            }
+        }
 
-    private FilenameFilter _springContextFilter = new FilenameFilter(){
-                                public boolean accept(File dir, String name)
-                                {
-                                    return name.toLowerCase().endsWith("context.xml");
-                                }
-                            };
+        _log.info("Module extraction and deployment complete.");
 
-    public static final String MODULE_ARCHIVE_EXTENSION = ".module";
-
-    public ModuleExtractor(Collection<File> moduleDirs)
-    {
-        _moduleDirectories = moduleDirs;
-    }
-
-    public Set<File> getModuleFiles()
-    {
-        return _moduleFiles;
-    }
-
-    public Set<File> getExplodedModules()
-    {
         return _explodedModules;
     }
 
-    public Set<File> examineModuleFiles()
+
+    public List<File> getExplodedModuleDirectories()
     {
-        Set<File> result = new LinkedHashSet<File>();
-
-        for (File dir : _moduleDirectories)
+        List<File> dirs = new ArrayList<File>();
+        for(ExplodedModule expMod : _explodedModules)
         {
-            File[] moduleArchives = dir.listFiles(_moduleFilter);
-            Arrays.sort(moduleArchives);
-            result.addAll(Arrays.asList(moduleArchives));
+            dirs.add(expMod.getRootDirectory());
         }
-
-        return result;
+        return dirs;
     }
 
-    /**
-     *
-     * @param webappDir target directory to write files into
-     * @return list of JARs to put on the classpath
-     */
-    public ExtractionResult extractModules(File webappDir)
+    public boolean areModulesModified()
     {
-        List<File> jarFiles = new ArrayList<File>();
-        List<File> springConfigFiles = new ArrayList<File>();
-        try
+        if(null == _explodedModules)
+            return true;
+
+        //check module archives against exploded modules and check for new modules
+        for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
         {
-            _moduleFiles = examineModuleFiles();
-            _log.info("Extracting modules...");
-
-            for (File moduleFile : _moduleFiles)
+            for(File moduleArchiveFile : moduleDir.listFiles(moduleArchiveFilter))
             {
-                String moduleName = moduleFile.getName().substring(0, moduleFile.getName().length() - MODULE_ARCHIVE_EXTENSION.length());
-                File targetBaseDir = new File(moduleFile.getParentFile(), moduleName);
-                if(!targetBaseDir.exists() || moduleFile.lastModified() > targetBaseDir.lastModified())
-                    _log.info("Extracting the module " + moduleFile + "...");
+                //if it's a new module, return true
+                if(!_moduleArchiveFiles.contains(moduleArchiveFile))
+                    return true;
 
-                //if the moduleArchive is a compressed file, explode it into a peer directory
-                if(moduleFile.isFile())
+                //if it's been modified since extraction, re-extract it
+                ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile);
+                if(moduleArchive.isModified())
                 {
-                    JarFile f = null;
                     try
                     {
-                        f = new JarFile(moduleFile);
-
-                        //enumerate the entries and extract them all into an exploded form
-                        for (Enumeration<JarEntry> entries = f.entries(); entries.hasMoreElements(); )
-                        {
-                            extractEntry(entries.nextElement(), f, targetBaseDir);
-                        }
-
-                        targetBaseDir.setLastModified(moduleFile.lastModified());
-
-                        ModuleFileWatcher moduleFileWatcher = new ModuleFileWatcher(moduleFile, webappDir);
-
-                        //add the JAR files from the exploded module dir to the module watcher
-                        File libDir = new File(targetBaseDir, "lib");
-                        if(libDir.exists())
-                        {
-                            for(File libFile : libDir.listFiles(_jarFilter))
-                            {
-                                moduleFileWatcher.addLibraryJar(libFile);
-                            }
-                        }
-
-                        _watchers.add(moduleFileWatcher);
-
+                        moduleArchive.extractAll();
                     }
-                    finally
+                    catch(IOException e)
                     {
-                        if (f != null) { try { f.close(); } catch (IOException e) {}}
+                        _log.error("Could not re-extract module " + moduleArchive + ". Restarting the web application...");
+                        return true;
                     }
                 }
             }
 
-            //the .module files are now extracted into peer directories in the module directories
-            //and there may also be other exploded module directories that were there already
-            //iterrate over the module directories to build up the extraction result
-            for(File dir : _moduleDirectories)
+            //check for new exploded modules
+            for(File dir : moduleDir.listFiles())
             {
-                for(File explodedModuleDir : dir.listFiles())
+                if(dir.isDirectory())
                 {
-                    if(explodedModuleDir.isDirectory())
-                    {
-                        _explodedModules.add(explodedModuleDir);
-
-                        //add any jar files to the jar files list
-                        File libDir = new File(explodedModuleDir, "lib");
-                        if(libDir.exists())
-                            jarFiles.addAll(Arrays.asList(libDir.listFiles(_jarFilter)));
-
-                        //add any Spring config files to the springConfigFiles list
-                        File configDir = new File(explodedModuleDir, "config");
-                        if(configDir.exists())
-                            springConfigFiles.addAll(Arrays.asList(configDir.listFiles(_springContextFilter)));
-
-                    }
+                    ExplodedModule explodedModule = new ExplodedModule(dir);
+                    if(!_explodedModules.contains(explodedModule))
+                        return true;
                 }
             }
-
-            _log.info("Module extraction complete.");
-
-            return new ExtractionResult(jarFiles, springConfigFiles);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected static File extractEntry(JarEntry entry, JarFile moduleArchive, File targetDir) throws IOException
-    {
-        targetDir.mkdirs();
-        if (!targetDir.isDirectory())
-        {
-            throw new IOException("Failed to create directory " + targetDir.getPath() + ", the user account may not have sufficient permissions");
         }
 
-        File destFile = new File(targetDir, entry.getName());
-
-        //if entry is a directory, just make the dirs and return
-        if(entry.isDirectory())
+        //check existing exploded modules
+        for(ExplodedModule explodedModule : _explodedModules)
         {
-            destFile.mkdirs();
-            return destFile;
-        }
+            if(explodedModule.isModified())
+                return true;
 
-        if (!destFile.exists() ||
-            entry.getTime() == -1 ||
-            entry.getTime() < (destFile.lastModified() - 2000) ||
-            entry.getTime() > (destFile.lastModified() + 2000) ||
-            entry.getSize() == -1 ||
-            entry.getSize() != destFile.length())
-        {
-            BufferedInputStream bIn = null;
-            BufferedOutputStream bOut = null;
+            //if not modified, redeploy content to the web app so that
+            //new static web content, JSP jars, etc are hot-swapped
             try
             {
-                bIn = new BufferedInputStream(moduleArchive.getInputStream(entry));
-                bOut = new BufferedOutputStream(new FileOutputStream(destFile));
-                byte[] b = new byte[8192];
-                int i;
-                while ((i = bIn.read(b)) != -1)
-                {
-                    bOut.write(b, 0, i);
-                }
+                explodedModule.deployToWebApp(_webAppDirectory);
             }
-            finally
+            catch(IOException e)
             {
-                if (bIn != null) { try { bIn.close(); } catch (IOException e) {}}
-                if (bOut != null) { try { bOut.close(); } catch (IOException e) {}}
-            }
-            if (entry.getTime() != -1)
-            {
-                destFile.setLastModified(entry.getTime());
+                _log.error("Could not hot-swap resources from the module " + explodedModule + ". Restarting web application...");
+                return true;
             }
         }
-        return destFile;
-    }
 
-    public List<ModuleFileWatcher> getWatchers()
-    {
-        return _watchers;
+        return false;
     }
 
     /**
      * Extract .module files
-     * @param args
+     * @param args see usages
+     * @throws ConfigException thrown if there is a problem with the configuration
+     * @throws IOException thrown if there is a problem extracting the module archives
      */
     public static void main(String... args) throws ConfigException, IOException
     {
@@ -248,9 +183,8 @@ public class ModuleExtractor
         {
             PipelineBootstrapConfig config = new PipelineBootstrapConfig(args);
 
-            ModuleExtractor extractor = new ModuleExtractor(Collections.singleton(config.getModulesDir())
-            );
-            extractor.extractModules(config.getWebappDir());
+            ModuleExtractor extractor = new ModuleExtractor(config.getWebappDir());
+            extractor.extractModules();
         }
         catch (ConfigException e)
         {

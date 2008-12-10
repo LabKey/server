@@ -38,11 +38,12 @@ public class ModuleDirectories
     {
         //modules dir can be specified in either labkey.modulesDir or cpas.modulesDir system props
         _modulesDirectory = getModuleDirectory(new String[]{"labkey.modulesDir", "cpas.modulesDir"},
-                new File(webAppDirectory.getParentFile(), DEFAULT_MODULES_DIR));
+                new File(webAppDirectory.getParentFile(), DEFAULT_MODULES_DIR), true);
 
         //externalModules dir can be specified in labkey.externalModulesDir system prop
+        //it also may not exist at all (that's OK)
         _externalModulesDirectory = getModuleDirectory(new String[]{"labkey.externalModulesDir"},
-                new File(webAppDirectory.getParentFile(), DEFAULT_EXTERNAL_MODULES_DIR));
+                new File(webAppDirectory.getParentFile(), DEFAULT_EXTERNAL_MODULES_DIR), false);
     }
 
     public File getModulesDirectory()
@@ -57,10 +58,13 @@ public class ModuleDirectories
 
     public File[] getAllModuleDirectories()
     {
-        return new File[]{_modulesDirectory, _externalModulesDirectory};
+        if(null != _externalModulesDirectory)
+            return new File[]{_modulesDirectory, _externalModulesDirectory};
+        else
+            return new File[]{_modulesDirectory};
     }
 
-    protected File getModuleDirectory(String[] sysProperties, File defaultPath)
+    protected File getModuleDirectory(String[] sysProperties, File defaultPath, boolean verify)
     {
         String sysPropValue;
         for(String sysProp : sysProperties)
@@ -78,7 +82,9 @@ public class ModuleDirectories
 
         if(defaultPath.exists())
             return defaultPath;
-        else
+        else if(verify)
             throw new IllegalArgumentException("The default module file path " + defaultPath.getPath()  + " does not exist!");
+        else
+            return null;
     }
 }

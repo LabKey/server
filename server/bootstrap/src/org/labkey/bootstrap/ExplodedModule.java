@@ -81,7 +81,7 @@ public class ExplodedModule
 
     public void addWatchFiles(File[] files)
     {
-        for(File file : getSpringConfigFiles())
+        for(File file : files)
         {
             _watchedFiles.put(file, new Long(file.lastModified()));
         }

@@ -138,7 +138,11 @@ public class ModuleArchive
     {
         File destFile = new File(targetDirectory, entry.getName());
 
-        //if entry is a directory, just mkdirs, set last mod and return
+        File entryParent = destFile.getParentFile();
+        if (!entryParent.isDirectory())
+            entryParent.mkdirs();
+
+        // if entry is a directory, just mkdirs, set last mod and return
         if(entry.isDirectory())
         {
             destFile.mkdirs();

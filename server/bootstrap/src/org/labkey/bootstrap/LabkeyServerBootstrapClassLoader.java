@@ -32,6 +32,15 @@ import java.util.Collection;
  */
 public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 {
+    // On startup on some platforms, some modules will die if java.awt.headless is not set to false.
+    // Only set this if the user hasn't overridden it
+    static
+    {
+        String headless = "java.awt.headless";
+        if (System.getProperty(headless) == null)
+            System.setProperty(headless, "true");
+    }
+
     private ModuleExtractor _moduleExtractor;
 
     public LabkeyServerBootstrapClassLoader()

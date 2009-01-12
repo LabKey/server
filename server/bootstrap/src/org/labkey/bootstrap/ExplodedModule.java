@@ -124,7 +124,7 @@ public class ExplodedModule
         File jspJarDir = new File(webInfDir, "jsp");
         File pageFlowDir = new File(webInfDir, "classes/_pageflow");
 
-        copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory);
+        // copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory);
         copyFiles(getFiles(PAGEFLOW_PATH, null), pageFlowDir);
         copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir);
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir);

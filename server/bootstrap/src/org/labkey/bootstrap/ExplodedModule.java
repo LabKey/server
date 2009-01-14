@@ -116,19 +116,17 @@ public class ExplodedModule
     public void deployToWebApp(File webAppDirectory) throws IOException
     {
         //files to be deployed:
-        // - WEB-INF
+        // - static web content resources to web app dir
+        // - page flow XML files to WEB-INF/classes/_pageflow
+        // - JSP jar files to WEB-INF/jsp
         // - Spring config XML files to WEB-INF
-        // - share
-        File sourceWebDir = new File(getRootDirectory(), WEB_CONTENT_PATH);
-
         File webInfDir = new File(webAppDirectory, "WEB-INF");
-        File sourceWebInf = new File(sourceWebDir, "WEB-INF");
-        copyBranch(sourceWebInf, webInfDir);
+        File jspJarDir = new File(webInfDir, "jsp");
+        File pageFlowDir = new File(webInfDir, "classes/_pageflow");
 
-        File shareDir = new File(webAppDirectory, "share");
-        File sourceShare = new File(sourceWebDir, "share");
-        copyBranch(sourceShare, shareDir);
-
+        // copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory);
+        copyFiles(getFiles(PAGEFLOW_PATH, null), pageFlowDir);
+        copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir);
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir);
     }
 

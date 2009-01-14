@@ -120,11 +120,20 @@ public class ExplodedModule
         // - page flow XML files to WEB-INF/classes/_pageflow
         // - JSP jar files to WEB-INF/jsp
         // - Spring config XML files to WEB-INF
+
         File webInfDir = new File(webAppDirectory, "WEB-INF");
         File jspJarDir = new File(webInfDir, "jsp");
         File pageFlowDir = new File(webInfDir, "classes/_pageflow");
 
-        // copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory);
+        if (1==1)
+        {
+            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory);
+        }
+        else
+        {
+            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"));
+            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"));
+        }
         copyFiles(getFiles(PAGEFLOW_PATH, null), pageFlowDir);
         copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir);
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir);

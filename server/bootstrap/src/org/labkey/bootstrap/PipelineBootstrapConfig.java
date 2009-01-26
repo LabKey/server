@@ -142,17 +142,23 @@ public class PipelineBootstrapConfig
             _moduleSpringContextFiles = new ArrayList<File>();
 
             List<URL> jarUrls = new ArrayList<URL>();
-            for(ExplodedModule explodedModule : explodedModules)
+
+            try
             {
-                try
+                for (File file : _libDir.listFiles())
+                {
+                    jarUrls.add(file.toURI().toURL());
+                }
+
+                for(ExplodedModule explodedModule : explodedModules)
                 {
                     jarUrls.addAll(Arrays.asList(explodedModule.getJarFileUrls()));
                     _moduleSpringContextFiles.addAll(Arrays.asList(explodedModule.getSpringConfigFiles()));
                 }
-                catch(MalformedURLException e)
-                {
-                    throw new RuntimeException(e);
-                }
+            }
+            catch (MalformedURLException e)
+            {
+                throw new RuntimeException(e);
             }
 
             _customSpringConfigFiles = new ArrayList<File>();

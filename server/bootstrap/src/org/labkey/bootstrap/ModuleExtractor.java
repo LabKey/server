@@ -70,6 +70,7 @@ public class ModuleExtractor
         }
 
         //gather all the exploded module directories
+        _log.info("Deploying resources form exploded modules to web app directory...");
         _explodedModules = new HashSet<ExplodedModule>();
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
         {

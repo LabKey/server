@@ -15,6 +15,9 @@
  */
 package org.labkey.bootstrap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.*;
 import java.util.*;
 import java.net.URL;
@@ -66,6 +69,7 @@ public class ExplodedModule
 
     private File _rootDirectory;
     private Map<File,Long> _watchedFiles = new HashMap<File,Long>();
+    private static final Log _log = LogFactory.getLog(ModuleExtractor.class);
 
     public ExplodedModule(File rootDirectory)
     {
@@ -190,37 +194,20 @@ public class ExplodedModule
             return;
 
         dst.createNewFile();
-        FileInputStream is = null;
-        FileOutputStream os = null;
-        FileChannel in = null;
-        FileLock lockIn = null;
-        FileChannel out = null;
-        FileLock lockOut = null;
+        FileChannel sourceChannel = null;
+        FileChannel destChannel = null;
         try
         {
-            is = new FileInputStream(src);
-            in = is.getChannel();
-            lockIn = in.lock(0L, Long.MAX_VALUE, true);
-            os = new FileOutputStream(dst);
-            out = os.getChannel();
-            lockOut = out.lock();
-            in.transferTo(0, in.size(), out);
-            os.getFD().sync();
+            sourceChannel = new FileInputStream(src).getChannel();
+            destChannel = new FileOutputStream(dst).getChannel();
+            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
         }
         finally
         {
-            if (null != lockIn)
-                lockIn.release();
-            if (null != lockOut)
-                lockOut.release();
-            if (null != in)
-                in.close();
-            if (null != out)
-                out.close();
-            if (null != os)
-                os.close();
-            if (null != is)
-                is.close();
+            if(null != sourceChannel)
+                sourceChannel.close();
+            if(null != destChannel)
+                destChannel.close();
         }
 
         dst.setLastModified(src.lastModified());

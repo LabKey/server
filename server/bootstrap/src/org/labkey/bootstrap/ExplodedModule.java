@@ -265,4 +265,9 @@ public class ExplodedModule
         }
         return false;
     }
+
+    public File getSourceModuleFile()
+    {
+        return new File(getRootDirectory().getParentFile(), getRootDirectory().getName() + ModuleArchive.FILE_EXTENSION);
+    }
 }

@@ -128,7 +128,8 @@ public class ModuleExtractor
                 {
                     try
                     {
-                        moduleArchive.extractAll();
+                        File explodedDir = moduleArchive.extractAll();
+                        new ExplodedModule(explodedDir).deployToWebApp(_webAppDirectory);
                     }
                     catch(IOException e)
                     {
@@ -156,16 +157,20 @@ public class ModuleExtractor
             if(explodedModule.isModified())
                 return true;
 
-            //if not modified, redeploy content to the web app so that
+            //if not modified, and there is no source module file
+            //redeploy content to the web app so that
             //new static web content, JSP jars, etc are hot-swapped
-            try
+            if(!explodedModule.getSourceModuleFile().exists())
             {
-                explodedModule.deployToWebApp(_webAppDirectory);
-            }
-            catch(IOException e)
-            {
-                _log.error("Could not hot-swap resources from the module " + explodedModule + ". Restarting web application...");
-                return true;
+                try
+                {
+                    explodedModule.deployToWebApp(_webAppDirectory);
+                }
+                catch(IOException e)
+                {
+                    _log.error("Could not hot-swap resources from the module " + explodedModule + ". Restarting web application...");
+                    return true;
+                }
             }
         }
 

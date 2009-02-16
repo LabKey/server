@@ -113,6 +113,10 @@ public class ModuleArchive
         
         _log.info("Extracting the module " + getFile().getName() + "...");
 
+        //delete existing directory so that files that are
+        //no longer in the archive are removed
+        ExplodedModule.deleteDirectory(targetDirectory);
+
         //extract all entries
         JarFile jar = null;
         try

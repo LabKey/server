@@ -23,7 +23,6 @@ import java.util.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 
 /*
 * User: Dave
@@ -179,10 +178,32 @@ public class ExplodedModule
 
     public static void ensureDirectory(File dir) throws IOException
     {
+        ensureDirectory(dir, false);
+    }
+
+    public static void ensureDirectory(File dir, boolean deleteExisting) throws IOException
+    {
+        if(dir.exists() && deleteExisting)
+            deleteDirectory(dir);
+
         if(!dir.exists())
             dir.mkdirs();
         if(!dir.isDirectory())
             throw new IOException("Unable to create the directory " + dir.getPath() + "! Ensure that the current system user for the web application has sufficient permissions.");
+    }
+
+    public static void deleteDirectory(File dir)
+    {
+        //can't delete a directory unless everything inside it is deleted
+        for(File child : dir.listFiles())
+        {
+            if(child.isDirectory())
+                deleteDirectory(child);
+            else
+                child.delete();
+        }
+        
+        dir.delete();
     }
 
     //NOTE: this was copied from FileUtil since the boostrap module doesn't share any code with the web app

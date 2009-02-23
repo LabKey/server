@@ -17,7 +17,9 @@
 package org.labkey.bootstrap;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.io.IOException;
 
 /**
  * User: jeckels
@@ -25,7 +27,7 @@ import java.util.List;
  */
 public class ClusterBootstrap
 {
-    public static void main(String... rawArgs) throws Exception
+    public static void main(String... rawArgs) throws Throwable
     {
         PipelineBootstrapConfig config = null;
         try
@@ -40,11 +42,24 @@ public class ClusterBootstrap
         ClassLoader classLoader = config.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        Class runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterStartup");
-        Object runner = runnerClass.newInstance();
-        Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, String[].class);
+        try
+        {
+            Class runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterStartup");
+            Object runner = runnerClass.newInstance();
+            Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, String[].class);
 
-        runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getProgramArgs());
+            runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getProgramArgs());
+        }
+        catch (InvocationTargetException e)
+        {
+            System.err.println("Unwrapping InvocationTargetException");
+            throw e.getCause() == null ? e : e.getCause();
+        }
+        catch (InstantiationException e)
+        {
+            System.err.println("Unwrapping InstantiationException");
+            throw e.getCause() == null ? e : e.getCause();
+        }
     }
 
     private static void printUsage(String error)

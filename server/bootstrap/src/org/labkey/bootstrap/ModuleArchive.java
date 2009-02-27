@@ -109,7 +109,10 @@ public class ModuleArchive
 
         //if up to date, never mind
         if(!isModified(targetDirectory))
+        {
+            _log.info("Skipping unmodified module " + getFile().getName());
             return;
+        }
         
         _log.info("Extracting the module " + getFile().getName() + "...");
 

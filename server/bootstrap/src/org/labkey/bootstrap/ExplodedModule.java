@@ -195,12 +195,15 @@ public class ExplodedModule
     public static void deleteDirectory(File dir)
     {
         //can't delete a directory unless everything inside it is deleted
-        for(File child : dir.listFiles())
+        if (dir.isDirectory())
         {
-            if(child.isDirectory())
-                deleteDirectory(child);
-            else
-                child.delete();
+            for(File child : dir.listFiles())
+            {
+                if(child.isDirectory())
+                    deleteDirectory(child);
+                else
+                    child.delete();
+            }
         }
         
         dir.delete();

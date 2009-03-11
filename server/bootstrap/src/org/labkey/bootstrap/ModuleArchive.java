@@ -104,17 +104,12 @@ public class ModuleArchive
         if(null == targetDirectory)
             throw new IllegalArgumentException("directory parameter was null!");
 
-        ExplodedModule.ensureDirectory(targetDirectory);
-        File archiveFile = getFile();
-
-        //if up to date, never mind
-        if(!isModified(targetDirectory))
-        {
-            _log.info("Skipping unmodified module " + getFile().getName());
+        // if target exists and is up to date, never mind
+        if (!isModified(targetDirectory))
             return;
-        }
-        
-        _log.info("Extracting the module " + getFile().getName() + "...");
+
+        File archiveFile = getFile();
+        _log.info("Extracting the module " + archiveFile.getName() + "...");
 
         //delete existing directory so that files that are
         //no longer in the archive are removed
@@ -124,7 +119,7 @@ public class ModuleArchive
         JarFile jar = null;
         try
         {
-            jar = new JarFile(getFile());
+            jar = new JarFile(archiveFile);
             Enumeration<JarEntry> entries = jar.entries();
             while(entries.hasMoreElements())
             {

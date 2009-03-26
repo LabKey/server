@@ -16,8 +16,6 @@
 
 package org.labkey.bootstrap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.*;
 
@@ -39,12 +37,13 @@ public class ModuleExtractor
     private Set<File> _moduleArchiveFiles;
     private Set<ExplodedModule> _explodedModules;
 
-    private static final Log _log = LogFactory.getLog(ModuleExtractor.class);
+    private final SimpleLogger _log;
 
-    public ModuleExtractor(File webAppDirectory)
+    public ModuleExtractor(File webAppDirectory, SimpleLogger log)
     {
         _webAppDirectory = webAppDirectory;
         _moduleDirectories = new ModuleDirectories(_webAppDirectory);
+        _log = log;
     }
 
     public Collection<ExplodedModule> extractModules()
@@ -58,7 +57,7 @@ public class ModuleExtractor
             {
                 try
                 {
-                    ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile);
+                    ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
                     moduleArchive.extractAll();
                     _moduleArchiveFiles.add(moduleArchiveFile);
                 }
@@ -123,7 +122,7 @@ public class ModuleExtractor
                     return true;
 
                 //if it's been modified since extraction, re-extract it
-                ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile);
+                ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
                 if(moduleArchive.isModified())
                 {
                     try
@@ -189,7 +188,7 @@ public class ModuleExtractor
         {
             PipelineBootstrapConfig config = new PipelineBootstrapConfig(args);
 
-            ModuleExtractor extractor = new ModuleExtractor(config.getWebappDir());
+            ModuleExtractor extractor = new ModuleExtractor(config.getWebappDir(), new StdOutLogger());
             extractor.extractModules();
         }
         catch (ConfigException e)

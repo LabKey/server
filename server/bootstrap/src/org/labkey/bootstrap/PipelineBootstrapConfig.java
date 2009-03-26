@@ -32,10 +32,12 @@ public class PipelineBootstrapConfig
     public static final String MODULES_DIR = "modulesdir";
     public static final String CONFIG_DIR = "configdir";
     public static final String WEBAPP_DIR = "webappdir";
+    public static final String PIPELINE_LIB_DIR = "pipelinelibdir";
 
     private File _modulesDir;
     private File _webappDir;
     private File _libDir;
+    private File _pipelineLibDir;
     private File _configDir;
     private String[] _args;
     private URLClassLoader _classLoader;
@@ -58,6 +60,45 @@ public class PipelineBootstrapConfig
             throw new ConfigException("Could not find modules directory at " + _modulesDir.getAbsolutePath());
         }
 
+        if (args.hasOption(PIPELINE_LIB_DIR))
+        {
+            _pipelineLibDir = new File(args.getOption(PIPELINE_LIB_DIR)).getAbsoluteFile();
+        }
+        else
+        {
+            // Check relative to the working directory
+            _pipelineLibDir = new File("pipeline-lib").getAbsoluteFile();
+            if (!_pipelineLibDir.exists())
+            {
+                // Check relative to the working directory
+                _pipelineLibDir = new File("pipelinelib").getAbsoluteFile();
+            }
+            if (!_pipelineLibDir.exists())
+            {
+                // Check relative to the working directory
+                _pipelineLibDir = new File("pipelineLib").getAbsoluteFile();
+            }
+            if (!_pipelineLibDir.exists())
+            {
+                // Check relative to the modules directory
+                _pipelineLibDir = new File(_modulesDir.getParentFile(), "pipelinelib").getAbsoluteFile();
+            }
+            if (!_pipelineLibDir.exists())
+            {
+                // Check relative to the modules directory
+                _pipelineLibDir = new File(_modulesDir.getParentFile(), "pipelineLib").getAbsoluteFile();
+            }
+            if (!_pipelineLibDir.exists())
+            {
+                // Check relative to the modules directory
+                _pipelineLibDir = new File(_modulesDir.getParentFile(), "pipeline-lib").getAbsoluteFile();
+            }
+        }
+        if (!_pipelineLibDir.exists())
+        {
+            throw new ConfigException("Could not find pipeline lib directory at " + _pipelineLibDir.getAbsolutePath());
+        }
+
         if (args.hasOption(WEBAPP_DIR))
         {
             _webappDir = new File(args.getOption(WEBAPP_DIR)).getAbsoluteFile();
@@ -72,7 +113,7 @@ public class PipelineBootstrapConfig
             }
             if (!_webappDir.isDirectory())
             {
-                _webappDir = new File(parentDir, "explodedWar");
+                _webappDir = new File(parentDir, "labkeyWebapp");
             }
         }
 
@@ -136,7 +177,7 @@ public class PipelineBootstrapConfig
     {
         if (_classLoader == null)
         {
-            ModuleExtractor extractor = new ModuleExtractor(getWebappDir());
+            ModuleExtractor extractor = new ModuleExtractor(getWebappDir(), new StdOutLogger());
             Collection<ExplodedModule> explodedModules = extractor.extractModules();
             _moduleFiles = new ArrayList<File>(extractor.getExplodedModuleDirectories());
             _moduleSpringContextFiles = new ArrayList<File>();
@@ -146,6 +187,11 @@ public class PipelineBootstrapConfig
             try
             {
                 for (File file : _libDir.listFiles())
+                {
+                    jarUrls.add(file.toURI().toURL());
+                }
+
+                for (File file : _pipelineLibDir.listFiles())
                 {
                     jarUrls.add(file.toURI().toURL());
                 }

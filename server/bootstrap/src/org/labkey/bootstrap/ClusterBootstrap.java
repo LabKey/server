@@ -19,7 +19,6 @@ package org.labkey.bootstrap;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.io.IOException;
 
 /**
  * User: jeckels
@@ -70,7 +69,7 @@ public class ClusterBootstrap
             System.err.println();
         }
 
-        System.err.println("java " + ClusterBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] <JOB_XML_FILE>");
+        System.err.println("java " + ClusterBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] [-" + PipelineBootstrapConfig.PIPELINE_LIB_DIR + "=<PIPELINE_LIB_DIR>] <JOB_XML_FILE>");
 
         System.exit(1);
     }

@@ -15,9 +15,6 @@
  */
 package org.labkey.bootstrap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.*;
 import java.util.*;
 import java.net.URL;
@@ -68,7 +65,6 @@ public class ExplodedModule
 
     private File _rootDirectory;
     private Map<File,Long> _watchedFiles = new HashMap<File,Long>();
-    private static final Log _log = LogFactory.getLog(ModuleExtractor.class);
 
     public ExplodedModule(File rootDirectory)
     {

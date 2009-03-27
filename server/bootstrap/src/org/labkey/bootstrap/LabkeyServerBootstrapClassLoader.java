@@ -82,7 +82,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         {
             File webappDir = new File(resources.getNameInNamespace());
 
-            _moduleExtractor = new ModuleExtractor(webappDir);
+            _moduleExtractor = new ModuleExtractor(webappDir, new CommonsLogger(ModuleExtractor.class));
             Collection<ExplodedModule> explodedModules = _moduleExtractor.extractModules();
             for(ExplodedModule exploded : explodedModules)
             {

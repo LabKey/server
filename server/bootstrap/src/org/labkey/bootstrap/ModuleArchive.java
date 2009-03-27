@@ -107,7 +107,7 @@ public class ModuleArchive
             return;
 
         File archiveFile = getFile();
-        _log.info("Extracting the module " + archiveFile.getName() + "...");
+        _log.info("Extracting the module " + archiveFile.getName() + ".");
 
         //delete existing directory so that files that are
         //no longer in the archive are removed

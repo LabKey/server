@@ -15,6 +15,9 @@
  */
 package org.labkey.bootstrap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.*;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -38,13 +41,12 @@ public class ModuleArchive
     protected static final FileComparator _fileComparator = new FileComparator();
 
     private File _file;
-    private final SimpleLogger _log;
+    private static Log _log = LogFactory.getLog(ModuleExtractor.class);
 
-    public ModuleArchive(File file, SimpleLogger log)
+    public ModuleArchive(File file)
     {
         _file = file;
         assert _file.exists() && _file.isFile();
-        _log = log;
     }
 
     public File getFile()

@@ -112,7 +112,7 @@ public class ExplodedModule
         return getFiles(CONFIG_PATH, _springConfigFilter);
     }
 
-    public void deployToWebApp(File webAppDirectory) throws IOException
+    public Set<File> deployToWebApp(File webAppDirectory) throws IOException
     {
         //files to be deployed:
         // - static web content resources to web app dir
@@ -123,19 +123,22 @@ public class ExplodedModule
         File webInfDir = new File(webAppDirectory, "WEB-INF");
         File jspJarDir = new File(webInfDir, "jsp");
         File pageFlowDir = new File(webInfDir, "classes/_pageflow");
+        Set<File> webAppFiles = new HashSet<File>();
 
         if (1==1)
         {
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory);
+            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory, webAppFiles);
         }
         else
         {
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"));
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"));
+            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
+            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"), webAppFiles);
         }
-        copyFiles(getFiles(PAGEFLOW_PATH, null), pageFlowDir);
-        copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir);
-        copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir);
+        copyFiles(getFiles(PAGEFLOW_PATH, null), pageFlowDir, webAppFiles);
+        copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir, webAppFiles);
+        copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir, webAppFiles);
+
+        return webAppFiles;
     }
 
     protected File[] getFiles(String relativeDir, FilenameFilter filter)
@@ -147,14 +150,22 @@ public class ExplodedModule
             return new File[]{};
     }
 
-    public static void copyFiles(File[] files, File targetDir) throws IOException
+    public static void copyFiles(File[] files, File targetDir, Set<File> filesCopied) throws IOException
     {
         ensureDirectory(targetDir);
+        if (null != filesCopied)
+            filesCopied.add(targetDir);
+        
         for(File file: files)
-            copyFile(file, new File(targetDir, file.getName()));
+        {
+            File dest = new File(targetDir, file.getName());
+            copyFile(file, dest);
+            if (null != filesCopied)
+                filesCopied.add(dest);
+        }
     }
 
-    public static void copyBranch(File rootDir, File targetDir) throws IOException
+    public static void copyBranch(File rootDir, File targetDir, Set<File> filesCopied) throws IOException
     {
         if(!rootDir.exists())
             return;
@@ -162,13 +173,18 @@ public class ExplodedModule
         for(File file : rootDir.listFiles())
         {
             File destFile = new File(targetDir, file.getName());
+            if (null != filesCopied)
+                filesCopied.add(destFile);
+
             if(file.isDirectory())
             {
                 ensureDirectory(destFile);
-                copyBranch(file, destFile);
+                copyBranch(file, destFile, filesCopied);
             }
             else
+            {
                 copyFile(file, destFile);
+            }
         }
     }
 

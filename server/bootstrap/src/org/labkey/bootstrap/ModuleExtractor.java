@@ -48,6 +48,7 @@ public class ModuleExtractor
 
     public Collection<ExplodedModule> extractModules()
     {
+        Set<File> webAppFiles = getWebAppFiles();
         _moduleArchiveFiles = new HashSet<File>();
 
         //explode all module archives
@@ -80,7 +81,10 @@ public class ModuleExtractor
                     try
                     {
                         ExplodedModule explodedModule = new ExplodedModule(dir);
-                        explodedModule.deployToWebApp(_webAppDirectory);
+                        Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
+                        if (null != webAppFiles)
+                            webAppFiles.addAll(moduleWebAppFiles);
+
                         _explodedModules.add(explodedModule);
                     }
                     catch(IOException e)
@@ -92,8 +96,74 @@ public class ModuleExtractor
         }
 
         _log.info("Module extraction and deployment complete.");
+        if (null != webAppFiles)
+            cleanupWebAppDir(webAppFiles);
 
         return _explodedModules;
+    }
+
+    private void cleanupWebAppDir(Set<File> allowedFiles)
+    {
+        //delete any file we find in the web app directory that is not in the webAppFiles set
+        _log.info("Cleaning up web app directory...");
+        cleanupDir(_webAppDirectory, allowedFiles);
+        _log.info("Web app directory cleanup complete.");
+    }
+
+    private void cleanupDir(File dir, Set<File> allowedFiles)
+    {
+        for (File file : dir.listFiles())
+        {
+            if (file.isDirectory())
+            {
+                cleanupDir(file, allowedFiles);
+            }
+
+            if (!allowedFiles.contains(file))
+            {
+                _log.info("Deleting unused file in web app directory: " + file.getAbsolutePath());
+                if (!file.delete())
+                    _log.info("WARNING: unable to delete unused web app file " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    protected Set<File> getWebAppFiles()
+    {
+        //load the apiFiles.list to get a list of all files that are part of the core web app
+        File apiFiles = new File(_webAppDirectory, "WEB-INF/apiFiles.list");
+        if (!apiFiles.exists())
+        {
+            _log.info("WARNING: could not find the list of web app files at " + apiFiles.getPath() + ". Automatic cleanup of the web app directory will not occur.");
+            return null;
+        }
+
+        //file contains one path per line
+        Set<File> files = new HashSet<File>();
+        BufferedReader reader = null;
+        try
+        {
+            reader = new BufferedReader(new FileReader(apiFiles));
+            String line;
+            while (null != (line = reader.readLine()))
+            {
+                files.add(new File(_webAppDirectory, line));
+            }
+        }
+        catch (Exception e)
+        {
+            _log.info("WARNING: exception while reading " + apiFiles.getPath() + ". "  + e.toString());
+            return null;
+        }
+        finally
+        {
+            if(null != reader)
+            {
+                try {reader.close();} catch (Exception ignore){}
+            }
+        }
+        
+        return files;
     }
 
 

@@ -36,7 +36,6 @@ public class ExplodedModule
 {
     public static final String WEB_CONTENT_PATH = "web";
     public static final String LIB_PATH = "lib";
-    public static final String PAGEFLOW_PATH = "lib/_pageflow";
     public static final String CONFIG_PATH = "config";
 
     protected static final FilenameFilter _jarFilter = new FilenameFilter(){
@@ -116,13 +115,11 @@ public class ExplodedModule
     {
         //files to be deployed:
         // - static web content resources to web app dir
-        // - page flow XML files to WEB-INF/classes/_pageflow
         // - JSP jar files to WEB-INF/jsp
         // - Spring config XML files to WEB-INF
 
         File webInfDir = new File(webAppDirectory, "WEB-INF");
         File jspJarDir = new File(webInfDir, "jsp");
-        File pageFlowDir = new File(webInfDir, "classes/_pageflow");
         Set<File> webAppFiles = new HashSet<File>();
 
         if (1==1)
@@ -134,7 +131,6 @@ public class ExplodedModule
             copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
             copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"), webAppFiles);
         }
-        copyFiles(getFiles(PAGEFLOW_PATH, null), pageFlowDir, webAppFiles);
         copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir, webAppFiles);
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir, webAppFiles);
 

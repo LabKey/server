@@ -1,7 +1,5 @@
 <Context path="/labkey" docBase="@@appDocBase@@" debug="0" reloadable="true" crossContext="true">
     
-    <Environment name="dbschema/--default--" value="jdbc/labkeyDataSource" type="java.lang.String"/>
-
     <Resource name="jdbc/labkeyDataSource" auth="Container"
         type="javax.sql.DataSource"
         username="@@jdbcUser@@"

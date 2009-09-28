@@ -53,14 +53,6 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         super(parent);
     }
 
-    // This is required to fix a race condition caused by Beehive loading Global.java via reflection.  On the first request after startup,
-    // in dev mode, the mothership upgrade thread sends a second request to the server.  If loadClass() is not synchronized we are likely
-    // to see java.lang.IllegalArgumentException: org.labkey.core.global in java.lang.ClassLoader.definePackage(ClassLoader.java)
-    public synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException
-    {
-        return super.loadClass(name, resolve);
-    }
-
     /**
      * This method is accessed via reflection from within the main webapp.
      * Do not rename or remove it without updating its usage in ModuleLoader.

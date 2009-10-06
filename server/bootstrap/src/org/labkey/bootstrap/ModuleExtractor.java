@@ -35,6 +35,7 @@ public class ModuleExtractor
     protected final ModuleDirectories _moduleDirectories;
 
     private Set<File> _moduleArchiveFiles;
+    private Set<File> _errorArchives;
     private Set<ExplodedModule> _explodedModules;
 
     private final SimpleLogger _log;
@@ -50,6 +51,7 @@ public class ModuleExtractor
     {
         Set<File> webAppFiles = getWebAppFiles();
         _moduleArchiveFiles = new HashSet<File>();
+        _errorArchives = new HashSet<File>();
 
         //explode all module archives
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
@@ -65,6 +67,7 @@ public class ModuleExtractor
                 catch(IOException e)
                 {
                     _log.error("Unable to extract the module archive " + moduleArchiveFile.getPath() + "!", e);
+                    _errorArchives.add(moduleArchiveFile);
                 }
             }
         }
@@ -187,9 +190,16 @@ public class ModuleExtractor
         {
             for(File moduleArchiveFile : moduleDir.listFiles(moduleArchiveFilter))
             {
+                //if this errored last time, just skip it
+                if (_errorArchives.contains(moduleArchiveFile))
+                    continue;
+
                 //if it's a new module, return true
                 if(!_moduleArchiveFiles.contains(moduleArchiveFile))
+                {
+                    _log.info("New module archive '" + moduleArchiveFile.getPath() + "' found...reloading web application...");
                     return true;
+                }
 
                 //if it's been modified since extraction, re-extract it
                 ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
@@ -202,7 +212,7 @@ public class ModuleExtractor
                     }
                     catch(IOException e)
                     {
-                        _log.error("Could not re-extract module " + moduleArchive + ". Restarting the web application...");
+                        _log.error("Could not re-extract module " + moduleArchive.getModuleName() + ". Restarting the web application...");
                         return true;
                     }
                 }
@@ -215,7 +225,10 @@ public class ModuleExtractor
                 {
                     ExplodedModule explodedModule = new ExplodedModule(dir);
                     if(!_explodedModules.contains(explodedModule))
+                    {
+                        _log.info("New module directory '" + dir.getPath() + "' found...reloading web application...");
                         return true;
+                    }
                 }
             }
         }
@@ -224,7 +237,10 @@ public class ModuleExtractor
         for(ExplodedModule explodedModule : _explodedModules)
         {
             if(explodedModule.isModified())
+            {
+                _log.info("Module " + explodedModule.getRootDirectory().getName() + "' has been modified...reloading web application...");
                 return true;
+            }
 
             //if not modified, and there is no source module file
             //redeploy content to the web app so that

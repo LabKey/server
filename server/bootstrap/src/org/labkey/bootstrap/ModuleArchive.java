@@ -64,7 +64,7 @@ public class ModuleArchive
     }
 
     /**
-     * Returns true if this module archive is different than it's default exploded location
+     * Returns true if this module archive is different than its default exploded location
      * @return true if this archive has been modified and needs re-extraction
      */
     public boolean isModified()

@@ -35,7 +35,7 @@ public class ModuleExtractor
     protected final ModuleDirectories _moduleDirectories;
 
     private Set<File> _moduleArchiveFiles;
-    private Set<File> _errorArchives;
+    private Map<File, Long> _errorArchives;
     private Set<ExplodedModule> _explodedModules;
 
     private final SimpleLogger _log;
@@ -51,7 +51,7 @@ public class ModuleExtractor
     {
         Set<File> webAppFiles = getWebAppFiles();
         _moduleArchiveFiles = new HashSet<File>();
-        _errorArchives = new HashSet<File>();
+        _errorArchives = new HashMap<File,Long>();
 
         //explode all module archives
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
@@ -67,7 +67,7 @@ public class ModuleExtractor
                 catch(IOException e)
                 {
                     _log.error("Unable to extract the module archive " + moduleArchiveFile.getPath() + "!", e);
-                    _errorArchives.add(moduleArchiveFile);
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                 }
             }
         }
@@ -190,8 +190,9 @@ public class ModuleExtractor
         {
             for(File moduleArchiveFile : moduleDir.listFiles(moduleArchiveFilter))
             {
-                //if this errored last time, just skip it
-                if (_errorArchives.contains(moduleArchiveFile))
+                //if this errored last time and it hasn't changed, just skip it
+                if (_errorArchives.containsKey(moduleArchiveFile)
+                        && _errorArchives.get(moduleArchiveFile).longValue() == moduleArchiveFile.lastModified())
                     continue;
 
                 //if it's a new module, return true

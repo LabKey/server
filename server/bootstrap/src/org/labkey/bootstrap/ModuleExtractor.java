@@ -36,6 +36,7 @@ public class ModuleExtractor
 
     private Set<File> _moduleArchiveFiles;
     private Map<File, Long> _errorArchives;
+    private Set<File> _ignoredExplodedDirs;
     private Set<ExplodedModule> _explodedModules;
 
     private final SimpleLogger _log;
@@ -52,6 +53,7 @@ public class ModuleExtractor
         Set<File> webAppFiles = getWebAppFiles();
         _moduleArchiveFiles = new HashSet<File>();
         _errorArchives = new HashMap<File,Long>();
+        _ignoredExplodedDirs = new HashSet<File>();
 
         //explode all module archives
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
@@ -81,6 +83,12 @@ public class ModuleExtractor
             {
                 if(dir.isDirectory())
                 {
+                    if (dir.isHidden())
+                    {
+                        _ignoredExplodedDirs.add(dir);
+                        continue;
+                    }
+
                     try
                     {
                         ExplodedModule explodedModule = new ExplodedModule(dir);
@@ -224,6 +232,10 @@ public class ModuleExtractor
             {
                 if(dir.isDirectory())
                 {
+                    //if this is in the set of ignored dirs, ignore it
+                    if (_ignoredExplodedDirs.contains(dir))
+                        continue;
+
                     ExplodedModule explodedModule = new ExplodedModule(dir);
                     if(!_explodedModules.contains(explodedModule))
                     {

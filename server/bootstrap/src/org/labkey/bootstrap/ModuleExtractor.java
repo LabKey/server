@@ -206,7 +206,7 @@ public class ModuleExtractor
                 //if it's a new module, return true
                 if(!_moduleArchiveFiles.contains(moduleArchiveFile))
                 {
-                    _log.info("New module archive '" + moduleArchiveFile.getPath() + "' found...reloading web application...");
+                    _log.info("New module archive '" + moduleArchiveFile.getPath() + "' found... reloading web application...");
                     return true;
                 }
 
@@ -239,7 +239,7 @@ public class ModuleExtractor
                     ExplodedModule explodedModule = new ExplodedModule(dir);
                     if(!_explodedModules.contains(explodedModule))
                     {
-                        _log.info("New module directory '" + dir.getPath() + "' found...reloading web application...");
+                        _log.info("New module directory '" + dir.getPath() + "' found... reloading web application...");
                         return true;
                     }
                 }
@@ -251,7 +251,7 @@ public class ModuleExtractor
         {
             if(explodedModule.isModified())
             {
-                _log.info("Module " + explodedModule.getRootDirectory().getName() + "' has been modified...reloading web application...");
+                _log.info("Module '" + explodedModule.getRootDirectory().getName() + "' has been modified... reloading web application...");
                 return true;
             }
 

@@ -100,7 +100,7 @@ public class ModuleExtractor
                     }
                     catch(IOException e)
                     {
-                        _log.error("Unable to deploy the resources from the exploded module " + dir.getPath() + " to the web app directory!");
+                        _log.error("Unable to deploy the resources from the exploded module " + dir.getPath() + " to the web app directory!", e);
                     }
                 }
             }

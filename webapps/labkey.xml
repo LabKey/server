@@ -18,7 +18,9 @@
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
     <!-- mzML support via JNI -->
-    <Parameter name="org.labkey.api.ms2.mzmlLibrary" value="pwiz_swigbindings"></Parameter>    
+    <!-- 
+	<Parameter name="org.labkey.api.ms2.mzmlLibrary" value="pwiz_swigbindings"></Parameter>    
+	 -->
 
     <!-- Pipeline configuration -->
     <!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->

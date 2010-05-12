@@ -304,7 +304,7 @@ public class ModuleExtractor
             System.err.println();
         }
 
-        System.err.println("java " + ModuleExtractor.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>]");
+        System.err.println("java " + ModuleExtractor.class + " [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>]");
 
         System.exit(1);
     }

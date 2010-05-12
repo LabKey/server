@@ -66,7 +66,7 @@ public class RemoteServerBootstrap
             System.err.println();
         }
 
-        System.err.println("java " + RemoteServerBootstrap.class + " [-" + PipelineBootstrapConfig.MODULES_DIR + "=<MODULE_DIR>] [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] [-" + PipelineBootstrapConfig.PIPELINE_LIB_DIR + "=<PIPELINE_LIB_DIR>]");
+        System.err.println("java " + RemoteServerBootstrap.class + " [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] [-" + PipelineBootstrapConfig.PIPELINE_LIB_DIR + "=<PIPELINE_LIB_DIR>]");
 
         System.exit(1);
     }

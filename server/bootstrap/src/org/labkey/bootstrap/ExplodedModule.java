@@ -77,7 +77,7 @@ public class ExplodedModule
         addWatchFiles(getSpringConfigFiles());
     }
 
-    public void addWatchFiles(File[] files)
+    public void addWatchFiles(Collection<File> files)
     {
         for(File file : files)
         {
@@ -90,25 +90,28 @@ public class ExplodedModule
         return _rootDirectory;
     }
 
-    public File[] getJarFiles()
+    public List<File> getJarFiles()
     {
         return getFiles(LIB_PATH, _jarFilter);
     }
 
     public URL[] getJarFileUrls() throws MalformedURLException
     {
-        File[] jarFiles = getJarFiles();
-        URL[] urls = new URL[jarFiles.length];
-        for(int idx = 0; idx < jarFiles.length; ++idx)
+        List<File> jarFiles = getJarFiles();
+        URL[] urls = new URL[jarFiles.size()];
+        for(int idx = 0; idx < jarFiles.size(); ++idx)
         {
-            urls[idx] = jarFiles[idx].toURI().toURL();
+            urls[idx] = jarFiles.get(idx).toURI().toURL();
         }
         return urls;
     }
 
-    public File[] getSpringConfigFiles()
+    public List<File> getSpringConfigFiles()
     {
-        return getFiles(CONFIG_PATH, _springConfigFilter);
+        List<File> result = new ArrayList<File>();
+        result.addAll(getFiles(CONFIG_PATH, _springConfigFilter));
+        result.addAll(getFiles("web/WEB-INF", _springConfigFilter));
+        return result;
     }
 
     public Set<File> deployToWebApp(File webAppDirectory) throws IOException
@@ -137,16 +140,16 @@ public class ExplodedModule
         return webAppFiles;
     }
 
-    protected File[] getFiles(String relativeDir, FilenameFilter filter)
+    protected List<File> getFiles(String relativeDir, FilenameFilter filter)
     {
         File dir = new File(getRootDirectory(), relativeDir);
         if(dir.exists() && dir.isDirectory())
-            return null != filter ? dir.listFiles(filter) : dir.listFiles();
+            return null != filter ? Arrays.asList(dir.listFiles(filter)) : Arrays.asList(dir.listFiles());
         else
-            return new File[]{};
+            return Collections.emptyList();
     }
 
-    public static void copyFiles(File[] files, File targetDir, Set<File> filesCopied) throws IOException
+    public static void copyFiles(Collection<File> files, File targetDir, Set<File> filesCopied) throws IOException
     {
         ensureDirectory(targetDir);
         if (null != filesCopied)

@@ -29,12 +29,10 @@ import java.net.MalformedURLException;
 */
 public class PipelineBootstrapConfig
 {
-    public static final String MODULES_DIR = "modulesdir";
     public static final String CONFIG_DIR = "configdir";
     public static final String WEBAPP_DIR = "webappdir";
     public static final String PIPELINE_LIB_DIR = "pipelinelibdir";
 
-    private File _modulesDir;
     private File _webappDir;
     private File _libDir;
     private File _pipelineLibDir;
@@ -47,17 +45,27 @@ public class PipelineBootstrapConfig
 
     public PipelineBootstrapConfig(String[] rawArgs) throws IOException, ConfigException
     {
-        _modulesDir = new File("modules").getAbsoluteFile();
-
         ArgumentParser args = new ArgumentParser(rawArgs);
-        if (args.hasOption(MODULES_DIR))
+        if (args.hasOption(WEBAPP_DIR))
         {
-            _modulesDir = new File(args.getOption(MODULES_DIR)).getAbsoluteFile();
+            _webappDir = new File(args.getOption(WEBAPP_DIR)).getAbsoluteFile();
+        }
+        else
+        {
+            _webappDir = new File("labkeywebapp").getAbsoluteFile();
+            if (!_webappDir.isDirectory())
+            {
+                _webappDir = new File("webapp");
+            }
+            if (!_webappDir.isDirectory())
+            {
+                _webappDir = new File("labkeyWebapp");
+            }
         }
 
-        if (!_modulesDir.isDirectory())
+        if (!_webappDir.isDirectory())
         {
-            throw new ConfigException("Could not find modules directory at " + _modulesDir.getAbsolutePath());
+            throw new ConfigException("Could not find webapp directory at " + _webappDir.getAbsolutePath());
         }
 
         if (args.hasOption(PIPELINE_LIB_DIR))
@@ -80,46 +88,23 @@ public class PipelineBootstrapConfig
             }
             if (!_pipelineLibDir.exists())
             {
-                // Check relative to the modules directory
-                _pipelineLibDir = new File(_modulesDir.getParentFile(), "pipelinelib").getAbsoluteFile();
+                // Check relative to the webapp directory
+                _pipelineLibDir = new File(_webappDir.getParentFile(), "pipelinelib").getAbsoluteFile();
             }
             if (!_pipelineLibDir.exists())
             {
-                // Check relative to the modules directory
-                _pipelineLibDir = new File(_modulesDir.getParentFile(), "pipelineLib").getAbsoluteFile();
+                // Check relative to the webapp directory
+                _pipelineLibDir = new File(_webappDir.getParentFile(), "pipelineLib").getAbsoluteFile();
             }
             if (!_pipelineLibDir.exists())
             {
-                // Check relative to the modules directory
-                _pipelineLibDir = new File(_modulesDir.getParentFile(), "pipeline-lib").getAbsoluteFile();
+                // Check relative to the webapp directory
+                _pipelineLibDir = new File(_webappDir.getParentFile(), "pipeline-lib").getAbsoluteFile();
             }
         }
         if (!_pipelineLibDir.exists())
         {
             throw new ConfigException("Could not find pipeline lib directory at " + _pipelineLibDir.getAbsolutePath());
-        }
-
-        if (args.hasOption(WEBAPP_DIR))
-        {
-            _webappDir = new File(args.getOption(WEBAPP_DIR)).getAbsoluteFile();
-        }
-        else
-        {
-            File parentDir = _modulesDir.getCanonicalFile().getParentFile();
-            _webappDir = new File(parentDir, "labkeywebapp");
-            if (!_webappDir.isDirectory())
-            {
-                _webappDir = new File(parentDir, "webapp");
-            }
-            if (!_webappDir.isDirectory())
-            {
-                _webappDir = new File(parentDir, "labkeyWebapp");
-            }
-        }
-
-        if (!_webappDir.isDirectory())
-        {
-            throw new ConfigException("Could not find webapp directory at " + _webappDir.getAbsolutePath());
         }
 
         File webinfDir = new File(_webappDir, "WEB-INF");
@@ -145,11 +130,6 @@ public class PipelineBootstrapConfig
     public String[] getProgramArgs()
     {
         return _args;
-    }
-
-    public File getModulesDir()
-    {
-        return _modulesDir;
     }
 
     public File getWebappDir()
@@ -199,7 +179,7 @@ public class PipelineBootstrapConfig
                 for(ExplodedModule explodedModule : explodedModules)
                 {
                     jarUrls.addAll(Arrays.asList(explodedModule.getJarFileUrls()));
-                    _moduleSpringContextFiles.addAll(Arrays.asList(explodedModule.getSpringConfigFiles()));
+                    _moduleSpringContextFiles.addAll(explodedModule.getSpringConfigFiles());
                 }
             }
             catch (MalformedURLException e)

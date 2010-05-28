@@ -15,8 +15,7 @@
  */
 package org.labkey.bootstrap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.lang.reflect.Method;
 
 /**
  * User: jeckels
@@ -24,25 +23,77 @@ import org.apache.commons.logging.LogFactory;
  */
 public class CommonsLogger implements SimpleLogger
 {
-    private final Log _log;
+    private Object _log = null;
+    private Method _errorEx = null;
+    private Method _error = null;
+    private Method _info = null;
 
     public CommonsLogger(Class c)
     {
-        _log = LogFactory.getLog(c);
+        try
+        {
+            Class f;
+            try
+            {
+                f = Class.forName("org.apache.commons.logging.LogFactory");
+            }
+            catch (ClassNotFoundException x)
+            {
+                f = Class.forName("org.apache.juli.logging.LogFactory");
+            }
+
+            Method getLog = f.getMethod("getLog", Class.class);
+            _log = getLog.invoke(null, c);
+            _errorEx = _log.getClass().getMethod("error", Object.class, Throwable.class);
+            _error = _log.getClass().getMethod("error", Object.class);
+            _info = _log.getClass().getMethod("info", Object.class);
+        }
+        catch (Exception x)
+        {
+            System.err.println("CommonsLogger: not initialized");
+            x.printStackTrace(System.err);
+        }
     }
+
 
     public void error(Object message, Throwable t)
     {
-        _log.error(message, t);
+        try
+        {
+            if (null != _log && null != _error)
+                _errorEx.invoke(_log, message, t);
+        }
+        catch (Exception x)
+        {
+            
+        }
     }
+
 
     public void error(Object message)
     {
-        _log.error(message);
+        try
+        {
+            if (null != _log && null != _error)
+                _error.invoke(_log, message);
+        }
+        catch (Exception x)
+        {
+
+        }
     }
+
 
     public void info(Object message)
     {
-        _log.info(message);
+        try
+        {
+            if (null != _log && null != _error)
+                _info.invoke(_log, message);
+        }
+        catch (Exception x)
+        {
+
+        }
     }
 }

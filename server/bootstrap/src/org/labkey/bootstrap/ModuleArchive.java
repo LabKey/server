@@ -141,6 +141,10 @@ public class ModuleArchive
         File entryParent = destFile.getParentFile();
         if (!entryParent.isDirectory())
             entryParent.mkdirs();
+        if (!entryParent.isDirectory())
+        {
+            _log.error("Unable to create directory " + entryParent.getPath() + ", there may be a problem with file permissions");
+        }
 
         // if entry is a directory, just mkdirs, set last mod and return
         if(entry.isDirectory())

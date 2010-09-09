@@ -76,7 +76,9 @@ public class ModuleExtractor
 
         //gather all the exploded module directories
         _log.info("Deploying resources from exploded modules to web app directory...");
-        _explodedModules = new HashSet<ExplodedModule>();
+        // This needs to be a linked HashSet so that we preserve the order and handle the core modules before
+        // the ones in the external modules directory, in case there are any duplicates
+        _explodedModules = new LinkedHashSet<ExplodedModule>();
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
         {
             for(File dir : moduleDir.listFiles())

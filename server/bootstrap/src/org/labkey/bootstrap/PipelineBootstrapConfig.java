@@ -16,6 +16,7 @@
 package org.labkey.bootstrap;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.FileFilter;
 import java.util.*;
@@ -35,7 +36,7 @@ public class PipelineBootstrapConfig
 
     private File _webappDir;
     private File _libDir;
-    private File _pipelineLibDir;
+    private List<File> _pipelineLibDirs = new ArrayList<File>();
     private File _configDir;
     private String[] _args;
     private URLClassLoader _classLoader;
@@ -70,41 +71,49 @@ public class PipelineBootstrapConfig
 
         if (args.hasOption(PIPELINE_LIB_DIR))
         {
-            _pipelineLibDir = new File(args.getOption(PIPELINE_LIB_DIR)).getAbsoluteFile();
+            StringTokenizer st = new StringTokenizer(args.getOption(PIPELINE_LIB_DIR), File.pathSeparator);
+            while (st.hasMoreTokens())
+            {
+                _pipelineLibDirs.add(new File(st.nextToken()).getAbsoluteFile());
+            }
         }
         else
         {
             // Check relative to the working directory
-            _pipelineLibDir = new File("pipeline-lib").getAbsoluteFile();
-            if (!_pipelineLibDir.exists())
+            File libDir = new File("pipeline-lib").getAbsoluteFile();
+            if (!libDir.exists())
             {
                 // Check relative to the working directory
-                _pipelineLibDir = new File("pipelinelib").getAbsoluteFile();
+                libDir = new File("pipelinelib").getAbsoluteFile();
             }
-            if (!_pipelineLibDir.exists())
+            if (!libDir.exists())
             {
                 // Check relative to the working directory
-                _pipelineLibDir = new File("pipelineLib").getAbsoluteFile();
+                libDir = new File("pipelineLib").getAbsoluteFile();
             }
-            if (!_pipelineLibDir.exists())
+            if (!libDir.exists())
             {
                 // Check relative to the webapp directory
-                _pipelineLibDir = new File(_webappDir.getParentFile(), "pipelinelib").getAbsoluteFile();
+                libDir = new File(_webappDir.getParentFile(), "pipelinelib").getAbsoluteFile();
             }
-            if (!_pipelineLibDir.exists())
+            if (!libDir.exists())
             {
                 // Check relative to the webapp directory
-                _pipelineLibDir = new File(_webappDir.getParentFile(), "pipelineLib").getAbsoluteFile();
+                libDir = new File(_webappDir.getParentFile(), "pipelineLib").getAbsoluteFile();
             }
-            if (!_pipelineLibDir.exists())
+            if (!libDir.exists())
             {
                 // Check relative to the webapp directory
-                _pipelineLibDir = new File(_webappDir.getParentFile(), "pipeline-lib").getAbsoluteFile();
+                libDir = new File(_webappDir.getParentFile(), "pipeline-lib").getAbsoluteFile();
             }
+            _pipelineLibDirs.add(libDir);
         }
-        if (!_pipelineLibDir.exists())
+        for (File pipelineLibDir : _pipelineLibDirs)
         {
-            throw new ConfigException("Could not find pipeline lib directory at " + _pipelineLibDir.getAbsolutePath());
+            if (!pipelineLibDir.exists())
+            {
+                throw new ConfigException("Could not find pipeline lib directory at " + pipelineLibDir.getAbsolutePath());
+            }
         }
 
         File webinfDir = new File(_webappDir, "WEB-INF");
@@ -171,9 +180,19 @@ public class PipelineBootstrapConfig
                     jarUrls.add(file.toURI().toURL());
                 }
 
-                for (File file : _pipelineLibDir.listFiles())
+                for (File libDir : _pipelineLibDirs)
                 {
-                    jarUrls.add(file.toURI().toURL());
+                    for (File file : libDir.listFiles(new FilenameFilter()
+                    {
+                        @Override
+                        public boolean accept(File dir, String name)
+                        {
+                            return name.toLowerCase().endsWith(".jar");
+                        }
+                    }))
+                    {
+                        jarUrls.add(file.toURI().toURL());
+                    }
                 }
 
                 for(ExplodedModule explodedModule : explodedModules)

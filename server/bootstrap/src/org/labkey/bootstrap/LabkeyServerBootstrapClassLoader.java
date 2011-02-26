@@ -58,6 +58,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
      * Do not rename or remove it without updating its usage in ModuleLoader.
      * @return all the module files that should be used
      */
+    @SuppressWarnings({"UnusedDeclaration"})
     public List<File> getExplodedModuleDirectories()
     {
         return _moduleExtractor.getExplodedModuleDirectories();

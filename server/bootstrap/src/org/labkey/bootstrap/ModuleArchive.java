@@ -124,6 +124,10 @@ public class ModuleArchive
                 extractEntry(jar, entries.nextElement(), targetDirectory);
             }
         }
+        catch (IOException e)
+        {
+            throw new IOException("Failed to process " + archiveFile, e);
+        }
         finally
         {
             if(null != jar)

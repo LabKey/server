@@ -23,7 +23,7 @@
 	 -->
 
     <!-- Pipeline configuration -->
-    <!--    <Parameter name="org.labkey.api.pipeline.config" value="C:\proj\labkey\docs\mule\config-demo"/> -->
+    <!--@@pipeline@@    <Parameter name="org.labkey.api.pipeline.config" value="@@pipelineConfigPath@@"/> @@pipeline@@-->
 
     <!--        brokerURL="tcp://localhost:61616" userName="username" password="password" -->
     <!-- <Resource name="jms/ConnectionFactory" auth="Container"

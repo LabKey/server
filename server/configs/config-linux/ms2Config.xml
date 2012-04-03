@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="ms2PipelineOverrides" class="org.labkey.api.pipeline.TaskPipelineRegistrar">
+        <property name="factoryImpls">
+            <list>
+                <ref bean="sequestTaskOverride"/>
+                <ref bean="xtandemTaskOverride"/>
+                <ref bean="tppTaskOverride"/>
+                <ref bean="tppTaskJoinOverride"/>
+            </list>
+        </property>
+        <property name="factories">
+            <list>
+                <ref bean="mzxmlConverterOverride"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="msPrefixCommandOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="msPrefixCommand"/>
+        <property name="cloneName" value="msPrefixCommand"/>
+        <property name="location" value="cluster"/>
+    </bean>
+
+    <!-- Tasks to be run on the cluster -->
+    <bean id="xtandemTaskOverride" class="org.labkey.ms2.pipeline.tandem.XTandemSearchTask$Factory">
+        <property name="location" value="cluster"/>
+        <property name="globusSettings">
+            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
+                <property name="maxWallTime" value="720"/> <!-- 12 hours -->
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="tppTaskOverride" class="org.labkey.ms2.pipeline.TPPTask$Factory">
+        <property name="location" value="cluster"/>
+        <!--<property name="javaVMOptions" value="-Xmx4096m" />-->
+        <property name="globusSettings">
+            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
+                <property name="maxWallTime" value="120"/> <!-- 2 hours -->
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="tppTaskJoinOverride" class="org.labkey.ms2.pipeline.TPPTask$FactoryJoin">
+        <property name="location" value="cluster"/>
+        <property name="largeWork" value="true"/>
+        <property name="globusSettings">
+            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
+                <property name="maxWallTime" value="360"/> <!-- 6 hours -->
+            </bean>
+        </property>
+    </bean>
+
+    <!-- Enable Thermo RAW to mzXML conversion on a remote server -->
+    <bean id="mzxmlConverterOverride" class="org.labkey.api.pipeline.cmd.ConvertTaskFactorySettings">
+        <constructor-arg value="mzxmlConverter"/>
+        <property name="cloneName" value="mzxmlConverter"/>
+        <property name="commands">
+            <list><ref bean="readwMzxmlConverterOverride"/></list>
+        </property>
+    </bean>
+
+    <bean id="readwMzxmlConverterOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="readwMzxmlConverter"/>
+        <property name="cloneName" value="readwMzxmlConverter"/>
+        <property name="location" value="mzxmlconvert"/>
+    </bean>
+
+    <bean id="sequestTaskOverride" class="org.labkey.ms2.pipeline.sequest.SequestSearchTask$Factory">
+        <property name="location" value="sequest"/>
+        <property name="sequestInstallDir" value="C:\Program Files (x86)\Thermo\Discoverer\Tools\Sequest" />
+        <property name="indexRootDir" value="C:\FastaIndices" />
+    </bean>
+</beans>

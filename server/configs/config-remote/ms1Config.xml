@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="ms1PipelineOverrides" class="org.labkey.api.pipeline.TaskPipelineRegistrar">
+        <property name="factories">
+            <list>
+                <ref bean="peakabooCommandOverride"/>
+                <ref bean="msInspectCommandOverride"/>
+                <ref bean="pepMatchCommandOverride"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Tasks to be run on the cluster -->
+    <bean id="peakabooCommandOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="peakabooCommand"/>
+        <property name="cloneName" value="peakabooCommand"/>
+        <property name="location" value="cluster"/>
+    </bean>
+
+    <bean id="msInspectCommandOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="msInspectCommand"/>
+        <property name="cloneName" value="msInspectCommand"/>
+        <property name="location" value="cluster"/>
+    </bean>
+
+    <bean id="pepMatchCommandOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="pepMatchCommand"/>
+        <property name="cloneName" value="pepMatchCommand"/>
+        <property name="location" value="cluster"/>
+    </bean>
+</beans>

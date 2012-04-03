@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="activeMqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <constructor-arg value="tcp://jeckels-e6400:61616"/>
+        <!--<property name="userName" value="username" />-->
+        <!--<property name="password" value="password" />-->
+    </bean>
+    
+    <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
+        <property name="appProperties">
+            <bean class="org.labkey.pipeline.api.properties.ApplicationPropertiesImpl">
+                <property name="toolsDirectory" value="/usr/bin" />
+            </bean>
+        </property>
+        <property name="remoteServerProperties">
+            <bean class="org.labkey.pipeline.api.properties.RemoteServerPropertiesImpl">
+                <property name="location" value="genotyping"/>
+            </bean>
+        </property>
+        <property name="configProperties">
+            <bean class="org.labkey.pipeline.api.properties.ConfigPropertiesImpl">
+                <property name="softwarePackages">
+                    <map>
+                        <entry key="tpp" value="tpp${version}/bin"/>
+                        <entry key="xtandem" value="tandem${version}"/>
+                        <entry key="msinspect" value="msInspect"/>
+                        <entry key="pwiz" value="pwiz"/>
+                    </map>
+                </property>                
+            </bean>
+        </property>
+        <property name="workDirFactory">
+            <bean class="org.labkey.pipeline.api.WorkDirectoryRemote$Factory">
+                <property name="tempDirectory" value="/tmp"/>
+                <property name="outputPermissions" value="0664"/>
+            </bean>
+        </property>
+        <property name="largeWorkDirFactory">
+            <bean class="org.labkey.pipeline.api.WorkDirectoryLocal$Factory">
+                <property name="outputPermissions" value="0664"/>
+            </bean>
+        </property>
+        <property name="pathMapper">
+            <bean class="org.labkey.pipeline.xstream.PathMapperImpl">
+                <property name="localIgnoreCase" value="false"/>
+                <property name="remoteIgnoreCase" value="true"/>
+                <property name="pathMap">
+                    <map>
+                        <entry key="file:/C:/temp" value="file:/mnt/hgfs/lk_pipeline"/>
+                    </map>
+                </property>
+            </bean>
+        </property>
+    </bean>
+</beans>    

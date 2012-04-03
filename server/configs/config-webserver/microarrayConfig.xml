@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="microarrayPipelineOverrides" class="org.labkey.api.pipeline.TaskPipelineRegistrar">
+        <property name="factoryImpls">
+            <list>
+                <ref bean="featureExtractorTaskOverride"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="featureExtractorTaskOverride" class="org.labkey.microarray.pipeline.FeatureExtractorTask$Factory">
+        <property name="location" value="featureextractor"/>
+        <property name="executable" value="c:\Program Files (x86)\Agilent\MicroArray\FeatureExtraction\FeNoWindows.exe" />
+        <property name="jdbcURL" value="jdbc:jtds:sqlserver://localhost:52065/fetestdb" />
+        <property name="jdbcUser" value="user1" />
+        <property name="jdbcPassword" value="user1" />
+        <property name="archiveDir" value="c:/temp/microarray/archive" />
+    </bean>
+</beans>

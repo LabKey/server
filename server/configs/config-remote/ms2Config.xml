@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="ms2PipelineOverrides" class="org.labkey.api.pipeline.TaskPipelineRegistrar">
+        <property name="factoryImpls">
+            <list>
+                <!-- This reference and its related <bean> below customize XTandem execution -->
+                <!--<ref bean="xtandemTaskOverride"/>-->
+
+                <!-- These two references and their related <bean>s below customize TPP execution -->
+                <!--<ref bean="tppTaskOverride"/>-->
+                <!--<ref bean="tppTaskJoinOverride"/>-->
+
+                <!-- This reference and its related <bean> below enable Sequest integration -->
+                <!--<ref bean="sequestTaskOverride"/>-->
+            </list>
+        </property>
+        <property name="factories">
+            <list>
+                <!-- This reference and its related bean below enable RAW to mzXML conversion  -->
+                <ref bean="mzxmlConverterOverride"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- This bean and its related reference above customize XTandem execution
+         It sets XTandem to run on a Globus-enabled cluster defined in pipelineConfig.xml, and sets the
+         maximum wall time for execution to 720 minutes or 12 hours -->
+    <!--
+    <bean id="xtandemTaskOverride" class="org.labkey.ms2.pipeline.tandem.XTandemSearchTask$Factory">
+        <property name="location" value="cluster"/>
+        <property name="globusSettings">
+            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
+                <property name="maxWallTime" value="720"/>
+            </bean>
+        </property>
+    </bean>
+    -->
+
+    <!-- These two beans and their related references above customize TPP execution.
+         It configures the TPP to run on a Globus-enabled cluster defined in pipelineConfig.xml, sets the
+         maximum wall time for execution to 120 minutes or 2 hours for single-file analysis and 360 minutes or 6 hours for
+         fraction rollup jobs, and sets the maximum Java (used for Q3 quantitation) memory usage to 4GB,
+         which requires the use of a 64 bit JVM. It also tells the fraction rollup TPP to operate on the input
+         files directly off of the network file share instead of copying them to a local work directory -->
+    <!--
+    <bean id="tppTaskOverride" class="org.labkey.ms2.pipeline.TPPTask$Factory">
+        <property name="location" value="cluster"/>
+        <property name="javaVMOptions" value="-Xmx4096m" />
+        <property name="globusSettings">
+            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
+                <property name="maxWallTime" value="120"/>
+            </bean>
+        </property>
+    </bean>
+    <bean id="tppTaskJoinOverride" class="org.labkey.ms2.pipeline.TPPTask$FactoryJoin">
+        <property name="location" value="cluster"/>
+        <property name="largeWork" value="true"/>
+        <property name="globusSettings">
+            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
+                <property name="maxWallTime" value="360"/>
+            </bean>
+        </property>
+    </bean>
+    -->
+
+    <!-- Enable Thermo RAW to mzXML conversion using msConvert. -->
+    <bean id="mzxmlConverterOverride" class="org.labkey.api.pipeline.cmd.ConvertTaskFactorySettings">
+        <constructor-arg value="mzxmlConverter"/>
+        <property name="cloneName" value="mzxmlConverter"/>
+        <property name="commands">
+            <list>
+                <ref bean="msConvertCommandOverride"/>
+                <!-- As an alternative to msConvert, use ReAdW instead for conversion -->
+                <!--<ref bean="readwMzxmlConverterOverride"/>-->
+            </list>
+        </property>
+    </bean>
+
+    <!-- Configuration to customize behavior of msConvert -->
+    <bean id="msConvertCommandOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="msConvertCommand"/>
+        <property name="cloneName" value="msConvertCommand"/>
+        <!-- The default is to run msconvert on the web server. As an alternative, configure a remote pipeline server
+             (using "mzxmlconvert" as its location property value in its pipelineConfig.xml file) and uncomment the
+             line below -->
+        <!--<property name="location" value="mzxmlconvert"/>-->
+    </bean>
+
+    <!-- Configuration to customize behavior of ReAdW. Not active unless referenced by the "mzxmlConverterOverride"
+         bean above-->
+    <bean id="readwMzxmlConverterOverride" class="org.labkey.api.pipeline.cmd.CommandTaskFactorySettings">
+        <constructor-arg value="readwMzxmlConverter"/>
+        <property name="cloneName" value="readwMzxmlConverter"/>
+        <!-- The default is to run ReAdW on the web server. As an alternative, configure a remote pipeline server
+             (using "mzxmlconvert" as its location property value in its pipelineConfig.xml file) and uncomment the
+             line below -->
+        <!--<property name="location" value="mzxmlconvert"/>-->
+    </bean>
+
+    <!-- Enable Sequest integration and configure it to run on a remote pipeline server (using "sequest" as its location
+         property value in its pipelineConfig.xml file). Give pointers to the directory where Sequest is installed,
+         and a directory to use for storing FASTA index files. -->
+    <!--
+    <bean id="sequestTaskOverride" class="org.labkey.ms2.pipeline.sequest.SequestSearchTask$Factory">
+        <property name="location" value="sequest"/>
+        <property name="sequestInstallDir" value="C:\Program Files (x86)\Thermo\Discoverer\Tools\Sequest" />
+        <property name="indexRootDir" value="C:\FastaIndices" />
+    </bean>
+    -->
+</beans>

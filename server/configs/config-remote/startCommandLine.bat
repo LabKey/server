@@ -1,0 +1,1 @@
+java -cp ..\..\..\build\labkeyBootstrap.jar -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx384m org.labkey.bootstrap.RemoteServerBootstrap -modulesdir=..\..\..\build\deploy\modules -configdir=. -webappdir=..\..\..\build\deploy\labkeywebapp

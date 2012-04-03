@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="activeMqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <constructor-arg value="tcp://localhost:61616"/>
+        <!--<property name="userName" value="username" />-->
+        <!--<property name="password" value="password" />-->
+    </bean>
+
+    <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
+        <property name="workDirFactory">
+            <bean class="org.labkey.pipeline.api.WorkDirectoryRemote$Factory">
+                <property name="lockDirectory" value="T:/tools/bin_brendan/syncp-locks"/>
+                <property name="cleanupOnStartup" value="true" />
+                <property name="tempDirectory" value="c:/temp/remoteTempDir" />
+            </bean>
+        </property>
+        <property name="remoteServerProperties">
+            <bean class="org.labkey.pipeline.api.properties.RemoteServerPropertiesImpl">
+                <property name="location" value="mzxmlconvert"/>
+            </bean>
+        </property>
+
+        <property name="appProperties">
+            <bean class="org.labkey.pipeline.api.properties.ApplicationPropertiesImpl">
+                <property name="networkDriveLetter" value="t" />
+                <property name="networkDrivePath" value="\\fred\stedi" />
+                <!-- Map the network drive manually in dev mode, or supply a user and password -->
+                <property name="networkDriveUser" value="" />
+                <property name="networkDrivePassword" value="" />
+
+                <property name="toolsDirectory" value="c:/labkey/build/deploy/bin" />
+            </bean>
+        </property>
+    </bean>
+</beans>

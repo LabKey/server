@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
+        <property name="appProperties">
+            <bean class="org.labkey.pipeline.api.properties.ApplicationPropertiesImpl">
+                <property name="toolsDirectory" value="/opt/cptools/bin_brendan" />
+            </bean>
+        </property>
+        <property name="configProperties">
+            <bean class="org.labkey.pipeline.api.properties.ConfigPropertiesImpl">
+                <property name="softwarePackages">
+                    <map>
+                        <entry key="tpp" value="tpp${version}/bin"/>
+                        <entry key="xtandem" value="tandem${version}"/>
+                        <entry key="msinspect" value="msInspect"/>
+                        <entry key="pwiz" value="pwiz"/>
+                    </map>
+                </property>
+            </bean>
+        </property>
+        <property name="workDirFactory">
+            <bean class="org.labkey.pipeline.api.WorkDirectoryRemote$Factory">
+                <property name="lockDirectory" value="/opt/cptools/bin_brendan/syncp-locks"/>
+                <property name="tempDirectoryEnv" value="TMPDIR"/>
+                <property name="outputPermissions" value="0664"/>
+            </bean>
+        </property>
+        <property name="largeWorkDirFactory">
+            <bean class="org.labkey.pipeline.api.WorkDirectoryLocal$Factory">
+                <property name="outputPermissions" value="0664"/>
+            </bean>
+        </property>
+        <property name="pathMapper">
+            <bean class="org.labkey.pipeline.xstream.PathMapperImpl">
+                <property name="localIgnoreCase" value="false"/>
+                <property name="remoteIgnoreCase" value="true"/>
+                <property name="pathMap">
+                    <map>
+                        <entry key="file:/T:/edi" value="file:/home/edi"/>
+                        <entry key="file:/T:/data" value="file:/data"/>
+                    </map>
+                </property>
+            </bean>
+        </property>
+    </bean>
+</beans>

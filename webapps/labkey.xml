@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <Context docBase="@@appDocBase@@" debug="0" reloadable="true" crossContext="true">
     
     <Resource name="jdbc/labkeyDataSource" auth="Container"

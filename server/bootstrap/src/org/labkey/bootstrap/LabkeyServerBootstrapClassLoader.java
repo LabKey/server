@@ -32,6 +32,8 @@ import java.util.Collection;
  */
 public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 {
+    private final SimpleLogger _log = new CommonsLogger(LabkeyServerBootstrapClassLoader.class);
+
     // On startup on some platforms, some modules will die if java.awt.headless is not set to false.
     // Only set this if the user hasn't overridden it
     static
@@ -97,6 +99,11 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 
     public boolean modified()
     {
-        return super.modified() || _moduleExtractor.areModulesModified();
+        if (super.modified())
+        {
+            _log.info("Standard Tomcat modification check indicates webapp restart is required. Likely an updated JAR file in WEB-INF/lib.");
+            return true;
+        }
+        return _moduleExtractor.areModulesModified();
     }
 }

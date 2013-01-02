@@ -193,7 +193,10 @@ public class ModuleExtractor
     public boolean areModulesModified()
     {
         if(null == _explodedModules)
+        {
+            _log.info("ModuleExtractor not initialized as expected. Previous extraction may have failed. Reloading web application...");
             return true;
+        }
 
         //check module archives against exploded modules and check for new modules
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
@@ -223,7 +226,7 @@ public class ModuleExtractor
                     }
                     catch(IOException e)
                     {
-                        _log.error("Could not re-extract module " + moduleArchive.getModuleName() + ". Restarting the web application...");
+                        _log.error("Could not re-extract module " + moduleArchive.getModuleName() + ". Restarting the web application...", e);
                         return true;
                     }
                 }
@@ -268,7 +271,7 @@ public class ModuleExtractor
                 }
                 catch(IOException e)
                 {
-                    _log.error("Could not hot-swap resources from the module " + explodedModule + ". Restarting web application...");
+                    _log.error("Could not hot-swap resources from the module " + explodedModule + ". Restarting web application...", e);
                     return true;
                 }
             }

@@ -63,7 +63,7 @@ public class CommonsLogger implements SimpleLogger
             if (null != _log && null != _error)
                 _errorEx.invoke(_log, message, t);
         }
-        catch (Exception x)
+        catch (Exception ignored)
         {
             
         }
@@ -77,7 +77,7 @@ public class CommonsLogger implements SimpleLogger
             if (null != _log && null != _error)
                 _error.invoke(_log, message);
         }
-        catch (Exception x)
+        catch (Exception ignored)
         {
 
         }
@@ -91,7 +91,7 @@ public class CommonsLogger implements SimpleLogger
             if (null != _log && null != _error)
                 _info.invoke(_log, message);
         }
-        catch (Exception x)
+        catch (Exception ignored)
         {
 
         }

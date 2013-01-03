@@ -15,6 +15,7 @@
  */
 package org.labkey.bootstrap;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -32,27 +33,38 @@ public class CommonsLogger implements SimpleLogger
     {
         try
         {
-            Class f;
+            // Class or interface that declares the methods that we'll be permitted to call
+            Class interfaceClass;
             try
             {
-                f = Class.forName("org.apache.commons.logging.LogFactory");
+                // Try for Tomcat 5.5
+                _log = getFactoryClass("org.apache.commons.logging.LogFactory", c);
+                interfaceClass = _log.getClass();
             }
             catch (ClassNotFoundException x)
             {
-                f = Class.forName("org.apache.juli.logging.LogFactory");
+                // Try for Tomcat 6
+                _log = getFactoryClass("org.apache.juli.logging.LogFactory", c);
+                // The implementation class is package protected, but the interface is public
+                interfaceClass = Class.forName("org.apache.juli.logging.Log");
             }
 
-            Method getLog = f.getMethod("getLog", Class.class);
-            _log = getLog.invoke(null, c);
-            _errorEx = _log.getClass().getMethod("error", Object.class, Throwable.class);
-            _error = _log.getClass().getMethod("error", Object.class);
-            _info = _log.getClass().getMethod("info", Object.class);
+            _errorEx = interfaceClass.getMethod("error", Object.class, Throwable.class);
+            _error = interfaceClass.getMethod("error", Object.class);
+            _info = interfaceClass.getMethod("info", Object.class);
         }
         catch (Exception x)
         {
             System.err.println("CommonsLogger: not initialized");
             x.printStackTrace(System.err);
         }
+    }
+
+    private Object getFactoryClass(String factoryClassName, Class logTarget) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        Class factoryClass = Class.forName(factoryClassName);
+        Method getLog = factoryClass.getMethod("getLog", Class.class);
+        return getLog.invoke(null, logTarget);
     }
 
 

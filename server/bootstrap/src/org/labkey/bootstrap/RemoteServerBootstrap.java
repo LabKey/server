@@ -31,12 +31,15 @@ public class RemoteServerBootstrap
             PipelineBootstrapConfig config = null;
             try
             {
-                config = new PipelineBootstrapConfig(rawArgs);
+                config = new PipelineBootstrapConfig(rawArgs, true);
             }
             catch (ConfigException e)
             {
                 printUsage(e.getMessage());
+                System.exit(1);
             }
+
+            PipelineBootstrapConfig.ensureLogHomeSet(config.getLogDir().getAbsolutePath());
 
             ClassLoader classLoader = config.getClassLoader();
             Thread.currentThread().setContextClassLoader(classLoader);

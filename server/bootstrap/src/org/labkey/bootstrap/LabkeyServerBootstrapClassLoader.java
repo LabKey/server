@@ -41,6 +41,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
         String headless = "java.awt.headless";
         if (System.getProperty(headless) == null)
             System.setProperty(headless, "true");
+        PipelineBootstrapConfig.ensureLogHomeSet(System.getProperty("catalina.home") + "/logs");
     }
 
     private ModuleExtractor _moduleExtractor;

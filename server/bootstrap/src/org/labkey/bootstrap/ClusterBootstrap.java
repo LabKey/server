@@ -31,7 +31,7 @@ public class ClusterBootstrap
         PipelineBootstrapConfig config = null;
         try
         {
-            config = new PipelineBootstrapConfig(rawArgs);
+            config = new PipelineBootstrapConfig(rawArgs, false);
         }
         catch (ConfigException e)
         {

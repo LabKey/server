@@ -33,9 +33,13 @@ public class PipelineBootstrapConfig
     public static final String CONFIG_DIR = "configdir";
     public static final String WEBAPP_DIR = "webappdir";
     public static final String PIPELINE_LIB_DIR = "pipelinelibdir";
+    public static final String LOG_DIR = "logdir";
+
+    private final static String LOG_HOME_PROPERTY_NAME = "labkey.log.home";
 
     private File _webappDir;
     private File _libDir;
+    private File _logDir;
     private List<File> _pipelineLibDirs = new ArrayList<File>();
     private File _configDir;
     private String[] _args;
@@ -43,9 +47,12 @@ public class PipelineBootstrapConfig
     private List<File> _moduleSpringContextFiles;
     private List<File> _customSpringConfigFiles;
     private List<File> _moduleFiles;
+    private final boolean _includeWEBINFClasses;
 
-    public PipelineBootstrapConfig(String[] rawArgs) throws IOException, ConfigException
+    public PipelineBootstrapConfig(String[] rawArgs, boolean includeWEBINFClasses) throws IOException, ConfigException
     {
+        _includeWEBINFClasses = includeWEBINFClasses;
+
         ArgumentParser args = new ArgumentParser(rawArgs);
         if (args.hasOption(WEBAPP_DIR))
         {
@@ -67,6 +74,15 @@ public class PipelineBootstrapConfig
         if (!_webappDir.isDirectory())
         {
             throw new ConfigException("Could not find webapp directory at " + _webappDir.getAbsolutePath());
+        }
+
+        if (args.hasOption(LOG_DIR))
+        {
+            _logDir = new File(args.getOption(LOG_DIR));
+        }
+        else
+        {
+            _logDir = new File(_webappDir.getParentFile(), "logs");
         }
 
         if (args.hasOption(PIPELINE_LIB_DIR))
@@ -156,6 +172,11 @@ public class PipelineBootstrapConfig
         return _configDir;
     }
 
+    public File getLogDir()
+    {
+        return _logDir;
+    }
+
     public ClassLoader getClassLoader()
     {
         init();
@@ -172,9 +193,15 @@ public class PipelineBootstrapConfig
             _moduleSpringContextFiles = new ArrayList<File>();
 
             List<URL> jarUrls = new ArrayList<URL>();
-
             try
             {
+                if (_includeWEBINFClasses)
+                {
+                    File webInfDir = new File(_webappDir, "WEB-INF");
+                    File classesDir = new File(webInfDir, "classes");
+                    jarUrls.add(classesDir.toURI().toURL());
+                }
+
                 for (File file : _libDir.listFiles())
                 {
                     jarUrls.add(file.toURI().toURL());
@@ -254,5 +281,11 @@ public class PipelineBootstrapConfig
     public List<File> getModuleFiles()
     {
         return _moduleFiles;
+    }
+
+    public static void ensureLogHomeSet(String location)
+    {
+        if (System.getProperty(LOG_HOME_PROPERTY_NAME) == null)
+            System.setProperty(LOG_HOME_PROPERTY_NAME, location);
     }
 }

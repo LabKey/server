@@ -290,7 +290,7 @@ public class ModuleExtractor
     {
         try
         {
-            PipelineBootstrapConfig config = new PipelineBootstrapConfig(args);
+            PipelineBootstrapConfig config = new PipelineBootstrapConfig(args, false);
 
             ModuleExtractor extractor = new ModuleExtractor(config.getWebappDir(), new StdOutLogger());
             extractor.extractModules();

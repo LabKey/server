@@ -33,21 +33,12 @@ public class CommonsLogger implements SimpleLogger
     {
         try
         {
+            // The Tomcat 6 compatible approach
+            _log = getFactoryClass("org.apache.juli.logging.LogFactory", c);
+            // The implementation class is package protected, but the interface is public
+
             // Class or interface that declares the methods that we'll be permitted to call
-            Class interfaceClass;
-            try
-            {
-                // Try for Tomcat 5.5
-                _log = getFactoryClass("org.apache.commons.logging.LogFactory", c);
-                interfaceClass = _log.getClass();
-            }
-            catch (ClassNotFoundException x)
-            {
-                // Try for Tomcat 6
-                _log = getFactoryClass("org.apache.juli.logging.LogFactory", c);
-                // The implementation class is package protected, but the interface is public
-                interfaceClass = Class.forName("org.apache.juli.logging.Log");
-            }
+            Class<Object> interfaceClass = (Class<Object>) Class.forName("org.apache.juli.logging.Log");
 
             _errorEx = interfaceClass.getMethod("error", Object.class, Throwable.class);
             _error = interfaceClass.getMethod("error", Object.class);

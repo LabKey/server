@@ -19,9 +19,13 @@ package org.fhcrc.cpas.bootstrap;
 import org.labkey.bootstrap.LabkeyServerBootstrapClassLoader;
 
 /**
+ * Here for backwards compatibility with labkey.xml (or similar) deployment descriptors that still refer to the
+ * this class by name. Using LabKeyServerBootstrapClassLoader has been preferred for many years.
+ *
  * User: jeckels
  * Date: Jan 5, 2007
  */
+@Deprecated
 public class CpasBootstrapClassLoader extends LabkeyServerBootstrapClassLoader
 {
     public CpasBootstrapClassLoader()

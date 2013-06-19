@@ -40,7 +40,7 @@ public class PipelineBootstrapConfig
     private File _webappDir;
     private File _libDir;
     private File _logDir;
-    private List<File> _pipelineLibDirs = new ArrayList<File>();
+    private List<File> _pipelineLibDirs = new ArrayList<>();
     private File _configDir;
     private String[] _args;
     private URLClassLoader _classLoader;
@@ -189,10 +189,10 @@ public class PipelineBootstrapConfig
         {
             ModuleExtractor extractor = new ModuleExtractor(getWebappDir(), new StdOutLogger());
             Collection<ExplodedModule> explodedModules = extractor.extractModules();
-            _moduleFiles = new ArrayList<File>(extractor.getExplodedModuleDirectories());
-            _moduleSpringContextFiles = new ArrayList<File>();
+            _moduleFiles = new ArrayList<>(extractor.getExplodedModuleDirectories());
+            _moduleSpringContextFiles = new ArrayList<>();
 
-            List<URL> jarUrls = new ArrayList<URL>();
+            List<URL> jarUrls = new ArrayList<>();
             try
             {
                 if (_includeWEBINFClasses)
@@ -233,7 +233,7 @@ public class PipelineBootstrapConfig
                 throw new RuntimeException(e);
             }
 
-            _customSpringConfigFiles = new ArrayList<File>();
+            _customSpringConfigFiles = new ArrayList<>();
             if (_configDir != null)
             {
                 addConfigFiles(_configDir);

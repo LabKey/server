@@ -51,9 +51,9 @@ public class ModuleExtractor
     public Collection<ExplodedModule> extractModules()
     {
         Set<File> webAppFiles = getWebAppFiles();
-        _moduleArchiveFiles = new HashSet<File>();
-        _errorArchives = new HashMap<File,Long>();
-        _ignoredExplodedDirs = new HashSet<File>();
+        _moduleArchiveFiles = new HashSet<>();
+        _errorArchives = new HashMap<>();
+        _ignoredExplodedDirs = new HashSet<>();
 
         //explode all module archives
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
@@ -78,7 +78,7 @@ public class ModuleExtractor
         _log.info("Deploying resources from exploded modules to web app directory...");
         // This needs to be a linked HashSet so that we preserve the order and handle the core modules before
         // the ones in the external modules directory, in case there are any duplicates
-        _explodedModules = new LinkedHashSet<ExplodedModule>();
+        _explodedModules = new LinkedHashSet<>();
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
         {
             for(File dir : moduleDir.listFiles())
@@ -152,7 +152,7 @@ public class ModuleExtractor
         }
 
         //file contains one path per line
-        Set<File> files = new HashSet<File>();
+        Set<File> files = new HashSet<>();
         BufferedReader reader = null;
         try
         {
@@ -182,7 +182,7 @@ public class ModuleExtractor
 
     public List<File> getExplodedModuleDirectories()
     {
-        List<File> dirs = new ArrayList<File>();
+        List<File> dirs = new ArrayList<>();
         for(ExplodedModule expMod : _explodedModules)
         {
             dirs.add(expMod.getRootDirectory());

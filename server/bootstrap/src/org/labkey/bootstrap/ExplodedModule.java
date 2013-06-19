@@ -63,7 +63,7 @@ public class ExplodedModule
     protected static final FileComparator _fileComparator = new FileComparator();
 
     private File _rootDirectory;
-    private Map<File,Long> _watchedFiles = new HashMap<File,Long>();
+    private Map<File,Long> _watchedFiles = new HashMap<>();
 
     public ExplodedModule(File rootDirectory)
     {
@@ -108,7 +108,7 @@ public class ExplodedModule
 
     public List<File> getSpringConfigFiles()
     {
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
         result.addAll(getFiles(CONFIG_PATH, _springConfigFilter));
         result.addAll(getFiles("web/WEB-INF", _springConfigFilter));
         return result;
@@ -123,7 +123,7 @@ public class ExplodedModule
 
         File webInfDir = new File(webAppDirectory, "WEB-INF");
         File jspJarDir = new File(webInfDir, "jsp");
-        Set<File> webAppFiles = new HashSet<File>();
+        Set<File> webAppFiles = new HashSet<>();
 
         if (1==1)
         {

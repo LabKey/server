@@ -23,6 +23,9 @@
 	<Parameter name="org.labkey.api.ms2.mzmlLibrary" value="pwiz_swigbindings"></Parameter>    
 	 -->
 
+    <!-- Track installations from Windows Installer -->
+    <!--@@installer@@ <Parameter name="org.labkey.api.util.mothershipreport.usedInstaller" value="true"/> @@installer@@-->
+
     <!-- Pipeline configuration -->
     <!--@@pipeline@@    <Parameter name="org.labkey.api.pipeline.config" value="@@pipelineConfigPath@@"/> @@pipeline@@-->
 

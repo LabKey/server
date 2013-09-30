@@ -8,7 +8,10 @@
         driverClassName="@@jdbcDriverClassName@@"
         url="@@jdbcURL@@"
         maxActive="20"
-        maxIdle="10" accessToUnderlyingConnectionAllowed="true"/>
+        maxIdle="10"
+        accessToUnderlyingConnectionAllowed="true"
+        validationQuery="SELECT 1"
+        />
 
     <Resource name="mail/Session" auth="Container"
         type="javax.mail.Session"

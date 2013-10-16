@@ -21,6 +21,8 @@
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
+    <Parameter name="MasterEncryptionKey" value="@@put master encryption key here@@" />
+
     <!-- mzML support via JNI -->
     <!-- 
 	<Parameter name="org.labkey.api.ms2.mzmlLibrary" value="pwiz_swigbindings"></Parameter>    

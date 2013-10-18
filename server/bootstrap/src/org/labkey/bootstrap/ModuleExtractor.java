@@ -141,10 +141,11 @@ public class ModuleExtractor
         }
     }
 
+    /** @return null if there was a problem (likely file system permissions) that prevents us from reading the directory */
     protected Set<File> getWebAppFiles()
     {
         //load the apiFiles.list to get a list of all files that are part of the core web app
-        File apiFiles = new File(_webAppDirectory, "WEB-INF/apiFiles.list");
+        File apiFiles = new File(_webAppDirectory, DirectoryFileListWriter.API_FILES_LIST_RELATIVE_PATH);
         if (!apiFiles.exists())
         {
             _log.info("WARNING: could not find the list of web app files at " + apiFiles.getPath() + ". Automatic cleanup of the web app directory will not occur.");
@@ -153,10 +154,8 @@ public class ModuleExtractor
 
         //file contains one path per line
         Set<File> files = new HashSet<>();
-        BufferedReader reader = null;
-        try
+        try (BufferedReader reader = new BufferedReader(new FileReader(apiFiles)))
         {
-            reader = new BufferedReader(new FileReader(apiFiles));
             String line;
             while (null != (line = reader.readLine()))
             {
@@ -168,14 +167,7 @@ public class ModuleExtractor
             _log.info("WARNING: exception while reading " + apiFiles.getPath() + ". "  + e.toString());
             return null;
         }
-        finally
-        {
-            if(null != reader)
-            {
-                try {reader.close();} catch (Exception ignore){}
-            }
-        }
-        
+
         return files;
     }
 

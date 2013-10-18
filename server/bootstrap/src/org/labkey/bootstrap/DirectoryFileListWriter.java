@@ -25,24 +25,17 @@ import java.io.File;
  */
 public class DirectoryFileListWriter
 {
+    public static final String API_FILES_LIST_RELATIVE_PATH = "WEB-INF/apiFiles.list";
+
     public static void main(String[] args) throws Exception
     {
-        PrintWriter writer = null;
-        try
+        File listFile = new File(API_FILES_LIST_RELATIVE_PATH);
+        try (PrintWriter writer = new PrintWriter(listFile))
         {
-            File listFile = new File("./WEB-INF/apiFiles.list");
-            writer = new PrintWriter(listFile);
             // Flush to make sure the file's on disk before we list the directory contents
             writer.flush();
             File currentDir = new File(".");
             appendFileToList(currentDir, writer, currentDir.getAbsolutePath());
-        }
-        finally
-        {
-            if (writer != null)
-            {
-                writer.close();
-            }
         }
     }
 

@@ -21,7 +21,8 @@
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
-    <Parameter name="MasterEncryptionKey" value="@@put master encryption key here@@" />
+    <!-- Encryption key for encrypted property store -->
+    <Parameter name="MasterEncryptionKey" value="@@masterEncryptionKey@@" />
 
     <!-- mzML support via JNI -->
     <!-- 

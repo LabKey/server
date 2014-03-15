@@ -12,7 +12,7 @@
     <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
         <property name="workDirFactory">
             <bean class="org.labkey.pipeline.api.WorkDirectoryRemote$Factory">
-                <property name="lockDirectory" value="T:/tools/bin_brendan/syncp-locks"/>
+                <!--<property name="lockDirectory" value="T:/tools/bin_brendan/syncp-locks"/>-->
                 <property name="cleanupOnStartup" value="true" />
                 <property name="tempDirectory" value="c:/temp/remoteTempDir" />
             </bean>

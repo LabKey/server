@@ -44,7 +44,7 @@
             </bean>
         </property>
         <property name="pathMapper">
-            <bean class="org.labkey.pipeline.xstream.PathMapperImpl">
+            <bean class="org.labkey.api.pipeline.file.PathMapperImpl">
                 <property name="localIgnoreCase" value="false"/>
                 <property name="remoteIgnoreCase" value="true"/>
                 <property name="pathMap">

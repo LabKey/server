@@ -14,7 +14,7 @@
                     <property name="labKeyDir" value="/media/sf_labkey/build/deploy" />
                     <property name="globusServer" value="https://192.168.1.78:8443" />
                     <property name="pathMapper">
-                        <bean class="org.labkey.pipeline.xstream.PathMapperImpl">
+                        <bean class="org.labkey.api.pipeline.file.PathMapperImpl">
                             <property name="localIgnoreCase" value="false"/>
                             <property name="remoteIgnoreCase" value="true"/>
                             <property name="pathMap">

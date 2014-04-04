@@ -45,7 +45,6 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     }
 
     private ModuleExtractor _moduleExtractor;
-    private int _tomcatVersion = 6;  // TODO: Tomcat6Hack
 
     public LabkeyServerBootstrapClassLoader()
     {
@@ -70,25 +69,6 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     
     protected void clearReferences()
     {
-    }
-
-    @Override // TODO: Tomcat6Hack
-    public Class findClass(String name) throws ClassNotFoundException
-    {
-        if (6 == _tomcatVersion && "org.apache.AnnotationProcessor".equals(name))
-            throw new ClassNotFoundException();
-
-        return super.findClass(name);
-    }
-
-    /**
-     * This method is accessed via reflection from ModuleLoader in order to inject the current Tomcat version.
-     */
-    // TODO: Tomcat6Hack
-    @SuppressWarnings("UnusedDeclaration")
-    public void setTomcatVersion(int version)
-    {
-        _tomcatVersion = version;
     }
 
     public void setResources(DirContext resources)

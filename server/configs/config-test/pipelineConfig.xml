@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
+        <property name="configProperties">
+            <bean class="org.labkey.pipeline.api.properties.ConfigPropertiesImpl">
+                <property name="softwarePackages">
+                    <map>
+                        <!--This is the path to the checked out copy of the SequenceAnalysis perl code.
+                            sequence_tools_install.sh would have placed this in the path below-->
+                        <entry key="SEQUENCEANALYSIS_CODELOCATION" value="@@SEQUENCEANALYSIS_CODELOCATION@@"/>
+                        <!--This is the path where the /external directory from the SequenceAnalysis module is checked out.
+                            This contains several JARs.  sequence_tools_install.sh would have placed these in the path below-->
+                        <entry key="SEQUENCEANALYSIS_EXTERNALDIR" value="@@SEQUENCEANALYSIS_EXTERNALDIR@@"/>
+                        <!--If the sequence tools are not in the standard pipeline tools dir, this is required.
+                            These are the external binaries installed by sequence_tools_install.sh-->
+                        <entry key="SEQUENCEANALYSIS_TOOLS" value="@@SEQUENCEANALYSIS_TOOLS@@"/>
+                    </map>
+                </property>
+            </bean>
+        </property>
+    </bean>	
+</beans>

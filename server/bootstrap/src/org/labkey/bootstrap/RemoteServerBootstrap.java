@@ -15,6 +15,7 @@
  */
 package org.labkey.bootstrap;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -46,9 +47,9 @@ public class RemoteServerBootstrap
 
             Class runnerClass = classLoader.loadClass("org.labkey.pipeline.mule.RemoteServerStartup");
             Object runner = runnerClass.newInstance();
-            Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, String[].class);
+            Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, File.class, String[].class);
 
-            runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getProgramArgs());
+            runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getWebappDir(), config.getProgramArgs());
 
             synchronized(runner)
             {

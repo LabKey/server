@@ -16,8 +16,9 @@
 
 package org.labkey.bootstrap;
 
-import java.lang.reflect.Method;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -45,9 +46,9 @@ public class ClusterBootstrap
         {
             Class runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterStartup");
             Object runner = runnerClass.newInstance();
-            Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, String[].class);
+            Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, File.class, String[].class);
 
-            runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getProgramArgs());
+            runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getWebappDir(), config.getProgramArgs());
         }
         catch (InvocationTargetException e)
         {

@@ -186,10 +186,11 @@ public class ModuleExtractor
     {
         if(null == _explodedModules)
         {
-            _log.info("ModuleExtractor not initialized as expected. Previous extraction may have failed. Reloading web application...");
+            _log.info("ModuleExtractor not initialized as expected. Previous extraction may have failed.");
             return true;
         }
 
+        boolean modified = false;
         //check module archives against exploded modules and check for new modules
         for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
         {
@@ -203,8 +204,8 @@ public class ModuleExtractor
                 //if it's a new module, return true
                 if(!_moduleArchiveFiles.contains(moduleArchiveFile))
                 {
-                    _log.info("New module archive '" + moduleArchiveFile.getPath() + "' found... reloading web application...");
-                    return true;
+                    _log.info("New module archive '" + moduleArchiveFile.getPath() + "' found...");
+                    modified = true;
                 }
 
                 //if it's been modified since extraction, re-extract it
@@ -218,8 +219,8 @@ public class ModuleExtractor
                     }
                     catch(IOException e)
                     {
-                        _log.error("Could not re-extract module " + moduleArchive.getModuleName() + ". Restarting the web application...", e);
-                        return true;
+                        _log.error("Could not re-extract module " + moduleArchive.getModuleName() + ".", e);
+                        modified = true;
                     }
                 }
             }
@@ -236,8 +237,8 @@ public class ModuleExtractor
                     ExplodedModule explodedModule = new ExplodedModule(dir);
                     if(!_explodedModules.contains(explodedModule))
                     {
-                        _log.info("New module directory '" + dir.getPath() + "' found... reloading web application...");
-                        return true;
+                        _log.info("New module directory '" + dir.getPath() + "' found.");
+                        modified = true;
                     }
                 }
             }
@@ -248,8 +249,8 @@ public class ModuleExtractor
         {
             if(explodedModule.isModified())
             {
-                _log.info("Module '" + explodedModule.getRootDirectory().getName() + "' has been modified... reloading web application...");
-                return true;
+                _log.info("Module '" + explodedModule.getRootDirectory().getName() + "' has been modified.");
+                modified = true;
             }
 
             //if not modified, and there is no source module file
@@ -263,13 +264,13 @@ public class ModuleExtractor
                 }
                 catch(IOException e)
                 {
-                    _log.error("Could not hot-swap resources from the module " + explodedModule + ". Restarting web application...", e);
-                    return true;
+                    _log.error("Could not hot-swap resources from the module " + explodedModule + ".", e);
+                    modified = true;
                 }
             }
         }
 
-        return false;
+        return modified;
     }
 
     /**

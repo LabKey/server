@@ -99,11 +99,15 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 
     public boolean modified()
     {
+        boolean modified = false;
         if (super.modified())
         {
             _log.info("Standard Tomcat modification check indicates webapp restart is required. Likely an updated JAR file in WEB-INF/lib.");
-            return true;
+            modified = true;
         }
-        return _moduleExtractor.areModulesModified();
+        modified |= _moduleExtractor.areModulesModified();
+
+        // On production servers, don't automatically redeploy the web app, which causes Tomcat to leak memory
+        return Boolean.getBoolean("devmode") && modified;
     }
 }

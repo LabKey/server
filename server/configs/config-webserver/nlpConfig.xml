@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
+    <property name="configProperties">
+        <bean class="org.labkey.pipeline.api.properties.ConfigPropertiesImpl">
+            <property name="softwarePackages">
+                <map>
+                    <entry key="nlp" value="nlp/${versionPlain}"/>
+                </map>
+            </property>
+        </bean>
+    </property>
+    </bean>
+    <bean id="nlpEnginePath" class="org.labkey.api.pipeline.cmd.RequiredInLine">
+        <property name="addPipelineToolsDir" value="true"/>
+        <property name="softwarePackage" value="nlp"/>
+        <property name="versionParamName" value="version"/>
+        <property name="value" value="nlp_engine.py"/>
+    </bean>
+</beans>

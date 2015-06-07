@@ -20,21 +20,15 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../external/lib/server/commons-logging-1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../external/lib/server/commons-logging-1.2.jar!/" />
         </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$TOMCAT_HOME$/lib/catalina.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/../../external/lib/server/commons-logging-1.2-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../external/lib/server/commons-logging-1.2-src.zip!/commons-logging-1.2-src/src/main/java" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
 </module>
-

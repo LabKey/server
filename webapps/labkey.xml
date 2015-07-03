@@ -19,6 +19,27 @@
         mail.smtp.user="@@smtpUser@@"
         mail.smtp.port="@@smtpPort@@"/>
 
+<!--
+    <Resource name="jdbc/labwareDataSource" auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="oracle.jdbc.driver.OracleDriver"
+              url="jdbc:oracle:thin:GW_LABKEY/labwaresa@localhost:1521:XE"
+              maxActive="8"
+              maxIdle="4" accessToUnderlyingConnectionAllowed="true"/>
+-->
+
+    <Resource name="jdbc/labwareDataSource" auth="Container"
+        type="javax.sql.DataSource"
+        username="@@jdbcUser@@"
+        password="@@jdbcPassword@@"
+        driverClassName="@@jdbcDriverClassName@@"
+        url="@@jdbcURL@@"
+        maxActive="20"
+        maxIdle="10"
+        accessToUnderlyingConnectionAllowed="true"
+        validationQuery="SELECT 1"
+        />
+
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" useSystemClassLoaderAsParent="false" />
 
     <!-- Encryption key for encrypted property store -->

@@ -16,15 +16,19 @@
 
 package org.labkey.bootstrap;
 
+import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.loader.WebappClassLoader;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import java.io.File;
-import java.net.URL;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.MalformedURLException;
-import java.util.List;
+import java.net.URL;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * User: jeckels
@@ -74,13 +78,58 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     {
     }
 
+    // This variant is called when running Tomcat 8
+    @SuppressWarnings("unused")
+    public void setResources(WebResourceRoot resources)
+    {
+        // This is effectively: super.setResources(resources);
+        // ...but we use a method handle so this class can be compiled against both Tomcat 7 and Tomcat 8
+        invokeSetResourcesOfSuper(resources, WebResourceRoot.class);
+
+        File webappDir = new File(resources.getContext().getDocBase());
+        extract(webappDir);
+    }
+
+    // This variant is called when running Tomcat 7
+    @SuppressWarnings("unused")
     public void setResources(DirContext resources)
     {
-        super.setResources(resources);
+        // This is effectively: super.setResources(resources);
+        // ...but we use a method handle so this class can be compiled against both Tomcat 7 and Tomcat 8
+        invokeSetResourcesOfSuper(resources, DirContext.class);
+
+        File webappDir;
+
         try
         {
-            File webappDir = new File(resources.getNameInNamespace());
+            webappDir = new File(resources.getNameInNamespace());
+        }
+        catch(NamingException e)
+        {
+            throw new RuntimeException(e);
+        }
 
+        extract(webappDir);
+    }
+
+    // Use method handle to invoke super.setResources() so this class can be compiled against both Tomcat 7 and Tomcat 8
+    private void invokeSetResourcesOfSuper(Object resources, Class parameterType)
+    {
+        try
+        {
+            MethodHandle handle = MethodHandles.lookup().findSpecial(WebappClassLoader.class, "setResources", MethodType.methodType(void.class, parameterType), getClass());
+            handle.invoke(this, resources);
+        }
+        catch (Throwable t)
+        {
+            throw new RuntimeException(t);
+        }
+    }
+
+    private void extract(File webappDir)
+    {
+        try
+        {
             _moduleExtractor = new ModuleExtractor(webappDir, new CommonsLogger(ModuleExtractor.class));
             Collection<ExplodedModule> explodedModules = _moduleExtractor.extractModules();
             for(ExplodedModule exploded : explodedModules)
@@ -91,7 +140,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
                 }
             }
         }
-        catch(NamingException | MalformedURLException e)
+        catch(MalformedURLException e)
         {
             throw new RuntimeException(e);
         }

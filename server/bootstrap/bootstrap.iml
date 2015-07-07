@@ -11,7 +11,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$TOMCAT_HOME$/lib/catalina.jar!/" />
+          <root url="jar://$CATALINA_HOME$/lib/catalina.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -28,6 +28,24 @@
         <SOURCES>
           <root url="jar://$MODULE_DIR$/../../external/lib/server/commons-logging-1.2-src.zip!/commons-logging-1.2-src/src/main/java" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$CATALINA_HOME$/bin/tomcat-juli.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$CATALINA_HOME$/lib/tomcat-api.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
   </component>

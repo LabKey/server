@@ -19,21 +19,6 @@
         mail.smtp.user="@@smtpUser@@"
         mail.smtp.port="@@smtpPort@@"/>
 
-
-    <!--@@teamcity_resource@@
-    <Resource name="jdbc/labwareDataSource" auth="Container"
-        type="javax.sql.DataSource"
-        username="@@jdbcUser@@"
-        password="@@jdbcPassword@@"
-        driverClassName="@@jdbcDriverClassName@@"
-        url="@@jdbcURL@@"
-        maxActive="20"
-        maxIdle="10"
-        accessToUnderlyingConnectionAllowed="true"
-        validationQuery="SELECT 1"
-        />
-        @@teamcity_resource@@-->
-
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" />
 
     <!-- Encryption key for encrypted property store -->

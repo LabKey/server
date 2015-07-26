@@ -19,6 +19,8 @@ package org.apache.catalina;
  *  Just a stub version of org.apache.catalina.WebResourceRoot, new in Tomcat 8, so we can compile
  *  LabkeyServerBootstrapClassLoader.java when Tomcat 7 is installed.
  */
+
+// @TomcatVersion -- Remove this file when Tomcat 7 is no longer supported
 public interface WebResourceRoot
 {
     Context getContext();

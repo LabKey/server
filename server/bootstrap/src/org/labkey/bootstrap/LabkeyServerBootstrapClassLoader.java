@@ -79,6 +79,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     }
 
     // This variant is called when running Tomcat 8
+    // @TomcatVersion -- Simplify when Tomcat 8 is required (just call super.setResources())
     @SuppressWarnings("unused")
     public void setResources(WebResourceRoot resources)
     {
@@ -91,6 +92,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     }
 
     // This variant is called when running Tomcat 7
+    // @TomcatVersion -- Remove when Tomcat 7 is no longer supported
     @SuppressWarnings("unused")
     public void setResources(DirContext resources)
     {

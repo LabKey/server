@@ -28,7 +28,9 @@ import java.lang.invoke.MethodType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: jeckels
@@ -37,6 +39,9 @@ import java.util.List;
 public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
 {
     private final SimpleLogger _log = new CommonsLogger(LabkeyServerBootstrapClassLoader.class);
+
+    /** Modules which have been previously logged as having changed, which would trigger a webapp redeployment in development scenarios */
+    private Set<String> _previouslyLoggedModules = new HashSet<>();
 
     // On startup on some platforms, some modules will die if java.awt.headless is not set to false.
     // Only set this if the user hasn't overridden it
@@ -151,14 +156,29 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     public boolean modified()
     {
         boolean modified = false;
+        int previousCount = _previouslyLoggedModules.size();
+
         if (super.modified())
         {
-            _log.info("Standard Tomcat modification check indicates webapp restart is required. Likely an updated JAR file in WEB-INF/lib.");
+            if (!_previouslyLoggedModules.contains(null))
+            {
+                _log.info("Standard Tomcat modification check indicates webapp restart is required. Likely an updated JAR file in WEB-INF/lib.");
+                _previouslyLoggedModules.add(null);
+            }
             modified = true;
         }
-        modified |= _moduleExtractor.areModulesModified();
+        modified |= _moduleExtractor.areModulesModified(_previouslyLoggedModules);
 
         // On production servers, don't automatically redeploy the web app, which causes Tomcat to leak memory
-        return Boolean.getBoolean("devmode") && modified;
+        if (Boolean.getBoolean("devmode") && modified)
+        {
+            _previouslyLoggedModules.clear();
+            return true;
+        }
+        else if (modified && _previouslyLoggedModules.size() > previousCount)
+        {
+            _log.info("Not redeploying webapp, since server is not running in development mode.");
+        }
+        return false;
     }
 }

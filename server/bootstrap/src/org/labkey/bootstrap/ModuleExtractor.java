@@ -182,11 +182,34 @@ public class ModuleExtractor
         return dirs;
     }
 
-    public boolean areModulesModified()
+    private void logModuleMessage(String module, Set<String> previouslyLoggedModules, String message)
+    {
+        logModuleMessage(module, previouslyLoggedModules, message, null);
+    }
+
+    /** Logs the mesage if we haven't previously logged a message about that module */
+    private void logModuleMessage(String module, Set<String> previouslyLoggedModules, String message, Throwable t)
+    {
+        if (!previouslyLoggedModules.contains(module))
+        {
+            if (t == null)
+            {
+                _log.info(message);
+            }
+            else
+            {
+                _log.error(message, t);
+            }
+            previouslyLoggedModules.add(module);
+        }
+    }
+
+    /** @param previouslyLoggedModules module names which have already been logged about since we started up the webapp */
+    public boolean areModulesModified(Set<String> previouslyLoggedModules)
     {
         if(null == _explodedModules)
         {
-            _log.info("ModuleExtractor not initialized as expected. Previous extraction may have failed.");
+            logModuleMessage(null, previouslyLoggedModules, "ModuleExtractor not initialized as expected. Previous extraction may have failed.");
             return true;
         }
 
@@ -204,7 +227,7 @@ public class ModuleExtractor
                 //if it's a new module, return true
                 if(!_moduleArchiveFiles.contains(moduleArchiveFile))
                 {
-                    _log.info("New module archive '" + moduleArchiveFile.getPath() + "' found...");
+                    logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "New module archive '" + moduleArchiveFile.getPath() + "' found...");
                     modified = true;
                 }
 
@@ -219,7 +242,7 @@ public class ModuleExtractor
                     }
                     catch(IOException e)
                     {
-                        _log.error("Could not re-extract module " + moduleArchive.getModuleName() + ".", e);
+                        logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "Could not re-extract module " + moduleArchive.getModuleName() + ".", e);
                         modified = true;
                     }
                 }
@@ -237,7 +260,7 @@ public class ModuleExtractor
                     ExplodedModule explodedModule = new ExplodedModule(dir);
                     if(!_explodedModules.contains(explodedModule))
                     {
-                        _log.info("New module directory '" + dir.getPath() + "' found.");
+                        logModuleMessage(dir.getName(), previouslyLoggedModules, "New module directory '" + dir.getPath() + "' found.");
                         modified = true;
                     }
                 }
@@ -249,7 +272,7 @@ public class ModuleExtractor
         {
             if(explodedModule.isModified())
             {
-                _log.info("Module '" + explodedModule.getRootDirectory().getName() + "' has been modified.");
+                logModuleMessage(explodedModule.getRootDirectory().getName(), previouslyLoggedModules, "Module '" + explodedModule.getRootDirectory().getName() + "' has been modified.");
                 modified = true;
             }
 
@@ -264,7 +287,7 @@ public class ModuleExtractor
                 }
                 catch(IOException e)
                 {
-                    _log.error("Could not hot-swap resources from the module " + explodedModule + ".", e);
+                    logModuleMessage(explodedModule.getRootDirectory().getName(), previouslyLoggedModules, "Could not hot-swap resources from the module " + explodedModule + ".", e);
                     modified = true;
                 }
             }

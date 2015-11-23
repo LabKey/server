@@ -42,25 +42,4 @@
         description="JMS Connection Factory"
         brokerURL="vm://localhost?broker.persistent=false&amp;broker.useJmx=false"
         brokerName="LocalActiveMQBroker"/> -->
-    <!-- <Resource name="services/NotificationConsumerService/home"
-        type="org.globus.wsrf.impl.notification.NotificationConsumerHome"
-        factory="org.globus.wsrf.jndi.BeanFactory"
-        resourceClass="org.globus.wsrf.impl.NotificationConsumerCallbackManagerImpl"
-        resourceKeyName="{http://www.globus.org/namespaces/2004/06/core}NotificationConsumerKey"
-        resourceKeyType="java.lang.String" />
-    <Resource name="timer/ContainerTimer"
-        type="org.globus.wsrf.impl.timer.TimerManagerImpl"
-        factory="org.globus.wsrf.jndi.BeanFactory" />
-    <Resource name="topic/ContainerTopicExpressionEngine"
-        type="org.globus.wsrf.impl.TopicExpressionEngineImpl"
-        factory="org.globus.wsrf.jndi.BeanFactory" />
-    <Resource name="query/eval/xpath"
-        type="org.globus.wsrf.impl.XPathExpressionEvaluator"
-        factory="org.globus.wsrf.jndi.BeanFactory" />
-    <Resource name="query/ContainerQueryEngine"
-        type="org.globus.wsrf.impl.QueryEngineImpl"
-        factory="org.globus.wsrf.jndi.BeanFactory" />
-    <Resource name="topic/eval/simple"
-        type="org.globus.wsrf.impl.SimpleTopicExpressionEvaluator"
-        factory="org.globus.wsrf.jndi.BeanFactory" /> -->
 </Context>

@@ -6,7 +6,7 @@
     <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
         <property name="remoteExecutionEngineConfigs">
             <list>
-                <bean class="org.labkey.pipeline.mule.DummyRemoteExecutionEngine$DummyConfig">
+                <bean class="org.labkey.pipeline.mule.test.DummyRemoteExecutionEngine$DummyConfig">
                 </bean>
             </list>
         </property>

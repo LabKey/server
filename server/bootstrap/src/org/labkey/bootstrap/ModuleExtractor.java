@@ -24,12 +24,7 @@ import java.util.*;
  */
 public class ModuleExtractor
 {
-    public final FilenameFilter moduleArchiveFilter = new FilenameFilter(){
-        public boolean accept(File dir, String name)
-        {
-            return name.toLowerCase().endsWith(ModuleArchive.FILE_EXTENSION);
-        }
-    };
+    public final FilenameFilter moduleArchiveFilter = (dir, name) -> name.toLowerCase().endsWith(ModuleArchive.FILE_EXTENSION);
 
     protected final File _webAppDirectory;
     protected final ModuleDirectories _moduleDirectories;

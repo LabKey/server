@@ -28,31 +28,16 @@
     <!-- Tasks to be run on the cluster -->
     <bean id="xtandemTaskOverride" class="org.labkey.ms2.pipeline.tandem.XTandemSearchTask$Factory">
         <property name="location" value="cluster"/>
-        <property name="globusSettings">
-            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
-                <property name="maxWallTime" value="720"/> <!-- 12 hours -->
-            </bean>
-        </property>
     </bean>
 
     <bean id="tppTaskOverride" class="org.labkey.ms2.pipeline.TPPTask$Factory">
         <property name="location" value="cluster"/>
         <!--<property name="javaVMOptions" value="-Xmx4096m" />-->
-        <property name="globusSettings">
-            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
-                <property name="maxWallTime" value="120"/> <!-- 2 hours -->
-            </bean>
-        </property>
     </bean>
 
     <bean id="tppTaskJoinOverride" class="org.labkey.ms2.pipeline.TPPTask$FactoryJoin">
         <property name="location" value="cluster"/>
         <property name="largeWork" value="true"/>
-        <property name="globusSettings">
-            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
-                <property name="maxWallTime" value="360"/> <!-- 6 hours -->
-            </bean>
-        </property>
     </bean>
 
     <!-- Enable Thermo RAW to mzXML conversion on a remote server -->

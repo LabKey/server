@@ -26,43 +26,26 @@
     </bean>
 
     <!-- This bean and its related reference above customize XTandem execution
-         It sets XTandem to run on a Globus-enabled cluster defined in pipelineConfig.xml, and sets the
-         maximum wall time for execution to 720 minutes or 12 hours -->
+         It sets XTandem to run on a cluster defined in pipelineConfig.xml -->
     <!--
     <bean id="xtandemTaskOverride" class="org.labkey.ms2.pipeline.tandem.XTandemSearchTask$Factory">
         <property name="location" value="cluster"/>
-        <property name="globusSettings">
-            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
-                <property name="maxWallTime" value="720"/>
-            </bean>
-        </property>
     </bean>
     -->
 
     <!-- These two beans and their related references above customize TPP execution.
-         It configures the TPP to run on a Globus-enabled cluster defined in pipelineConfig.xml, sets the
-         maximum wall time for execution to 120 minutes or 2 hours for single-file analysis and 360 minutes or 6 hours for
-         fraction rollup jobs, and sets the maximum Java (used for Q3 quantitation) memory usage to 4GB,
+         It configures the TPP to run on a cluster defined in pipelineConfig.xml
+         and sets the maximum Java (used for Q3 quantitation) memory usage to 4GB,
          which requires the use of a 64 bit JVM. It also tells the fraction rollup TPP to operate on the input
          files directly off of the network file share instead of copying them to a local work directory -->
     <!--
     <bean id="tppTaskOverride" class="org.labkey.ms2.pipeline.TPPTask$Factory">
         <property name="location" value="cluster"/>
         <property name="javaVMOptions" value="-Xmx4096m" />
-        <property name="globusSettings">
-            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
-                <property name="maxWallTime" value="120"/>
-            </bean>
-        </property>
     </bean>
     <bean id="tppTaskJoinOverride" class="org.labkey.ms2.pipeline.TPPTask$FactoryJoin">
         <property name="location" value="cluster"/>
         <property name="largeWork" value="true"/>
-        <property name="globusSettings">
-            <bean class="org.labkey.api.pipeline.GlobusSettingsImpl">
-                <property name="maxWallTime" value="360"/>
-            </bean>
-        </property>
     </bean>
     -->
 

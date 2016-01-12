@@ -4,10 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
     <bean id="pipelineJobService" class="org.labkey.pipeline.api.PipelineJobServiceImpl">
-        <property name="remoteExecutionEngineConfigs">
+        <property name="remoteExecutionEngines">
             <list>
-                <bean class="org.labkey.pipeline.mule.test.DummyRemoteExecutionEngine$DummyConfig">
-                </bean>
+                <bean class="org.labkey.pipeline.mule.test.DummyRemoteExecutionEngine" />
             </list>
         </property>
     </bean>

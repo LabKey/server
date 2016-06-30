@@ -38,27 +38,14 @@ public class ExplodedModule
     public static final String LIB_PATH = "lib";
     public static final String CONFIG_PATH = "config";
 
-    protected static final FilenameFilter _jarFilter = new FilenameFilter(){
-        public boolean accept(File dir, String name)
-        {
-            String lowerName = name.toLowerCase();
-            return lowerName.endsWith(".jar") && !lowerName.endsWith("_jsp.jar");
-        }
+    protected static final FilenameFilter _jarFilter = (dir, name) -> {
+        String lowerName = name.toLowerCase();
+        return lowerName.endsWith(".jar") && !lowerName.endsWith("_jsp.jar");
     };
 
-    protected static final FilenameFilter _jspJarFilter = new FilenameFilter(){
-        public boolean accept(File dir, String name)
-        {
-            return name.toLowerCase().endsWith("_jsp.jar");
-        }
-    };
-
-    protected static final FilenameFilter _springConfigFilter = new FilenameFilter(){
-        public boolean accept(File dir, String name)
-        {
-            return name.toLowerCase().endsWith("context.xml");
-        }
-    };
+    protected static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().endsWith("_jsp.jar");
+    protected static final FilenameFilter _springConfigFilter = (dir, name) -> name.toLowerCase().endsWith("context.xml");
+    protected static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.toLowerCase().equals("module.xml");
 
     protected static final FileComparator _fileComparator = new FileComparator();
 
@@ -70,11 +57,12 @@ public class ExplodedModule
         assert rootDirectory.exists() && rootDirectory.isDirectory();
         _rootDirectory = rootDirectory;
 
-        //watch the JAR and spring config XML files
+        //watch the module & spring config XML files, plus JAR files
         //if they change, the module has been modified
         //and the web app needs to be restarted
         addWatchFiles(getJarFiles());
         addWatchFiles(getSpringConfigFiles());
+        addWatchFiles(getModuleXmlFiles());
     }
 
     public void addWatchFiles(Collection<File> files)
@@ -93,6 +81,11 @@ public class ExplodedModule
     public List<File> getJarFiles()
     {
         return getFiles(LIB_PATH, _jarFilter);
+    }
+
+    public List<File> getModuleXmlFiles()
+    {
+        return getFiles(CONFIG_PATH, _moduleXmlFilter);
     }
 
     public URL[] getJarFileUrls() throws MalformedURLException

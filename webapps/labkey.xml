@@ -8,6 +8,7 @@
         driverClassName="@@jdbcDriverClassName@@"
         url="@@jdbcURL@@"
         maxActive="20"
+        maxTotal="20"
         maxIdle="10"
         accessToUnderlyingConnectionAllowed="true"
         validationQuery="SELECT 1"
@@ -18,6 +19,8 @@
         mail.smtp.host="@@smtpHost@@"
         mail.smtp.user="@@smtpUser@@"
         mail.smtp.port="@@smtpPort@@"/>
+
+    <Resources cachingAllowed="true" cacheMaxSize="20000" />
 
     <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" />
 

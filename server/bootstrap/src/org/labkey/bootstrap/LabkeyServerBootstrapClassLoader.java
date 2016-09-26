@@ -41,7 +41,7 @@ public class LabkeyServerBootstrapClassLoader extends WebappClassLoader
     private final SimpleLogger _log = new CommonsLogger(LabkeyServerBootstrapClassLoader.class);
 
     /** Modules which have been previously logged as having changed, which would trigger a webapp redeployment in development scenarios */
-    private Set<String> _previouslyLoggedModules = new HashSet<>();
+    private final Set<String> _previouslyLoggedModules = new HashSet<>();
 
     // On startup on some platforms, some modules will die if java.awt.headless is not set to false.
     // Only set this if the user hasn't overridden it

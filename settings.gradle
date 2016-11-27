@@ -1,0 +1,50 @@
+import org.labkey.gradle.util.BuildUtils
+
+buildscript {
+    repositories {
+      jcenter()
+      maven {
+            url "${artifactory_contextUrl}/${gradlePluginsVersion.endsWith('SNAPSHOT') ? 'plugins-snapshot-local' : 'plugins-release-local'}"
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
+    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+}
+
+
+/*
+  This file is used to determine which projects will be configured during the Gradle build of LabKey Server. 
+
+  You need only provide the leaves of the project tree here; a Gradle project will be created for each 
+  node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
+  ":server:modules" and ":server:modules:core").
+ */
+// a set of directory names that correspond to modules to be excluded from configuration
+def List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
+def List<String> excludedModules = ["movies", "test"] + BuildUtils.EHR_MODULE_NAMES + apiModules
+//def List<String> excludedModules = ["movies"] + apiModules
+def List<String> excludedExternalModules = ["nlp", "test"]
+
+// The line below includes the :server:bootstrap, "server"api, :schemas, :server:internal and :remotapi:java modules
+BuildUtils.includeBaseModules(this.settings)
+
+// The line below includes all modules in the server/modules directory (except the ones indicated as to be excluded)
+BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules);
+
+// This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
+//BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);
+
+// The line below includes just the modules in the externalModules/RGLab directory
+//BuildUtils.includeModules(this.settings, rootDir, ["externalModules/RGLab"], excludedExternalModules);
+
+// The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
+// N.B. If you include the ehr module from server/customModules, you will need to include some modules from the externalModules directory as well
+//BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULE_DIRS, excludedExternalModules);
+
+// The line below is an example of how to include a single module
+//include ":server:optionalModules:workflow"

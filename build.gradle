@@ -62,8 +62,8 @@ allprojects {
     version BuildUtils.getVersionNumber(project)
     ext
             {
-                //tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : System.env.CATALINA_HOME
-                tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.env.CATALINA_HOME != null ? System.env.CATALNA_HOME : System.properties['tomcat.home'])
+                tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : System.properties['tomcat.home']
+//                tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.env.CATALINA_HOME != null ? System.env.CATALNA_HOME : System.properties['tomcat.home'])
                 tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
             }
     repositories

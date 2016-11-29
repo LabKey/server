@@ -5,9 +5,13 @@ buildscript {
       jcenter()
       maven {
             url "${artifactory_contextUrl}/${gradlePluginsVersion.endsWith('SNAPSHOT') ? 'plugins-snapshot-local' : 'plugins-release-local'}"
-            credentials {
-                username = "${artifactory_user}"
-                password = "${artifactory_password}"
+            
+            if (hasProperty('artifactory_user') && hasProperty('artifactory_password'))
+            {
+               credentials {
+                  username = "${artifactory_user}"
+                  password = "${artifactory_password}"
+               }
             }
         }
     }

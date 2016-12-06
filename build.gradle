@@ -140,11 +140,11 @@ allprojects {
             }
 }
 
-task showRepos << {
+task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
     repositories.each{
         println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
     }
-}
+})
 
 artifactory {
     contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
@@ -168,12 +168,12 @@ artifactory {
 artifactoryPublish.skip=true
 
 subprojects {    
-    task allDepInsight(
+    task("allDepInsight",
          type: DependencyInsightReportTask, 
          group: "Help",
-         description: "Displays the insight into a specific dependency across all projects") << {}
-    task allDependencies(
+         description: "Displays the insight into a specific dependency across all projects")
+    task("allDependencies",
          type: DependencyReportTask, 
          group: "Help",
-         description: "Displays the dependencies for all projects") << {}
+         description: "Displays the dependencies for all projects")
 }

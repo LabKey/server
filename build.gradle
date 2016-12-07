@@ -121,12 +121,6 @@ allprojects {
                 }
               }
             }
-            else // TODO remove this else (only in place for possible transition scenario)
-            {
-              flatDir dirs: "${rootDir}/external/lib/server"
-              flatDir dirs: "${rootDir}/external/lib/build"
-              flatDir dirs: project(":server:internal").file("lib")
-            }
             flatDir dirs: "${tomcatDir}/lib"
             flatDir dirs: "${tomcatDir}/bin"  // for tomcat-juli.jar (required with jsp compile) and bootstrap.jar
           }

@@ -166,7 +166,7 @@ artifactory {
   publish {
     repository {
       repoKey = project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : "libs-release-local"
-      if (hasProperty('artifactory_user') && hasProperty('artifactory_password'))
+      if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
       {
         username = artifactory_user
         password = artifactory_password

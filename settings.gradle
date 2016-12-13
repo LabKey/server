@@ -12,11 +12,18 @@ buildscript {
                   username = "${artifactory_user}"
                   password = "${artifactory_password}"
                }
+               authentication {
+                  basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+               }
             }
         }
     }
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
 }
 

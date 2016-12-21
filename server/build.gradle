@@ -10,6 +10,11 @@ BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath:
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":server:internal")
 BuildUtils.addLabKeyDependency(project: project, config: 'jspJars', depProjectPath: ":server:api", depProjectConfig: "jspCompile")
 BuildUtils.addLabKeyDependency(project: project, config: 'jspJars', depProjectPath: ":server:internal", depProjectConfig: "jspCompile")
+BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap")
+dependencies
+        {
+            remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
+        }
 
 apply plugin: 'org.labkey.jsdoc'
 apply plugin: 'org.labkey.xsddoc'

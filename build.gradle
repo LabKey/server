@@ -193,11 +193,3 @@ subprojects {
           description: "Displays the dependencies for all projects")
 }
 
-task("showTeamCityProps", group: "Help", description: "Show properties on TeamCity").doLast({
-    println("teamcity properties")
-    if (project.hasProperty('teamcity'))
-        {
-            println(project.teamcity)
-        }
-    println("system name property ${System.getProperty('name')}")
-})

@@ -13,6 +13,10 @@ BuildUtils.addLabKeyDependency(project: project, config: 'jspJars', depProjectPa
 BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap")
 dependencies
         {
+            tomcatJars  "com.sun.mail:javax.mail:${javaxMailVersion}"
+            tomcatJars  "net.sourceforge.jtds:jtds:${jtdsVersion}" // MS SQLServer JDBC Driver
+            tomcatJars  "org.postgresql:postgresql:${postgresqlDriverVersion}"
+            tomcatJars   group: 'mysql', name: 'mysql-connector-java', version: mysqlDriverVersion
             remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
         }
 

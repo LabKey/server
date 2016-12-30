@@ -5,17 +5,6 @@ buildscript {
       jcenter()
       maven {
             url "${artifactory_contextUrl}/${gradlePluginsVersion.endsWith('SNAPSHOT') ? 'plugins-snapshot-local' : 'plugins-release-local'}"
-            
-            if (hasProperty('artifactory_user') && hasProperty('artifactory_password'))
-            {
-               credentials {
-                  username = "${artifactory_user}"
-                  password = "${artifactory_password}"
-               }
-               authentication {
-                  basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-               }
-            }
         }
     }
     dependencies {
@@ -36,10 +25,10 @@ buildscript {
   ":server:modules" and ":server:modules:core").
  */
 // a set of directory names that correspond to modules to be excluded from configuration
-def List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
-def List<String> excludedModules = ["movies", "test"] + BuildUtils.EHR_MODULE_NAMES + apiModules
+List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
+List<String> excludedModules = ["movies", "test"] + BuildUtils.EHR_MODULE_NAMES + apiModules
 //def List<String> excludedModules = ["movies"] + apiModules
-def List<String> excludedExternalModules = ["nlp", "test"]
+List<String> excludedExternalModules = ["nlp", "test"]
 
 // The line below includes the :server:bootstrap, "server"api, :schemas, :server:internal and :remotapi:java modules
 BuildUtils.includeBaseModules(this.settings)

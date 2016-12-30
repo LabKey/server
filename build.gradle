@@ -5,29 +5,9 @@ buildscript {
     jcenter()
     maven {
       url "${artifactory_contextUrl}/plugins-release-local"
-      if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-      {
-        credentials {
-          username = artifactory_user
-          password = artifactory_password
-        }
-        authentication {
-          basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-        }
-      }
     }
     maven {
       url "${artifactory_contextUrl}/plugins-snapshot-local"
-      if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-      {
-        credentials {
-          username = artifactory_user
-          password = artifactory_password
-        }
-        authentication {
-          basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-        }
-      }
     }
   }
   dependencies {

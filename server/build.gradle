@@ -2,7 +2,6 @@ import org.labkey.gradle.util.BuildUtils
 
 apply plugin: 'java'
 apply plugin: 'org.labkey.database'
-apply plugin: 'org.labkey.serverDeploy'
 
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":remoteapi:java")
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":schemas", depProjectConfig: "xmlSchema")
@@ -27,6 +26,7 @@ dependencies
 apply plugin: 'org.labkey.jsdoc'
 apply plugin: 'org.labkey.xsddoc'
 apply plugin: 'org.labkey.tomcat'
+apply plugin: 'org.labkey.serverDeploy'
 
 // FIXME this doesn't seem to work; the variables are not set at the right time for some reason
 //jsDoc {

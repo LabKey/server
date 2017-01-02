@@ -54,7 +54,6 @@ allprojects {
   }
 
   apply plugin: 'org.labkey.base'
-  apply plugin: 'idea'
   group  'org.labkey'
   version BuildUtils.getVersionNumber(project)
   ext

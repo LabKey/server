@@ -48,3 +48,4 @@ BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR
 
 // The line below is an example of how to include a single module
 //include ":server:optionalModules:workflow"
+include ":server:test"

@@ -46,6 +46,9 @@ BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR
 // N.B. If you include the ehr module from server/customModules, you will need to include some modules from the externalModules directory as well
 //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULE_DIRS, excludedExternalModules);
 
+// The line below will include the server/test project as well as the server/test/modules projects
+BuildUtils.includeTestModules(this.settings, rootDir)
+
 // The line below is an example of how to include a single module
 //include ":server:optionalModules:workflow"
 include ":server:test"

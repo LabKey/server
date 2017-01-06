@@ -27,7 +27,7 @@ buildscript {
 // a set of directory names that correspond to modules to be excluded from configuration
 List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
 List<String> excludedModules = ["movies", "test"] + BuildUtils.EHR_MODULE_NAMES + apiModules
-//def List<String> excludedModules = ["movies"] + apiModules
+//List<String> excludedModules = ["movies"] + apiModules
 List<String> excludedExternalModules = ["nlp", "test"]
 
 // The line below includes the :server:bootstrap, "server"api, :schemas, :server:internal and :remotapi:java modules
@@ -51,4 +51,3 @@ BuildUtils.includeTestModules(this.settings, rootDir)
 
 // The line below is an example of how to include a single module
 //include ":server:optionalModules:workflow"
-include ":server:test"

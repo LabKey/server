@@ -38,14 +38,15 @@ public class ExplodedModule
     public static final String LIB_PATH = "lib";
     public static final String CONFIG_PATH = "config";
 
-    protected static final FilenameFilter _jarFilter = (dir, name) -> {
-        String lowerName = name.toLowerCase();
-        return lowerName.endsWith(".jar") && !lowerName.endsWith("_jsp.jar");
-    };
-
-    protected static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().endsWith("_jsp.jar");
+    protected static final FilenameFilter _jspJarFilter = (dir, name) ->
+        name.toLowerCase().endsWith("_jsp.jar") /* ant build uses this extension */ || name.toLowerCase().endsWith("-jsp.jar") /* gradle build uses this extension */;
     protected static final FilenameFilter _springConfigFilter = (dir, name) -> name.toLowerCase().endsWith("context.xml");
     protected static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.toLowerCase().equals("module.xml");
+
+    protected static final FilenameFilter _jarFilter = (dir, name) -> {
+        String lowerName = name.toLowerCase();
+        return lowerName.endsWith(".jar") && !_jspJarFilter.accept(dir, name);
+    };
 
     protected static final FileComparator _fileComparator = new FileComparator();
 

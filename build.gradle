@@ -59,6 +59,8 @@ allprojects {
   ext
           {
             tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : System.properties['tomcat.home']
+            if (tomcatDir == null)
+                throw new GradleException("Tomcat home directory not set.  Please set the value of systemProp.tomcat.home.")
 //                tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.env.CATALINA_HOME != null ? System.env.CATALNA_HOME : System.properties['tomcat.home'])
             tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
           }

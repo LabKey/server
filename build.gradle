@@ -4,10 +4,10 @@ buildscript {
   repositories {
     jcenter()
     maven {
-      url "${artifactory_contextUrl}/plugins-release-local"
+      url "${artifactory_contextUrl}/plugins-snapshot-local"
     }
     maven {
-      url "${artifactory_contextUrl}/plugins-snapshot-local"
+      url "${artifactory_contextUrl}/plugins-release-local"
     }
   }
   dependencies {

@@ -12,7 +12,8 @@ buildscript {
   }
   dependencies {
     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
-    classpath "com.moowork.gradle:gradle-node-plugin:0.13"
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayPluginVersion}"
+    classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
     classpath "org.labkey.build:versioning:${versioningPluginVersion}"
     classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
   }

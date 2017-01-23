@@ -34,6 +34,18 @@ task("distAll",
         group: "distribution",
         description: "Make all LabKey distributions")
 
+// We need the tomcat home directory to find certain dependencies for our build process.
+String tomcatDirProp = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.getenv('CATALINA_HOME') != null ? System.getenv('CATALINA_HOME') : System.properties['tomcat.home'])
+
+if (tomcatDirProp == null)
+  throw new GradleException("Tomcat home directory not set.  Please set the value of the system property tomcat.home " +
+          "using either systemProp.tomcat.home=<tomcat home directory> in a gradle.properties file " +
+          "or -Dtomcat.home=<tomcat home directory> on command line. Setting the environment variable CATALINA_HOME " +
+          "will also work when building just from the command line (i.e., not in IntelliJ).")
+def tomcatHome = new File(tomcatDirProp)
+if (!tomcatHome.exists())
+  throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
+
 allprojects {
   configurations {
     driver
@@ -59,10 +71,7 @@ allprojects {
   version BuildUtils.getVersionNumber(project)
   ext
           {
-            tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : System.properties['tomcat.home']
-            if (tomcatDir == null)
-                throw new GradleException("Tomcat home directory not set.  Please set the value of systemProp.tomcat.home.")
-//                tomcatDir = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.env.CATALINA_HOME != null ? System.env.CATALNA_HOME : System.properties['tomcat.home'])
+            tomcatDir = tomcatDirProp
             tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
           }
   repositories

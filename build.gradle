@@ -73,6 +73,8 @@ allprojects {
           {
             tomcatDir = tomcatDirProp
             tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
+            vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
+            installerVersion = "${project.version}-${vcsRevision}"
           }
   repositories
           {

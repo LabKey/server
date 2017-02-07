@@ -36,7 +36,7 @@ BuildUtils.includeBaseModules(this.settings)
 // The line below includes all modules in the server/modules directory (except the ones indicated as to be excluded)
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules);
 
-// This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
+// This line below includes all modules in the server/modules, server/customModules and server/optionalModules directories
 //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);
 
 // The line below includes just the modules in the externalModules/RGLab directory

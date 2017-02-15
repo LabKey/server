@@ -25,7 +25,10 @@ buildscript {
 }
 
 allprojects {
-  apply plugin: 'com.jfrog.artifactory'
+  if (project.hasProperty('doPublishing'))
+  {
+    apply plugin: 'com.jfrog.artifactory'
+  }
 }
 
 // This creates the task at the root level.  When applying the Distribution plugin in sub-projects, they will each declare
@@ -154,26 +157,29 @@ task("showRepos", group: "Help", description: "Show the list of repositories cur
   }
 })
 
-artifactory {
-  contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-  publish {
-    repository {
-      repoKey = project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : "libs-release-local"
-      if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-      {
-        username = artifactory_user
-        password = artifactory_password
+if (project.hasProperty('doPublishing'))
+{
+  artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+      repository {
+        repoKey = project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : "libs-release-local"
+        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+        {
+          username = artifactory_user
+          password = artifactory_password
+        }
+        maven = true
       }
-      maven = true
-    }
-    defaults {
-      publishPom = true
-      publishIvy = false
+      defaults {
+        publishPom = true
+        publishIvy = false
+      }
     }
   }
-}
 
-artifactoryPublish.skip=true
+  artifactoryPublish.skip = true
+}
 
 subprojects {
   task("allDepInsight",

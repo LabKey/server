@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="JS ClientAPI" pattern="file[API]:webapp/clientapi//*" />
+</component>

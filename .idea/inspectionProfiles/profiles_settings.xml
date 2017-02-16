@@ -1,0 +1,15 @@
+<component name="InspectionProjectProfileManager">
+  <settings>
+    <option name="PROJECT_PROFILE" value="Project Default" />
+    <option name="USE_PROJECT_PROFILE" value="true" />
+    <version value="1.0" />
+    <info color="ff7a00">
+      <option name="EFFECT_COLOR" value="ff7a00" />
+      <option name="ERROR_STRIPE_COLOR" value="ff7a00" />
+      <option name="EFFECT_TYPE" value="2" />
+      <option name="myName" value="LABKEY CODING CONVENTION" />
+      <option name="myVal" value="50" />
+      <option name="myExternalName" value="LABKEY CODING CONVENTION" />
+    </info>
+  </settings>
+</component>

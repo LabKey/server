@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="ExtJS" pattern="file[API]:webapp/ext-3.2.2/adapter/ext//*||file[API]:webapp/ext-3.2.2/adapter/jquery//*||file[API]:webapp/ext-3.2.2/adapter/prototype//*||file[API]:webapp/ext-3.2.2/adapter/yui//*||file[API]:webapp/ext-3.2.2/resources//*||file[API]:webapp/ext-3.2.2/src//*" />
+</component>

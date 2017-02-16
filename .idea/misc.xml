@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FacetAutodetectingManager">
+    <autodetection-disabled>
+      <facet-type id="gwt">
+        <modules>
+          <module name="ExperimentGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/experiment/gwtsrc/org/labkey/experiment/list/ListImporter.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/experiment/gwtsrc/org/labkey/experiment/property/Designer.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/experiment/gwtsrc/org/labkey/experiment/samplechooser/SampleChooser.gwt.xml" />
+            </files>
+          </module>
+          <module name="FileContentGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/filecontent/gwtsrc/org/labkey/filecontent/designer/FilePropertiesDesigner.gwt.xml" />
+            </files>
+          </module>
+          <module name="FlowGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/flow/gwtsrc/org/labkey/flow/gateeditor/GateEditor.gwt.xml" />
+            </files>
+          </module>
+          <module name="InternalGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/internal/gwtsrc/org/labkey/api/gwt/Internal.gwt.xml" />
+            </files>
+          </module>
+          <module name="ListGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/list/gwtsrc/org/labkey/list/Designer.gwt.xml" />
+            </files>
+          </module>
+          <module name="Microarray">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/microarray/gwtsrc/org/labkey/microarray/designer/MicroarrayAssayDesigner.gwt.xml" />
+            </files>
+          </module>
+          <module name="MS1GWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/ms1/gwtsrc/org/labkey/ms1/MS1VennDiagramView.gwt.xml" />
+            </files>
+          </module>
+          <module name="MS2GWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/ms2/gwtsrc/org/labkey/ms2/MS2VennDiagramView.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/ms2/gwtsrc/org/labkey/ms2/pipeline/Search.gwt.xml" />
+            </files>
+          </module>
+          <module name="QueryGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/query/gwtsrc/org/labkey/query/metadata/MetadataEditor.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/query/gwtsrc/org/labkey/reports/designer/ChartDesigner.gwt.xml" />
+            </files>
+          </module>
+          <module name="StudyGWT">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/gwt/StudyApplication.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/assay/designer/AssayDesigner.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/assay/upload/ListChooser.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/plate/designer/TemplateDesigner.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/chart/StudyChartDesigner.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/dataset/DatasetImporter.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/dataset/Designer.gwt.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/designer/Designer.gwt.xml" />
+            </files>
+          </module>
+        </modules>
+      </facet-type>
+      <facet-type id="hibernate">
+        <modules>
+          <module name="LabKey" />
+        </modules>
+      </facet-type>
+      <facet-type id="Spring">
+        <modules>
+          <module name="API">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/api/webapp/WEB-INF/applicationContext.xml" />
+            </files>
+          </module>
+          <module name="Experiment">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/experiment/webapp/WEB-INF/experiment/experimentContext.xml" />
+            </files>
+          </module>
+          <module name="LabKey">
+            <files>
+              <file url="file://$PROJECT_DIR$/AWS_EC2/activemq.xml" />
+              <file url="file://$PROJECT_DIR$/AWS_EC2/conversion_server_pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/AWS_EC2/webserver_config/ms1Config.xml" />
+              <file url="file://$PROJECT_DIR$/AWS_EC2/webserver_config/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/AWS_EC2/webserver_config/pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/external/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/SequenceAnalysis/pipeline_client/pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/SequenceAnalysis/web/WEB-INF/sequenceanalysisContext.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/apisamples/apisamples/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/apisamples/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/hvtnFlow/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/hvtnFlow/src/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/idriFormulations/formulations/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/idriFormulations/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/idriParticleSize/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/idriParticleSize/particleSize/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/kiem/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/reagent/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/reagent/src/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/customModules/viscstudies/viscstudies/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/installer/config-remote/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/server/installer/config-remote/pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/server/module.template.xml" />
+              <file url="file://$PROJECT_DIR$/server/modules/visualization/resources/config/module.xml" />
+              <file url="file://$PROJECT_DIR$/server/simplemodule.template.xml" />
+            </files>
+          </module>
+          <module name="Microarray" />
+          <module name="MS1">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/ms1/webapp/WEB-INF/ms1/ms1Context.xml" />
+            </files>
+          </module>
+          <module name="MS2">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/ms2/webapp/WEB-INF/ms2/ms2Context.xml" />
+            </files>
+          </module>
+          <module name="Pipeline">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/pipeline/webapp/WEB-INF/pipeline/pipelineContext.xml" />
+            </files>
+          </module>
+          <module name="PipelineConfig">
+            <files>
+              <file url="file://$PROJECT_DIR$/docs/mule/config-cluster/ms1Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-cluster/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-cluster/pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-linux/ms1Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-linux/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-linux/pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-remote/microarrayConfig.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-remote/ms1Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-remote/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-remote/pipelineConfig.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-webserver/microarrayConfig.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-webserver/ms1Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-webserver/ms2Config.xml" />
+              <file url="file://$PROJECT_DIR$/docs/mule/config-webserver/pipelineConfig.xml" />
+            </files>
+          </module>
+          <module name="specimenCheck" />
+          <module name="test">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/test/modules/simpletest/config/module.xml" />
+            </files>
+          </module>
+          <module name="Workflow">
+            <files>
+              <file url="file://$PROJECT_DIR$/server/modules/workflow/webapp/WEB-INF/workflow/activiti-cfg.xml" />
+            </files>
+          </module>
+        </modules>
+      </facet-type>
+      <facet-type id="web">
+        <modules>
+          <module name="API" />
+          <module name="FeatureExtractionQueue">
+            <files>
+              <file url="file://$PROJECT_DIR$/webapps/FeatureExtractionQueue/src/conf/web.xml" />
+            </files>
+          </module>
+          <module name="LabKey" />
+          <module name="SequestQueue" />
+        </modules>
+      </facet-type>
+    </autodetection-disabled>
+  </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES5" />
+  </component>
+  <component name="ProjectResources">
+    <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="labkey" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/intellijBuild" />
+  </component>
+  <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/remoteapi/java">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/schemas">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/api">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/customModules/ehr">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/customModules/icemr">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/customModules/letvin">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/internal">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/internal/gwtsrc">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/announcements">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/audit">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/core">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/experiment">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/filecontent">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/flow">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/flow/enginesrc">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/issues">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/list">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/luminex">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/mothership">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/ms1/gwtsrc">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/ms2">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/nab">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/pipeline">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/query">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/query/gwtsrc">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/study">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/survey">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/modules/wiki">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="myVersion" value="124" />
+    <option name="mySupportsUserInfoFilter" value="true" />
+  </component>
+</project>

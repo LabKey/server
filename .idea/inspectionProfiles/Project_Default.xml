@@ -1,0 +1,96 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0" is_locked="false">
+    <option name="myName" value="Project Default" />
+    <option name="myLocal" value="false" />
+    <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="EmptyCatchBlock" enabled="false" level="WARNING" enabled_by_default="false">
+      <option name="m_includeComments" value="true" />
+      <option name="m_ignoreTestCases" value="true" />
+      <option name="m_ignoreIgnoreParameter" value="true" />
+    </inspection_tool>
+    <inspection_tool class="Java8CollectionsApi" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="LoggerInitializedWithForeignClass" enabled="false" level="WARNING" enabled_by_default="false">
+      <option name="loggerClassName" value="org.apache.log4j.Logger,org.slf4j.LoggerFactory,org.apache.commons.logging.LogFactory,java.util.logging.Logger" />
+      <option name="loggerFactoryMethodName" value="getLogger,getLogger,getLog,getLogger" />
+    </inspection_tool>
+    <inspection_tool class="SSBasedInspection" enabled="true" level="LABKEY CODING CONVENTION" enabled_by_default="true">
+      <searchConfiguration name="&lt;%= unsafe %&gt;" text="$JspWriter$.print( $Expression$ )" recursive="false" caseInsensitive="true" type="JAVA">
+        <constraint name="Expression" script="&quot;&quot;" regexp="(h|q|text|textLink|generateButton|PageFlowUtil.\w*)\(.*\)" nameOfExprType="java.lang.String" negateName="true" within="" contains="" />
+        <constraint name="JspWriter" script="&quot;&quot;" nameOfExprType="javax.servlet.jsp.JspWriter" within="" contains="" />
+      </searchConfiguration>
+      <replaceConfiguration name="File.getCanonicalPath() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalPath()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$).getAbsolutePath()">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="File.getCanonicalFile() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalFile()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <searchConfiguration name="PrintWriter used without specifying encoding" text="new PrintWriter($Parameter$, $Parameter2$)" recursive="false" caseInsensitive="false" type="JAVA">
+        <constraint name="Instance" minCount="0" within="" contains="" />
+        <constraint name="MethodCall" target="true" within="" contains="" />
+        <constraint name="Parameter" script="&quot;&quot;" nameOfExprType="java.io.File|java.io.OutputStream|java.lang.String" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Cla" within="" contains="" />
+        <constraint name="Clazz" script="&quot;&quot;" regexp="PrintWriter" nameOfExprType="java.io.PrintWriter" within="" contains="" />
+        <constraint name="Parameter2" script="&quot;&quot;" nameOfExprType="boolean" minCount="0" within="" contains="" />
+      </searchConfiguration>
+      <replaceConfiguration name="String.getBytes() used without specifying character encoding" text="$String$.getBytes()" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="$String$.getBytes(StringUtilsLabKey.DEFAULT_CHARSET)">
+        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="BufferedReader(InputStreamReader) used without specifying character encoding" text="new BufferedReader(new InputStreamReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="InputStreamReader used without specifying character encoding" text="new InputStreamReader($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="__context__" target="true" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="OutputStreamWriter used without specifying character encoding" text="new OutputStreamWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.OutputStream" exprTypeWithinHierarchy="true" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="BufferedReader(FileReader) always uses default character set" text="new BufferedReader(new FileReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="FileReader always uses default character set" text="new FileReader($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="BufferedWriter(FileWriter) always uses default character set" text="new BufferedWriter(new FileWriter($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
+        <constraint name="Arg" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="FileWriter always uses default character set" text="new FileWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="IOUtils.toString() always uses default character set" text="IOUtils.toString($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PageFlowUtil.getStreamContentsAsString($Arg$)">
+        <constraint name="Arg" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="String constructor passed bytes without specifying character encoding" text="new String($arg1$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" useStaticImport="true" replacement="new String($arg1$, StringUtilsLabKey.DEFAULT_CHARSET)">
+        <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" within="" contains="" />
+        <constraint name="arg0" within="" contains="" />
+      </replaceConfiguration>
+      <searchConfiguration name="System.out" text="System.$out$" recursive="true" caseInsensitive="true" type="JAVA">
+        <constraint name="SQLFragment" script="&quot;&quot;" nameOfExprType="org.labkey.api.data.SQLFragment" target="true" within="" contains="" />
+        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
+        <constraint name="operator4" within="" contains="" />
+        <constraint name="operator" script="&quot;&quot;" within="" contains="" />
+        <constraint name="out" regexp="(out|err)" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="printStackTrace" text=".printStackTrace" recursive="true" caseInsensitive="true" type="JAVA">
+        <constraint name="SQLFragment" script="&quot;&quot;" nameOfExprType="org.labkey.api.data.SQLFragment" target="true" within="" contains="" />
+        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
+        <constraint name="operator4" within="" contains="" />
+        <constraint name="operator" script="&quot;&quot;" within="" contains="" />
+      </searchConfiguration>
+    </inspection_tool>
+    <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="UnnecessaryBoxing" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="UnnecessaryUnboxing" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="WeakerAccess" enabled="false" level="WARNING" enabled_by_default="false">
+      <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="true" />
+      <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="true" />
+      <option name="SUGGEST_PRIVATE_FOR_INNERS" value="false" />
+    </inspection_tool>
+  </profile>
+</component>

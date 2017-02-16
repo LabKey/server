@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Current SQL Scripts" pattern="file:resources/schemas/dbscripts/postgresql/*||file:resources/schemas/dbscripts/sqlserver/*" />
+</component>

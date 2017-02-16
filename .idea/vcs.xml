@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="IssueNavigationConfiguration">
+    <option name="links">
+      <list>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="^(Fix|Spec|Secure Issue|Issue)?[\s#]*([0-9][0-9][0-9][0-9]*)" />
+          <option name="linkRegexp" value="https://www.labkey.org/issues/home/Developer/issues/details.view?issueId=$2" />
+        </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="^(TC|TeamCity)[\s#]*([0-9][0-9][0-9][0-9][0-9][0-9]*)" />
+          <option name="linkRegexp" value="https://teamcity.labkey.org/viewLog.html?buildId=$2" />
+        </IssueNavigationLink>
+      </list>
+    </option>
+  </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/argos" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/argos_test" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/cas" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/cds" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/cloud" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/compliance" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/duo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/freezerpro" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/hplc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/nlp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/oauth" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/premium" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/redcap" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/saml" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/scrumtime" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/synonym" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/optionalModules/workflow" vcs="Git" />
+  </component>
+</project>

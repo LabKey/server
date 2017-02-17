@@ -376,7 +376,7 @@
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/server" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="TEST_SEARCH_SCOPE">
@@ -385,7 +385,6 @@
       <envs />
       <patterns />
       <method>
-        <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/server/test/build.xml" target="build" />
         <option name="Make" enabled="true" />
       </method>
     </configuration>
@@ -545,119 +544,6 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="GWT" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="com.google.gwt.dev.DevMode" />
-      <option name="VM_PARAMETERS" value="-classpath $PROJECT_DIR$/server/internal/gwtsrc:$PROJECT_DIR$/server/modules/query/gwtsrc:$PROJECT_DIR$/server/modules/study/gwtsrc:$PROJECT_DIR$/server/modules/ms2/gwtsrc:$PROJECT_DIR$/server/modules/experiment/gwtsrc:$PROJECT_DIR$/server/external/lib/build/gwt-dev.jar:$PROJECT_DIR$/server/external/lib/build/gwt-user.jar" />
-      <option name="PROGRAM_PARAMETERS" value="-noserver -startupUrl &quot;http://localhost:8080/labkey/query/home/metadataQuery.view?schemaName=issues&amp;query.queryName=Issues&quot; org.labkey.query.metadata.MetadataEditor" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="LabKey" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="64539" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <ConfigurationWrapper RunnerId="Debug" />
-      <method />
-    </configuration>
-    <configuration default="false" name="LabKey Development" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="org.apache.catalina.startup.Bootstrap" />
-      <option name="VM_PARAMETERS" value="-Dcatalina.base=&quot;./&quot; -Dcatalina.home=&quot;./&quot; -Djava.io.tmpdir=&quot;./temp&quot; -Ddevmode=true -ea -Dsun.io.useCanonCaches=false -Xmx1G" />
-      <option name="PROGRAM_PARAMETERS" value="start" />
-      <option name="WORKING_DIRECTORY" value="file://$CATALINA_HOME$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="LabKey" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="3078" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method>
-        <option name="Make" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="false" name="LabKey Production" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="org.apache.catalina.startup.Bootstrap" />
-      <option name="VM_PARAMETERS" value="-Dcatalina.base=&quot;./&quot; -Dcatalina.home=&quot;./&quot; -Djava.io.tmpdir=&quot;./temp&quot; -Ddevmode=false -Dsun.io.useCanonCaches=false -Xmx1G" />
-      <option name="PROGRAM_PARAMETERS" value="start" />
-      <option name="WORKING_DIRECTORY" value="file://$CATALINA_HOME$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="LabKey" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="3078" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method>
-        <option name="Make" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="false" name="Remote Pipeline Server" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="org.labkey.bootstrap.RemoteServerBootstrap" />
-      <option name="VM_PARAMETERS" value="-Xmx384m" />
-      <option name="PROGRAM_PARAMETERS" value="-configdir=$PROJECT_DIR$/server/configs/config-remote -modulesdir=$PROJECT_DIR$/build/deploy/modules -webappdir=$PROJECT_DIR$/build/deploy/labkeyWebapp" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build/deploy" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="bootstrap" />
-      <envs />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="60866" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <ConfigurationWrapper RunnerId="Debug" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Debug Selenium Tests" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="5005" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="false" />
-      </RunnerSettings>
-      <ConfigurationWrapper RunnerId="Debug" />
-      <method />
-    </configuration>
-    <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Application.GWT" />
-      <item index="1" class="java.lang.String" itemvalue="Application.LabKey Development" />
-      <item index="2" class="java.lang.String" itemvalue="Application.LabKey Production" />
-      <item index="3" class="java.lang.String" itemvalue="Application.Remote Pipeline Server" />
-      <item index="4" class="java.lang.String" itemvalue="Remote.Debug Selenium Tests" />
-    </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="SvnConfiguration" cleanupOnStartRun="true">

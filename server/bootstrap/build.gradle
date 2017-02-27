@@ -1,2 +1,45 @@
 apply plugin: 'java'
 apply plugin: 'org.labkey.serverBootstrap'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.task.PomFile
+
+project.afterEvaluate  {
+    Properties pomProperties = new Properties()
+    pomProperties.put("ArtifactId", project.tasks.jar.baseName)
+    pomProperties.put("Organization", "LabKey")
+    pomProperties.put("OrganizationURL", "http://www.labkey.org")
+    pomProperties.put("Description", "The classes used when bootstrapping a LabKey Server instance" )
+    pomProperties.put("License", "The Apache Software License, Version 2.0")
+    pomProperties.put("LicenseURL", "http://www.apache.org/licenses/LICENSE-2.0.txt")
+    Task pomFileTask = project.task("pomFile",
+            group: GroupNames.PUBLISHING,
+            description: "create the pom file for this project",
+            type: PomFile,
+            {PomFile pomFile ->
+                pomFile.pomProperties = pomProperties
+            }
+    )
+    project.publishing {
+        publications {
+            libs(MavenPublication) {
+                artifactId project.tasks.jar.baseName
+                artifact project.tasks.jar
+            }
+
+            if (project.hasProperty('doPublishing'))
+            {
+                project.artifactoryPublish {
+                    dependsOn project.tasks.jar
+                    dependsOn pomFileTask
+                    publications('libs')
+                }
+            }
+
+        }
+    }
+}
+
+

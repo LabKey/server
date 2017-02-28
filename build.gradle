@@ -163,7 +163,7 @@ if (project.hasProperty('doPublishing'))
     contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
     publish {
       repository {
-        repoKey = project.version.endsWith('-SNAPSHOT') ? 'libs-snapshot-local' : "libs-release-local"
+        repoKey = BuildUtils.getRepositoryKey(project)
         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
         {
           username = artifactory_user

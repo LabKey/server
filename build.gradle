@@ -25,7 +25,7 @@ buildscript {
 }
 
 allprojects {
-  if (project.hasProperty('doPublishing'))
+  if (BuildUtils.shouldPublish(project))
   {
     apply plugin: 'com.jfrog.artifactory'
   }
@@ -157,7 +157,7 @@ task("showRepos", group: "Help", description: "Show the list of repositories cur
   }
 })
 
-if (project.hasProperty('doPublishing'))
+if (BuildUtils.shouldPublish(project))
 {
   artifactory {
     contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
@@ -171,7 +171,8 @@ if (project.hasProperty('doPublishing'))
         }
         maven = true
       }
-      defaults {
+      defaults
+      {
         publishPom = true
         publishIvy = false
       }

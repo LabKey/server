@@ -3,8 +3,10 @@ apply plugin: 'org.labkey.serverBootstrap'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-import org.labkey.gradle.util.GroupNames
+
 import org.labkey.gradle.task.PomFile
+import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.GroupNames
 
 project.afterEvaluate  {
     Properties pomProperties = new Properties()
@@ -29,7 +31,7 @@ project.afterEvaluate  {
                 artifact project.tasks.jar
             }
 
-            if (project.hasProperty('doPublishing'))
+            if (BuildUtils.shouldPublish(project))
             {
                 project.artifactoryPublish {
                     dependsOn project.tasks.jar

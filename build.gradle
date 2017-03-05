@@ -16,6 +16,7 @@ buildscript {
     classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
     classpath "org.labkey.build:versioning:${versioningPluginVersion}"
     classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+//    classpath "com.yahoo.platform.yui:yuicompressor:${yuiCompressorVersion}"
   }
   configurations.all {
     // Check for updates every build for SNAPSHOT dependencies
@@ -30,12 +31,6 @@ allprojects {
     apply plugin: 'com.jfrog.artifactory'
   }
 }
-
-// This creates the task at the root level.  When applying the Distribution plugin in sub-projects, they will each declare
-// a dependency to this task.
-task("distAll",
-        group: "distribution",
-        description: "Make all LabKey distributions")
 
 // We need the tomcat home directory to find certain dependencies for our build process.
 String tomcatDirProp = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.getenv('CATALINA_HOME') != null ? System.getenv('CATALINA_HOME') : System.properties['tomcat.home'])

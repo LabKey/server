@@ -26,6 +26,8 @@ buildscript {
 
 // The line below includes the set of modules for a minimally functional LabKey server
 BuildUtils.includeBaseModules(this.settings)
+// The line below will include the server/test project as well as the server/test/modules projects
+BuildUtils.includeTestModules(this.settings, rootDir)
 
 // Using the property 'moduleSet', you can apply a settings script from another location
 if (hasProperty('moduleSet'))
@@ -67,8 +69,6 @@ else
     // The line below includes only the external EHR modules
     //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EHR_EXTERNAL_MODULE_DIRS, excludedExternalModules)
 
-    // The line below will include the server/test project as well as the server/test/modules projects
-    BuildUtils.includeTestModules(this.settings, rootDir)
 
     // The line below includes a set of individual modules (in this case all the EHR modules)
     //BuildUtils.includeModules(this.settings, [":server:customModules:EHR_ComplianceDB",

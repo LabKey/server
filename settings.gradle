@@ -29,21 +29,10 @@ BuildUtils.includeBaseModules(this.settings)
 // The line below will include the server/test project as well as the server/test/modules projects
 BuildUtils.includeTestModules(this.settings, rootDir)
 
-// Using the property 'moduleSet', you can apply a settings script from another location
+// Using the property 'moduleSet', you can apply a settings script from the gradleSettings directory with the name of the moduleSet
 if (hasProperty('moduleSet'))
 {
-    switch (moduleSet)
-    {
-        case 'distributions':
-            // this just adds the distribution projects so we do want to fall through to the all case here
-            apply from: 'gradleSettings/distributions.gradle'
-        case 'all':
-            apply from: 'gradleSettings/all.gradle'
-            break
-        case 'community':
-            apply from: 'gradleSettings/community.gradle'
-            break
-    }
+    apply from: "gradleSettings/${moduleSet}.gradle"
 }
 else
 {

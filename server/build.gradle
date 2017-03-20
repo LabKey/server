@@ -4,10 +4,6 @@ apply plugin: 'org.labkey.database'
 
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":remoteapi:java", transitive: true)
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":schemas", depProjectConfig: "xmlSchema")
-BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":server:api")
-BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":server:internal")
-BuildUtils.addLabKeyDependency(project: project, config: 'jspJars', depProjectPath: ":server:api", depProjectConfig: "jspCompile")
-BuildUtils.addLabKeyDependency(project: project, config: 'jspJars', depProjectPath: ":server:internal", depProjectConfig: "jspCompile")
 BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap")
 dependencies
         {

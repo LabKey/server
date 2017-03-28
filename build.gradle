@@ -30,9 +30,9 @@ allprojects {
   {
     apply plugin: 'com.jfrog.artifactory'
   }
-//  project.tasks.withType(JavaCompile) {
-//    JavaCompile compile -> compile.options.incremental = true  // Gradle 3.4
-//  }
+  project.tasks.withType(JavaCompile) {
+    JavaCompile compile -> compile.options.incremental = true  // Gradle 3.4
+  }
 }
 
 // We need the tomcat home directory to find certain dependencies for our build process.

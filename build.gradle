@@ -149,6 +149,11 @@ allprojects {
               }
             }
           }
+  // FIXME.  There must be a better way to do this.  We need some of the content from the :server:api: webapp resources in order to do
+  // JSP compilation, so we need to declare a dependency on the copyTagLibsBase task defined in the api/build.gradle file for the jspCompile task,
+  // which means the :server:api project has to have been evaluated first so the task will have been defined.
+  if (project.path.toLowerCase().contains("modules:"))
+    project.evaluationDependsOn(":server:api")
 }
 
 task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({

@@ -149,11 +149,6 @@ allprojects {
               }
             }
           }
-  // FIXME.  There must be a better way to do this.  We need some of the content from the :server:api: webapp resources in order to do
-  // JSP compilation, so we need to declare a dependency on the copyTagLibsBase task defined in the api/build.gradle file for the jspCompile task,
-  // which means the :server:api project has to have been evaluated first so the task will have been defined.
-  if (project.path.toLowerCase().contains("modules:"))
-    project.evaluationDependsOn(":server:api")
 }
 
 task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
@@ -198,3 +193,18 @@ subprojects {
           description: "Displays the dependencies for all projects")
 }
 
+// We copy the resource files to a separate directory so they can be copied to jsptmp directory
+// for use in compiling JSPs.  Copying directly from the project.sourceSets.webapp.output for the JSP
+// task for api does not work when modules may be evaluated before the api module is evaluated.  Attempts to
+// declare evaluationDependsOn(:server:api) for each of these projects did not work.
+// This task is defined at the root to eliminate problems with evaluation order
+project.task("copyTagLibsBase",
+        type: Copy,
+        {CopySpec copy ->
+          copy.from "server/api/webapp"
+          copy.into "${project.buildDir}/webapp"
+          copy.include 'WEB-INF/web.xml'
+          copy.include 'WEB-INF/*.tld'
+          copy.include 'WEB-INF/tags/**'
+        }
+)

@@ -32,7 +32,7 @@ BuildUtils.includeTestModules(this.settings, rootDir)
 // Using the property 'moduleSet', you can apply a settings script from the gradleSettings directory with the name of the moduleSet
 if (hasProperty('moduleSet'))
 {
-    apply from: "gradleSettings/${moduleSet}.gradle"
+    apply from: "gradle/settings/${moduleSet}.gradle"
 }
 else
 {

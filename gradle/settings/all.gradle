@@ -1,0 +1,29 @@
+import org.labkey.gradle.util.BuildUtils
+
+/*
+  This file is used to determine which projects will be configured during the Gradle build of LabKey Server. 
+
+  You need only provide the leaves of the project tree here; a Gradle project will be created for each 
+  node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
+  ":server:modules" and ":server:modules:core").
+ */
+// a set of directory names that correspond to modules to be excluded from configuration
+List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
+List<String> excludedModules = ["movies"] + apiModules
+List<String> excludedExternalModules = ["nlp", "test"]
+
+// This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
+BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);
+// Hutch_abstraction has multiple modules within it
+BuildUtils.includeModules(this.settings, rootDir, ["server/optionalModules/hutch_abstraction"], excludedModules);
+
+// The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
+BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULE_DIRS, excludedExternalModules)
+// include the immport module singly
+include ':externalModules:RGLab:immport'
+
+// The line below will include the server/test project as well as the server/test/modules projects
+BuildUtils.includeTestModules(this.settings, rootDir)
+
+// include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
+include ":server:distributions:test"

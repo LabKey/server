@@ -16,7 +16,6 @@ buildscript {
     classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
     classpath "org.labkey.build:versioning:${versioningPluginVersion}"
     classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-//    classpath "com.yahoo.platform.yui:yuicompressor:${yuiCompressorVersion}"
   }
   configurations.all {
     // Check for updates every build for SNAPSHOT dependencies

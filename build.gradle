@@ -9,6 +9,9 @@ buildscript {
     maven {
       url "${artifactory_contextUrl}/plugins-release-local"
     }
+    maven {
+      url "${artifactory_contextUrl}/libs-release"
+    }
   }
   dependencies {
     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:${buildInfoExtractorGradleVersion}"

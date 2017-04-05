@@ -2,8 +2,11 @@ import org.labkey.gradle.util.BuildUtils
 
 buildscript {
     repositories {
-      jcenter()
-      maven {
+        jcenter()
+        maven {
+            url "${artifactory_contextUrl}/libs-release"
+        }
+        maven {
             url "${artifactory_contextUrl}/${gradlePluginsVersion.endsWith('SNAPSHOT') ? 'plugins-snapshot-local' : 'plugins-release-local'}"
         }
     }

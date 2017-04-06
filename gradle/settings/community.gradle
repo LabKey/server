@@ -1,3 +1,6 @@
 import org.labkey.gradle.util.BuildUtils
 
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.CUSTOM_MODULES_DIR], BuildUtils.EHR_MODULE_NAMES)
+
+// include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
+include ":server:distributions:test"

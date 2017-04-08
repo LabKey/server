@@ -32,7 +32,7 @@ BuildUtils.includeBaseModules(this.settings)
 // The line below will include the server/test project as well as the server/test/modules projects
 BuildUtils.includeTestModules(this.settings, rootDir)
 
-// Using the property 'moduleSet', you can apply a settings script from the gradleSettings directory with the name of the moduleSet
+// Using the property 'moduleSet', you can apply a settings script from the gradle/settings directory with the name of the moduleSet
 if (hasProperty('moduleSet'))
 {
     apply from: "gradle/settings/${moduleSet}.gradle"

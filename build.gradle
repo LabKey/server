@@ -128,25 +128,29 @@ allprojects {
   configurations.all
           {
             resolutionStrategy {
-              // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
-              // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
-              force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"
-              // we get different versions of slf4j-log4j12 from different transitive dependencies.
-              force "org.slf4j:slf4j-log4j12:${slf4jLog4j12Version}"
-              dependencySubstitution {
-                // Because the client api artifact name is not the same as the directory structure, we use
-                // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
-                // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
-                // use this mechanism in general (plus, it's very slow for our many-module build).
-                if (BuildUtils.shouldBuildFromSource(project.project(":remoteapi:java")))
-                  substitute module("org.labkey:labkey-client-api") with project(":remoteapi:java")
-                // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
-                // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
-                substitute module("bouncycastle:bcprov-jdk14:138") with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                substitute module("bouncycastle:bcmail-jdk14:138") with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
-                substitute module("bouncycastle:bcprov-jdk15:1.45") with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                substitute module("bouncycastle:bcmail-jdk15:138") with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
-              }
+                // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
+                // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
+                force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"
+                // we get different versions of slf4j-log4j12 from different transitive dependencies.
+                force "org.slf4j:slf4j-log4j12:${slf4jLog4j12Version}"
+                // force some newer versions than are brought in by mondrian (et al.)
+                force "xerces:xercesImpl:${xercesImplVersion}"
+                force "log4j:log4j:${log4jVersion}"
+                force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
+                dependencySubstitution {
+                    // Because the client api artifact name is not the same as the directory structure, we use
+                    // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
+                    // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
+                    // use this mechanism in general (plus, it's very slow for our many-module build).
+                    if (BuildUtils.shouldBuildFromSource(project.project(":remoteapi:java")))
+                      substitute module("org.labkey:labkey-client-api") with project(":remoteapi:java")
+                    // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
+                    // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
+                    substitute module("bouncycastle:bcprov-jdk14:138") with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
+                    substitute module("bouncycastle:bcmail-jdk14:138") with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                    substitute module("bouncycastle:bcprov-jdk15:1.45") with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
+                    substitute module("bouncycastle:bcmail-jdk15:138") with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                }
             }
           }
 }

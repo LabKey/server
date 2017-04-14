@@ -140,6 +140,9 @@ allprojects {
                 force "commons-io:commons-io:${commonsIoVersion}"
                 force "commons-logging:commons-logging:${commonsLoggingVersion}"
                 force "commons-pool:commons-pool:${commonsPoolVersion}"
+                // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
+                force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+                force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
                 dependencySubstitution {
                     // Because the client api artifact name is not the same as the directory structure, we use
                     // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

@@ -10,7 +10,7 @@ import org.labkey.gradle.util.BuildUtils
 // a set of directory names that correspond to modules to be excluded from configuration
 List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
 List<String> excludedModules = ["movies"] + apiModules
-List<String> excludedExternalModules = ["nlp", "test"]
+List<String> excludedExternalModules = ["nlp", "test", "tcrdb"]
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);

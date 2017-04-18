@@ -20,5 +20,56 @@ dependencies
 
 apply plugin: 'org.labkey.jsdoc'
 apply plugin: 'org.labkey.xsddoc'
+dependencies
+{
+   xsdDoc "xml-apis:xml-apis:${xmlApisVersion}"
+   xsdDoc "xerces:xercesImpl:${xercesImplVersion}"
+   xsdDoc "docflex:docflex-xml-re:${docflexXmlReVersion}"
+}
+
 apply plugin: 'org.labkey.tomcat'
 apply plugin: 'org.labkey.serverDeploy'
+
+// This a subset of the XSDs because dependencies get pulled in.
+List<File> xsdFiles = [
+    project.project(":schemas").file("clientLibrary.xsd"),
+    project.project(":schemas").file("apiTest.xsd"),
+    project.project(":schemas").file("cohorts.xsd"),
+    project.project(":schemas").file("datasets.xsd"),
+    project.project(":schemas").file("domainTemplate.xsd"),
+    project.project(":schemas").file("externalSchema.xsd"),
+    project.project(":schemas").file("folder.xsd"),
+    project.project(":schemas").file("folderType.xsd"),
+    project.project(":schemas").file("module.xsd"),
+    project.project(":schemas").file("pages.xsd"),
+    project.project(":schemas").file("participantGroups.xsd"),
+    project.project(":schemas").file("pipelineOptions.xsd"),
+    project.project(":schemas").file("pipelineProtocolProps.xsd"),
+    project.project(":schemas").file("qcStates.xsd"),
+    project.project(":schemas").file("query.xsd"),
+    project.project(":schemas").file("report.xsd"),
+    project.project(":schemas").file("reportProps.xsd"),
+    project.project(":schemas").file("studyDesign.xsd"),
+    project.project(":schemas").file("studyViews.xsd"),
+    project.project(":schemas").file("view.xsd"),
+    project.project(":schemas").file("viewCategory.xsd"),
+    project.project(":schemas").file("visitMap.xsd")
+]
+if (project.findProject(":server:modules:study") != null)
+{
+    xsdFiles += [project.project(":server:modules:study").file("schemas/assayProvider.xsd"),
+                 project.project(":server:modules:study").file("schemas/studyPipelineTasks.xsd")]
+}
+if (project.findProject(":server:modules:list") != null)
+    xsdFiles += project.project(":server:modules:list").file("schemas/lists.xsd");
+if (project.findProject(":server:modules:pipeline")  != null)
+    xsdFiles += project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd")
+if (project.findProject(":server:modules:dataintegration")  != null)
+    xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
+if (project.findProject(":server:optionalModules:redcap") != null)
+    xsdFiles += project.project(":server:optionalModules:redcap").file("schemas/redcapExport.xsd")
+if (project.findProject(":server:optionalModules:freezerpro") != null)
+    xsdFiles += project.project(":server:optionalModules:freezerpro").file("schemas/freezerProExport.xsd")
+
+project.xsdDoc.xsdFiles=xsdFiles
+

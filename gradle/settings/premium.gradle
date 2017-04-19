@@ -6,7 +6,7 @@ import org.labkey.gradle.util.BuildUtils
  */
 // a set of directory names that correspond to modules to be excluded from configuration
 List<String> excludedModules = ["movies"] + BuildUtils.EHR_MODULE_NAMES 
-List<String> excludedExternalModules = ["nlp", "test", "tcrdb"]
+List<String> excludedExternalModules = ["nlp", "test"]
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);

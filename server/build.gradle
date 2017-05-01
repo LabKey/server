@@ -73,3 +73,15 @@ if (project.findProject(":server:optionalModules:freezerpro") != null)
 
 project.xsdDoc.xsdFiles=xsdFiles
 
+project.jsDoc.paths = [
+    "api/webapp/clientapi",
+    "api/webapp/clientapi/dom",
+    "api/webapp/clientapi/core",
+    "api/webapp/clientapi/ext3",
+    "api/webapp/clientapi/ext4",
+    "api/webapp/clientapi/ext4/data",
+    "internal/webapp/labkey.js",
+    "modules/visualization/resources/web/vis/genericChart/genericChartHelper.js",
+    "modules/visualization/resources/web/vis/timeChart/timeChartHelper.js",
+    "internal/webapp/vis/src"
+]

@@ -143,6 +143,8 @@ allprojects {
                 // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                 force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                 force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+                // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
+                force "com.github.samtools:htsjdk:${htsjdkVersion}"
                 dependencySubstitution {
                     // Because the client api artifact name is not the same as the directory structure, we use
                     // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

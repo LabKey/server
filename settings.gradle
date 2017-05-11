@@ -45,6 +45,10 @@ else
     //List<String> excludedModules = ["movies"] + apiModules
     List<String> excludedExternalModules = ["nlp", "test"]
 
+    // Excluded external modules for EHR build
+    //List<String> excludedDISCVRModules = ["CancerStudies", "galaxyintegration", "mGAP", "su2c"]
+    //List<String> excludedExternalModules = ["nlp", "test"] + excludedDISCVRModules
+
     // The line below includes all modules in the server/modules directory (except the ones indicated as to be excluded)
     BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules);
 

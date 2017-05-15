@@ -1,4 +1,4 @@
-import org.labkey.gradle.task.CreateModule
+//import org.labkey.gradle.task.CreateModule
 import org.labkey.gradle.util.BuildUtils
 
 apply plugin: 'org.labkey.database'

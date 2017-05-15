@@ -1,3 +1,4 @@
+import org.labkey.gradle.task.CreateModule
 import org.labkey.gradle.util.BuildUtils
 
 apply plugin: 'org.labkey.database'
@@ -85,3 +86,10 @@ project.jsDoc.paths = [
     "modules/visualization/resources/web/vis/timeChart/timeChartHelper.js",
     "internal/webapp/vis/src"
 ]
+
+task('createModule', type: CreateModule, group: "Module",
+        description: "Creates a new module. Use moduleName property to specify the name of the module to be created. " +
+                "Use moduleDestination to specify the full path to destination" +
+                "Use createFiles to control which subdirectories are created.  Include some subset of api, test, and/or schema " +
+                    "in a comma delimited list to create those subdirectories in the new module. If none are required, still " +
+                    "include -PcreateFiles with no value to avoid being prompted." )

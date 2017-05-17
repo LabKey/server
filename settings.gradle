@@ -75,5 +75,8 @@ else
     //                                         ":server:customModules:onprc_ehr"])
 
     // The line below is an example of how to include a single module
-    //include ":server:optionalModules:workflow"
+//    include ":server:optionalModules:assayRequest"
+//    include ":server:optionalModules:biologics"
+//    include ":server:optionalModules:recipe"
+    include ":server:optionalModules:accounts"
 }

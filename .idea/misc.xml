@@ -174,76 +174,6 @@
       </facet-type>
     </autodetection-disabled>
   </component>
-  <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="gwt" url="file://$PROJECT_DIR$/server/internal/gwtsrc/org/labkey/api/gwt/Internal.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/experiment/gwtsrc/org/labkey/experiment/list/ListImporter.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/experiment/gwtsrc/org/labkey/experiment/property/Designer.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/experiment/gwtsrc/org/labkey/experiment/samplechooser/SampleChooser.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/filecontent/gwtsrc/org/labkey/filecontent/designer/FilePropertiesDesigner.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/flow/gwtsrc/org/labkey/flow/gateeditor/GateEditor.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/list/gwtsrc/org/labkey/list/Designer.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/microarray/gwtsrc/org/labkey/microarray/designer/MicroarrayAssayDesigner.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/ms1/gwtsrc/org/labkey/ms1/MS1VennDiagramView.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/ms2/gwtsrc/org/labkey/ms2/MS2VennDiagramView.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/ms2/gwtsrc/org/labkey/ms2/pipeline/Search.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/query/gwtsrc/org/labkey/query/metadata/MetadataEditor.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/query/gwtsrc/org/labkey/reports/designer/ChartDesigner.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/gwt/StudyApplication.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/assay/designer/AssayDesigner.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/assay/upload/ListChooser.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/plate/designer/TemplateDesigner.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/chart/StudyChartDesigner.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/dataset/DatasetImporter.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/dataset/Designer.gwt.xml" />
-    <file type="gwt" url="file://$PROJECT_DIR$/server/modules/study/gwtsrc/org/labkey/study/designer/Designer.gwt.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/AWS_EC2/activemq.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/AWS_EC2/conversion_server_pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/AWS_EC2/webserver_config/ms1Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/AWS_EC2/webserver_config/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/AWS_EC2/webserver_config/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-cluster/ms1Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-cluster/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-cluster/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-linux/ms1Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-linux/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-linux/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-remote/microarrayConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-remote/ms1Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-remote/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-remote/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-webserver/microarrayConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-webserver/ms1Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-webserver/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/docs/mule/config-webserver/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/external/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/api/webapp/WEB-INF/applicationContext.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/apisamples/apisamples/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/apisamples/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/hvtnFlow/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/hvtnFlow/src/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/idriFormulations/formulations/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/idriFormulations/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/idriParticleSize/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/idriParticleSize/particleSize/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/kiem/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/reagent/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/reagent/src/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/SequenceAnalysis/pipeline_client/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/SequenceAnalysis/web/WEB-INF/sequenceanalysisContext.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/customModules/viscstudies/viscstudies/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/installer/config-remote/ms2Config.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/installer/config-remote/pipelineConfig.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/module.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/modules/experiment/webapp/WEB-INF/experiment/experimentContext.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/modules/ms1/webapp/WEB-INF/ms1/ms1Context.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/modules/ms2/webapp/WEB-INF/ms2/ms2Context.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/modules/pipeline/webapp/WEB-INF/pipeline/pipelineContext.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/modules/visualization/resources/config/module.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/modules/workflow/webapp/WEB-INF/workflow/activiti-cfg.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/simplemodule.template.xml" />
-    <file type="Spring" url="file://$PROJECT_DIR$/server/test/modules/simpletest/config/module.xml" />
-    <type id="web" />
-  </component>
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES5" />
   </component>
@@ -363,6 +293,24 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/server/customModules/icemr">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/branches" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/databaseImages" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/labkey" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_gwt" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/nicksh_list" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/prototypes" />
+                  <option value="https://hedgehog.fhcrc.org/tor/stedi/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://hedgehog.fhcrc.org/tor/stedi/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/server/customModules/letvin">
           <value>
             <SvnBranchConfiguration>
               <option name="branchUrls">

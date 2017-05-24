@@ -22,7 +22,7 @@
 
     <Resources cachingAllowed="true" cacheMaxSize="20000" />
 
-    <Loader loaderClass="org.labkey.bootstrap.LabkeyServerBootstrapClassLoader" />
+    <Loader loaderClass="org.labkey.bootstrap.LabKeyBootstrapClassLoader" />
 
     <!-- Encryption key for encrypted property store -->
     <Parameter name="MasterEncryptionKey" value="@@masterEncryptionKey@@" />

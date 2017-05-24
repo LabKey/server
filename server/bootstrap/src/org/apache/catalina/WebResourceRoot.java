@@ -21,11 +21,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
-/**
- * org.apache.catalina.WebResourceRoot from Tomcat 8.0.28. This is needed so we can compile
- * LabkeyServerBootstrapClassLoader.java when Tomcat 7 is installed.
- *
- * @TomcatVersion -- Delete this when Tomcat 8 is required
+/*
+  org.apache.catalina.WebResourceRoot from Tomcat 8.0.28. This is needed so we can compile
+  LabKeyBootstrapClassLoader.java when Tomcat 7 is installed.
+
+  @TomcatVersion -- Delete this when Tomcat 8 is required
  */
 
 /**

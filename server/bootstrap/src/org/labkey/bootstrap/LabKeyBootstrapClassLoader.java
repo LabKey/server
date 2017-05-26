@@ -119,13 +119,14 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader
         extract(webappDir);
     }
 
-    // Use method handle to invoke super.setResources() so this class can be compiled against both Tomcat 7 and Tomcat 8
+    // Use method handle to invoke the appropriate LabKeyBootstrapClassLoader.setResources() method so this class can be
+    // compiled against both Tomcat 7 and Tomcat 8
     private void invokeSetResourcesOfSuper(Object resources, Class parameterType)
     {
         try
         {
-            // Point explicitly at LabKeyBootstrapClassLoader, since we might be in a subclass and using that won't resolve
-            // the setResources() method on Tomcat 7. See issue 30472
+            // Point explicitly at LabKeyBootstrapClassLoader to ensure we can find the setResources() method, even if
+            // we're calling from a subclass. See issue 30472
             MethodHandle handle = MethodHandles.lookup().findSpecial(WebappClassLoader.class, "setResources", MethodType.methodType(void.class, parameterType), LabKeyBootstrapClassLoader.class);
             handle.invoke(this, resources);
         }

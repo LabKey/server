@@ -124,7 +124,9 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader
     {
         try
         {
-            MethodHandle handle = MethodHandles.lookup().findSpecial(WebappClassLoader.class, "setResources", MethodType.methodType(void.class, parameterType), getClass());
+            // Point explicitly at LabKeyBootstrapClassLoader, since we might be in a subclass and using that won't resolve
+            // the setResources() method on Tomcat 7. See issue 30472
+            MethodHandle handle = MethodHandles.lookup().findSpecial(WebappClassLoader.class, "setResources", MethodType.methodType(void.class, parameterType), LabKeyBootstrapClassLoader.class);
             handle.invoke(this, resources);
         }
         catch (Throwable t)

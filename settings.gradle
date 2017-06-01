@@ -32,8 +32,12 @@ BuildUtils.includeBaseModules(this.settings)
 // The line below will include the server/test project as well as the server/test/modules projects
 BuildUtils.includeTestModules(this.settings, rootDir)
 
+if (hasProperty("idea.include.all.modules") && BuildUtils.isIntellijGradleRefresh(this))
+{
+    apply from: "gradle/settings/all.gradle" // Get all modules when refreshing gradle projects from IntelliJ
+}
 // Using the property 'moduleSet', you can apply a settings script from the gradle/settings directory with the name of the moduleSet
-if (hasProperty('moduleSet'))
+else if (hasProperty('moduleSet'))
 {
     apply from: "gradle/settings/${moduleSet}.gradle"
 }
@@ -41,7 +45,7 @@ else
 {
     // a set of directory names that correspond to modules to be excluded from configuration
     List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
-    List<String> excludedModules = ["movies", "test"] + BuildUtils.EHR_MODULE_NAMES + apiModules
+    List<String> excludedModules = ["movies", "test"] + apiModules + BuildUtils.EHR_MODULE_NAMES
     //List<String> excludedModules = ["movies"] + apiModules
     List<String> excludedExternalModules = ["nlp", "test"]
 
@@ -77,10 +81,11 @@ else
     // The line below is an example of how to include a single module
     //include ":server:optionalModules:workflow"
 }
+
 if (hasProperty('extraIncludes'))
 {
     for (String extraInclude : "${extraIncludes}".split(","))
     {
-        include "${extraInclude}"
+        include extraInclude
     }
 }

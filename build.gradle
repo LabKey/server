@@ -227,7 +227,7 @@ project.task(
         group: GroupNames.DISTRIBUTION,
         description: "Creates a csv file with a list of the modules for each distribution. By default it will be " +
                 "placed in a directory called manifests in the root of this labkey installation. Specifiy another " +
-                "directory by using \"-PmanifestDir\". The default file name is [distribution name].csv; specify " +
+                "directory by using \"-PmanifestDir\". The default file name is distributionModules.csv; specify " +
                 "another name using \"-PmanifestFileName\"."
 ).doLast({
     String manifestDir = "${project.getRootProject().getProjectDir()}/manifests"

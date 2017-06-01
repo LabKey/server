@@ -1,4 +1,5 @@
 import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.GroupNames
 
 buildscript {
   repositories {
@@ -220,3 +221,49 @@ project.task("copyTagLibsBase",
           copy.include 'WEB-INF/tags/**'
         }
 )
+
+project.task(
+        'getModulesManifest',
+        group: GroupNames.DISTRIBUTION,
+        description: "Creates a csv file with a list of the modules for each distribution. By default it will be " +
+                "placed in a directory called manifests in the root of this labkey installation. Specifiy another " +
+                "directory by using \"-PmanifestDir\". The default file name is [distribution name].csv; specify " +
+                "another name using \"-PmanifestFileName\"."
+).doLast({
+    String manifestDir = "${project.getRootProject().getProjectDir()}/manifests"
+    String manifestFileName = "distributionModules.csv"
+
+    if (project.hasProperty("manifestDir")) {
+        manifestDir = project.manifestDir
+    }
+
+    if (project.hasProperty("manifestFileName")) {
+        manifestFileName = project.manifestFileName
+    }
+
+    project.mkdir(manifestDir)
+    File manifestFile = project.file("${manifestDir}/${manifestFileName}")
+
+    StringBuilder manifestString = new StringBuilder("distribution,moduleName\n")
+    project.allprojects({Project sp ->
+        if (sp.configurations.getNames().contains("distribution")) {
+            String distName
+            if (sp.getName().startsWith("test_")) {
+                // This is for the test_*prc case.
+                distName = sp.getName()
+            }
+            else {
+                distName = sp.tasks.distribution.hasProperty("subDirName") ?
+                        sp.tasks.distribution.subDirName :
+                        sp.getName()
+            }
+            sp.configurations.distribution
+                    .getAllDependencies()
+                    .withType(ProjectDependency)
+                    .each({dep ->
+                manifestString.append("${distName},${dep.name}\n")
+            })
+        }
+    })
+    manifestFile.text = manifestString.toString()
+})

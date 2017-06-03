@@ -32,7 +32,7 @@ BuildUtils.includeBaseModules(this.settings)
 // The line below will include the server/test project as well as the server/test/modules projects
 BuildUtils.includeTestModules(this.settings, rootDir)
 
-if (hasProperty("idea.include.all.modules") && BuildUtils.isIntellijGradleRefresh(this))
+if (hasProperty("ideaIncludeAllModules") && BuildUtils.isIntellijGradleRefresh(this))
 {
     apply from: "gradle/settings/all.gradle" // Get all modules when refreshing gradle projects from IntelliJ
 }
@@ -88,4 +88,9 @@ if (hasProperty('extraIncludes'))
     {
         include extraInclude
     }
+}
+
+if (hasProperty('inheritedDistPath'))
+{
+    include "${inheritedDistPath}"
 }

@@ -1,8 +1,6 @@
 //import org.labkey.gradle.task.CreateModule
 import org.labkey.gradle.util.BuildUtils
 
-apply plugin: 'org.labkey.database'
-
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":remoteapi:java", transitive: true)
 BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":schemas", depProjectConfig: "xmlSchema")
 BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap")
@@ -30,6 +28,7 @@ dependencies
 
 apply plugin: 'org.labkey.tomcat'
 apply plugin: 'org.labkey.serverDeploy'
+apply plugin: 'org.labkey.database'
 
 // This a subset of the XSDs because dependencies get pulled in.
 List<File> xsdFiles = [

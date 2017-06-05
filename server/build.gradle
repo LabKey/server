@@ -10,9 +10,6 @@ dependencies
             tomcatJars  "net.sourceforge.jtds:jtds:${jtdsVersion}" // MS SQLServer JDBC Driver
             tomcatJars  "org.postgresql:postgresql:${postgresqlDriverVersion}"
             tomcatJars   group: 'mysql', name: 'mysql-connector-java', version: mysqlDriverVersion
-            // we require the ant jar in the tomcat/lib directory because the RecompilingJspClassLoader uses JspC, which 
-            // derives from an ant task.
-            tomcatJars   "org.apache.ant:ant:${antVersion}"
 
             remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
         }

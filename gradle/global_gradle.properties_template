@@ -1,8 +1,4 @@
 deployMode=dev
-# When set to true, Gradle will run the build with remote debugging enabled, listening on port 5005. 
-# Note that this is the equivalent of adding -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 to the JVM command line 
-# and will suspend the virtual machine until a debugger is attached.
-#org.gradle.debug=true 
 # We need to know the tomcat home directory for some of the dependencies in our build process.  IntelliJ does not 
 # pick up the CATALINA_HOME environment variable, so if working with the IDE, you need to set the tomcat.home
 # system property either here as shown below or on the command line with -Dtomcat.home=/path/to/tomcat/home

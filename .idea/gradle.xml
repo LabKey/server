@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/externalModules/DISCVR/galaxyintegration" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/htcondorconnector" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/jbrowse" />
+            <option value="$PROJECT_DIR$/externalModules/DISCVR/mGAP" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/omerointegration" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/su2c" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/tcrdb" />

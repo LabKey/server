@@ -34,7 +34,9 @@ allprojects {
     apply plugin: 'com.jfrog.artifactory'
   }
   project.tasks.withType(JavaCompile) {
-    JavaCompile compile -> compile.options.incremental = true  // Gradle 3.4
+    JavaCompile compile ->
+        compile.options.incremental = true  // Gradle 3.4
+        compile.options.encoding = 'UTF-8'
   }
 }
 
@@ -49,6 +51,16 @@ if (tomcatDirProp == null)
 def tomcatHome = new File(tomcatDirProp)
 if (!tomcatHome.exists())
   throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
+
+//allprojects {
+//    apply plugin: 'idea'
+//    idea {
+//        module {
+//            outputDir new File(rootDir, "intellijBuild/${project.name}/classes/main")
+//            testOutputDir new File(rootDir, "intellijBuild/${project.name}/classes/test")
+//        }
+//    }
+//}
 
 allprojects {
   configurations {
@@ -152,13 +164,13 @@ allprojects {
                     // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
                     // use this mechanism in general (plus, it's very slow for our many-module build).
                     if (BuildUtils.shouldBuildFromSource(project.project(":remoteapi:java")))
-                      substitute module("org.labkey:labkey-client-api") with project(":remoteapi:java")
+                      substitute module('org.labkey:labkey-client-api') with project(":remoteapi:java")
                     // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
                     // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
-                    substitute module("bouncycastle:bcprov-jdk14:138") with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                    substitute module("bouncycastle:bcmail-jdk14:138") with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
-                    substitute module("bouncycastle:bcprov-jdk15:1.45") with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                    substitute module("bouncycastle:bcmail-jdk15:138") with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                    substitute module('bouncycastle:bcprov-jdk14:138') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
+                    substitute module('bouncycastle:bcmail-jdk14:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                    substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
+                    substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
                 }
             }
           }

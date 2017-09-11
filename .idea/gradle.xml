@@ -13,8 +13,8 @@
             <option value="$PROJECT_DIR$/externalModules/DISCVR" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/CancerStudies" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/blast" />
+            <option value="$PROJECT_DIR$/externalModules/DISCVR/cluster" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/galaxyintegration" />
-            <option value="$PROJECT_DIR$/externalModules/DISCVR/htcondorconnector" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/jbrowse" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/mGAP" />
             <option value="$PROJECT_DIR$/externalModules/DISCVR/omerointegration" />

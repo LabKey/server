@@ -39,6 +39,20 @@ if (hasProperty("ideaIncludeAllModules") && BuildUtils.isIntellijGradleRefresh(t
 // Using the property 'moduleSet', you can apply a settings script from the gradle/settings directory with the name of the moduleSet
 else if (hasProperty('moduleSet'))
 {
+    if (!new File("gradle/settings/${moduleSet}.gradle").exists())
+    {
+        def files = new File("gradle/settings").listFiles()
+        if (files.length == 0)
+        {
+            throw new FileNotFoundException("No module set definitions found in '<labkey>/gradle/settings/'")
+        }
+        List<String> moduleSets = new ArrayList<>();
+        for (File file : files)
+        {
+            moduleSets.add(file.getName().replace(".gradle", ""));
+        }
+        throw new FileNotFoundException(String.format("Module set '${moduleSet}' does not exist. Choose one of: %s (e.g. '-PmoduleSet=%s')", moduleSets.join(", "), moduleSets.get(0)))
+    }
     apply from: "gradle/settings/${moduleSet}.gradle"
 }
 else

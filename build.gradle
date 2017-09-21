@@ -2,55 +2,55 @@ import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
 buildscript {
-  repositories {
-    jcenter()
-    maven {
-      url "${artifactory_contextUrl}/plugins-snapshot-local"
+    repositories {
+        jcenter()
+        maven {
+            url "${artifactory_contextUrl}/plugins-snapshot-local"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-release-local"
+        }
+        maven {
+            url "${artifactory_contextUrl}/libs-release"
+        }
     }
-    maven {
-      url "${artifactory_contextUrl}/plugins-release-local"
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:${buildInfoExtractorGradleVersion}"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayPluginVersion}"
+        classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
+        classpath "org.labkey.build:versioning:${versioningPluginVersion}"
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
     }
-    maven {
-      url "${artifactory_contextUrl}/libs-release"
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
-  }
-  dependencies {
-    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:${buildInfoExtractorGradleVersion}"
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayPluginVersion}"
-    classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
-    classpath "org.labkey.build:versioning:${versioningPluginVersion}"
-    classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-  }
-  configurations.all {
-    // Check for updates every build for SNAPSHOT dependencies
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-  }
 
 }
 
 allprojects {
-  if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
-  {
-    apply plugin: 'com.jfrog.artifactory'
-  }
-  project.tasks.withType(JavaCompile) {
-    JavaCompile compile ->
-        compile.options.incremental = true  // Gradle 3.4
-        compile.options.encoding = 'UTF-8'
-  }
+    if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
+    {
+        apply plugin: 'com.jfrog.artifactory'
+    }
+    project.tasks.withType(JavaCompile) {
+        JavaCompile compile ->
+            compile.options.incremental = true  // Gradle 3.4
+            compile.options.encoding = 'UTF-8'
+    }
 }
 
 // We need the tomcat home directory to find certain dependencies for our build process.
 String tomcatDirProp = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.getenv('CATALINA_HOME') != null ? System.getenv('CATALINA_HOME') : System.properties['tomcat.home'])
 
 if (tomcatDirProp == null)
-  throw new GradleException("Tomcat home directory not set.  Please set the value of the system property tomcat.home " +
-          "using either systemProp.tomcat.home=<tomcat home directory> in a gradle.properties file " +
-          "or -Dtomcat.home=<tomcat home directory> on command line. Setting the environment variable CATALINA_HOME " +
-          "will also work when building just from the command line (i.e., not in IntelliJ).")
+    throw new GradleException("Tomcat home directory not set.  Please set the value of the system property tomcat.home " +
+            "using either systemProp.tomcat.home=<tomcat home directory> in a gradle.properties file " +
+            "or -Dtomcat.home=<tomcat home directory> on command line. Setting the environment variable CATALINA_HOME " +
+            "will also work when building just from the command line (i.e., not in IntelliJ).")
 def tomcatHome = new File(tomcatDirProp)
 if (!tomcatHome.exists())
-  throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
+    throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
 
 //allprojects {
 //    apply plugin: 'idea'
@@ -63,159 +63,160 @@ if (!tomcatHome.exists())
 //}
 
 allprojects {
-  configurations {
-    driver
-  }
-
-  dependencies {
-    //for SqlUtils
-    driver "net.sourceforge.jtds:jtds:${jtdsVersion}"
-    driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
-  }
-
-  if (project.hasProperty('includeVcs'))
-  {
-    apply plugin: 'org.labkey.versioning'
-    versioning {
-      user = project.hasProperty('svn_user') ? project.property('svn_user') : 'cpas'
-      password = project.hasProperty('svn_password') ? project.property('svn_password') : 'cpas'
+    configurations {
+        driver
     }
-  }
 
-  apply plugin: 'org.labkey.base'
-  group  'org.labkey'
-  version BuildUtils.getVersionNumber(project)
+    dependencies {
+        //for SqlUtils
+        driver "net.sourceforge.jtds:jtds:${jtdsVersion}"
+        driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
+    }
 
-  ext
-          {
-            tomcatDir = tomcatDirProp
-            tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
-            vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
-            installerVersion = "${project.version}-${vcsRevision}"
-          }
-  repositories
-          {
-            // this if statement is necessary because the TeamCity artifactory plugin overrides
-            // the repositories but does not use these artifactory_ urls.  For others who are
-            // developing or building, you do need to specify the three artifactory_ properties
-            // used below.
-            if (project.hasProperty("artifactory_contextUrl"))
+    if (project.hasProperty('includeVcs'))
+    {
+        apply plugin: 'org.labkey.versioning'
+        versioning {
+            user = project.hasProperty('svn_user') ? project.property('svn_user') : 'cpas'
+            password = project.hasProperty('svn_password') ? project.property('svn_password') : 'cpas'
+        }
+    }
+
+    apply plugin: 'org.labkey.base'
+    group  'org.labkey'
+    version BuildUtils.getVersionNumber(project)
+
+    ext
             {
-              maven {
-
-                url "${artifactory_contextUrl}/libs-release"
-
-                if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-                {
-                  credentials {
-                    username = artifactory_user
-                    password = artifactory_password
-                  }
-                  authentication {
-                     basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-                  }
-                }
-              }
-              maven {
-                url "${artifactory_contextUrl}/libs-snapshot"
-
-                if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-                {
-                  credentials {
-                    username = artifactory_user
-                    password = artifactory_password
-                  }
-                  authentication {
-                     basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-                  }
-                }
-              }
+                tomcatDir = tomcatDirProp
+                tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
+                vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
+                installerVersion = "${project.version}-${vcsRevision}"
             }
-            flatDir dirs: "${tomcatDir}/lib"
-            flatDir dirs: "${tomcatDir}/bin"  // for tomcat-juli.jar (required with jsp compile) and bootstrap.jar
-          }
-  configurations.all {
-    // Check for updates every build for SNAPSHOT dependencies
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-  }
-  configurations.all
-          {
-            resolutionStrategy {
-                // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
-                // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
-                force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"
-                // we get different versions of slf4j-log4j12 from different transitive dependencies.
-                force "org.slf4j:slf4j-log4j12:${slf4jLog4j12Version}"
-                // force some newer versions than are brought in by mondrian (et al.)
-                force "xerces:xercesImpl:${xercesImplVersion}"
-                force "log4j:log4j:${log4jVersion}"
-                force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
-                force "commons-io:commons-io:${commonsIoVersion}"
-                force "commons-logging:commons-logging:${commonsLoggingVersion}"
-                force "commons-pool:commons-pool:${commonsPoolVersion}"
-                // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
-                force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
-                force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-                // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
-                force "com.github.samtools:htsjdk:${htsjdkVersion}"
-                dependencySubstitution {
-                    // Because the client api artifact name is not the same as the directory structure, we use
-                    // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
-                    // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
-                    // use this mechanism in general (plus, it's very slow for our many-module build).
-                    if (BuildUtils.shouldBuildFromSource(project.project(":remoteapi:java")))
-                      substitute module('org.labkey:labkey-client-api') with project(":remoteapi:java")
-                    // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
-                    // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
-                    substitute module('bouncycastle:bcprov-jdk14:138') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                    substitute module('bouncycastle:bcmail-jdk14:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
-                    substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                    substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+    repositories
+            {
+                // this if statement is necessary because the TeamCity artifactory plugin overrides
+                // the repositories but does not use these artifactory_ urls.  For others who are
+                // developing or building, you do need to specify the three artifactory_ properties
+                // used below.
+                if (project.hasProperty("artifactory_contextUrl"))
+                {
+                    maven {
+
+                        url "${artifactory_contextUrl}/libs-release"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                    maven {
+                        url "${artifactory_contextUrl}/libs-snapshot"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                }
+                flatDir dirs: "${tomcatDir}/lib"
+                flatDir dirs: "${tomcatDir}/bin"  // for tomcat-juli.jar (required with jsp compile) and bootstrap.jar
+                jcenter()
+            }
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+    configurations.all
+            {
+                resolutionStrategy {
+                    // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
+                    // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
+                    force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"
+                    // we get different versions of slf4j-log4j12 from different transitive dependencies.
+                    force "org.slf4j:slf4j-log4j12:${slf4jLog4j12Version}"
+                    // force some newer versions than are brought in by mondrian (et al.)
+                    force "xerces:xercesImpl:${xercesImplVersion}"
+                    force "log4j:log4j:${log4jVersion}"
+                    force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
+                    force "commons-io:commons-io:${commonsIoVersion}"
+                    force "commons-logging:commons-logging:${commonsLoggingVersion}"
+                    force "commons-pool:commons-pool:${commonsPoolVersion}"
+                    // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
+                    force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+                    force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+                    // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
+                    force "com.github.samtools:htsjdk:${htsjdkVersion}"
+                    dependencySubstitution {
+                        // Because the client api artifact name is not the same as the directory structure, we use
+                        // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
+                        // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
+                        // use this mechanism in general (plus, it's very slow for our many-module build).
+                        if (BuildUtils.shouldBuildFromSource(project.project(":remoteapi:java")))
+                            substitute module('org.labkey:labkey-client-api') with project(":remoteapi:java")
+                        // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
+                        // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
+                        substitute module('bouncycastle:bcprov-jdk14:138') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcmail-jdk14:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                    }
                 }
             }
-          }
 }
 
 task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
-  repositories.each{
-    println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
-  }
+    repositories.each{
+        println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
+    }
 })
 
 if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
 {
-  artifactory {
-    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-    publish {
-      repository {
-        repoKey = BuildUtils.getRepositoryKey(project)
-        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-        {
-          username = artifactory_user
-          password = artifactory_password
+    artifactory {
+        contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+        publish {
+            repository {
+                repoKey = BuildUtils.getRepositoryKey(project)
+                if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                {
+                    username = artifactory_user
+                    password = artifactory_password
+                }
+                maven = true
+            }
+            defaults
+                    {
+                        publishPom = true
+                        publishIvy = false
+                    }
         }
-        maven = true
-      }
-      defaults
-      {
-        publishPom = true
-        publishIvy = false
-      }
     }
-  }
 
-  artifactoryPublish.skip = true
+    artifactoryPublish.skip = true
 }
 
 subprojects {
-  task("allDepInsight",
-          type: DependencyInsightReportTask,
-          group: "Help",
-          description: "Displays the insight into a specific dependency across all projects")
-  task("allDependencies",
-          type: DependencyReportTask,
-          group: "Help",
-          description: "Displays the dependencies for all projects")
+    task("allDepInsight",
+            type: DependencyInsightReportTask,
+            group: "Help",
+            description: "Displays the insight into a specific dependency across all projects")
+    task("allDependencies",
+            type: DependencyReportTask,
+            group: "Help",
+            description: "Displays the dependencies for all projects")
 }
 
 // We copy the resource files to a separate directory so they can be copied to jsptmp directory
@@ -226,11 +227,11 @@ subprojects {
 project.task("copyTagLibsBase",
         type: Copy,
         {CopySpec copy ->
-          copy.from "server/api/webapp"
-          copy.into "${project.buildDir}/webapp"
-          copy.include 'WEB-INF/web.xml'
-          copy.include 'WEB-INF/*.tld'
-          copy.include 'WEB-INF/tags/**'
+            copy.from "server/api/webapp"
+            copy.into "${project.buildDir}/webapp"
+            copy.include 'WEB-INF/web.xml'
+            copy.include 'WEB-INF/*.tld'
+            copy.include 'WEB-INF/tags/**'
         }
 )
 

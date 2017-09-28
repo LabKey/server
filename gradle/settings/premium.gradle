@@ -5,7 +5,7 @@ import org.labkey.gradle.util.BuildUtils
   configuration.  This should be all modules except the EHR modules.
  */
 // a set of directory names that correspond to modules to be excluded from configuration
-List<String> excludedModules = ["movies"] + BuildUtils.EHR_MODULE_NAMES 
+List<String> excludedModules = ["movies"] + BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "wnprc_billing"]
 List<String> excludedExternalModules = ["nlp", "test"]
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories

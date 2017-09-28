@@ -67,12 +67,14 @@
             <option value="$PROJECT_DIR$/server/customModules/OConnorRepository" />
             <option value="$PROJECT_DIR$/server/customModules/SequenceNum" />
             <option value="$PROJECT_DIR$/server/customModules/WNPRC_EHR" />
+            <option value="$PROJECT_DIR$/server/customModules/wnprc_billing" />
             <option value="$PROJECT_DIR$/server/customModules/adjudication" />
             <option value="$PROJECT_DIR$/server/customModules/atlastools" />
             <option value="$PROJECT_DIR$/server/customModules/chaviReports" />
             <option value="$PROJECT_DIR$/server/customModules/cnprc_ehr" />
             <option value="$PROJECT_DIR$/server/customModules/datstat" />
             <option value="$PROJECT_DIR$/server/customModules/ehr" />
+            <option value="$PROJECT_DIR$/server/customModules/ehr_billing" />
             <option value="$PROJECT_DIR$/server/customModules/exampleassay" />
             <option value="$PROJECT_DIR$/server/customModules/fcsexpress" />
             <option value="$PROJECT_DIR$/server/customModules/genotyping" />

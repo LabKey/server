@@ -146,15 +146,45 @@ allprojects {
                     // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
                     // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
                     force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"
-                    // we get different versions of slf4j-log4j12 from different transitive dependencies.
+                    // we get different versions of slf4j-log4j12 and slf4j-api from different transitive dependencies.
                     force "org.slf4j:slf4j-log4j12:${slf4jLog4j12Version}"
+                    force "org.slf4j:slf4j-api:${slf4jLog4jApiVersion}"
                     // force some newer versions than are brought in by mondrian (et al.)
                     force "xerces:xercesImpl:${xercesImplVersion}"
                     force "log4j:log4j:${log4jVersion}"
+                    // force version for consistency with saml, query, LDK, and pipeline
+                    force "commons-lang:commons-lang:${commonsLangVersion}"
+                    // force version for consistency with workflow, api, SequenceAnalysis
+                    force "org.apache.commons:commons-lang3:${commonsLang3Version}"
                     force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
                     force "commons-io:commons-io:${commonsIoVersion}"
                     force "commons-logging:commons-logging:${commonsLoggingVersion}"
                     force "commons-pool:commons-pool:${commonsPoolVersion}"
+                    // force version for consistency with query, saml, LDK, api
+                    force "commons-collections:commons-collections:${commonsCollectionsVersion}"
+                    // force version for ms2, saml, fileTransfer, harvest, scrumtime, api, accounts, docker
+                    force "commons-codec:commons-codec:${commonsCodecVersion}"
+                    // force version for api, accounts, fileTransfer, harvest, scrumtime, docker
+                    force "org.apache.httpcomponents:httpcore:${httpcoreVersion}"
+                    // force version for api, docker, fileTransfer, harvest, scrumtime, accounts
+                    force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
+                    // force version for SequenceAnalysis, api, cloud
+                    force "com.google.guava:guava:${guavaVersion}"
+                    // force version for accounts, api, query
+                    force "javax.validation:validation-api:${validationApiVersion}"
+                    // force version for accounts, docker, api, workflow
+                    force "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
+                    // saml and query bring in different versions transitively; we force the later one
+                    force "xalan:xalan:${xalanVersion}"
+                    // genotyping brings in a much older version of this, so we force a newer version for compatibility
+                    force "org.apache.commons:commons-compress:${commonsCompressVersion}"
+                    // workflow (Activiti) and galaxyintegration bring in different versions of javax.activation:activation transitively, so
+                    // we force the later version
+                    force "javax.activation:activation:${activationVersion}"
+                    // force version for api, LDK, pipeline, query, saml
+                    force "xml-apis:xml-apis:${xmlApisVersion}"
+                    // cloud and SequenceAnalysis bring this in as a transitive dependency.  We resolve to the later version here to keep things consistent
+                    force "com.google.code.gson:gson:${gsonVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"

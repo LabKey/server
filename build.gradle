@@ -141,7 +141,7 @@ allprojects {
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
     configurations.all
-            {
+            {Configuration config ->
                 resolutionStrategy {
                     // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
                     // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
@@ -181,8 +181,10 @@ allprojects {
                     // workflow (Activiti) and galaxyintegration bring in different versions of javax.activation:activation transitively, so
                     // we force the later version
                     force "javax.activation:activation:${activationVersion}"
-                    // force version for api, LDK, pipeline, query, saml
-                    force "xml-apis:xml-apis:${xmlApisVersion}"
+                    // force version for api, LDK, pipeline, query, saml, but not for the xsdDoc configuration, which requires
+                    // an older version for the docflex library we use
+                    if (!config.name.equals('xsdDoc'))
+                        force "xml-apis:xml-apis:${xmlApisVersion}"
                     // cloud and SequenceAnalysis bring this in as a transitive dependency.  We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions

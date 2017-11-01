@@ -16,7 +16,7 @@ List<String> excludedExternalModules = ["nlp", "test"]
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);
 // Hutch_abstraction has multiple modules within it
 BuildUtils.includeModules(this.settings, rootDir, ["server/optionalModules/hutch_abstraction"], excludedModules);
-BuildUtils.includeModules(this.settings, rootDir, ["externalModules/maccoss"], excludedModules);
+//BuildUtils.includeModules(this.settings, rootDir, ["externalModules/maccoss"], excludedModules)
 
 // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULE_DIRS, excludedExternalModules)

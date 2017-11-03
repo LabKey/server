@@ -13,6 +13,8 @@
     <file url="file://$PROJECT_DIR$/server/customModules/genotyping/resources/schemas/dbscripts/postgresql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/server/customModules/genotyping/resources/schemas/dbscripts/sqlserver" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/server/customModules/hdrl/resources/schemas/dbscripts/postgresql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/server/customModules/lincs/resources/schemas/dbscripts/postgresql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/server/customModules/lincs/resources/schemas/dbscripts/sqlserver" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/server/customModules/snprc_ehr/resources/schemas/dbscripts/sqlserver" dialect="TSQL" />
     <file url="file://$PROJECT_DIR$/server/customModules/targetedms/resources/schemas/dbscripts/postgresql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/server/customModules/targetedms/resources/schemas/dbscripts/sqlserver" dialect="TSQL" />

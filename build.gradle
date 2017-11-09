@@ -6,13 +6,13 @@ buildscript {
     repositories {
         jcenter()
         maven {
-            url "${artifactory_contextUrl}/plugins-snapshot-local"
-        }
-        maven {
-            url "${artifactory_contextUrl}/plugins-release-local"
-        }
-        maven {
             url "${artifactory_contextUrl}/libs-release"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-release"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-snapshot-local"
         }
     }
     dependencies {

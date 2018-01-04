@@ -21,6 +21,7 @@ buildscript {
         classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
         classpath "org.labkey.build:versioning:${versioningPluginVersion}"
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+//        classpath 'org.owasp:dependency-check-gradle:3.0.2'
     }
     configurations.all {
         // Check for updates every build for SNAPSHOT dependencies
@@ -30,6 +31,11 @@ buildscript {
 }
 
 allprojects {
+    // Comment in to enable the tasks for owasp dependency checking
+//    apply plugin: 'org.owasp.dependencycheck'
+//    dependencyCheck {
+//        outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':','_').substring(1)}"
+//    }
     if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
     {
         apply plugin: 'com.jfrog.artifactory'
@@ -192,6 +198,10 @@ allprojects {
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
+                    // Cloud module brings in earlier versions of this library, so we force the later one
+                    force "org.apache.tika:tika-core:${tikaVersion}"
+                    // Cloud module and workflow module bring in different versions
+                    force "org.slf4j:jcl-over-slf4j:${jclOverSlf4jVersion}"
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

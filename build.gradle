@@ -220,11 +220,6 @@ allprojects {
             }
 }
 
-task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
-    repositories.each{
-        println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
-    }
-})
 
 if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
 {
@@ -252,6 +247,11 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
 }
 
 subprojects {
+    task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
+        repositories.each{
+            println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
+        }
+    })
     task("allDepInsight",
             type: DependencyInsightReportTask,
             group: "Help",

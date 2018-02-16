@@ -1,0 +1,29 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "${artifactory_contextUrl}/libs-release"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-release"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-snapshot-local"
+        }
+    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+import org.labkey.gradle.util.BuildUtils
+
+apply from: 'all.gradle'
+
+
+BuildUtils.includeModules(this.settings, rootDir, ["distributions"], [])
+
+include ":remoteapi:sas"

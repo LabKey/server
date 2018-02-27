@@ -22,6 +22,8 @@ import java.util.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 /*
 * User: Dave
 * Date: Dec 8, 2008
@@ -204,7 +206,7 @@ public class ExplodedModule
         if(0 == _fileComparator.compare(src, dst))
             return;
 
-        Files.copy(src.toPath(), dst.toPath());
+        Files.copy(src.toPath(), dst.toPath(), REPLACE_EXISTING);
         Files.setLastModifiedTime(dst.toPath(), FileTime.fromMillis(src.lastModified()));
     }
 

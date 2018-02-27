@@ -23,6 +23,8 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 /*
 * User: Dave
 * Date: Dec 8, 2008
@@ -162,7 +164,7 @@ public class ModuleArchive
         if (0 != _jarEntryComparator.compare(entry, destFile))
         {
             Path destPath = destFile.toPath();
-            Files.copy(jar.getInputStream(entry), destPath);
+            Files.copy(jar.getInputStream(entry), destPath, REPLACE_EXISTING);
 
             if (entry.getTime() != -1)
             {

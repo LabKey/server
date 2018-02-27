@@ -16,6 +16,9 @@
 package org.labkey.bootstrap;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -135,7 +138,7 @@ public class ModuleArchive
         }
 
         //set last mod on target directory to match module file
-        targetDirectory.setLastModified(archiveFile.lastModified());
+        Files.setLastModifiedTime(targetDirectory.toPath(), FileTime.fromMillis(archiveFile.lastModified()));
     }
 
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
@@ -143,8 +146,7 @@ public class ModuleArchive
         File destFile = new File(targetDirectory, entry.getName());
 
         File entryParent = destFile.getParentFile();
-        if (!entryParent.isDirectory())
-            entryParent.mkdirs();
+        entryParent.mkdirs();
         if (!entryParent.isDirectory())
         {
             _log.error("Unable to create directory " + entryParent.getPath() + ", there may be a problem with file permissions");
@@ -153,36 +155,18 @@ public class ModuleArchive
         // if entry is a directory, just mkdirs, set last mod and return
         if(entry.isDirectory())
         {
-            destFile.mkdirs();
-            if (entry.getTime() != -1)
-                destFile.setLastModified(entry.getTime());
+            destFile.mkdir();
             return destFile;
         }
 
         if (0 != _jarEntryComparator.compare(entry, destFile))
         {
-            BufferedInputStream bIn = null;
-            BufferedOutputStream bOut = null;
-            try
-            {
-                bIn = new BufferedInputStream(jar.getInputStream(entry));
-                bOut = new BufferedOutputStream(new FileOutputStream(destFile));
-                byte[] b = new byte[8192];
-                int i;
-                while ((i = bIn.read(b)) != -1)
-                {
-                    bOut.write(b, 0, i);
-                }
-            }
-            finally
-            {
-                if (bIn != null) { try { bIn.close(); } catch (IOException e) {}}
-                if (bOut != null) { try { bOut.close(); } catch (IOException e) {}}
-            }
+            Path destPath = destFile.toPath();
+            Files.copy(jar.getInputStream(entry), destPath);
 
             if (entry.getTime() != -1)
             {
-                destFile.setLastModified(entry.getTime());
+                Files.setLastModifiedTime(destPath, FileTime.fromMillis(entry.getTime()));
             }
         }
 

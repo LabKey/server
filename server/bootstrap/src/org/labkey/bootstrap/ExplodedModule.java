@@ -16,10 +16,11 @@
 package org.labkey.bootstrap;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.nio.channels.FileChannel;
 
 /*
 * User: Dave
@@ -118,15 +119,8 @@ public class ExplodedModule
         File jspJarDir = new File(webInfDir, "jsp");
         Set<File> webAppFiles = new HashSet<>();
 
-        if (1==1)
-        {
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory, webAppFiles);
-        }
-        else
-        {
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"), webAppFiles);
-        }
+        copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory, webAppFiles);
+
         copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir, webAppFiles);
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir, webAppFiles);
 
@@ -182,14 +176,6 @@ public class ExplodedModule
 
     public static void ensureDirectory(File dir) throws IOException
     {
-        ensureDirectory(dir, false);
-    }
-
-    public static void ensureDirectory(File dir, boolean deleteExisting) throws IOException
-    {
-        if(dir.exists() && deleteExisting)
-            deleteDirectory(dir);
-
         if(!dir.exists())
             dir.mkdirs();
         if(!dir.isDirectory())
@@ -213,32 +199,13 @@ public class ExplodedModule
         dir.delete();
     }
 
-    //NOTE: this was copied from FileUtil since the boostrap module doesn't share any code with the web app
-    //consider moving this to some sort of shared JAR
-    //incidentally, why in the world is this not in the core Java packages?
     public static void copyFile(File src, File dst) throws IOException
     {
         if(0 == _fileComparator.compare(src, dst))
             return;
 
-        dst.createNewFile();
-        FileChannel sourceChannel = null;
-        FileChannel destChannel = null;
-        try
-        {
-            sourceChannel = new FileInputStream(src).getChannel();
-            destChannel = new FileOutputStream(dst).getChannel();
-            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
-        }
-        finally
-        {
-            if(null != sourceChannel)
-                sourceChannel.close();
-            if(null != destChannel)
-                destChannel.close();
-        }
-
-        dst.setLastModified(src.lastModified());
+        Files.copy(src.toPath(), dst.toPath());
+        Files.setLastModifiedTime(dst.toPath(), FileTime.fromMillis(src.lastModified()));
     }
 
     public boolean equals(Object o)

@@ -25,5 +25,6 @@ apply from: 'all.gradle'
 
 
 BuildUtils.includeModules(this.settings, rootDir, ["distributions"], [])
+include ":server:test:distribution"
 
 include ":remoteapi:sas"

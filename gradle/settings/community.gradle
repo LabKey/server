@@ -27,6 +27,3 @@ BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR
 include ":server:test:distributions:teamcity"
 include ":distributions:base"
 include ":distributions:community"
-include ":server:distributions:test"
-include ":server:distributions:base"
-include ":server:distributions:community"

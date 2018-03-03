@@ -44,4 +44,3 @@ BuildUtils.includeTestModules(this.settings, rootDir)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"
-include ":server:distributions:test"

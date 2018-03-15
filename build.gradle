@@ -93,6 +93,11 @@ allprojects {
     group  'org.labkey'
     version BuildUtils.getVersionNumber(project)
 
+    tasks.withType(JavaCompile) { 
+        sourceCompatibility = project.ext.sourceCompatibility
+        targetCompatibility = project.ext.targetCompatibility
+    }
+
     ext
             {
                 tomcatDir = tomcatDirProp

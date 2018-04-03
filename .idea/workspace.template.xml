@@ -2,7 +2,7 @@
 <project version="4">
   <component name="BuildServerSettings">
     <option name="LOGIN" value="" />
-    <option name="SERVER_URL" value="http://buildserver" />
+    <option name="SERVER_URL" value="https://teamcity.labkey.org" />
     <option name="PASSWORD" />
     <option name="REMEMBER_ME" value="true" />
     <option name="USE_IDEA_PROXY_SETTINGS" value="true" />
@@ -61,6 +61,13 @@
         <option name="myLogMessage" value="" />
       </breakpoint_any>
     </exception_breakpoints>
+  </component>
+  <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="REBASE" />
+    <option name="PUSH_UPDATE_ALL_ROOTS" value="false" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="RESET_MODE" value="HARD" />
+    <option name="FORCE_PUSH_ALLOWED" value="false" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FavoritesManager">

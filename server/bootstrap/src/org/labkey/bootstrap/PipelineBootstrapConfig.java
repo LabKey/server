@@ -49,7 +49,7 @@ public class PipelineBootstrapConfig
     private List<File> _moduleFiles;
     private final boolean _includeWEBINFClasses;
 
-    public PipelineBootstrapConfig(String[] rawArgs, boolean includeWEBINFClasses) throws IOException, ConfigException
+    public PipelineBootstrapConfig(String[] rawArgs, boolean includeWEBINFClasses) throws ConfigException
     {
         _includeWEBINFClasses = includeWEBINFClasses;
 

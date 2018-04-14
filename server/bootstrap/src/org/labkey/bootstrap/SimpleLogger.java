@@ -24,6 +24,5 @@ public interface SimpleLogger
 {
     public void error(Object message, Throwable t);
     public void error(Object message);
-
     public void info(Object message);
 }

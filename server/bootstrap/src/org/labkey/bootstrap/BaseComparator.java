@@ -43,5 +43,4 @@ public class BaseComparator
         else
             return 1;
     }
-
 }

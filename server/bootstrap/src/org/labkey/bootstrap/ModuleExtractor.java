@@ -297,7 +297,7 @@ public class ModuleExtractor
      * @throws ConfigException thrown if there is a problem with the configuration
      * @throws IOException thrown if there is a problem extracting the module archives
      */
-    public static void main(String... args) throws ConfigException, IOException
+    public static void main(String... args)
     {
         try
         {

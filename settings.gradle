@@ -21,6 +21,14 @@ buildscript {
     }
 }
 
+// Parameterize the paths for these projects as they are used in our build logic
+// but, because they are non-standard, are likely to change as we move from SVN to Git
+gradle.ext.apiProjectPath=":server:api"
+gradle.ext.bootstrapProjectPath=":server:bootstrap"
+gradle.ext.internalProjectPath=":server:internal"
+gradle.ext.remoteApiProjectPath=":remoteapi:java"
+gradle.ext.schemasProjectPath=":schemas" // if schemas gets disbanded into separate repositories, this likely changes to :server:api
+
 import org.labkey.gradle.util.BuildUtils
 /*
   This file is used to determine which projects will be configured during the Gradle build of LabKey Server.

@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "${artifactory_contextUrl}/libs-release"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-release"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-snapshot-local"
+        }
+    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+import org.labkey.gradle.util.BuildUtils
+
+/*
+  This file specifies all of the modules to be included in the test distribution for the EHR TeamCity
+  configuration.
+ */
+
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [])
+BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EHR_EXTERNAL_MODULE_DIRS, [])
+
+for (String module : BuildUtils.EHR_MODULE_NAMES)
+{
+    if (!module.equals("tnprc_ehr")) // not in customModules
+        include ":server:customModules:" + module
+}
+include ":server:customModules:ehr_billing"
+include ":server:customModules:wnprc_billing"
+include ":server:customModules:snd"
+include ":server:optionalModules:tnprc_ehr"
+
+// include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
+include ":server:test:distributions:teamcity"

@@ -26,21 +26,13 @@ import org.labkey.gradle.util.BuildUtils
   configuration.  This should be all modules except the EHR modules.
  */
 // a set of directory names that correspond to modules to be excluded from configuration
-List<String> excludedModules = ["movies"] + BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "wnprc_billing"]
-List<String> excludedExternalModules = ["nlp", "test"]
+List<String> excludedModules = BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "wnprc_billing"]
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);
-// Hutch_abstraction has multiple modules within it
-BuildUtils.includeModules(this.settings, rootDir, ["server/optionalModules/hutch_abstraction"], excludedModules);
 
-// The line below includes all modules in the scharp directory.
-BuildUtils.includeModules(this.settings, rootDir, ["externalModules/scharp"], excludedExternalModules)
 // include the immport module singly
 include ':externalModules:RGLab:immport'
-
-// The line below will include the server/test project as well as the server/test/modules projects
-BuildUtils.includeTestModules(this.settings, rootDir)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"

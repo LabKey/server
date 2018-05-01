@@ -28,10 +28,11 @@ import org.labkey.gradle.util.BuildUtils
   node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
   ":server:modules" and ":server:modules:core").
  */
+List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python'] // Might be enlisted in server/optionalModules
 List<String> excludedExternalModules = ["test"] // 'externalModules/scharp/test' is not a module
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
-BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, []);
+BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, apiModules);
 //BuildUtils.includeModules(this.settings, rootDir, ["externalModules/maccoss"], [])
 
 // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)

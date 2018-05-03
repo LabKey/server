@@ -16,14 +16,9 @@
 package org.labkey.bootstrap;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /*
 * User: Dave
@@ -140,7 +135,7 @@ public class ModuleArchive
         }
 
         //set last mod on target directory to match module file
-        Files.setLastModifiedTime(targetDirectory.toPath(), FileTime.fromMillis(archiveFile.lastModified()));
+        targetDirectory.setLastModified(archiveFile.lastModified());
     }
 
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
@@ -148,7 +143,8 @@ public class ModuleArchive
         File destFile = new File(targetDirectory, entry.getName());
 
         File entryParent = destFile.getParentFile();
-        entryParent.mkdirs();
+        if (!entryParent.isDirectory())
+            entryParent.mkdirs();
         if (!entryParent.isDirectory())
         {
             _log.error("Unable to create directory " + entryParent.getPath() + ", there may be a problem with file permissions");
@@ -157,18 +153,36 @@ public class ModuleArchive
         // if entry is a directory, just mkdirs, set last mod and return
         if(entry.isDirectory())
         {
-            destFile.mkdir();
+            destFile.mkdirs();
+            if (entry.getTime() != -1)
+                destFile.setLastModified(entry.getTime());
             return destFile;
         }
 
         if (0 != _jarEntryComparator.compare(entry, destFile))
         {
-            Path destPath = destFile.toPath();
-            Files.copy(jar.getInputStream(entry), destPath, REPLACE_EXISTING);
+            BufferedInputStream bIn = null;
+            BufferedOutputStream bOut = null;
+            try
+            {
+                bIn = new BufferedInputStream(jar.getInputStream(entry));
+                bOut = new BufferedOutputStream(new FileOutputStream(destFile));
+                byte[] b = new byte[8192];
+                int i;
+                while ((i = bIn.read(b)) != -1)
+                {
+                    bOut.write(b, 0, i);
+                }
+            }
+            finally
+            {
+                if (bIn != null) { try { bIn.close(); } catch (IOException e) {}}
+                if (bOut != null) { try { bOut.close(); } catch (IOException e) {}}
+            }
 
             if (entry.getTime() != -1)
             {
-                Files.setLastModifiedTime(destPath, FileTime.fromMillis(entry.getTime()));
+                destFile.setLastModified(entry.getTime());
             }
         }
 

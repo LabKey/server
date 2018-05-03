@@ -174,6 +174,7 @@ public class ModuleExtractor
         {
             dirs.add(expMod.getRootDirectory());
         }
+        dirs.sort(Comparator.comparing(File::getName));
         return dirs;
     }
 

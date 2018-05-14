@@ -115,6 +115,11 @@ if (hasProperty('extraIncludes'))
     }
 }
 
+if (hasProperty('extraModuleDirs'))
+{
+    BuildUtils.includeModules(this.settings, rootDir, Arrays.asList("${extraModuleDirs}".split(",")), [])
+}
+
 if (hasProperty('inheritedDistPath'))
 {
     include "${inheritedDistPath}"

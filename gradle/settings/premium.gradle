@@ -36,3 +36,6 @@ include ':externalModules:RGLab:immport'
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"
+
+// include the jdbc api for testing on TeamCity.
+include ":remoteapi:labkey-api-jdbc"

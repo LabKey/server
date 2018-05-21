@@ -36,13 +36,13 @@ public class ${NAME} extends BaseWebDriverTest
     }
 
     @Before
-    public void preTest() throws Exception
+    public void preTest()
     {
         goToProjectHome();
     }
 
     @Test
-    public void testSomething() throws Exception
+    public void testSomething()
     {
         // Test code
     }

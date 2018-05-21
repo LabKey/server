@@ -12,10 +12,10 @@ import static org.labkey.test.components.html.Input.Input;
 // TODO: Component classes should contain all functionality for a component
 public class ${NAME} extends WebDriverComponent<${NAME}.ElementCache>
 {
-    final WebElement _el;
-    final WebDriver _driver;
+    private final WebElement _el;
+    private final WebDriver _driver;
 
-    public ${NAME}(WebElement element, WebDriver driver)
+    protected ${NAME}(WebElement element, WebDriver driver)
     {
         _el = element;
         _driver = driver;
@@ -55,10 +55,59 @@ public class ${NAME} extends WebDriverComponent<${NAME}.ElementCache>
         return new ElementCache();
     }
 
+    /**
+     * TODO
+     *  ElementCache should be responsible for finding and storing all elements and
+     *  sub-components that the component contains
+     */
     protected class ElementCache extends WebDriverComponent.ElementCache
     {
         // TODO: Add elements that are in the component
-        Input input = Input(Locator.css("input"), getDriver()).findWhenNeeded(this);
-        WebElement button = Locator.css("button").findWhenNeeded(this);
+        final Input input = Input(Locator.css("input"), getDriver()).findWhenNeeded(this);
+        final WebElement button = Locator.css("button").findWhenNeeded(this);
+    }
+
+    /** 
+     * TODO:
+     *  For components that are, essentially, singletons on a page, you may want to omit this Finder class
+     *  Note that even in that case, a Finder class can be useful for lazily finding components
+     *  Usage: 'new Component.ComponentFinder(getDriver()).withTitle("title").findWhenNeeded();' 
+     */ 
+    public static class ${NAME}Finder extends WebDriverComponent.WebDriverComponentFinder<${NAME}, ${NAME}Finder>
+    {
+        // TODO: This locator should find all instances of this component
+        private final Locator.XPathLocator _baseLocator = Locator.tagWithClass("div", "my-component");
+        private String _title = null;
+
+        public ${NAME}Finder(WebDriver driver)
+        {
+            super(driver);
+        }
+
+        public ${NAME}Finder withTitle(String title)
+        {
+            _title = title; 
+            return this;
+        }
+
+        @Override
+        protected ${NAME} construct(WebElement el, WebDriver driver)
+        {
+            return new ${NAME}(el, driver);
+        }
+
+        /**
+         * TODO:
+         *  Add methods and fields, as appropriate, to build a Locator that will find the element(s)
+         *  that this component represents
+         */
+        @Override
+        protected Locator locator()
+        {
+            if (_title != null)
+                return _baseLocator.withAttribute("title", _title);
+            else
+                return _baseLocator;
+        }
     }
 }

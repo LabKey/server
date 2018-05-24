@@ -16,15 +16,14 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/argos" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/argos_test" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/buildSrc/gradlePlugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/buildSrc/versioning" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/cas" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/cds" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/cloud" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/compliance" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/duo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/freezerpro" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/hplc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/nlp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/oauth" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/optionalModules/premium" vcs="Git" />

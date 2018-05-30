@@ -38,4 +38,7 @@ include ':externalModules:RGLab:immport'
 include ":server:test:distributions:teamcity"
 
 // include the jdbc api for testing on TeamCity.
-//include ":remoteapi:labkey-api-jdbc"
+if (new File(getRootDir(), "remoteapi/labkey-api-jdbc").exists())
+{
+    include ":remoteapi:labkey-api-jdbc"
+}

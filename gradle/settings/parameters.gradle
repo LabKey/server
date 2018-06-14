@@ -1,0 +1,8 @@
+// Parameterize the paths for these projects as they are used in our build logic
+// but, because they are non-standard, are likely to change as we move from SVN to Git
+gradle.ext.apiProjectPath=":server:api"
+gradle.ext.bootstrapProjectPath=":server:bootstrap"
+gradle.ext.internalProjectPath=":server:internal"
+gradle.ext.remoteApiProjectPath=":remoteapi:java"
+gradle.ext.schemasProjectPath=":schemas" // if schemas gets disbanded into separate repositories, this likely changes to :server:api
+gradle.ext.coreProjectPath=":server:modules:core" // Not likely to change but parameterized because used when creating symlink for npm

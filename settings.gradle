@@ -8,8 +8,10 @@ buildscript {
         maven {
             url "${artifactory_contextUrl}/plugins-release"
         }
-        maven {
-            url "${artifactory_contextUrl}/plugins-snapshot-local"
+        if (gradlePluginsVersion.contains("SNAPSHOT")) {
+            maven {
+                url "${artifactory_contextUrl}/plugins-snapshot-local"
+            }
         }
     }
     dependencies {

@@ -10,7 +10,7 @@
     <option name="ENABLE_SWING_INSPECTOR" value="false" />
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
-    <module name="api_jsp" />
+    <module name="api" />
     <envs />
     <method>
       <option name="Make" enabled="false" />

@@ -33,16 +33,27 @@ import org.labkey.gradle.util.BuildUtils
   ":server:modules" and ":server:modules:core").
  */
 List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python'] // Might be enlisted in server/optionalModules
+List<String> excludedExternalModuleDirs = ["maccoss"] // Should be lower-case
 List<String> excludedExternalModules = ["test"] // 'externalModules/scharp/test' is not a module
+
+if (hasProperty('excludeExternalModuleDirs'))
+{
+    excludedExternalModuleDirs.addAll("${excludeExternalModuleDirs}".toLowerCase().split(","))
+}
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, apiModules);
-//BuildUtils.includeModules(this.settings, rootDir, ["externalModules/maccoss"], [])
 
+List<String> externalModuleDirs = new ArrayList<>();
+for (File f : new File(rootDir, "externalModules").listFiles())
+{
+    if (f.isDirectory() && !excludedExternalModuleDirs.contains(f.getName().toLowerCase()))
+    {
+        externalModuleDirs.add("externalModules/" + f.getName());
+    }
+}
 // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
-BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULE_DIRS, excludedExternalModules)
-// include the immport module singly
-include ':externalModules:RGLab:immport'
+BuildUtils.includeModules(this.settings, rootDir, externalModuleDirs, excludedExternalModules)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"

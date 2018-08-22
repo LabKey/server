@@ -5,4 +5,5 @@ gradle.ext.bootstrapProjectPath=":server:bootstrap"
 gradle.ext.internalProjectPath=":server:internal"
 gradle.ext.remoteApiProjectPath=":remoteapi:java"
 gradle.ext.schemasProjectPath=":schemas" // if schemas gets disbanded into separate repositories, this likely changes to :server:api
-gradle.ext.coreProjectPath=":server:modules:core" // Not likely to change but parameterized because used when creating symlink for npm
+gradle.ext.coreProjectPath=":"
+gradle.ext.nodeBinProjectPath=":" // The npm and node executables downloaded into this project's build directory will be the target of the links created by the synlinkNode task

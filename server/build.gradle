@@ -17,6 +17,11 @@ dependencies
 
 apply plugin: 'org.labkey.jsdoc'
 apply plugin: 'org.labkey.xsddoc'
+
+// TODO remove this after gradle plugins 1.3.2 is released
+project.apply plugin: 'com.moowork.node'
+apply plugin: 'org.labkey.npmRun'
+
 dependencies
 {
    xsdDoc "xml-apis:xml-apis:${xmlApisVersion}"
@@ -90,3 +95,13 @@ task('createModule', type: CreateModule, group: "Module",
                 "Use createFiles to control which subdirectories are created.  Include some subset of api, test, and/or schema " +
                     "in a comma delimited list to create those subdirectories in the new module. If none are required, still " +
                     "include -PcreateFiles with no value to avoid being prompted." )
+
+// We add this configuration here so we have a single location to link to for the npm and node executables.
+// Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode
+// task we need a single location, and one that works even when not building from source
+// (https://www.labkey.org/Rochester/support%20tickets/issues-details.view?issueId=35207)
+project.node {
+    workDir = project.file("${project.rootProject.buildDir}/.node")
+    npmWorkDir = project.file("${project.rootProject.buildDir}/.node")
+}
+project.tasks.deployApp.dependsOn(project.tasks.npmSetup)

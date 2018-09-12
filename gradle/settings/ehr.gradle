@@ -43,6 +43,7 @@ include ":server:customModules:wnprc_billing"
 include ":server:customModules:wnprc_billingpublic"
 include ":server:customModules:snd"
 include ":server:optionalModules:tnprc_ehr"
+include ":server:optionalModules:tnprc_billing"
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"

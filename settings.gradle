@@ -66,7 +66,7 @@ else
 {
     // a set of directory names that correspond to modules to be excluded from configuration
     List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
-    List<String> excludedModules = ["movies", "test", "ehr_billing", "wnprc_billing", "wnprc_billingpublic"] + apiModules + BuildUtils.EHR_MODULE_NAMES
+    List<String> excludedModules = ["movies", "test", "ehr_billing", "cnprc_billing", "wnprc_billing", "wnprc_billingpublic"] + apiModules + BuildUtils.EHR_MODULE_NAMES
     //List<String> excludedModules = ["movies"] + apiModules
     List<String> excludedExternalModules = ["nlp", "test"]
 

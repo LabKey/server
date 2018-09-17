@@ -71,6 +71,8 @@ if (project.findProject(":server:modules:dataintegration")  != null)
     xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
 if (project.findProject(":server:optionalModules:redcap") != null)
     xsdFiles += project.project(":server:optionalModules:redcap").file("schemas/redcapExport.xsd")
+if (project.findProject(":server:optionalModules:cdisc_ODM") != null)
+    xsdFiles += project.project(":server:optionalModules:cdisc_ODM").file("schemas/cdiscExport.xsd")
 if (project.findProject(":server:optionalModules:freezerpro") != null)
     xsdFiles += project.project(":server:optionalModules:freezerpro").file("schemas/freezerProExport.xsd")
 

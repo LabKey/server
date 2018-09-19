@@ -1,9 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
-        maven {
-            url "${artifactory_contextUrl}/libs-release"
-        }
         maven {
             url "${artifactory_contextUrl}/plugins-release"
         }

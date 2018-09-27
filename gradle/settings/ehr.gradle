@@ -37,7 +37,7 @@ for (String module : BuildUtils.EHR_MODULE_NAMES)
 include ":server:customModules:ehr_billing"
 include ":server:customModules:wnprc_billing"
 include ":server:customModules:wnprc_billingpublic"
-include ":server:customModules:snd"
+include ":server:optionalModules:snd"
 include ":server:optionalModules:tnprc_ehr"
 include ":server:optionalModules:tnprc_billing"
 include ":server:optionalModules:dataintegration"

@@ -51,6 +51,9 @@ for (File f : new File(rootDir, "externalModules").listFiles())
 // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
 BuildUtils.includeModules(this.settings, rootDir, externalModuleDirs, excludedExternalModules)
 
+// Some external modules have a dependency on the dataintegration module
+include ":server:optionalModules:dataintegration"
+
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"
 

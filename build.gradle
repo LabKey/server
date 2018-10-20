@@ -73,6 +73,7 @@ allprojects {
     configurations {
         driver
     }
+    configurations.driver.setDescription("Dependencies used for SqlUtils")
 
     dependencies {
         //for SqlUtils
@@ -257,6 +258,14 @@ subprojects {
             println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
         }
     })
+    project.task("showConfigs", group: "help", description: "Show all the configurations available in the project and their published artifacts")
+        .doLast({
+            project.configurations.forEach({
+                Configuration config ->
+                    println(config.name + ": (${config.getDescription()})")
+            })
+        })
+    
     task("allDepInsight",
             type: DependencyInsightReportTask,
             group: "Help",

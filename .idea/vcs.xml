@@ -16,21 +16,5 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />
-    <mapping directory="$PROJECT_DIR$/buildSrc/gradlePlugin" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/buildSrc/versioning" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/cas" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/cds" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/cloud" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/compliance" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/duo" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/freezerpro" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/nlp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/oauth" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/premium" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/redcap" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/saml" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/scrumtime" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/synonym" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/optionalModules/workflow" vcs="Git" />
   </component>
 </project>

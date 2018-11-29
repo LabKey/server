@@ -219,8 +219,8 @@ allprojects {
                         substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
                         substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
 
-                        // Cloud module (jclouds->guice->cglib) wants asm-3.1.jar but search module (tika) wants asm-debug-all-5.0.4.jar.. so force to more recent, debug version
-//                        substitute module('asm:asm') with module("org.ow2.asm:asm-debug-all:${asmVersion}")
+                        // jdk5 backport of guava has significant conflicts with guava 18+
+                        substitute module('com.google.guava:guava-jdk5') with module("com.google.guava:guava:${guavaVersion}")
                     }
                 }
             }

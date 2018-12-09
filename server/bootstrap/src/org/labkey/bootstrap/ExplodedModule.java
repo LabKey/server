@@ -69,7 +69,7 @@ public class ExplodedModule
     {
         for(File file : files)
         {
-            _watchedFiles.put(file, new Long(file.lastModified()));
+            _watchedFiles.put(file, Long.valueOf(file.lastModified()));
         }
     }
 

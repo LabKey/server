@@ -10,6 +10,8 @@
         maxActive="20"
         maxTotal="20"
         maxIdle="10"
+        maxWaitMillis="120000"
+        maxWait="120000"
         accessToUnderlyingConnectionAllowed="true"
         validationQuery="SELECT 1"
         />

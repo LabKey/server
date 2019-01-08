@@ -21,7 +21,10 @@ buildscript {
         classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
         classpath "org.labkey.build:versioning:${versioningPluginVersion}"
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-//        classpath 'org.owasp:dependency-check-gradle:3.0.2'
+        if (project.hasProperty('enableOwaspDependencyCheck'))
+        {
+            classpath 'org.owasp:dependency-check-gradle:3.0.2'
+        }
     }
     configurations.all {
         // Check for updates every build for SNAPSHOT dependencies
@@ -31,11 +34,14 @@ buildscript {
 }
 
 allprojects {
-    // Comment in to enable the tasks for owasp dependency checking
-//    apply plugin: 'org.owasp.dependencycheck'
-//    dependencyCheck {
-//        outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':','_').substring(1)}"
-//    }
+    if (project.hasProperty('enableOwaspDependencyCheck'))
+    {
+        // Comment in to enable the tasks for owasp dependency checking
+        apply plugin: 'org.owasp.dependencycheck'
+        dependencyCheck {
+            outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}"
+        }
+    }
     if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
     {
         apply plugin: 'com.jfrog.artifactory'

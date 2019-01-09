@@ -211,6 +211,8 @@ allprojects {
                     force "org.apache.tika:tika-core:${tikaVersion}"
                     // Cloud module and workflow module bring in different versions
                     force "org.slf4j:jcl-over-slf4j:${jclOverSlf4jVersion}"
+                    // OpenLDAPSync and premium have transitive dependency on a broken version of MINA
+                    force "org.apache.mina:mina-core:${apacheMinaVersion}"
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

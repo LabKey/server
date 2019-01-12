@@ -107,17 +107,15 @@ public class ModuleArchive
             return;
 
         File archiveFile = getFile();
-        _log.info("Extracting the module " + archiveFile.getName() + ".");
+        _log.info("Extracting module " + archiveFile.getName() + ".");
 
         //delete existing directory so that files that are
         //no longer in the archive are removed
         ExplodedModule.deleteDirectory(targetDirectory);
 
         //extract all entries
-        JarFile jar = null;
-        try
+        try (JarFile jar = new JarFile(archiveFile))
         {
-            jar = new JarFile(archiveFile);
             Enumeration<JarEntry> entries = jar.entries();
             while(entries.hasMoreElements())
             {
@@ -128,14 +126,10 @@ public class ModuleArchive
         {
             throw new IOException("Failed to process " + archiveFile, e);
         }
-        finally
-        {
-            if(null != jar)
-                try {jar.close();} catch(IOException ignore){}
-        }
 
         //set last mod on target directory to match module file
         targetDirectory.setLastModified(archiveFile.lastModified());
+        _log.info("Done extracting module " + archiveFile.getName() + ".");
     }
 
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
@@ -161,23 +155,14 @@ public class ModuleArchive
 
         if (0 != _jarEntryComparator.compare(entry, destFile))
         {
-            BufferedInputStream bIn = null;
-            BufferedOutputStream bOut = null;
-            try
+            try (BufferedInputStream bIn = new BufferedInputStream(jar.getInputStream(entry)); BufferedOutputStream bOut = new BufferedOutputStream(new FileOutputStream(destFile)))
             {
-                bIn = new BufferedInputStream(jar.getInputStream(entry));
-                bOut = new BufferedOutputStream(new FileOutputStream(destFile));
                 byte[] b = new byte[8192];
                 int i;
                 while ((i = bIn.read(b)) != -1)
                 {
                     bOut.write(b, 0, i);
                 }
-            }
-            finally
-            {
-                if (bIn != null) { try { bIn.close(); } catch (IOException e) {}}
-                if (bOut != null) { try { bOut.close(); } catch (IOException e) {}}
             }
 
             if (entry.getTime() != -1)

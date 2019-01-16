@@ -4,5 +4,6 @@ gradle.ext.apiProjectPath=":server:api"
 gradle.ext.bootstrapProjectPath=":server:bootstrap"
 gradle.ext.internalProjectPath=":server:internal"
 gradle.ext.remoteApiProjectPath=":remoteapi:java"
-gradle.ext.schemasProjectPath=":server:api" // Remove this after references in gradle plugins have been removed/updated
+gradle.ext.schemasProjectPath=":server:api" 
+gradle.ext.testProjectPath=":server:test"
 gradle.ext.nodeBinProjectPath=":" // The npm and node executables downloaded into this project's build directory will be the target of the links created by the synlinkNode task

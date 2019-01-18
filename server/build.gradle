@@ -16,9 +16,6 @@ dependencies
 
 apply plugin: 'org.labkey.jsdoc'
 apply plugin: 'org.labkey.xsddoc'
-
-// TODO remove this after gradle plugins 1.3.2 is released
-project.apply plugin: 'com.moowork.node'
 apply plugin: 'org.labkey.npmRun'
 
 dependencies

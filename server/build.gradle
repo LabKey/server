@@ -6,7 +6,7 @@ BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjec
 dependencies
         {
             tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
-            tomcatJars  "com.sun.activation:javax.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
+            tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
             tomcatJars  "net.sourceforge.jtds:jtds:${jtdsVersion}" // MS SQLServer JDBC Driver
             tomcatJars  "org.postgresql:postgresql:${postgresqlDriverVersion}"
             tomcatJars   group: 'mysql', name: 'mysql-connector-java', version: mysqlDriverVersion

@@ -1,8 +1,8 @@
 import org.labkey.gradle.task.CreateModule
 import org.labkey.gradle.util.BuildUtils
 
-BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: ":remoteapi:java", transitive: true)
-BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: ":server:bootstrap")
+BuildUtils.addLabKeyDependency(project: project, config: 'jars', depProjectPath: BuildUtils.getRemoteApiProjectPath(gradle), transitive: true)
+BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
 dependencies
         {
             tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
@@ -31,31 +31,31 @@ apply plugin: 'org.labkey.database'
 
 // This a subset of the XSDs because dependencies get pulled in.
 
-String apiProjectPath = BuildUtils.getProjectPath(project.gradle, "apiProjectPath", ":server:api")
+String schemasProjectPath = BuildUtils.getSchemasProjectPath(project.gradle)
 
 List<File> xsdFiles = [
-    project.project(apiProjectPath).file("schemas/clientLibrary.xsd"),
-    project.project(apiProjectPath).file("schemas/apiTest.xsd"),
-    project.project(apiProjectPath).file("schemas/cohorts.xsd"),
-    project.project(apiProjectPath).file("schemas/datasets.xsd"),
-    project.project(apiProjectPath).file("schemas/domainTemplate.xsd"),
-    project.project(apiProjectPath).file("schemas/externalSchema.xsd"),
-    project.project(apiProjectPath).file("schemas/folder.xsd"),
-    project.project(apiProjectPath).file("schemas/folderType.xsd"),
-    project.project(apiProjectPath).file("schemas/module.xsd"),
-    project.project(apiProjectPath).file("schemas/pages.xsd"),
-    project.project(apiProjectPath).file("schemas/participantGroups.xsd"),
-    project.project(apiProjectPath).file("schemas/pipelineOptions.xsd"),
-    project.project(apiProjectPath).file("schemas/pipelineProtocolProps.xsd"),
-    project.project(apiProjectPath).file("schemas/qcStates.xsd"),
-    project.project(apiProjectPath).file("schemas/query.xsd"),
-    project.project(apiProjectPath).file("schemas/report.xsd"),
-    project.project(apiProjectPath).file("schemas/reportProps.xsd"),
-    project.project(apiProjectPath).file("schemas/studyDesign.xsd"),
-    project.project(apiProjectPath).file("schemas/studyViews.xsd"),
-    project.project(apiProjectPath).file("schemas/view.xsd"),
-    project.project(apiProjectPath).file("schemas/viewCategory.xsd"),
-    project.project(apiProjectPath).file("schemas/visitMap.xsd")
+    project.project(schemasProjectPath).file("schemas/clientLibrary.xsd"),
+    project.project(schemasProjectPath).file("schemas/apiTest.xsd"),
+    project.project(schemasProjectPath).file("schemas/cohorts.xsd"),
+    project.project(schemasProjectPath).file("schemas/datasets.xsd"),
+    project.project(schemasProjectPath).file("schemas/domainTemplate.xsd"),
+    project.project(schemasProjectPath).file("schemas/externalSchema.xsd"),
+    project.project(schemasProjectPath).file("schemas/folder.xsd"),
+    project.project(schemasProjectPath).file("schemas/folderType.xsd"),
+    project.project(schemasProjectPath).file("schemas/module.xsd"),
+    project.project(schemasProjectPath).file("schemas/pages.xsd"),
+    project.project(schemasProjectPath).file("schemas/participantGroups.xsd"),
+    project.project(schemasProjectPath).file("schemas/pipelineOptions.xsd"),
+    project.project(schemasProjectPath).file("schemas/pipelineProtocolProps.xsd"),
+    project.project(schemasProjectPath).file("schemas/qcStates.xsd"),
+    project.project(schemasProjectPath).file("schemas/query.xsd"),
+    project.project(schemasProjectPath).file("schemas/report.xsd"),
+    project.project(schemasProjectPath).file("schemas/reportProps.xsd"),
+    project.project(schemasProjectPath).file("schemas/studyDesign.xsd"),
+    project.project(schemasProjectPath).file("schemas/studyViews.xsd"),
+    project.project(schemasProjectPath).file("schemas/view.xsd"),
+    project.project(schemasProjectPath).file("schemas/viewCategory.xsd"),
+    project.project(schemasProjectPath).file("schemas/visitMap.xsd")
 ]
 if (project.findProject(":server:modules:study") != null)
 {

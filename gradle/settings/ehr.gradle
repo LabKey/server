@@ -26,15 +26,22 @@ import org.labkey.gradle.util.BuildUtils
   configuration.
  */
 
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [])
-BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EHR_EXTERNAL_MODULE_DIRS, [])
+List<String> ehrExternalModulesDirs = [
+        //"externalModules/cnprcEHRModules",
+        "externalModules/DISCVR",
+        "externalModules/labModules",
+        "externalModules/onprcEHRModules",
+        "externalModules/snprcEHRModules",
+        "externalModules/wnprc-modules"
+]
 
-for (String module : BuildUtils.EHR_MODULE_NAMES)
-{
-    if (!module.equals("tnprc_ehr")) // not in customModules
-        include ":server:customModules:" + module
-}
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [])
+BuildUtils.includeModules(this.settings, rootDir, ehrExternalModulesDirs, [])
+
+include ":server:customModules:ehr"
 include ":server:customModules:ehr_billing"
+include ":server:customModules:EHR_ComplianceDB"
+include ":server:customModules:onprc_ehr"
 include ":server:optionalModules:snd"
 include ":server:optionalModules:tnprc_ehr"
 include ":server:optionalModules:tnprc_billing"

@@ -4,12 +4,16 @@
     <option name="links">
       <list>
         <IssueNavigationLink>
-          <option name="issueRegexp" value="^(Fix|Spec|Secure Issue|Issue)?[\s#]*([0-9][0-9][0-9][0-9]*)" />
-          <option name="linkRegexp" value="https://www.labkey.org/issues/home/Developer/issues/details.view?issueId=$2" />
+          <option name="issueRegexp" value="(Fix|Spec|Spec ID|Spec Issue|Secure Issue|Issue)( +#?)([0-9]+)" />
+          <option name="linkRegexp" value="https://www.labkey.org/issues/home/Developer/issues/details.view?issueId=$3" />
         </IssueNavigationLink>
         <IssueNavigationLink>
-          <option name="issueRegexp" value="^(TC|TeamCity)[\s#]*([0-9][0-9][0-9][0-9][0-9][0-9]*)" />
-          <option name="linkRegexp" value="https://teamcity.labkey.org/viewLog.html?buildId=$2" />
+          <option name="issueRegexp" value="(Epic|Story|Item)( +#?)([0-9]+)" />
+          <option name="linkRegexp" value="https://www.scrumwise.com/scrum/#/backlog-item/$3" />
+        </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="^([0-9]+) ?:" />
+          <option name="linkRegexp" value="https://www.labkey.org/issues/home/Developer/issues/details.view?issueId=$1" />
         </IssueNavigationLink>
       </list>
     </option>

@@ -17,7 +17,11 @@
 package org.labkey.bootstrap;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Extracts modules into exploded module directories
@@ -45,69 +49,89 @@ public class ModuleExtractor
 
     public Collection<ExplodedModule> extractModules()
     {
-        Set<File> webAppFiles = getWebAppFiles();
-        _moduleArchiveFiles = new HashSet<>();
-        _errorArchives = new HashMap<>();
-        _ignoredExplodedDirs = new HashSet<>();
+        Set<File> webAppFiles = getConcurrentSet(getWebAppFiles());
+        _moduleArchiveFiles = getConcurrentSet();
+        _errorArchives = new ConcurrentHashMap<>();
+        _ignoredExplodedDirs = getConcurrentSet();
 
-        //explode all module archives
-        for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
-        {
-            for(File moduleArchiveFile : moduleDir.listFiles(moduleArchiveFilter))
-            {
+        _log.info("Exploding module archives");
+
+        // Explode each module archive file into its directory, in parallel. Note: Default thread pool uses (CPU - 1) threads.
+
+        // It might be tempting to try replacing .collect().parallelStream() below with .parallel(), but the intermediate
+        // list is critical in this case. File.listFiles() can't estimate the size of its results, so invoking parallel()
+        // directly leads to a terrible splitting strategy that has no parallelization benefit.
+        // https://stackoverflow.com/questions/34341656/why-is-files-list-parallel-stream-performing-so-much-slower-than-using-collect
+        _moduleDirectories.streamAllModuleDirectories()
+            .flatMap(dir->Stream.of(dir.listFiles(moduleArchiveFilter)))
+            .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
+            .parallelStream()
+            .forEach(moduleArchiveFile->{
                 try
                 {
                     ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
                     moduleArchive.extractAll();
                     _moduleArchiveFiles.add(moduleArchiveFile);
                 }
-                catch(IOException e)
+                catch (IOException e)
                 {
-                    _log.error("Unable to extract the module archive " + moduleArchiveFile.getPath() + "!", e);
+                    _log.error("Unable to extract module archive " + moduleArchiveFile.getPath() + "!", e);
                     _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                 }
-            }
-        }
+            });
 
-        //gather all the exploded module directories
-        _log.info("Deploying resources from exploded modules to web app directory...");
-        // This needs to be a linked HashSet so that we preserve the order and handle the core modules before
-        // the ones in the external modules directory, in case there are any duplicates
-        _explodedModules = new LinkedHashSet<>();
-        for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
-        {
-            for(File dir : moduleDir.listFiles())
-            {
-                if(dir.isDirectory())
+        _log.info("Deploying resources from exploded modules to web app directory");
+        _explodedModules = getConcurrentSet();
+
+        // Deploy resources from modules, in parallel. Note: Default thread pool uses (CPU - 1) threads.
+        // This must be a separate step from module extraction (above) to support module directories that don't come
+        // from a .module archive.
+        _moduleDirectories.streamAllModuleDirectories()
+            .flatMap(dir->Stream.of(dir.listFiles(File::isDirectory)))
+            .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
+            .parallelStream()
+            .forEach(dir->{
+                if (dir.isHidden())
                 {
-                    if (dir.isHidden())
-                    {
-                        _ignoredExplodedDirs.add(dir);
-                        continue;
-                    }
-
-                    try
-                    {
-                        ExplodedModule explodedModule = new ExplodedModule(dir);
-                        Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
-                        if (null != webAppFiles)
-                            webAppFiles.addAll(moduleWebAppFiles);
-
-                        _explodedModules.add(explodedModule);
-                    }
-                    catch(IOException e)
-                    {
-                        _log.error("Unable to deploy the resources from the exploded module " + dir.getPath() + " to the web app directory!", e);
-                    }
+                    _ignoredExplodedDirs.add(dir);
+                    return;
                 }
-            }
-        }
+
+                try
+                {
+                    ExplodedModule explodedModule = new ExplodedModule(dir);
+                    _log.info("Deploying resources from " + explodedModule.getRootDirectory() + ".");
+                    Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
+                    if (null != webAppFiles)
+                        webAppFiles.addAll(moduleWebAppFiles);
+
+                    _explodedModules.add(explodedModule);
+                    _log.info("Done deploying resources from " + explodedModule.getRootDirectory() + ".");
+                }
+                catch(IOException e)
+                {
+                    _log.error("Unable to deploy resources from exploded module " + dir.getPath() + " to web app directory!", e);
+                }
+            });
 
         _log.info("Module extraction and deployment complete.");
         if (null != webAppFiles)
             cleanupWebAppDir(webAppFiles);
 
         return _explodedModules;
+    }
+
+    private <E> Set<E> getConcurrentSet()
+    {
+        return Collections.newSetFromMap(new ConcurrentHashMap<>());
+    }
+
+    private <E> Set<E> getConcurrentSet(Set<E> set)
+    {
+        Set<E> ret = getConcurrentSet();
+        ret.addAll(set);
+
+        return ret;
     }
 
     private void cleanupWebAppDir(Set<File> allowedFiles)
@@ -143,13 +167,13 @@ public class ModuleExtractor
         File apiFiles = new File(_webAppDirectory, DirectoryFileListWriter.API_FILES_LIST_RELATIVE_PATH);
         if (!apiFiles.exists())
         {
-            _log.info("WARNING: could not find the list of web app files at " + apiFiles.getPath() + ". Automatic cleanup of the web app directory will not occur.");
+            _log.info("WARNING: could not find list of web app files at " + apiFiles.getPath() + ". Automatic cleanup of web app directory will not occur.");
             return null;
         }
 
         //file contains one path per line
         Set<File> files = new HashSet<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(apiFiles)))
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(apiFiles), StandardCharsets.UTF_8)))
         {
             String line;
             while (null != (line = reader.readLine()))
@@ -183,7 +207,7 @@ public class ModuleExtractor
         logModuleMessage(module, previouslyLoggedModules, message, null);
     }
 
-    /** Logs the mesage if we haven't previously logged a message about that module */
+    /** Logs the message if we haven't previously logged a message about that module */
     private void logModuleMessage(String module, Set<String> previouslyLoggedModules, String message, Throwable t)
     {
         if (!previouslyLoggedModules.contains(module))
@@ -283,7 +307,7 @@ public class ModuleExtractor
                 }
                 catch(IOException e)
                 {
-                    logModuleMessage(explodedModule.getRootDirectory().getName(), previouslyLoggedModules, "Could not hot-swap resources from the module " + explodedModule + ".", e);
+                    logModuleMessage(explodedModule.getRootDirectory().getName(), previouslyLoggedModules, "Could not hot-swap resources from module " + explodedModule + ".", e);
                     modified = true;
                 }
             }

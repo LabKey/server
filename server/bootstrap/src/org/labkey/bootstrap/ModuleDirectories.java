@@ -16,6 +16,7 @@
 package org.labkey.bootstrap;
 
 import java.io.File;
+import java.util.stream.Stream;
 
 /*
 * User: Dave
@@ -54,6 +55,11 @@ public class ModuleDirectories
     public File getExternalModulesDirectory()
     {
         return _externalModulesDirectory;
+    }
+
+    public Stream<File> streamAllModuleDirectories()
+    {
+        return Stream.of(getAllModuleDirectories());
     }
 
     public File[] getAllModuleDirectories()

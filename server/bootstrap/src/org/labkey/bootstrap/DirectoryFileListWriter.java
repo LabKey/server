@@ -18,6 +18,7 @@ package org.labkey.bootstrap;
 
 import java.io.PrintWriter;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 /**
  * User: jeckels
@@ -30,7 +31,7 @@ public class DirectoryFileListWriter
     public static void main(String[] args) throws Exception
     {
         File listFile = new File(API_FILES_LIST_RELATIVE_PATH);
-        try (PrintWriter writer = new PrintWriter(listFile))
+        try (PrintWriter writer = new PrintWriter(listFile, StandardCharsets.UTF_8))
         {
             // Flush to make sure the file's on disk before we list the directory contents
             writer.flush();

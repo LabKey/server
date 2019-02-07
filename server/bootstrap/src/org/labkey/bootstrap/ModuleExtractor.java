@@ -49,7 +49,7 @@ public class ModuleExtractor
 
     public Collection<ExplodedModule> extractModules()
     {
-        Set<File> webAppFiles = getConcurrentSet(getWebAppFiles());
+        Set<File> webAppFiles = getWebAppFiles();
         _moduleArchiveFiles = getConcurrentSet();
         _errorArchives = new ConcurrentHashMap<>();
         _ignoredExplodedDirs = getConcurrentSet();
@@ -160,7 +160,10 @@ public class ModuleExtractor
         }
     }
 
-    /** @return null if there was a problem (likely file system permissions) that prevents us from reading the directory */
+    /**
+     *  @return null if there was a problem (likely file system permissions) that prevents us from reading the directory,
+     *  otherwise return a ConcurrentSet of all the webapp files.     *
+     **/
     protected Set<File> getWebAppFiles()
     {
         //load the apiFiles.list to get a list of all files that are part of the core web app
@@ -187,7 +190,7 @@ public class ModuleExtractor
             return null;
         }
 
-        return files;
+        return getConcurrentSet(files);
     }
 
 

@@ -101,12 +101,13 @@ public class ModuleExtractor
                 {
                     ExplodedModule explodedModule = new ExplodedModule(dir);
                     _log.info("Deploying resources from " + explodedModule.getRootDirectory() + ".");
+                    long startTime = System.currentTimeMillis();
                     Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
                     if (null != webAppFiles)
                         webAppFiles.addAll(moduleWebAppFiles);
 
                     _explodedModules.add(explodedModule);
-                    _log.info("Done deploying resources from " + explodedModule.getRootDirectory() + ".");
+                    _log.info("Done deploying resources from " + explodedModule.getRootDirectory() + ". Extracted " + moduleWebAppFiles.size() + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
                 }
                 catch(IOException e)
                 {

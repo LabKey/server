@@ -113,6 +113,8 @@ public class ModuleArchive
         //no longer in the archive are removed
         ExplodedModule.deleteDirectory(targetDirectory);
 
+        long startTime = System.currentTimeMillis();
+        int fileCount = 0;
         //extract all entries
         try (JarFile jar = new JarFile(archiveFile))
         {
@@ -120,6 +122,7 @@ public class ModuleArchive
             while(entries.hasMoreElements())
             {
                 extractEntry(jar, entries.nextElement(), targetDirectory);
+                fileCount++;
             }
         }
         catch (IOException e)
@@ -129,7 +132,7 @@ public class ModuleArchive
 
         //set last mod on target directory to match module file
         targetDirectory.setLastModified(archiveFile.lastModified());
-        _log.info("Done extracting module " + archiveFile.getName() + ".");
+        _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException

@@ -27,12 +27,12 @@ buildscript {
 import org.labkey.gradle.util.BuildUtils
 
 List<String> excludedModules = [
-    'labkey-api-js', 'labkey-api-r', 'labkey-api-python',             // Might be enlisted in server/optionalModules
-    'ehr_billing', 'ehr', 'onprc_ehr', 'tnprc_billing', 'tnprc_ehr'   // EHR modules not building, due to complaints about LDK-API. TODO: Fix and remove this line
+    'labkey-api-js', 'labkey-api-r', 'labkey-api-python'     // Might be enlisted in server/optionalModules
 ]
 
 // EHR modules depend on LDK, so we need to include it
 include ":externalModules:labModules:LDK"
+include ":externalModules:labModules:laboratory"
 
 // This line below includes all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);

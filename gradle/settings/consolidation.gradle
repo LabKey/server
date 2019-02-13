@@ -1,0 +1,38 @@
+// Goal is to build all the LabKey modules, i.e., all modules except for externalModules. This would be useful for the end of
+// the release cycle script consolidation process.
+// 
+// The goal has not yet been met, though; currently, all EHR modules are excluded, due to LDK-API dependency issues.
+
+buildscript {
+    repositories {
+        maven {
+            url "${artifactory_contextUrl}/plugins-release"
+        }
+        if (gradlePluginsVersion.contains("SNAPSHOT"))
+        {
+            maven {
+                url "${artifactory_contextUrl}/plugins-snapshot-local"
+            }
+
+        }
+    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+import org.labkey.gradle.util.BuildUtils
+
+List<String> excludedModules = [
+    'labkey-api-js', 'labkey-api-r', 'labkey-api-python',             // Might be enlisted in server/optionalModules
+    'ehr_billing', 'ehr', 'onprc_ehr', 'tnprc_billing', 'tnprc_ehr'   // EHR modules not building, due to complaints about LDK-API. TODO: Fix and remove this line
+]
+
+// EHR modules depend on LDK, so we need to include it
+include ":externalModules:labModules:LDK"
+
+// This line below includes all modules in the server/modules, server/customModules and server/optionalModules directories
+BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);

@@ -37,7 +37,7 @@ if (hasProperty('excludeExternalModuleDirs'))
     excludedExternalModuleDirs.addAll("${excludeExternalModuleDirs}".toLowerCase().split(","))
 }
 
-// This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
+// This line below includes all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, apiModules);
 
 List<String> externalModuleDirs = new ArrayList<>();

@@ -1,7 +1,14 @@
-// Goal is to build all the LabKey modules, i.e., all modules except for externalModules. This would be useful for the end of
-// the release cycle script consolidation process.
+// This module set builds all modules in the following directories:
 // 
-// The goal has not yet been met, though; currently, all EHR modules are excluded, due to LDK-API dependency issues.
+//    /server/customModules
+//    /server/modules
+//    /server/optionalModules
+//    /server/test/modules
+//    
+// Goal is to build all the LabKey modules, i.e., all modules except for externalModules. This module set can be useful when
+// refactoring core code, performing the end-of-release-cycle script consolidation process, updating licenses, etc.
+//
+// A few external modules are included since the EHR modules depend on them to build and/or run.
 
 buildscript {
     repositories {
@@ -30,9 +37,9 @@ List<String> excludedModules = [
     'labkey-api-js', 'labkey-api-r', 'labkey-api-python'     // Might be enlisted in server/optionalModules
 ]
 
-// EHR modules depend on LDK, so we need to include it
-include ":externalModules:labModules:LDK"
-include ":externalModules:labModules:laboratory"
+include ":externalModules:labModules:LDK"                // EHR modules depend on LDK
+include ":externalModules:labModules:laboratory"         // Without this, EHR builds fail with "Could not find LDK-api.jar" error
+include ":externalModules:onprcEHRModules:mergesync"     // onprc_ehr runtime dependency
 
-// This line below includes all modules in the server/modules, server/customModules and server/optionalModules directories
+// This line includes all modules in the server/modules, server/customModules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);

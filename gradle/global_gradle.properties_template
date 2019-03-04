@@ -6,9 +6,9 @@ deployMode=dev
 # Regardless of OS, use the forward slash (/) as a file separator in the path (yes, even on Windows)
 systemProp.tomcat.home=/path/to/tomcat/home
 
-# uncomment to enable artifactory user; this should not generally be required
+# uncomment to enable artifactory password authentication; Not compatible with API key authentication
 #artifactory_user=<your user>
-# the encrypted password or API key; uncomment when supplying an artifactory_user
+# the artifactory password for the user above or your artifactory API key
 #artifactory_password=<your password or API key>
 
 # uncomment to enable population of VCS revision number and url in module.properties file

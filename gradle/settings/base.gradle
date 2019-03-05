@@ -1,0 +1,28 @@
+// An empty module set that will build the bare minimum set of modules specified in gradle.settings, which are:
+//
+// - The 10 base modules (announcements, api, audit, core, experiment, filecontent, internal, pipeline, query, wiki)
+// - The test modules (all modules in /server/test/modules plus dumbster)
+//
+// To exclude the test modules, comment out this line in gradle.settings: BuildUtils.includeTestModules(this.settings, rootDir)
+
+buildscript {
+    repositories {
+        maven {
+            url "${artifactory_contextUrl}/plugins-release"
+        }
+        if (gradlePluginsVersion.contains("SNAPSHOT"))
+        {
+            maven {
+                url "${artifactory_contextUrl}/plugins-snapshot-local"
+            }
+
+        }
+    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+    configurations.all {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}

@@ -57,15 +57,15 @@ List<File> xsdFiles = [
     project.project(schemasProjectPath).file("schemas/viewCategory.xsd"),
     project.project(schemasProjectPath).file("schemas/visitMap.xsd")
 ]
-if (project.findProject(":server:modules:study") != null)
+if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "study")) != null)
 {
-    xsdFiles += [project.project(":server:modules:study").file("schemas/assayProvider.xsd"),
-                 project.project(":server:modules:study").file("schemas/studyPipelineTasks.xsd")]
+    xsdFiles += [project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "study")).file("schemas/assayProvider.xsd"),
+                 project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "study")).file("schemas/studyPipelineTasks.xsd")]
 }
-if (project.findProject(":server:modules:list") != null)
-    xsdFiles += project.project(":server:modules:list").file("schemas/lists.xsd");
-if (project.findProject(":server:modules:pipeline")  != null)
-    xsdFiles += project.project(":server:modules:pipeline").file("schemas/pipelineTasks.xsd")
+if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")) != null)
+    xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")).file("schemas/lists.xsd");
+if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "pipeline"))  != null)
+    xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "pipeline")).file("schemas/pipelineTasks.xsd")
 if (project.findProject(":server:optionalModules:dataintegration")  != null)
     xsdFiles += project.project(":server:optionalModules:dataintegration").file("schemas/etl.xsd")
 if (project.findProject(":server:optionalModules:redcap") != null)

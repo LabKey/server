@@ -218,8 +218,8 @@ allprojects {
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
                         // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
                         // use this mechanism in general (plus, it's very slow for our many-module build).
-                        if (BuildUtils.shouldBuildFromSource(project.project(":remoteapi:java")))
-                            substitute module('org.labkey:labkey-client-api') with project(":remoteapi:java")
+                        if (BuildUtils.shouldBuildFromSource(project.project(BuildUtils.getRemoteApiProjectPath(gradle))))
+                            substitute module('org.labkey:labkey-client-api') with project(BuildUtils.getRemoteApiProjectPath(gradle))
                         // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
                         // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
                         substitute module('bouncycastle:bcprov-jdk14:138') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
@@ -292,7 +292,7 @@ subprojects {
 project.task("copyTagLibsBase",
         type: Copy,
         {CopySpec copy ->
-            copy.from "server/api/webapp"
+            copy.from "${BuildUtils.getApiProjectPath(gradle).replace(":", "/").substring(1)}/webapp"
             copy.into "${project.buildDir}/webapp"
             copy.include 'WEB-INF/web.xml'
             copy.include 'WEB-INF/*.tld'

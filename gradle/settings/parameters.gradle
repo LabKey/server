@@ -1,11 +1,11 @@
 // Parameterize the paths for these projects as they are used in our build logic
 // but, because they are non-standard, are likely to change as we move from SVN to Git
-gradle.ext.platformProjectPath=":server:modules" // The gradle path to the project containing the platform (base) modules such as core and experiment
-gradle.ext.commonAssaysProjectPath=":server:modules" // The gradle path to the project containing the common assay modules such as ms2 and elisa
-gradle.ext.apiProjectPath=":server:api"
+gradle.ext.platformProjectPath=":server:modules:platform" // The gradle path to the project containing the platform (base) modules such as core and experiment
+gradle.ext.commonAssaysProjectPath=":server:modules:commonAssays" // The gradle path to the project containing the common assay modules such as ms2 and elisa
+gradle.ext.apiProjectPath=":server:modules:platform:api"
 gradle.ext.bootstrapProjectPath=":server:bootstrap"
-gradle.ext.internalProjectPath=":server:internal"
+gradle.ext.internalProjectPath=":server:modules:platform:internal"
 gradle.ext.remoteApiProjectPath=":remoteapi:java"
-gradle.ext.schemasProjectPath=":server:api" 
+gradle.ext.schemasProjectPath=":server:modules:platform:api"
 gradle.ext.testProjectPath=":server:test"
 gradle.ext.nodeBinProjectPath=":" // The npm and node executables downloaded into this project's build directory will be the target of the links created by the synlinkNode task

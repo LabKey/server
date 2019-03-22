@@ -35,7 +35,7 @@ List<String> ehrExternalModulesDirs = [
         "externalModules/wnprc-modules"
 ]
 
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [])
+BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], [])
 BuildUtils.includeModules(this.settings, rootDir, ehrExternalModulesDirs, [])
 
 include ":server:customModules:ehr"

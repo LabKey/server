@@ -21,7 +21,7 @@ buildscript {
 }
 import org.labkey.gradle.util.BuildUtils
 
-BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.CUSTOM_MODULES_DIR], BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "wnprc_billing", "wnprc_billingpublic"])
+BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR, BuildUtils.CUSTOM_MODULES_DIR], BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "wnprc_billing", "wnprc_billingpublic"])
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"

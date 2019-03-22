@@ -73,7 +73,8 @@ else
     //List<String> excludedExternalModules = ["nlp", "test"] + excludedDISCVRModules
 
     // The line below includes all modules in the server/modules directory (except the ones indicated as to be excluded)
-    BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules)
+    BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)
+
     // The line below includes all modules in the server/customModules directory
     //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.CUSTOM_MODULES_DIR], [])
 

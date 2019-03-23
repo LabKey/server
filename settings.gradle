@@ -1,5 +1,3 @@
-// This prevents the warning from gradle about features being deprecated/removed in Gradle 5
-enableFeaturePreview('STABLE_PUBLISHING')
 
 buildscript {
     repositories {

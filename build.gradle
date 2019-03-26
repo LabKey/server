@@ -213,6 +213,9 @@ allprojects {
                     force "org.slf4j:jcl-over-slf4j:${jclOverSlf4jVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA
                     force "org.apache.mina:mina-core:${apacheMinaVersion}"
+                    // saml has transitive dependencies on old versions of batik and xmlgraphics-commons, which conflict with more recent versions in api
+                    force "org.apache.xmlgraphics:batik-css:${batikVersion}"
+                    force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

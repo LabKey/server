@@ -26,10 +26,21 @@ import org.labkey.gradle.util.BuildUtils
   configuration.  This should be all modules except the EHR modules.
  */
 // a set of directory names that correspond to modules to be excluded from configuration
-List<String> excludedModules = BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "tnprc_billing", "wnprc_billing", "wnprc_billingpublic"]
+List<String> excludedModules = BuildUtils.EHR_MODULE_NAMES + ["ehr_billing", "tnprc_billing"]
 
 // This line below inclues all modules in the server/modules, server/customModules and server/optionalModules directories
-BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);
+BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules)
+
+// Include module collections from server/optionalModules
+List<String> moduleContainerDirs = new ArrayList<>();
+for (File f : new File(rootDir, "server/optionalModules").listFiles())
+{
+    if (f.isDirectory() && !f.getName().startsWith(".") && !new File(f, 'module.properties').exists())
+    {
+        moduleContainerDirs.add("server/optionalModules/" + f.getName())
+    }
+}
+BuildUtils.includeModules(this.settings, rootDir, moduleContainerDirs, [])
 
 // include the immport module singly
 include ':externalModules:RGLab:immport'

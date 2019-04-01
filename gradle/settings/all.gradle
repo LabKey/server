@@ -45,11 +45,22 @@ for (File f : new File(rootDir, "externalModules").listFiles())
 {
     if (f.isDirectory() && !excludedExternalModuleDirs.contains(f.getName().toLowerCase()))
     {
-        externalModuleDirs.add("externalModules/" + f.getName());
+        externalModuleDirs.add("externalModules/" + f.getName())
     }
 }
 // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
 BuildUtils.includeModules(this.settings, rootDir, externalModuleDirs, excludedExternalModules)
+
+// Include module collections from server/optionalModules
+List<String> moduleContainerDirs = new ArrayList<>();
+for (File f : new File(rootDir, "server/optionalModules").listFiles())
+{
+    if (f.isDirectory() && !f.getName().startsWith(".") && !new File(f, 'module.properties').exists())
+    {
+        moduleContainerDirs.add("server/optionalModules/" + f.getName())
+    }
+}
+BuildUtils.includeModules(this.settings, rootDir, moduleContainerDirs, [])
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include ":server:test:distributions:teamcity"

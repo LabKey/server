@@ -150,8 +150,11 @@ allprojects {
                         }
                     }
                 }
-                flatDir dirs: "${tomcatDir}/lib"
-                flatDir dirs: "${tomcatDir}/bin"  // for tomcat-juli.jar (required with jsp compile) and bootstrap.jar
+                if (!project.hasProperty('apacheTomcatVersion'))
+                {
+                    flatDir dirs: "${tomcatDir}/lib"
+                    flatDir dirs: "${tomcatDir}/bin"  // for tomcat-juli.jar (required with jsp compile) and bootstrap.jar
+                }
                 jcenter()
             }
     configurations.all {
@@ -232,6 +235,13 @@ allprojects {
 
                         // jdk5 backport of guava has significant conflicts with guava 18+
                         substitute module('com.google.guava:guava-jdk5') with module("com.google.guava:guava:${guavaVersion}")
+
+                        if (project.hasProperty('apacheTomcatVersion'))
+                        {
+                            // For in-flight features in 'platform' and 'commonAssays' repositories
+                            substitute module('org.apache.tomcat:jasper') with module("org.apache.tomcat:tomcat-jasper:${apacheTomcatVersion}")
+                            substitute module('org.apache.tomcat:jsp-api') with module("org.apache.tomcat:tomcat-jsp-api:${apacheTomcatVersion}")
+                        }
                     }
                 }
             }

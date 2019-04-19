@@ -1,17 +1,17 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0" is_locked="false">
     <option name="myName" value="Project Default" />
-    <option name="myLocal" value="false" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CatchMayIgnoreExceptionMerged" />
     <inspection_tool class="EmptyCatchBlock" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="m_includeComments" value="true" />
       <option name="m_ignoreTestCases" value="true" />
       <option name="m_ignoreIgnoreParameter" value="true" />
     </inspection_tool>
     <inspection_tool class="Java8CollectionsApi" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="LoggerInitializedWithForeignClass" enabled="false" level="WARNING" enabled_by_default="false">
-      <option name="loggerClassName" value="org.apache.log4j.Logger,org.slf4j.LoggerFactory,org.apache.commons.logging.LogFactory,java.util.logging.Logger" />
-      <option name="loggerFactoryMethodName" value="getLogger,getLogger,getLog,getLogger" />
+    <inspection_tool class="MissingOverrideAnnotation" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoreObjectMethods" value="true" />
+      <option name="ignoreAnonymousClassMethods" value="false" />
     </inspection_tool>
     <inspection_tool class="SSBasedInspection" enabled="true" level="LABKEY CODING CONVENTION" enabled_by_default="true">
       <searchConfiguration name="&lt;%= unsafe %&gt;" text="$JspWriter$.print( $Expression$ )" recursive="false" caseInsensitive="true" type="JAVA">
@@ -27,11 +27,7 @@
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
       <searchConfiguration name="PrintWriter used without specifying encoding" text="new PrintWriter($Parameter$, $Parameter2$)" recursive="false" caseInsensitive="false" type="JAVA">
-        <constraint name="Instance" minCount="0" within="" contains="" />
-        <constraint name="MethodCall" target="true" within="" contains="" />
         <constraint name="Parameter" script="&quot;&quot;" nameOfExprType="java.io.File|java.io.OutputStream|java.lang.String" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
-        <constraint name="Cla" within="" contains="" />
-        <constraint name="Clazz" script="&quot;&quot;" regexp="PrintWriter" nameOfExprType="java.io.PrintWriter" within="" contains="" />
         <constraint name="Parameter2" script="&quot;&quot;" nameOfExprType="boolean" minCount="0" within="" contains="" />
       </searchConfiguration>
       <replaceConfiguration name="String.getBytes() used without specifying character encoding" text="$String$.getBytes()" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="$String$.getBytes(StringUtilsLabKey.DEFAULT_CHARSET)">
@@ -67,22 +63,12 @@
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="String constructor passed bytes without specifying character encoding" text="new String($arg1$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" useStaticImport="true" replacement="new String($arg1$, StringUtilsLabKey.DEFAULT_CHARSET)">
-        <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" within="" contains="" />
-        <constraint name="arg0" within="" contains="" />
+        <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" expressionTypes="byte[]" within="" contains="" />
       </replaceConfiguration>
       <searchConfiguration name="System.out" text="System.$out$" recursive="true" caseInsensitive="true" type="JAVA">
-        <constraint name="SQLFragment" script="&quot;&quot;" nameOfExprType="org.labkey.api.data.SQLFragment" target="true" within="" contains="" />
-        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
-        <constraint name="operator4" within="" contains="" />
-        <constraint name="operator" script="&quot;&quot;" within="" contains="" />
         <constraint name="out" regexp="(out|err)" within="" contains="" />
       </searchConfiguration>
-      <searchConfiguration name="printStackTrace" text=".printStackTrace" recursive="true" caseInsensitive="true" type="JAVA">
-        <constraint name="SQLFragment" script="&quot;&quot;" nameOfExprType="org.labkey.api.data.SQLFragment" target="true" within="" contains="" />
-        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
-        <constraint name="operator4" within="" contains="" />
-        <constraint name="operator" script="&quot;&quot;" within="" contains="" />
-      </searchConfiguration>
+      <searchConfiguration name="printStackTrace" text=".printStackTrace" recursive="true" caseInsensitive="true" type="JAVA" />
     </inspection_tool>
     <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UnnecessaryBoxing" enabled="false" level="WARNING" enabled_by_default="false" />

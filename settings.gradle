@@ -99,6 +99,15 @@ else
     //                                         ":server:customModules:ehr",
     //                                         ":server:customModules:onprc_ehr"])
 
+    BuildUtils.includeModules(this.settings, [":server:customModules:targetedms"])
+    //BuildUtils.includeModules(this.settings, [":server:customModules:lincs"])
+
+    //BuildUtils.includeModules(this.settings, [":externalModules:maccoss:passport"])
+    //BuildUtils.includeModules(this.settings, [":externalModules:maccoss:testresults"])
+    //BuildUtils.includeModules(this.settings, [":externalModules:maccoss:signup"])
+    BuildUtils.includeModules(this.settings, [":externalModules:maccoss:SkylineToolStore"])
+
+
     // The line below is an example of how to include a single module
     //include ":server:optionalModules:workflow"
 }

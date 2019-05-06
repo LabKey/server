@@ -1,7 +1,10 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven'
+    id 'maven-publish'
+}
 apply plugin: 'org.labkey.serverBootstrap'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
 
 
 import org.labkey.gradle.task.PomFile

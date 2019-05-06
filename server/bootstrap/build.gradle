@@ -1,11 +1,14 @@
 plugins {
     id 'java'
-    id 'java-library'
+ //   id 'java-library'
     id 'maven'
     id 'maven-publish'
 }
 apply plugin: 'org.labkey.serverBootstrap'
 
+project.configurations {
+    api.extendsFrom(compile)
+}
 
 import org.labkey.gradle.task.PomFile
 import org.labkey.gradle.util.BuildUtils

@@ -60,44 +60,44 @@ else if (hasProperty('moduleSet'))
 }
 else
 {
-    // a set of directory names that correspond to modules to be excluded from configuration
-    List<String> apiModules = ['labkey-api-js', 'labkey-api-r', 'labkey-api-python']
-    List<String> excludedModules = ["movies", "test", "ehr_billing", "tnprc_billing", "wnprc_billing", "wnprc_billingpublic"] + apiModules + BuildUtils.EHR_MODULE_NAMES
-    //List<String> excludedModules = ["movies"] + apiModules
-    List<String> excludedExternalModules = ["nlp", "test"]
+    // The following exlusion lists are provided as a convenience. You must make sure to pass them to the appropriate
+    // calls to `BuildUtils.includeModules`
 
-    // Excluded external modules for EHR build
+    // A list of directory names that correspond to modules to be excluded from configuration.
+    // Items may be individual module names (e.g. 'luminex') or module container names (e.g. 'customModules')
+    List<String> excludedModules = []
+
+    // Some directories in externalModules have a 'test' directory with shared test code.
+    // They should not be included as LabKey modules.
+    List<String> excludedExternalModules = ["test"]
+
+    // Example excluded external modules for an EHR build
     //List<String> excludedDISCVRModules = ["CancerStudies", "galaxyintegration", "mGAP", "su2c"]
-    //List<String> excludedExternalModules = ["nlp", "test"] + excludedDISCVRModules
+    //excludedExternalModules = excludedExternalModules + excludedDISCVRModules
 
-    // The line below includes all modules in the server/modules directory (except the ones indicated as to be excluded)
+    // The line below includes all modules in the server/modules, server/modules/platform, and server/modules/commonAssays, but not other module containers (e.g. server/modules/customModules)
     BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)
 
-    // The line below includes all modules in the server/customModules directory
-    //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.CUSTOM_MODULES_DIR], [])
+    // The line below includes all modules in server/modules as well as modules within any module containers there (e.g. server/modules/platform)
+    //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules, true)
 
-    // The line below includes all modules in the server/modules, server/customModules and server/optionalModules directories
+    // The line below includes all modules in the server/modules/customModules directory
+    //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.CUSTOM_MODULES_GIT_DIR], excludedModules)
+
+    // The line below includes all modules in the server/modules, server/modules/platform, server/modules/commonAssays, server/modules/customModules and server/optionalModules directories
     //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules)
 
-    // The line below includes just the modules in the externalModules/RGLab directory
-    //BuildUtils.includeModules(this.settings, rootDir, ["externalModules/RGLab"], excludedExternalModules)
-
     // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
-    // N.B. If you include the ehr module from server/customModules, you will need to include some modules from the externalModules directory as well
     //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULE_DIRS, excludedExternalModules)
 
     // The line below includes only the external EHR modules
     //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EHR_EXTERNAL_MODULE_DIRS, excludedExternalModules)
 
 
-    // The line below includes a set of individual modules (in this case all the EHR modules)
-    //BuildUtils.includeModules(this.settings, [":server:customModules:EHR_ComplianceDB",
-    //                                         ":server:customModules:WNPRC_EHR",
-    //                                         ":server:customModules:cnprc_ehr",
-    //                                         ":server:customModules:snprc_ehr",
-    //                                         ":server:customModules:snd",
-    //                                         ":server:customModules:ehr",
-    //                                         ":server:customModules:onprc_ehr"])
+    // The line below includes a set of individual modules (in this case, some EHR related modules)
+    //BuildUtils.includeModules(this.settings, [":server:optionalModules:tnprc_ehr",
+    //                                         ":server:optionalModules:tnprc_billing",
+    //                                         ":server:optionalModules:snd"])
 
     // The line below is an example of how to include a single module
     //include ":server:optionalModules:workflow"

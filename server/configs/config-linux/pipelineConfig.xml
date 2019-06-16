@@ -26,7 +26,6 @@
                     <map>
                         <entry key="tpp" value="tpp${version}/bin"/>
                         <entry key="xtandem" value="tandem${version}"/>
-                        <entry key="msinspect" value="msInspect"/>
                         <entry key="pwiz" value="pwiz"/>
                     </map>
                 </property>                

@@ -53,16 +53,10 @@ allprojects {
     }
 }
 
-// We need the tomcat home directory to find certain dependencies for our build process.
-String tomcatDirProp = project.hasProperty('teamcity') ? teamcity['tomcat.home'] : (System.getenv('CATALINA_HOME') != null ? System.getenv('CATALINA_HOME') : System.properties['tomcat.home'])
+// We need the tomcat home directory to run UI tests from within IntelliJ.
+String tomcatDirProp = System.getenv('CATALINA_HOME') != null ? System.getenv('CATALINA_HOME') : System.properties['tomcat.home']
 
-if (tomcatDirProp == null)
-    throw new GradleException("Tomcat home directory not set.  Please set the value of the system property tomcat.home " +
-            "using either systemProp.tomcat.home=<tomcat home directory> in a gradle.properties file " +
-            "or -Dtomcat.home=<tomcat home directory> on command line. Setting the environment variable CATALINA_HOME " +
-            "will also work when building just from the command line (i.e., not in IntelliJ).")
-def tomcatHome = new File(tomcatDirProp)
-if (!tomcatHome.exists())
+if (tomcatDirProp != null && !new File(tomcatDirProp).exists())
     throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
 
 //allprojects {
@@ -107,8 +101,6 @@ allprojects {
 
     ext
             {
-                tomcatDir = tomcatDirProp
-                tomcatConfDir = "${tomcatDir}/conf/Catalina/localhost"
                 vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
                 installerVersion = "${project.version}-${vcsRevision}"
             }
@@ -149,11 +141,6 @@ allprojects {
                             }
                         }
                     }
-                }
-                if (!project.hasProperty('apacheTomcatVersion'))
-                {
-                    flatDir dirs: "${tomcatDir}/lib"
-                    flatDir dirs: "${tomcatDir}/bin"  // for tomcat-juli.jar (required with jsp compile) and bootstrap.jar
                 }
                 jcenter()
             }

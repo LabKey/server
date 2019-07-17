@@ -86,8 +86,6 @@ if (project.findProject(":server:optionalModules:freezerpro") != null)
 
 project.xsdDoc.xsdFiles=xsdFiles
 
-println xsdFiles
-
 project.jsDoc.paths = [
     "modules/platform/api/webapp/clientapi",
     "modules/platform/api/webapp/clientapi/dom",

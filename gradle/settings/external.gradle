@@ -20,11 +20,13 @@ buildscript {
     }
 }
 
-// EHR has most of externalModules already, plus their dependencies
-apply from: 'ehr.gradle'
+// Start with community modules
+apply from: 'community.gradle'
 
 import org.labkey.gradle.util.BuildUtils
 
 // Just need to add the scharp modules
-BuildUtils.includeModules(this.settings, rootDir, ["externalModules/scharp"], ["test"]);
+BuildUtils.includeModules(this.settings, rootDir, ["externalModules"], [], true);
 
+// Some externalModules have premium dependency
+include ":server:optionalModules:dataintegration"

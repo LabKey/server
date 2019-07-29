@@ -59,17 +59,8 @@ List<File> xsdFiles = [
 ]
 if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")) != null)
 {
-    // @AssayMigration -- these XSDs have moved from study to assay on the assay refactor FB, so handle both locations for now
-    File provider = project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "study")).file("schemas/assayProvider.xsd")
-    if (!provider.exists())
-        provider = project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayProvider.xsd")
-    
-    File tasks = project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "study")).file("schemas/studyPipelineTasks.xsd")
-    if (!tasks.exists())
-        tasks = project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayPipelineTasks.xsd")
-
-    xsdFiles += [provider,
-                 tasks]
+    xsdFiles += [project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayProvider.xsd"),
+                 project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayPipelineTasks.xsd")]
 }
 if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")) != null)
     xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")).file("schemas/lists.xsd")

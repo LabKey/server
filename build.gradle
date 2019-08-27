@@ -1,6 +1,7 @@
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.plugin.NpmRun
 
 buildscript {
     repositories {
@@ -16,21 +17,21 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:${buildInfoExtractorGradleVersion}"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayPluginVersion}"
-        classpath "com.moowork.gradle:gradle-node-plugin:${gradleNodePluginVersion}"
         classpath "org.labkey.build:versioning:${versioningPluginVersion}"
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-        if (project.hasProperty('enableOwaspDependencyCheck'))
-        {
-            classpath 'org.owasp:dependency-check-gradle:3.0.2'
-        }
     }
     configurations.all {
         // Check for updates every build for SNAPSHOT dependencies
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
 
+}
+
+plugins {
+    id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
+    id "com.moowork.node" version "${gradleNodePluginVersion}" apply false
+    id "com.jfrog.bintray" version "${bintrayPluginVersion}" apply false
+    id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 }
 
 allprojects {
@@ -69,6 +70,7 @@ if (tomcatDirProp != null && !new File(tomcatDirProp).exists())
 //    }
 //}
 
+apply plugin: 'org.labkey.multiGit'
 allprojects {
     configurations {
         driver
@@ -350,4 +352,21 @@ project.task(
         }
     })
     manifestFile.text = manifestString.toString()
+})
+
+project.task(
+    'listNpmProjects',
+    group: GroupNames.NPM_RUN,
+    description:"List all projects that employ npm in their build"
+).doLast({
+    List<String> npmProjects = []
+    project.allprojects({Project p ->
+        if (p.getPlugins().hasPlugin(NpmRun.class))
+            npmProjects.add("${p.path} (${NpmRun.useYarn(p) ? 'yarn' : 'npm'})")
+    })
+    if (npmProjects.size == 0)
+        println("No projects found containing ${NpmRun.NPM_PROJECT_FILE}")
+    else {
+        println("The following projects use NPM in their builds:\n\t${npmProjects.join("\n\t")}\n")
+    }
 })

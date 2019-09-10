@@ -174,6 +174,8 @@ allprojects {
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
                     // force version for ms2, saml, fileTransfer, harvest, scrumtime, api, accounts, docker
                     force "commons-codec:commons-codec:${commonsCodecVersion}"
+                    // force version consistency in TCRdb, SequenceAnalysis, API
+                    force "org.apache.commons:commons-math3:${commonsMath3Version}"
                     // force version for api, accounts, fileTransfer, harvest, scrumtime, docker
                     force "org.apache.httpcomponents:httpcore:${httpcoreVersion}"
                     // force version for api, docker, fileTransfer, harvest, scrumtime, accounts
@@ -210,6 +212,12 @@ allprojects {
                     // saml has transitive dependencies on old versions of batik and xmlgraphics-commons, which conflict with more recent versions in api
                     force "org.apache.xmlgraphics:batik-css:${batikVersion}"
                     force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
+                    // force consistency in TCRdb, mspipeline, omerointegration
+                    force "ch.qos.logback:logback-classic:${logbackVersion}"
+                    force "ch.qos.logback:logback-core:${logbackVersion}"
+                    // force consistency in TCRdb, WNPRC
+                    force "org.javassist:javassist:${javassistVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

@@ -35,7 +35,7 @@ List<String> ehrModulesDirs = [
 
 // TODO: Include by default after labModules git migration
 if (new File(getRootDir(), "server/modules/onprcEHRModules/GenotypeAssays").exists()) {
-    ehrModuleDirs = ehrModuleDirs + [
+    ehrModulesDirs = ehrModulesDirs + [
             "server/modules/DiscvrLabKeyModules",
             "server/modules/BimberLabKeyModules",
             "server/modules/LabDevKitModules"

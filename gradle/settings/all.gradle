@@ -34,6 +34,13 @@ if (hasProperty('excludeExternalModuleDirs'))
 {
     excludedDirs.addAll("${excludeExternalModuleDirs}".toLowerCase().split(","))
 }
+// TODO: remove after labModules git migration
+if (new File(getRootDir(), "server/modules/onprcEHRModules/GenotypeAssays").exists()) {
+    excludedDirs.addAll([
+            "DISCVR",
+            "labModules"
+    ])
+}
 
 BuildUtils.includeModules(this.settings, rootDir, ["server/modules", "server/optionalModules", "externalModules"], excludedDirs, true)
 

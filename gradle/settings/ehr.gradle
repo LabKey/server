@@ -42,7 +42,7 @@ if (new File(getRootDir(), "server/modules/onprcEHRModules/GenotypeAssays").exis
     ]
 }
 else {
-    ehrModuleDirs = ehrModuleDirs + [
+    ehrModulesDirs = ehrModulesDirs + [
             "externalModules/DISCVR",
             "externalModules/labModules"
     ]

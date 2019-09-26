@@ -37,8 +37,8 @@ List<String> excludedModules = [
     'labkey-api-js', 'labkey-api-r', 'labkey-api-python'     // Might be enlisted in server/optionalModules
 ]
 
-include ":externalModules:labModules:LDK"                // EHR modules depend on LDK
-include ":externalModules:labModules:laboratory"         // Without this, EHR builds fail with "Could not find LDK-api.jar" error
+include ":server:modules:LabDevKitModules:LDK"                // EHR modules depend on LDK
+include ":server:modules:DiscvrLabKeyModules:laboratory"         // Without this, EHR builds fail with "Could not find LDK-api.jar" error
 include ":externalModules:onprcEHRModules:mergesync"     // onprc_ehr runtime dependency
 
 include ":externalModules:snprcEHRModules:snprc_ehr"

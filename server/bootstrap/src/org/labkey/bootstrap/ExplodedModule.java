@@ -38,7 +38,8 @@ public class ExplodedModule
     public static final String LIB_PATH = "lib";
     public static final String CONFIG_PATH = "config";
 
-    protected static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().endsWith("-jsp.jar") /* gradle build uses this extension */;
+    // With Gradle 1.8, we removed the -jsp classifier at the end of the jar file name, so we need to identify by the string _jsp- in the middle of the jar file name (e.g., announcements_jsp-19.3-SNAPSHOT.jar)
+    protected static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().contains("_jsp-");
     protected static final FilenameFilter _springConfigFilter = (dir, name) -> name.toLowerCase().endsWith("context.xml");
     protected static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.toLowerCase().equals("module.xml");
 
@@ -213,7 +214,7 @@ public class ExplodedModule
         dir.delete();
     }
 
-    //NOTE: this was copied from FileUtil since the boostrap module doesn't share any code with the web app
+    //NOTE: this was copied from FileUtil since the bootstrap module doesn't share any code with the web app
     //consider moving this to some sort of shared JAR
     //incidentally, why in the world is this not in the core Java packages?
     public static void copyFile(File src, File dst) throws IOException

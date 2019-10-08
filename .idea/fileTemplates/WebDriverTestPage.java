@@ -17,15 +17,15 @@ public class ${NAME} extends LabKeyPage<${NAME}.ElementCache>
         super(driver);
     }
 
-    public static ${NAME} beginAt(WebDriverWrapper driver)
+    public static ${NAME} beginAt(WebDriverWrapper webDriverWrapper)
     {
-        return beginAt(driver, driver.getCurrentContainerPath());
+        return beginAt(webDriverWrapper, webDriverWrapper.getCurrentContainerPath());
     }
 
-    public static ${NAME} beginAt(WebDriverWrapper driver, String containerPath)
+    public static ${NAME} beginAt(WebDriverWrapper webDriverWrapper, String containerPath)
     {
-        driver.beginAt(WebTestHelper.buildURL("controller", containerPath, "action"));
-        return new ${NAME}(driver.getDriver());
+        webDriverWrapper.beginAt(WebTestHelper.buildURL("controller", containerPath, "action"));
+        return new ${NAME}(webDriverWrapper.getDriver());
     }
 
     // TODO: Add methods for other actions on this page

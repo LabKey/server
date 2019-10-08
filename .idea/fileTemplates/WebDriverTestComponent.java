@@ -50,6 +50,7 @@ public class ${NAME} extends WebDriverComponent<${NAME}.ElementCache>
         return new LabKeyPage(getDriver());
     }
 
+    @Override
     protected ElementCache newElementCache()
     {
         return new ElementCache();

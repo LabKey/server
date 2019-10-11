@@ -32,31 +32,36 @@ apply plugin: 'org.labkey.database'
 // This a subset of the XSDs because dependencies get pulled in.
 
 String schemasProjectPath = BuildUtils.getSchemasProjectPath(project.gradle)
+List<File> xsdFiles = []
 
-List<File> xsdFiles = [
-    project.project(schemasProjectPath).file("schemas/clientLibrary.xsd"),
-    project.project(schemasProjectPath).file("schemas/apiTest.xsd"),
-    project.project(schemasProjectPath).file("schemas/cohorts.xsd"),
-    project.project(schemasProjectPath).file("schemas/datasets.xsd"),
-    project.project(schemasProjectPath).file("schemas/domainTemplate.xsd"),
-    project.project(schemasProjectPath).file("schemas/externalSchema.xsd"),
-    project.project(schemasProjectPath).file("schemas/folder.xsd"),
-    project.project(schemasProjectPath).file("schemas/folderType.xsd"),
-    project.project(schemasProjectPath).file("schemas/module.xsd"),
-    project.project(schemasProjectPath).file("schemas/pages.xsd"),
-    project.project(schemasProjectPath).file("schemas/participantGroups.xsd"),
-    project.project(schemasProjectPath).file("schemas/pipelineOptions.xsd"),
-    project.project(schemasProjectPath).file("schemas/pipelineProtocolProps.xsd"),
-    project.project(schemasProjectPath).file("schemas/qcStates.xsd"),
-    project.project(schemasProjectPath).file("schemas/query.xsd"),
-    project.project(schemasProjectPath).file("schemas/report.xsd"),
-    project.project(schemasProjectPath).file("schemas/reportProps.xsd"),
-    project.project(schemasProjectPath).file("schemas/studyDesign.xsd"),
-    project.project(schemasProjectPath).file("schemas/studyViews.xsd"),
-    project.project(schemasProjectPath).file("schemas/view.xsd"),
-    project.project(schemasProjectPath).file("schemas/viewCategory.xsd"),
-    project.project(schemasProjectPath).file("schemas/visitMap.xsd")
-]
+if (project.findProject(schemasProjectPath))
+{
+    xsdFiles += [
+        project.project(schemasProjectPath).file("schemas/clientLibrary.xsd"),
+        project.project(schemasProjectPath).file("schemas/apiTest.xsd"),
+        project.project(schemasProjectPath).file("schemas/cohorts.xsd"),
+        project.project(schemasProjectPath).file("schemas/datasets.xsd"),
+        project.project(schemasProjectPath).file("schemas/domainTemplate.xsd"),
+        project.project(schemasProjectPath).file("schemas/externalSchema.xsd"),
+        project.project(schemasProjectPath).file("schemas/folder.xsd"),
+        project.project(schemasProjectPath).file("schemas/folderType.xsd"),
+        project.project(schemasProjectPath).file("schemas/module.xsd"),
+        project.project(schemasProjectPath).file("schemas/pages.xsd"),
+        project.project(schemasProjectPath).file("schemas/participantGroups.xsd"),
+        project.project(schemasProjectPath).file("schemas/pipelineOptions.xsd"),
+        project.project(schemasProjectPath).file("schemas/pipelineProtocolProps.xsd"),
+        project.project(schemasProjectPath).file("schemas/qcStates.xsd"),
+        project.project(schemasProjectPath).file("schemas/query.xsd"),
+        project.project(schemasProjectPath).file("schemas/report.xsd"),
+        project.project(schemasProjectPath).file("schemas/reportProps.xsd"),
+        project.project(schemasProjectPath).file("schemas/studyDesign.xsd"),
+        project.project(schemasProjectPath).file("schemas/studyViews.xsd"),
+        project.project(schemasProjectPath).file("schemas/view.xsd"),
+        project.project(schemasProjectPath).file("schemas/viewCategory.xsd"),
+        project.project(schemasProjectPath).file("schemas/visitMap.xsd")
+    ]
+}
+
 if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")) != null)
 {
     xsdFiles += [project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayProvider.xsd"),
@@ -104,5 +109,6 @@ task('createModule', type: CreateModule, group: "Module",
 project.node {
     workDir = project.file("${project.rootProject.buildDir}/.node")
     npmWorkDir = project.file("${project.rootProject.buildDir}/.node")
+    yarnWorkDir = project.file("${project.rootProject.buildDir}/.node")
 }
 project.tasks.deployApp.dependsOn(project.tasks.npmSetup)

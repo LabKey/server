@@ -29,9 +29,11 @@ buildscript {
 
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
-    id "com.moowork.node" version "${gradleNodePluginVersion}" apply false
+    id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
+    id "com.moowork.node" version "${mooworkNodePluginVersion}" apply false
     id "com.jfrog.bintray" version "${bintrayPluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
+//    id "com.github.ben-manes.versions" version "0.25.0"
 }
 
 allprojects {
@@ -223,7 +225,7 @@ allprojects {
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
                         // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
                         // use this mechanism in general (plus, it's very slow for our many-module build).
-                        if (BuildUtils.shouldBuildFromSource(project.project(BuildUtils.getRemoteApiProjectPath(gradle))))
+                        if (project.findProject(BuildUtils.getRemoteApiProjectPath(gradle)) && BuildUtils.shouldBuildFromSource(project.project(BuildUtils.getRemoteApiProjectPath(gradle))))
                             substitute module('org.labkey:labkey-client-api') with project(BuildUtils.getRemoteApiProjectPath(gradle))
                         // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
                         // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.

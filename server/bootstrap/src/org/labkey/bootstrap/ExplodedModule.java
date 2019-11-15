@@ -128,7 +128,6 @@ public class ExplodedModule
             copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
             copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"), webAppFiles);
         }
-        copyFiles(getFiles(LIB_PATH, _jspJarFilter), jspJarDir, webAppFiles);
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir, webAppFiles);
 
         return webAppFiles;

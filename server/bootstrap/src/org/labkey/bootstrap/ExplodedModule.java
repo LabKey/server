@@ -34,21 +34,22 @@ import java.nio.channels.FileChannel;
  */
 public class ExplodedModule
 {
-    public static final String WEB_CONTENT_PATH = "web";
-    public static final String LIB_PATH = "lib";
-    public static final String CONFIG_PATH = "config";
+    private static final String WEB_CONTENT_PATH = "web";
+    private static final String LIB_PATH = "lib";
+    private static final String CONFIG_PATH = "config";
 
     // With Gradle 1.8, we removed the -jsp classifier at the end of the jar file name, so we need to identify by the string _jsp- in the middle of the jar file name (e.g., announcements_jsp-19.3-SNAPSHOT.jar)
-    protected static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().contains("_jsp-");
-    protected static final FilenameFilter _springConfigFilter = (dir, name) -> name.toLowerCase().endsWith("context.xml");
-    protected static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.toLowerCase().equals("module.xml");
+    private static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().contains("_jsp-");
+    private static final FilenameFilter _springConfigFilter = (dir, name) -> name.toLowerCase().endsWith("context.xml");
+    private static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.toLowerCase().equals("module.xml");
+    private static final FilenameFilter _gwtFilter = (dir, name) -> name.endsWith(".gwt.rpc");
 
-    protected static final FilenameFilter _jarFilter = (dir, name) -> {
+    private static final FilenameFilter _jarFilter = (dir, name) -> {
         String lowerName = name.toLowerCase();
         return lowerName.endsWith(".jar") && !_jspJarFilter.accept(dir, name);
     };
 
-    protected static final FileComparator _fileComparator = new FileComparator();
+    private static final FileComparator _fileComparator = new FileComparator();
 
     private File _rootDirectory;
     private Map<File,Long> _watchedFiles = new HashMap<>();
@@ -70,7 +71,7 @@ public class ExplodedModule
     {
         for(File file : files)
         {
-            _watchedFiles.put(file, Long.valueOf(file.lastModified()));
+            _watchedFiles.put(file, file.lastModified());
         }
     }
 
@@ -111,23 +112,16 @@ public class ExplodedModule
     public Set<File> deployToWebApp(File webAppDirectory) throws IOException
     {
         //files to be deployed:
-        // - static web content resources to web app dir
         // - JSP jar files to WEB-INF/jsp
         // - Spring config XML files to WEB-INF
 
         File webInfDir = new File(webAppDirectory, "WEB-INF");
-        File jspJarDir = new File(webInfDir, "jsp");
         Set<File> webAppFiles = new HashSet<>();
 
-        if (1==1)
-        {
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory, webAppFiles);
-        }
-        else
-        {
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
-            copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/share"), new File(webAppDirectory, "share"), webAppFiles);
-        }
+        copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
+        // GWTServlet depends on finding its gwt.rpc artifacts in the webapp
+        copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory, webAppFiles, _gwtFilter);
+
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir, webAppFiles);
 
         return webAppFiles;
@@ -136,8 +130,11 @@ public class ExplodedModule
     protected List<File> getFiles(String relativeDir, FilenameFilter filter)
     {
         File dir = new File(getRootDirectory(), relativeDir);
-        if(dir.exists() && dir.isDirectory())
-            return null != filter ? Arrays.asList(dir.listFiles(filter)) : Arrays.asList(dir.listFiles());
+        if (dir.exists() && dir.isDirectory())
+        {
+            var list = null != filter ? dir.listFiles(filter) : dir.listFiles();
+            return null == list ? Collections.emptyList() : Arrays.asList(list);
+        }
         else
             return Collections.emptyList();
     }
@@ -148,7 +145,7 @@ public class ExplodedModule
         if (null != filesCopied)
             filesCopied.add(targetDir);
         
-        for(File file: files)
+        for (File file: files)
         {
             File dest = new File(targetDir, file.getName());
             copyFile(file, dest);
@@ -159,22 +156,39 @@ public class ExplodedModule
 
     public static void copyBranch(File rootDir, File targetDir, Set<File> filesCopied) throws IOException
     {
-        if(!rootDir.exists())
+        copyBranch(rootDir, targetDir, filesCopied, null);
+    }
+
+
+    public static void copyBranch(File rootDir, File targetDir, Set<File> filesCopied, FilenameFilter filter) throws IOException
+    {
+        if (!rootDir.exists())
             return;
 
-        for(File file : rootDir.listFiles())
+        var list = rootDir.listFiles();
+        if (null == list)
+            return;
+
+        boolean ensuredTargetIsDirectory = false;
+
+        for (File file : list)
         {
             File destFile = new File(targetDir, file.getName());
-            if (null != filesCopied)
-                filesCopied.add(destFile);
 
-            if(file.isDirectory())
+            if (file.isDirectory())
             {
-                ensureDirectory(destFile);
-                copyBranch(file, destFile, filesCopied);
+                // don't actually create target dir until we add at least one file
+                if (null != filesCopied)
+                    filesCopied.add(targetDir);
+                copyBranch(file, destFile, filesCopied, filter);
             }
-            else
+            else if (null == filter || filter.accept(rootDir, file.getName()))
             {
+                if (!ensuredTargetIsDirectory)
+                    ensureDirectory(targetDir);
+                ensuredTargetIsDirectory = true;
+                if (null != filesCopied)
+                    filesCopied.add(destFile);
                 copyFile(file, destFile);
             }
         }
@@ -201,12 +215,16 @@ public class ExplodedModule
         //can't delete a directory unless everything inside it is deleted
         if (dir.isDirectory())
         {
-            for(File child : dir.listFiles())
+            var list = dir.listFiles();
+            if (null != list)
             {
-                if(child.isDirectory())
-                    deleteDirectory(child);
-                else
-                    child.delete();
+                for (File child : list)
+                {
+                    if (child.isDirectory())
+                        deleteDirectory(child);
+                    else
+                        child.delete();
+                }
             }
         }
         
@@ -222,20 +240,10 @@ public class ExplodedModule
             return;
 
         dst.createNewFile();
-        FileChannel sourceChannel = null;
-        FileChannel destChannel = null;
-        try
+        try (FileChannel sourceChannel = new FileInputStream(src).getChannel();
+             FileChannel destChannel = new FileOutputStream(dst).getChannel())
         {
-            sourceChannel = new FileInputStream(src).getChannel();
-            destChannel = new FileOutputStream(dst).getChannel();
             destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
-        }
-        finally
-        {
-            if(null != sourceChannel)
-                sourceChannel.close();
-            if(null != destChannel)
-                destChannel.close();
         }
 
         dst.setLastModified(src.lastModified());
@@ -243,12 +251,15 @@ public class ExplodedModule
 
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         ExplodedModule that = (ExplodedModule) o;
 
-        if (!_rootDirectory.equals(that._rootDirectory)) return false;
+        if (!_rootDirectory.equals(that._rootDirectory))
+            return false;
 
         return true;
     }
@@ -267,7 +278,7 @@ public class ExplodedModule
     {
         for(Map.Entry<File,Long> entry : _watchedFiles.entrySet())
         {
-            if(0 != _fileComparator.compareTimes(entry.getKey().lastModified(), entry.getValue().longValue()))
+            if(0 != _fileComparator.compareTimes(entry.getKey().lastModified(), entry.getValue()))
                 return true;
         }
         return false;

@@ -38,7 +38,7 @@ List<String> excludedModules = [
 ]
 
 include ":server:modules:LabDevKitModules:LDK"                // EHR modules depend on LDK
-include ":server:modules:DiscvrLabKeyModules:laboratory"         // Without this, EHR builds fail with "Could not find LDK-api.jar" error
+include ":server:modules:LabDevKitModules:laboratory"         // Without this, EHR builds fail with "Could not find LDK-api.jar" error
 include ":externalModules:onprcEHRModules:mergesync"     // onprc_ehr runtime dependency
 
 include ":externalModules:snprcEHRModules:snprc_ehr"

@@ -43,6 +43,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader
     /** Modules which have been previously logged as having changed, which would trigger a webapp redeployment in development scenarios */
     private final Set<String> _previouslyLoggedModules = new HashSet<>();
 
+    // IMPORTANT see also ContextListener which duplicates this code, keep them consistent
     // On startup on some platforms, some modules will die if java.awt.headless is not set to false.
     // Only set this if the user hasn't overridden it
     static

@@ -30,23 +30,9 @@ List<String> ehrModulesDirs = [
         "server/modules/onprcEHRModules",
         "server/modules/ehrModules",
         "externalModules/snprcEHRModules",
-        "externalModules/wnprc-modules"
+        "externalModules/wnprc-modules",
+        "server/modules/LabDevKitModules"
 ]
-
-// TODO: Include by default after labModules git migration
-if (new File(getRootDir(), "server/modules/LabDevKitModules/LDK").exists()) {
-    ehrModulesDirs = ehrModulesDirs + [
-            "server/modules/DiscvrLabKeyModules",
-            "server/modules/BimberLabKeyModules",
-            "server/modules/LabDevKitModules"
-    ]
-}
-else {
-    ehrModulesDirs = ehrModulesDirs + [
-            "externalModules/DISCVR",
-            "externalModules/labModules"
-    ]
-}
 
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], [])
 BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, [])

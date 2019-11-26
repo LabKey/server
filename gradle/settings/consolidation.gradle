@@ -1,10 +1,9 @@
 // This module set builds all modules in the following directories:
-// 
-//    /server/customModules
+//
 //    /server/modules
 //    /server/optionalModules
-//    /server/test/modules
-//    
+//    /server/testAutomation/modules
+//
 // Goal is to build all the LabKey modules, skipping most of the modules in externalModules. This module set can be useful when
 // refactoring core code, performing the end-of-release-cycle script consolidation process, updating licenses, etc.
 //

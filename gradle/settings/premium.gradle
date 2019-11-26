@@ -24,9 +24,6 @@ import org.labkey.gradle.util.BuildUtils
 // Inclues all modules in the server/modules and server/optionalModules directories
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.OPTIONAL_MODULES_DIR], [], true)
 
-// include the immport module singly
-include ':externalModules:RGLab:immport'
-
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
 

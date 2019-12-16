@@ -17,7 +17,6 @@
 package org.labkey.bootstrap;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -49,7 +48,6 @@ public class ModuleExtractor
 
     public Collection<ExplodedModule> extractModules()
     {
-        Set<File> webAppFiles = getWebAppFiles();
         _moduleArchiveFiles = getConcurrentSet();
         _errorArchives = new ConcurrentHashMap<>();
         _ignoredExplodedDirs = getConcurrentSet();
@@ -103,8 +101,6 @@ public class ModuleExtractor
                     _log.info("Deploying resources from " + explodedModule.getRootDirectory() + ".");
                     long startTime = System.currentTimeMillis();
                     Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
-                    if (null != webAppFiles)
-                        webAppFiles.addAll(moduleWebAppFiles);
 
                     _explodedModules.add(explodedModule);
                     _log.info("Done deploying resources from " + explodedModule.getRootDirectory() + ". Extracted " + moduleWebAppFiles.size() + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
@@ -116,8 +112,6 @@ public class ModuleExtractor
             });
 
         _log.info("Module extraction and deployment complete.");
-        if (null != webAppFiles)
-            cleanupWebAppDir(webAppFiles);
 
         return _explodedModules;
     }
@@ -126,74 +120,6 @@ public class ModuleExtractor
     {
         return Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
-
-    private <E> Set<E> getConcurrentSet(Set<E> set)
-    {
-        Set<E> ret = getConcurrentSet();
-        ret.addAll(set);
-
-        return ret;
-    }
-
-    private void cleanupWebAppDir(Set<File> allowedFiles)
-    {
-        //delete any file we find in the web app directory that is not in the webAppFiles set
-        _log.info("Cleaning up web app directory...");
-        cleanupDir(_webAppDirectory, allowedFiles);
-        _log.info("Web app directory cleanup complete.");
-    }
-
-    private void cleanupDir(File dir, Set<File> allowedFiles)
-    {
-        for (File file : dir.listFiles())
-        {
-            if (file.isDirectory())
-            {
-                cleanupDir(file, allowedFiles);
-            }
-
-            if (!allowedFiles.contains(file))
-            {
-                _log.info("Deleting unused file in web app directory: " + file.getAbsolutePath());
-                if (!file.delete())
-                    _log.info("WARNING: unable to delete unused web app file " + file.getAbsolutePath());
-            }
-        }
-    }
-
-    /**
-     *  @return null if there was a problem (likely file system permissions) that prevents us from reading the directory,
-     *  otherwise return a ConcurrentSet of all the webapp files.     *
-     **/
-    protected Set<File> getWebAppFiles()
-    {
-        //load the apiFiles.list to get a list of all files that are part of the core web app
-        File apiFiles = new File(_webAppDirectory, DirectoryFileListWriter.API_FILES_LIST_RELATIVE_PATH);
-        if (!apiFiles.exists())
-        {
-            _log.info("WARNING: could not find list of web app files at " + apiFiles.getPath() + ". Automatic cleanup of web app directory will not occur.");
-            return null;
-        }
-
-        //file contains one path per line
-        Set<File> files = new HashSet<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(apiFiles), StandardCharsets.UTF_8)))
-        {
-            String line;
-            while (null != (line = reader.readLine()))
-            {
-                files.add(new File(_webAppDirectory, line));
-            }
-        }
-        catch (Exception e)
-        {
-            _log.info("WARNING: exception while reading " + apiFiles.getPath() + ". "  + e.toString());
-            return null;
-        }
-
-        return getConcurrentSet(files);
-    }
-
 
     public List<File> getExplodedModuleDirectories()
     {

@@ -16,45 +16,16 @@
 
 package org.labkey.bootstrap;
 
-import java.io.PrintWriter;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-
 /**
  * User: jeckels
  * Date: Jun 12, 2006
  */
+
+// No-op version left in place because ServerBootstrap.groovy invokes it. TODO: Remove reference in gradlePlugin and delete this class.
+// See #39105.
 public class DirectoryFileListWriter
 {
-    public static final String API_FILES_LIST_RELATIVE_PATH = "WEB-INF/apiFiles.list";
-
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args)
     {
-        File listFile = new File(API_FILES_LIST_RELATIVE_PATH);
-        try (PrintWriter writer = new PrintWriter(listFile, StandardCharsets.UTF_8))
-        {
-            // Flush to make sure the file's on disk before we list the directory contents
-            writer.flush();
-            File currentDir = new File(".");
-            appendFileToList(currentDir, writer, currentDir.getAbsolutePath());
-        }
-    }
-
-    private static void appendFileToList(File file, PrintWriter writer, String prefixToRemove)
-    {
-        String path = file.getAbsolutePath();
-        if (!path.startsWith(prefixToRemove))
-        {
-            throw new IllegalArgumentException("Paths do not match: " + path + " and " + prefixToRemove);
-        }
-        path = path.substring(prefixToRemove.length());
-        writer.println(path.replace('\\', '/'));
-        if (file.isDirectory())
-        {
-            for (File content : file.listFiles())
-            {
-                appendFileToList(content, writer, prefixToRemove);
-            }
-        }
     }
 }

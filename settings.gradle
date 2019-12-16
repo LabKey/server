@@ -60,7 +60,7 @@ else if (hasProperty('moduleSet'))
 }
 else
 {
-    // The following exlusion lists are provided as a convenience. You must make sure to pass them to the appropriate
+    // The following exclusion lists are provided as a convenience. You must make sure to pass them to the appropriate
     // calls to `BuildUtils.includeModules`
 
     // A list of directory names that correspond to modules to be excluded from configuration.

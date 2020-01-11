@@ -31,7 +31,6 @@ plugins {
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "com.jfrog.bintray" version "${bintrayPluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
-    id "com.moowork.node" version "${mooworkNodePluginVersion}" apply false // restore until we can remove references in wnprc-modules
 //    id "com.github.ben-manes.versions" version "0.25.0"
 }
 

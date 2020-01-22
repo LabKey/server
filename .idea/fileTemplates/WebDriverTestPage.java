@@ -41,7 +41,7 @@ public class ${NAME} extends LabKeyPage<${NAME}.ElementCache>
         return new ElementCache();
     }
 
-    protected class ElementCache extends LabKeyPage.ElementCache
+    protected class ElementCache extends LabKeyPage<?>.ElementCache
     {
         // TODO: Add other elements that are on the page
         WebElement example = Locator.css("button").findWhenNeeded(this);

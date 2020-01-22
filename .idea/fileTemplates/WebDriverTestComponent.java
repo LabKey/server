@@ -1,6 +1,7 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 
 import org.labkey.test.Locator;
+import org.labkey.test.components.Component;
 import org.labkey.test.components.WebDriverComponent;
 import org.labkey.test.components.html.Input;
 import org.labkey.test.pages.LabKeyPage;
@@ -61,7 +62,7 @@ public class ${NAME} extends WebDriverComponent<${NAME}.ElementCache>
      *  ElementCache should be responsible for finding and storing all elements and
      *  sub-components that the component contains
      */
-    protected class ElementCache extends WebDriverComponent.ElementCache
+    protected class ElementCache extends Component<?>.ElementCache
     {
         // TODO: Add elements that are in the component
         final Input input = Input(Locator.css("input"), getDriver()).findWhenNeeded(this);

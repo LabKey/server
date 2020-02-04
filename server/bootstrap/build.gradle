@@ -1,7 +1,5 @@
 plugins {
     id 'java'
- //   id 'java-library'
-    id 'maven'
     id 'maven-publish'
 }
 apply plugin: 'org.labkey.serverBootstrap'
@@ -10,38 +8,44 @@ project.configurations {
     api.extendsFrom(compile)
 }
 
-import org.labkey.gradle.task.PomFile
+import org.labkey.gradle.plugin.ServerBootstrap
 import org.labkey.gradle.util.BuildUtils
-import org.labkey.gradle.util.GroupNames
 
 project.afterEvaluate  {
-    Properties pomProperties = new Properties()
-    pomProperties.put("ArtifactId", project.tasks.jar.baseName)
-    pomProperties.put("Organization", "LabKey")
-    pomProperties.put("OrganizationURL", "http://www.labkey.org")
-    pomProperties.put("Description", "The classes used when bootstrapping a LabKey Server instance" )
-    pomProperties.put("License", "The Apache Software License, Version 2.0")
-    pomProperties.put("LicenseURL", "http://www.apache.org/licenses/LICENSE-2.0.txt")
-    Task pomFileTask = project.task("pomFile",
-            group: GroupNames.PUBLISHING,
-            description: "create the pom file for this project",
-            type: PomFile,
-            {PomFile pomFile ->
-                pomFile.pomProperties = pomProperties
-            }
-    )
     project.publishing {
         publications {
             libs(MavenPublication) {
-                artifactId project.tasks.jar.baseName
-                artifact project.tasks.jar
+                groupId = project.group
+                from components.java
+                artifactId  = ServerBootstrap.JAR_BASE_NAME
+                versionMapping {
+                    usage('java-api') {
+                        fromResolutionOf('runtimeClasspath')
+                    }
+                    usage('java-runtime') {
+                        fromResolutionResult()
+                    }
+                }
+                pom {
+                    name = "LabKey Server Bootstrap Classes"
+                    description = "The classes used when bootstrapping a LabKey Server instance"
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    organization {
+                        name = "LabKey"
+                        url = "http://www.labkey.org"
+                    }
+                }
             }
 
             if (BuildUtils.shouldPublish(project))
             {
                 project.artifactoryPublish {
                     dependsOn project.tasks.jar
-                    dependsOn pomFileTask
                     publications('libs')
                 }
             }

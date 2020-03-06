@@ -16,6 +16,7 @@
 package org.labkey.bootstrap;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.stream.Stream;
 
 /*
@@ -43,8 +44,18 @@ public class ModuleDirectories
 
         //externalModules dir can be specified in labkey.externalModulesDir system prop
         //it also may not exist at all (that's OK)
+        File defaultExternalModulesDirectory = new File(webAppDirectory.getParentFile(), DEFAULT_EXTERNAL_MODULES_DIR);
         _externalModulesDirectory = getModuleDirectory(new String[]{"labkey.externalModulesDir"},
-                new File(webAppDirectory.getParentFile(), DEFAULT_EXTERNAL_MODULES_DIR), false);
+                defaultExternalModulesDirectory, false);
+
+        // attempt to create externalModulesDirectory
+        if (null == _externalModulesDirectory)
+        {
+            if (!defaultExternalModulesDirectory.exists())
+                defaultExternalModulesDirectory.mkdir();
+            if (defaultExternalModulesDirectory.isDirectory())
+                _externalModulesDirectory = defaultExternalModulesDirectory;
+        }
     }
 
     public File getModulesDirectory()
@@ -64,7 +75,7 @@ public class ModuleDirectories
 
     public File[] getAllModuleDirectories()
     {
-        if(null != _externalModulesDirectory)
+        if (null != _externalModulesDirectory)
             return new File[]{_modulesDirectory, _externalModulesDirectory};
         else
             return new File[]{_modulesDirectory};
@@ -86,9 +97,9 @@ public class ModuleDirectories
             }
         }
 
-        if(defaultPath.exists())
+        if (defaultPath.exists())
             return defaultPath;
-        else if(verify)
+        else if (verify)
             throw new IllegalArgumentException("The default module file path " + defaultPath.getPath()  + " does not exist!");
         else
             return null;

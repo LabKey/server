@@ -52,12 +52,19 @@ public class ExplodedModule
     private static final FileComparator _fileComparator = new FileComparator();
 
     private File _rootDirectory;
-    private Map<File,Long> _watchedFiles = new HashMap<>();
+    private File _sourceModuleFile;
+    private Map<File, Long> _watchedFiles = new HashMap<>();
 
     public ExplodedModule(File rootDirectory)
     {
+        this(rootDirectory, null);
+    }
+
+    public ExplodedModule(File rootDirectory, File sourceModuleFile)
+    {
         assert rootDirectory.exists() && rootDirectory.isDirectory();
         _rootDirectory = rootDirectory;
+        _sourceModuleFile = sourceModuleFile;
 
         //watch the module & spring config XML files, plus JAR files
         //if they change, the module has been modified
@@ -69,7 +76,7 @@ public class ExplodedModule
 
     public void addWatchFiles(Collection<File> files)
     {
-        for(File file : files)
+        for (File file : files)
         {
             _watchedFiles.put(file, file.lastModified());
         }
@@ -94,7 +101,7 @@ public class ExplodedModule
     {
         List<File> jarFiles = getJarFiles();
         URL[] urls = new URL[jarFiles.size()];
-        for(int idx = 0; idx < jarFiles.size(); ++idx)
+        for (int idx = 0; idx < jarFiles.size(); ++idx)
         {
             urls[idx] = jarFiles.get(idx).toURI().toURL();
         }
@@ -144,8 +151,8 @@ public class ExplodedModule
         ensureDirectory(targetDir);
         if (null != filesCopied)
             filesCopied.add(targetDir);
-        
-        for (File file: files)
+
+        for (File file : files)
         {
             File dest = new File(targetDir, file.getName());
             copyFile(file, dest);
@@ -201,12 +208,12 @@ public class ExplodedModule
 
     public static void ensureDirectory(File dir, boolean deleteExisting) throws IOException
     {
-        if(dir.exists() && deleteExisting)
+        if (dir.exists() && deleteExisting)
             deleteDirectory(dir);
 
-        if(!dir.exists())
+        if (!dir.exists())
             dir.mkdirs();
-        if(!dir.isDirectory())
+        if (!dir.isDirectory())
             throw new IOException("Unable to create the directory " + dir.getPath() + "! Ensure that the current system user for the web application has sufficient permissions.");
     }
 
@@ -227,7 +234,7 @@ public class ExplodedModule
                 }
             }
         }
-        
+
         dir.delete();
     }
 
@@ -236,7 +243,7 @@ public class ExplodedModule
     //incidentally, why in the world is this not in the core Java packages?
     public static void copyFile(File src, File dst) throws IOException
     {
-        if(0 == _fileComparator.compare(src, dst))
+        if (0 == _fileComparator.compare(src, dst))
             return;
 
         dst.createNewFile();
@@ -276,16 +283,21 @@ public class ExplodedModule
 
     public boolean isModified()
     {
-        for(Map.Entry<File,Long> entry : _watchedFiles.entrySet())
+        for (Map.Entry<File, Long> entry : _watchedFiles.entrySet())
         {
-            if(0 != _fileComparator.compareTimes(entry.getKey().lastModified(), entry.getValue()))
+            if (0 != _fileComparator.compareTimes(entry.getKey().lastModified(), entry.getValue()))
                 return true;
         }
         return false;
     }
 
+    public void setSourceModuleFile(File file)
+    {
+        _sourceModuleFile = file;
+    }
+
     public File getSourceModuleFile()
     {
-        return new File(getRootDirectory().getParentFile(), getRootDirectory().getName() + ModuleArchive.FILE_EXTENSION);
+        return _sourceModuleFile;
     }
 }

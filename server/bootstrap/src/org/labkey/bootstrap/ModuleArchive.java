@@ -15,8 +15,23 @@
  */
 package org.labkey.bootstrap;
 
-import java.io.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -37,14 +52,118 @@ public class ModuleArchive
     protected static final JarEntryComparator _jarEntryComparator = new JarEntryComparator();
     protected static final FileComparator _fileComparator = new FileComparator();
 
-    private File _file;
+    private final File _file;
+    private final long _modified;
+    private final String _moduleName;
     private final SimpleLogger _log;
+    private final boolean _hasJavaCode;
 
-    public ModuleArchive(File file, SimpleLogger log)
+
+    private String stripToNull(String s)
+    {
+        if (null==s) return null;
+        s = s.strip();
+        if (s.isEmpty()) return null;
+        return s;
+    }
+
+
+    private String nameFromModuleXML(InputStream is) throws IOException
+    {
+        final AtomicReference<String> moduleName = new AtomicReference<>();
+
+        try
+        {
+            SAXParser parser = SAXParserFactory.newDefaultInstance().newSAXParser();
+            parser.parse(is, new DefaultHandler()
+            {
+                ArrayList<String> elementStack = new ArrayList<>();
+
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+                {
+                    String parent = elementStack.isEmpty() ? "" : elementStack.get(elementStack.size()-1);
+                    elementStack.add(qName+"#"+attributes.getValue("id"));
+                    if (qName.equals("property") && "bean#moduleBean".equals(parent))
+                    {
+                        if ("name".equals(attributes.getValue("name")))
+                            moduleName.set(attributes.getValue("value"));
+                    }
+                }
+
+                @Override
+                public void endElement(String uri, String localName, String qName) throws SAXException
+                {
+                    elementStack.remove(elementStack.size()-1);
+                }
+            });
+
+            return stripToNull(moduleName.get());
+        }
+        catch (SAXException|ParserConfigurationException x)
+        {
+            throw new IOException(x);
+        }
+    }
+
+
+    private String nameFromModuleProperties(InputStream is) throws IOException
+    {
+        Properties props = new Properties();
+        props.load(is);
+        String ret = null;
+        if (props.containsKey("name"))
+            ret = props.getProperty("name");
+        return stripToNull(ret);
+    }
+
+
+    public ModuleArchive(File file, SimpleLogger log) throws IOException
     {
         _file = file;
         assert _file.exists() && _file.isFile();
+        _modified = _file.lastModified();
         _log = log;
+
+        String moduleName = null;
+        boolean hasJavaCode = false;
+
+        /* try to find moduleName in archive */
+        try (JarFile jar = new JarFile(getFile()))
+        {
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements())
+            {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if ("config/module.properties".equals(entryName))
+                {
+                    try (var is = jar.getInputStream(entry))
+                    {
+                        String name = nameFromModuleProperties(is);
+                        if (null != name)
+                            moduleName = name.toLowerCase();
+                    }
+                }
+
+                if ("config/module.xml".equals(entryName))
+                {
+                    try (var is = jar.getInputStream(entry))
+                    {
+                        String name = nameFromModuleXML(is);
+                        if (null != name)
+                            moduleName = name.toLowerCase();
+                    }
+                }
+
+                if (entryName.endsWith(".class") || entryName.endsWith(".jar"))
+                    hasJavaCode = true;
+            }
+        }
+
+        _moduleName = moduleName;
+        _hasJavaCode = hasJavaCode;
     }
 
     public File getFile()
@@ -59,8 +178,13 @@ public class ModuleArchive
 
     public String getModuleName()
     {
-        String fileName = getFile().getName();
-        return fileName.substring(0, fileName.length() - FILE_EXTENSION.length());
+        if (null == _moduleName)
+        {
+            String fileName = getFile().getName();
+            String baseName = fileName.substring(0, fileName.length() - FILE_EXTENSION.length());
+            return baseName;
+        }
+        return _moduleName;
     }
 
     /**
@@ -74,6 +198,8 @@ public class ModuleArchive
 
     public boolean isModified(File targetDirectory)
     {
+        if (_modified != getFile().lastModified())
+            return true;
         return 0 != _fileComparator.compare(getFile(), targetDirectory);
     }
 
@@ -99,7 +225,7 @@ public class ModuleArchive
      */
     public void extractAll(File targetDirectory) throws IOException
     {
-        if(null == targetDirectory)
+        if (null == targetDirectory)
             throw new IllegalArgumentException("directory parameter was null!");
 
         // if target exists and is up to date, never mind

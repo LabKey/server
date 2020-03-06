@@ -32,7 +32,7 @@ public class ModuleExtractor
     protected final File _webAppDirectory;
     protected final ModuleDirectories _moduleDirectories;
 
-    private Set<File> _moduleArchiveFiles;
+    private Map<File, ModuleArchive> _moduleArchiveFiles;
     private Map<File, Long> _errorArchives;
     private Set<File> _ignoredExplodedDirs;
     private Set<ExplodedModule> _explodedModules;
@@ -48,9 +48,12 @@ public class ModuleExtractor
 
     public Collection<ExplodedModule> extractModules()
     {
-        _moduleArchiveFiles = getConcurrentSet();
+        _moduleArchiveFiles = new ConcurrentHashMap<>();
         _errorArchives = new ConcurrentHashMap<>();
         _ignoredExplodedDirs = getConcurrentSet();
+
+        // map exploded directory to zipped .module
+        Map<File,ModuleArchive> mapModuleDirToArchive = new ConcurrentHashMap<>();
 
         _log.info("Exploding module archives");
 
@@ -61,15 +64,16 @@ public class ModuleExtractor
         // directly leads to a terrible splitting strategy that has no parallelization benefit.
         // https://stackoverflow.com/questions/34341656/why-is-files-list-parallel-stream-performing-so-much-slower-than-using-collect
         _moduleDirectories.streamAllModuleDirectories()
-            .flatMap(dir->Stream.of(dir.listFiles(moduleArchiveFilter)))
+            .flatMap(dir-> {File[] files=dir.listFiles(moduleArchiveFilter); return null==files ? null : Stream.of(files);})
             .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
             .parallelStream()
             .forEach(moduleArchiveFile->{
                 try
                 {
                     ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
-                    moduleArchive.extractAll();
-                    _moduleArchiveFiles.add(moduleArchiveFile);
+                    File dir = moduleArchive.extractAll();
+                    _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
+                    mapModuleDirToArchive.put(dir.getAbsoluteFile(), moduleArchive);
                 }
                 catch (IOException e)
                 {
@@ -85,7 +89,7 @@ public class ModuleExtractor
         // This must be a separate step from module extraction (above) to support module directories that don't come
         // from a .module archive.
         _moduleDirectories.streamAllModuleDirectories()
-            .flatMap(dir->Stream.of(dir.listFiles(File::isDirectory)))
+            .flatMap(dir-> {File[] files=dir.listFiles(File::isDirectory); return null==files ? null : Stream.of(files);})
             .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
             .parallelStream()
             .forEach(dir->{
@@ -97,7 +101,8 @@ public class ModuleExtractor
 
                 try
                 {
-                    ExplodedModule explodedModule = new ExplodedModule(dir);
+                    ModuleArchive archive = mapModuleDirToArchive.get(dir.getAbsoluteFile());
+                    ExplodedModule explodedModule = new ExplodedModule(dir, null==archive?null:archive.getFile());
                     _log.info("Deploying resources from " + explodedModule.getRootDirectory() + ".");
                     long startTime = System.currentTimeMillis();
                     Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
@@ -132,6 +137,16 @@ public class ModuleExtractor
         return dirs;
     }
 
+    public List<Map.Entry<File,File>> getExplodedModuleDirectoryAndSource()
+    {
+        List<Map.Entry<File,File>> dirs = _explodedModules.stream()
+                .map(expMod -> new AbstractMap.SimpleEntry<>(expMod.getRootDirectory(), expMod.getSourceModuleFile()))
+                .collect(Collectors.toList());
+        dirs.sort(Comparator.comparing(a -> a.getKey().getName()));
+        return dirs;
+    }
+
+
     private void logModuleMessage(String module, Set<String> previouslyLoggedModules, String message)
     {
         logModuleMessage(module, previouslyLoggedModules, message, null);
@@ -157,17 +172,23 @@ public class ModuleExtractor
     /** @param previouslyLoggedModules module names which have already been logged about since we started up the webapp */
     public boolean areModulesModified(Set<String> previouslyLoggedModules)
     {
-        if(null == _explodedModules)
+        if (null == _explodedModules)
         {
             logModuleMessage(null, previouslyLoggedModules, "ModuleExtractor not initialized as expected. Previous extraction may have failed.");
             return true;
         }
 
+        // modified meaning webapp reload is warranted in devMode
         boolean modified = false;
+
         //check module archives against exploded modules and check for new modules
-        for(File moduleDir : _moduleDirectories.getAllModuleDirectories())
+        for (File moduleDir : _moduleDirectories.getAllModuleDirectories())
         {
-            for(File moduleArchiveFile : moduleDir.listFiles(moduleArchiveFilter))
+            File[] listFiles = moduleDir.listFiles(moduleArchiveFilter);
+            if (listFiles == null)
+                listFiles = new File[0];
+
+            for (File moduleArchiveFile : listFiles)
             {
                 //if this errored last time and it hasn't changed, just skip it
                 if (_errorArchives.containsKey(moduleArchiveFile)
@@ -175,52 +196,57 @@ public class ModuleExtractor
                     continue;
 
                 //if it's a new module, return true
-                if(!_moduleArchiveFiles.contains(moduleArchiveFile))
+                ModuleArchive moduleArchive = _moduleArchiveFiles.get(moduleArchiveFile);
+                if (null == moduleArchive)
                 {
                     logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "New module archive '" + moduleArchiveFile.getPath() + "' found...");
                     modified = true;
                 }
 
-                //if it's been modified since extraction, re-extract it
-                ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
-                if(moduleArchive.isModified())
+                // if it's been modified since extraction, re-extract it
+                try
                 {
-                    try
+                    if (null != moduleArchive && moduleArchive.isModified())
+                        moduleArchive = null;
+                    if (null == moduleArchive)
                     {
+                        moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
                         File explodedDir = moduleArchive.extractAll();
                         new ExplodedModule(explodedDir).deployToWebApp(_webAppDirectory);
+                        _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
                     }
-                    catch(IOException e)
-                    {
-                        logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "Could not re-extract module " + moduleArchive.getModuleName() + ".", e);
-                        modified = true;
-                    }
+                }
+                catch (IOException e)
+                {
+                    logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "Could not re-extract module " + (null==moduleArchive?moduleArchiveFile.getName():moduleArchive.getModuleName()) + ".", e);
+                    modified = true;
                 }
             }
 
             //check for new exploded modules
-            for(File dir : moduleDir.listFiles())
-            {
-                if(dir.isDirectory())
-                {
-                    //if this is in the set of ignored dirs, ignore it
-                    if (_ignoredExplodedDirs.contains(dir))
-                        continue;
+            listFiles = moduleDir.listFiles(File::isDirectory);
+            if (listFiles == null)
+                listFiles = new File[0];
 
-                    ExplodedModule explodedModule = new ExplodedModule(dir);
-                    if(!_explodedModules.contains(explodedModule))
-                    {
-                        logModuleMessage(dir.getName(), previouslyLoggedModules, "New module directory '" + dir.getPath() + "' found.");
-                        modified = true;
-                    }
+            for (File dir : listFiles)
+            {
+                //if this is in the set of ignored dirs, ignore it
+                if (_ignoredExplodedDirs.contains(dir))
+                    continue;
+
+                ExplodedModule explodedModule = new ExplodedModule(dir);
+                if (!_explodedModules.contains(explodedModule))
+                {
+                    logModuleMessage(dir.getName(), previouslyLoggedModules, "New module directory '" + dir.getPath() + "' found.");
+                    modified = true;
                 }
             }
         }
 
         //check existing exploded modules
-        for(ExplodedModule explodedModule : _explodedModules)
+        for (ExplodedModule explodedModule : _explodedModules)
         {
-            if(explodedModule.isModified())
+            if (explodedModule.isModified())
             {
                 logModuleMessage(explodedModule.getRootDirectory().getName(), previouslyLoggedModules, "Module '" + explodedModule.getRootDirectory().getName() + "' has been modified.");
                 modified = true;
@@ -229,7 +255,7 @@ public class ModuleExtractor
             //if not modified, and there is no source module file
             //redeploy content to the web app so that
             //new static web content, JSP jars, etc are hot-swapped
-            if(!explodedModule.getSourceModuleFile().exists())
+            if (!explodedModule.getSourceModuleFile().exists())
             {
                 try
                 {
@@ -245,6 +271,52 @@ public class ModuleExtractor
 
         return modified;
     }
+
+
+    /* for replacing/updating module archives via ExplodedModuleService */
+
+    public boolean hasExplodedArchive(File moduleArchive)
+    {
+        return _moduleArchiveFiles.containsKey(moduleArchive);
+    }
+
+    /*
+     * for replacing/updating module archives via ExplodedModuleService
+     * Calling this method should reset state related to the existing archive so extract() won't get confused
+     */
+    public Map.Entry<File,File> extractUpdatedModuleArchive(File moduleArchiveFile, File previousArchiveFile) throws IOException
+    {
+        ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
+        File explodedDir = moduleArchive.extractAll();
+
+        ExplodedModule explodedModule = new ExplodedModule(explodedDir, moduleArchiveFile);
+
+        explodedModule.deployToWebApp(_webAppDirectory);
+        if (!previousArchiveFile.equals(moduleArchiveFile))
+        {
+            _moduleArchiveFiles.remove(previousArchiveFile);
+            // explicit remove/add because source archive changed, and set is keyed only on rootDirectory
+            _explodedModules.remove(explodedModule);
+            _explodedModules.add(explodedModule);
+        }
+        _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
+
+        return new AbstractMap.SimpleEntry<>(explodedDir, moduleArchiveFile);
+    }
+
+    public Map.Entry<File,File> extractNewModuleArchive(File moduleArchiveFile) throws IOException
+    {
+        ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
+        File explodedDir = moduleArchive.extractAll();
+
+        ExplodedModule explodedModule = new ExplodedModule(explodedDir, moduleArchiveFile);
+
+        explodedModule.deployToWebApp(_webAppDirectory);
+        _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
+        _explodedModules.add(explodedModule);
+        return new AbstractMap.SimpleEntry<>(explodedDir, moduleArchiveFile);
+    }
+
 
     /**
      * Extract .module files

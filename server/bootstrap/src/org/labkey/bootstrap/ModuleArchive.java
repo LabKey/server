@@ -198,8 +198,8 @@ public class ModuleArchive
 
     public boolean isModified(File targetDirectory)
     {
-        if (_modified != getFile().lastModified())
-            return true;
+//        if (_modified != getFile().lastModified())
+//            return true;
         return 0 != _fileComparator.compare(getFile(), targetDirectory);
     }
 
@@ -233,6 +233,7 @@ public class ModuleArchive
             return;
 
         File archiveFile = getFile();
+        long archiveFileLastModified = archiveFile.lastModified();
         _log.info("Extracting module " + archiveFile.getName() + ".");
 
         //delete existing directory so that files that are
@@ -257,7 +258,7 @@ public class ModuleArchive
         }
 
         //set last mod on target directory to match module file
-        targetDirectory.setLastModified(archiveFile.lastModified());
+        targetDirectory.setLastModified(archiveFileLastModified);
         _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 

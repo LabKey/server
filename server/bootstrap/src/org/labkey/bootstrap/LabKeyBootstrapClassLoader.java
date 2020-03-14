@@ -99,7 +99,6 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
     // This variant is called when running Tomcat 7
     // @TomcatVersion -- Remove when Tomcat 7 is no longer supported
     @SuppressWarnings("unused")
-    @Override
     public void setResources(DirContext resources)
     {
         // This is effectively: super.setResources(resources);

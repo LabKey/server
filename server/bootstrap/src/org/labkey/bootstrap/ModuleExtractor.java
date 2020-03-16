@@ -93,7 +93,7 @@ public class ModuleExtractor
             .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
             .parallelStream()
             .forEach(dir->{
-                if (dir.isHidden())
+                if (dir.isHidden() || dir.getName().startsWith("."))
                 {
                     _ignoredExplodedDirs.add(dir);
                     return;

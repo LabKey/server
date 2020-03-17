@@ -7,7 +7,6 @@
         password="@@jdbcPassword@@"
         driverClassName="@@jdbcDriverClassName@@"
         url="@@jdbcURL@@"
-        maxActive="20"
         maxTotal="20"
         maxIdle="10"
         maxWaitMillis="120000"

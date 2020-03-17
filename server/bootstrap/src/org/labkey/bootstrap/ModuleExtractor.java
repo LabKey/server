@@ -233,6 +233,11 @@ public class ModuleExtractor
                 //if this is in the set of ignored dirs, ignore it
                 if (_ignoredExplodedDirs.contains(dir))
                     continue;
+                if (dir.getName().startsWith("."))
+                {
+                    _ignoredExplodedDirs.add(dir);
+                    continue;
+                }
 
                 ExplodedModule explodedModule = new ExplodedModule(dir);
                 if (!_explodedModules.contains(explodedModule))

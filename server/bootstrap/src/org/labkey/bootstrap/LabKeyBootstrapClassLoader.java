@@ -19,14 +19,9 @@ package org.labkey.bootstrap;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.loader.WebappClassLoader;
 
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -83,57 +78,13 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
     {
     }
 
-    // This variant is called when running Tomcat 8
-    // @TomcatVersion -- Simplify when Tomcat 8 is required (just call super.setResources())
-    @SuppressWarnings("unused")
+    @Override
     public void setResources(WebResourceRoot resources)
     {
-        // This is effectively: super.setResources(resources);
-        // ...but we use a method handle so this class can be compiled against both Tomcat 7 and Tomcat 8
-        invokeSetResourcesOfSuper(resources, WebResourceRoot.class);
+        super.setResources(resources);
 
         File webappDir = new File(resources.getContext().getDocBase());
         extract(webappDir);
-    }
-
-    // This variant is called when running Tomcat 7
-    // @TomcatVersion -- Remove when Tomcat 7 is no longer supported
-    @SuppressWarnings("unused")
-    public void setResources(DirContext resources)
-    {
-        // This is effectively: super.setResources(resources);
-        // ...but we use a method handle so this class can be compiled against both Tomcat 7 and Tomcat 8
-        invokeSetResourcesOfSuper(resources, DirContext.class);
-
-        File webappDir;
-
-        try
-        {
-            webappDir = new File(resources.getNameInNamespace());
-        }
-        catch(NamingException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        extract(webappDir);
-    }
-
-    // Use method handle to invoke the appropriate LabKeyBootstrapClassLoader.setResources() method so this class can be
-    // compiled against both Tomcat 7 and Tomcat 8
-    private void invokeSetResourcesOfSuper(Object resources, Class parameterType)
-    {
-        try
-        {
-            // Point explicitly at LabKeyBootstrapClassLoader to ensure we can find the setResources() method, even if
-            // we're calling from a subclass. See issue 30472
-            MethodHandle handle = MethodHandles.lookup().findSpecial(WebappClassLoader.class, "setResources", MethodType.methodType(void.class, parameterType), LabKeyBootstrapClassLoader.class);
-            handle.invoke(this, resources);
-        }
-        catch (Throwable t)
-        {
-            throw new RuntimeException(t);
-        }
     }
 
     private void extract(File webappDir)

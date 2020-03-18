@@ -72,6 +72,7 @@ if (tomcatDirProp != null && !new File(tomcatDirProp).exists())
 
 apply plugin: 'org.labkey.multiGit'
 allprojects {
+    // this configuration is needed only in server and testAutomation, but we leave it here (for now) to avoid duplication
     configurations {
         driver
     }

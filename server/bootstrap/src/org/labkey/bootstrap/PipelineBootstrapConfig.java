@@ -17,7 +17,6 @@ package org.labkey.bootstrap;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.FileFilter;
 import java.util.*;
 import java.net.URL;
@@ -38,7 +37,6 @@ public class PipelineBootstrapConfig
     private final static String LOG_HOME_PROPERTY_NAME = "labkey.log.home";
 
     private File _webappDir;
-    private File _libDir;
     private File _logDir;
     private List<File> _pipelineLibDirs = new ArrayList<>();
     private File _configDir;
@@ -132,14 +130,6 @@ public class PipelineBootstrapConfig
             }
         }
 
-        File webinfDir = new File(_webappDir, "WEB-INF");
-        _libDir = new File(webinfDir, "lib");
-
-        if (!_libDir.isDirectory())
-        {
-            throw new ConfigException("Could not find subdirectory WEB-INF/lib in webapp, expected to be at " + _libDir.getAbsolutePath());
-        }
-
         if (args.hasOption(CONFIG_DIR))
         {
             _configDir = new File(args.getOption(CONFIG_DIR));
@@ -160,11 +150,6 @@ public class PipelineBootstrapConfig
     public File getWebappDir()
     {
         return _webappDir;
-    }
-
-    public File getLibDir()
-    {
-        return _libDir;
     }
 
     public File getConfigDir()
@@ -200,11 +185,6 @@ public class PipelineBootstrapConfig
                     File webInfDir = new File(_webappDir, "WEB-INF");
                     File classesDir = new File(webInfDir, "classes");
                     jarUrls.add(classesDir.toURI().toURL());
-                }
-
-                for (File file : _libDir.listFiles())
-                {
-                    jarUrls.add(file.toURI().toURL());
                 }
 
                 for (File libDir : _pipelineLibDirs)

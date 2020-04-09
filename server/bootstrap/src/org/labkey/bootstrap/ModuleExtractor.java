@@ -139,11 +139,10 @@ public class ModuleExtractor
 
     public List<Map.Entry<File,File>> getExplodedModuleDirectoryAndSource()
     {
-        List<Map.Entry<File,File>> dirs = _explodedModules.stream()
-                .map(expMod -> new AbstractMap.SimpleEntry<>(expMod.getRootDirectory(), expMod.getSourceModuleFile()))
-                .collect(Collectors.toList());
-        dirs.sort(Comparator.comparing(a -> a.getKey().getName()));
-        return dirs;
+        return _explodedModules.stream()
+            .map(expMod -> new AbstractMap.SimpleEntry<>(expMod.getRootDirectory(), expMod.getSourceModuleFile()))
+            .sorted(Comparator.comparing(a -> a.getKey().getName()))
+            .collect(Collectors.toList());
     }
 
 

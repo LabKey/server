@@ -29,7 +29,6 @@ buildscript {
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
-    id "com.jfrog.bintray" version "${bintrayPluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 //    id "com.github.ben-manes.versions" version "0.25.0"
 }

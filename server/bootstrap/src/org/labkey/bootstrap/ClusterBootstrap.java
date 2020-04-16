@@ -42,6 +42,8 @@ public class ClusterBootstrap
         ClassLoader classLoader = config.getClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
+        Throwable failure = null;
+
         try
         {
             Class runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterStartup");
@@ -50,15 +52,21 @@ public class ClusterBootstrap
 
             runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getWebappDir(), config.getProgramArgs());
         }
-        catch (InvocationTargetException e)
+        catch (InvocationTargetException | InstantiationException e)
         {
-            System.err.println("Unwrapping InvocationTargetException");
-            throw e.getCause() == null ? e : e.getCause();
+            System.err.println("Unwrapping " + e.getClass().getSimpleName());
+            failure = e.getCause() == null ? e : e.getCause();
         }
-        catch (InstantiationException e)
+        catch (Throwable t)
         {
-            System.err.println("Unwrapping InstantiationException");
-            throw e.getCause() == null ? e : e.getCause();
+            failure = t;
+        }
+
+        if (failure != null)
+        {
+            failure.printStackTrace(System.err);
+            // Explicitly exit as non-daemon threads may have started
+            System.exit(1);
         }
     }
 

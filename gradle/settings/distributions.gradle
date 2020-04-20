@@ -26,6 +26,4 @@ apply from: 'all.gradle'
 
 BuildUtils.includeModules(this.settings, rootDir, ["distributions"], [])
 
-// TODO use this when gradlePlugins 1.11.0 is released
-// include BuildUtils.getSasApiProjectPath(gradle)
-include ":remoteapi:sas"
+include BuildUtils.getSasApiProjectPath(gradle)

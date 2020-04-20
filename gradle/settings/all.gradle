@@ -48,11 +48,6 @@ BuildUtils.includeModules(this.settings, rootDir, ["server/modules", "server/opt
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
 
 // include the jdbc api for testing on TeamCity.
-if (new File(getRootDir(), "remoteapi/labkey-api-jdbc").exists())
-{
-    include ":remoteapi:labkey-api-jdbc"
-}
-// TODO use this instead of the above after gradlePlugins 1.11.0 is released
-//include BuildUtils.getJdbcApiProjectPath(gradle)
+include BuildUtils.getJdbcApiProjectPath(gradle)
 // include remoteapi if present as well
 include BuildUtils.getRemoteApiProjectPath(gradle)

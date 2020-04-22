@@ -26,4 +26,5 @@ apply from: 'all.gradle'
 
 BuildUtils.includeModules(this.settings, rootDir, ["distributions"], [])
 
+include BuildUtils.getRemoteApiProjectPath(gradle)
 include BuildUtils.getSasApiProjectPath(gradle)

@@ -49,5 +49,3 @@ include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:te
 
 // include the jdbc api for testing on TeamCity.
 include BuildUtils.getJdbcApiProjectPath(gradle)
-// include remoteapi if present as well
-include BuildUtils.getRemoteApiProjectPath(gradle)

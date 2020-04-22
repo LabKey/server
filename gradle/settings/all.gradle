@@ -47,5 +47,17 @@ BuildUtils.includeModules(this.settings, rootDir, ["server/modules", "server/opt
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
 
-// include the jdbc api for testing on TeamCity.
-include BuildUtils.getJdbcApiProjectPath(gradle)
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getJdbcApiProjectPath(gradle))).exists())
+{
+    include BuildUtils.getJdbcApiProjectPath(gradle)
+}
+
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getRemoteApiProjectPath(gradle))).exists())
+{
+    include BuildUtils.getRemoteApiProjectPath(gradle)
+}
+
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getSasApiProjectPath(gradle))).exists())
+{
+    include BuildUtils.getSasApiProjectPath(gradle)
+}

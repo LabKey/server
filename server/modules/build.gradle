@@ -6,7 +6,8 @@ subprojects {
     if (p.projectDir.exists() && 
             ModuleFinder.isPotentialModule(p) && 
             !p.path.equals(BuildUtils.getApiProjectPath(p.gradle)) && 
-            !p.path.equals(BuildUtils.getInternalProjectPath(p.gradle))
+            !p.path.equals(BuildUtils.getInternalProjectPath(p.gradle)) &&
+            !p.path.startsWith(":server:modules:wnprc-modules")
     )
     {
       apply plugin: 'java'

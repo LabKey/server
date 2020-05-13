@@ -74,14 +74,12 @@ else if (hasProperty('moduleSet'))
 }
 else
 {
-    // The following exclusion lists are provided as a convenience. You must make sure to pass them to the appropriate
-    // calls to `BuildUtils.includeModules`
-
     // A list of directory names that correspond to modules to be excluded from configuration.
     // Items may be individual module names (e.g. 'luminex') or module container names (e.g. 'customModules')
+    // You must make sure to pass this list to the appropriate calls to `BuildUtils.includeModules`
     List<String> excludedModules = []
 
-    // The line below recursively includes all modules in server/modules and server/modules
+    // The line below recursively includes all modules in server/modules 
     BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules, true)
 
     // The line below includes all modules in server/modules, server/modules/platform, and server/modules/commonAssays, but not other module containers (e.g. server/modules/customModules)
@@ -95,12 +93,6 @@ else
 
     // The line below includes all modules in the server/modules, server/modules/platform, server/modules/commonAssays, and server/modules/customModules directories
     //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules)
-
-    // Example excluded external modules for an EHR build
-
-    // The line below includes all modules in the externalModules directory (except the ones indicates as to be excluded)
-    //List<String> excludedExternalModules = ["scharp"]
-    //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.EXTERNAL_MODULES_DIR, excludedExternalModules)
 
     // The line below includes a set of individual modules (in this case, some EHR related modules)
     //BuildUtils.includeModules(this.settings, [":server:modules:tnprc_ehr",

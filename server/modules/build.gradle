@@ -11,6 +11,9 @@ subprojects {
     )
     {
       apply plugin: 'java'
-      apply plugin: 'org.labkey.module'
+      if (p.file("src").exists())
+        apply plugin: 'org.labkey.module'
+      else
+        apply plugin: 'org.labkey.fileModule'
     }
 }

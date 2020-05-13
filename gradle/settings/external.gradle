@@ -29,4 +29,4 @@ import org.labkey.gradle.util.BuildUtils
 BuildUtils.includeModules(this.settings, rootDir, ["externalModules"], [], true);
 
 // Some externalModules have premium dependency
-include ":server:optionalModules:dataintegration"
+include ":server:modules:dataintegration"

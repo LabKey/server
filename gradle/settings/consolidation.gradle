@@ -1,7 +1,7 @@
 // This module set builds all modules in the following directories:
 //
 //    /server/modules
-//    /server/optionalModules
+//    /server/modules
 //    /server/testAutomation/modules
 //
 // Goal is to build all the LabKey modules, skipping most of the modules in externalModules. This module set can be useful when
@@ -33,17 +33,17 @@ buildscript {
 import org.labkey.gradle.util.BuildUtils
 
 List<String> excludedModules = [
-    'labkey-api-js', 'labkey-api-r', 'labkey-api-python'     // Might be enlisted in server/optionalModules
+    'labkey-api-js', 'labkey-api-r', 'labkey-api-python'     // Might be enlisted in server/modules
 ]
 
 include ":server:modules:LabDevKitModules:LDK"                // EHR modules depend on LDK
 include ":server:modules:LabDevKitModules:laboratory"         // Without this, EHR builds fail with "Could not find LDK-api.jar" error
-include ":externalModules:onprcEHRModules:mergesync"     // onprc_ehr runtime dependency
+include ":server:modules:onprcEHRModules:mergesync"     // onprc_ehr runtime dependency
 
-include ":externalModules:snprcEHRModules:snprc_ehr"
-include ":externalModules:snprcEHRModules:snprc_genetics"
-include ":externalModules:snprcEHRModules:snprc_r24"
-include ":externalModules:snprcEHRModules:snprc_scheduler"
+include ":server:modules:snprcEHRModules:snprc_ehr"
+include ":server:modules:snprcEHRModules:snprc_genetics"
+include ":server:modules:snprcEHRModules:snprc_r24"
+include ":server:modules:snprcEHRModules:snprc_scheduler"
 
-// This line includes all modules in the server/modules, server/customModules and server/optionalModules directories
+// This line includes all modules in the server/modules, server/customModules and server/modules directories
 BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules);

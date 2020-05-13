@@ -37,11 +37,11 @@ List<String> ehrModulesDirs = [
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], [])
 BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, [])
 
-include ":server:optionalModules:snd"
-include ":server:optionalModules:tnprc_ehr"
-include ":server:optionalModules:tnprc_billing"
-include ":server:optionalModules:dataintegration"
-include ":server:optionalModules:premium"
+include ":server:modules:snd"
+include ":server:modules:tnprc_ehr"
+include ":server:modules:tnprc_billing"
+include ":server:modules:dataintegration"
+include ":server:modules:premium"
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"

@@ -42,7 +42,7 @@ if (new File(getRootDir(), "server/modules/LabDevKitModules/LDK").exists()) {
     ])
 }
 
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules", "server/optionalModules", "externalModules"], excludedDirs, true)
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules", "externalModules"], excludedDirs, true)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"

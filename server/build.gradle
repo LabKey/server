@@ -1,5 +1,9 @@
 import org.labkey.gradle.task.CreateModule
 import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.util.PomFileHelper
+import org.labkey.gradle.plugin.XsdDoc
+import org.labkey.gradle.plugin.JsDoc
 
 BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
 dependencies
@@ -10,6 +14,7 @@ dependencies
             remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
         }
 
+apply plugin: 'maven-publish'
 apply plugin: 'org.labkey.jsdoc'
 apply plugin: 'org.labkey.xsddoc'
 apply plugin: 'org.labkey.npmRun'
@@ -90,6 +95,61 @@ project.jsDoc.paths = [
     "modules/platform/visualization/resources/web/vis/timeChart/timeChartHelper.js",
     "modules/platform/internal/webapp/vis/src"
 ]
+
+project.publishing {
+    publications {
+        xsdDocs(MavenPublication) {
+            groupId = 'org.labkey.doc'
+            artifactId = 'xml-schemas'
+            version = project.version
+            artifact project.tasks.xsdDocZip
+            pom {
+                name = "LabKey Server XML Schema documentation"
+                description = "Documentation for the classes generated from LabKey Server XSD files."
+                developers PomFileHelper.getLabKeyTeamDevelopers()
+                licenses PomFileHelper.getApacheLicense()
+                organization PomFileHelper.getLabKeyOrganization()
+                scm PomFileHelper.getLabKeyGitScm()
+            }
+        }
+
+        jsDocs(MavenPublication) {
+            groupId = 'org.labkey.doc'
+            artifactId = 'javascript'
+            artifact project.tasks.jsDocZip
+            version = project.version
+            pom {
+                name = "LabKey Server Javascript Client API documentation"
+                description = "Documentation for Javascript classes, methods, and objects available for use with LabKey server"
+                developers PomFileHelper.getLabKeyTeamDevelopers()
+                licenses PomFileHelper.getApacheLicense()
+                organization PomFileHelper.getLabKeyOrganization()
+                scm PomFileHelper.getLabKeyGitScm()
+            }
+        }
+
+        if (BuildUtils.shouldPublish(project))
+        {
+            project.artifactoryPublish {
+                publications('jsDocs', 'xsdDocs')
+            }
+            project.subprojects {
+                artifactoryPublish.skip = true
+            }
+        }
+    }
+}
+
+
+project.tasks.register("cleanDocs", DefaultTask) {
+    DefaultTask task ->
+        task.group = GroupNames.DOCUMENTATION
+        task.description = "Remove directories created for xsd and js doc tasks"
+        task.doLast({
+            project.delete(XsdDoc.getXsdDocDirectory(project))
+            project.delete(JsDoc.getJsDocDirectory(project))
+        })
+}
 
 task('createModule', type: CreateModule, group: "Module",
         description: "Creates a new module. Use moduleName property to specify the name of the module to be created. " +

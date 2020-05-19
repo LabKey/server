@@ -217,6 +217,7 @@ allprojects {
                     force "ch.qos.logback:logback-core:${logbackVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
+                    force "org.ow2.asm:asm:${asmVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

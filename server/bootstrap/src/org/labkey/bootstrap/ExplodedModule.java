@@ -219,6 +219,11 @@ public class ExplodedModule
 
     public static void deleteDirectory(File dir)
     {
+        deleteDirectory(dir, false);
+    }
+
+    public static void deleteDirectory(File dir, boolean onlyDeleteFiles)
+    {
         //can't delete a directory unless everything inside it is deleted
         if (dir.isDirectory())
         {
@@ -228,14 +233,15 @@ public class ExplodedModule
                 for (File child : list)
                 {
                     if (child.isDirectory())
-                        deleteDirectory(child);
+                        deleteDirectory(child, onlyDeleteFiles);
                     else
                         child.delete();
                 }
             }
         }
 
-        dir.delete();
+        if (!onlyDeleteFiles)
+            dir.delete();
     }
 
     //NOTE: this was copied from FileUtil since the bootstrap module doesn't share any code with the web app

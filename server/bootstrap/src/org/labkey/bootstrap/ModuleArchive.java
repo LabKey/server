@@ -236,9 +236,10 @@ public class ModuleArchive
         long archiveFileLastModified = archiveFile.lastModified();
         _log.info("Extracting module " + archiveFile.getName() + ".");
 
-        //delete existing directory so that files that are
-        //no longer in the archive are removed
-        ExplodedModule.deleteDirectory(targetDirectory);
+        // delete existing directory so that files that are
+        // no longer in the archive are removed
+        // NOTE: we're not deleting the actual directories to reduce churn of delete/creating listeners on the server side
+        ExplodedModule.deleteDirectory(targetDirectory, true);
 
         long startTime = System.currentTimeMillis();
         int fileCount = 0;

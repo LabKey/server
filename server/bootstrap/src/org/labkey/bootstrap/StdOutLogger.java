@@ -21,17 +21,20 @@ package org.labkey.bootstrap;
  */
 public class StdOutLogger implements SimpleLogger
 {
+    @Override
     public void error(Object message, Throwable t)
     {
         System.err.println(message);
         t.printStackTrace(System.err);
     }
 
+    @Override
     public void error(Object message)
     {
         System.err.println(message);
     }
 
+    @Override
     public void info(Object message)
     {
         System.out.println(message);

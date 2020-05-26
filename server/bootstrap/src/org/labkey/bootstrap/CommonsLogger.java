@@ -59,6 +59,7 @@ public class CommonsLogger implements SimpleLogger
     }
 
 
+    @Override
     public void error(Object message, Throwable t)
     {
         try
@@ -73,6 +74,7 @@ public class CommonsLogger implements SimpleLogger
     }
 
 
+    @Override
     public void error(Object message)
     {
         try
@@ -87,6 +89,7 @@ public class CommonsLogger implements SimpleLogger
     }
 
 
+    @Override
     public void info(Object message)
     {
         try

@@ -29,6 +29,7 @@ import java.util.Comparator;
  */
 public class FileComparator extends BaseComparator implements Comparator<File>
 {
+    @Override
     public int compare(File f1, File f2)
     {
         //first check lastmod (available for both files and directories)

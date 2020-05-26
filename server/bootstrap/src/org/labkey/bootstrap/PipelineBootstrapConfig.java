@@ -238,6 +238,7 @@ public class PipelineBootstrapConfig
     {
         File[] subDirs = configDir.listFiles(new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return pathname.isDirectory();
@@ -250,6 +251,7 @@ public class PipelineBootstrapConfig
 
         File[] xmlFiles = configDir.listFiles(new FileFilter()
         {
+            @Override
             public boolean accept(File pathname)
             {
                 return pathname.getName().toLowerCase().endsWith(".xml");

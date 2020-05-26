@@ -26,6 +26,7 @@ import java.io.File;
 */
 public class JarEntryComparator extends BaseComparator implements Comparator<JarEntry>
 {
+    @Override
     public int compare(JarEntry e1, JarEntry e2)
     {
         //first check lastmod (available for both files and directories)

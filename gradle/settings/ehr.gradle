@@ -29,8 +29,8 @@ import org.labkey.gradle.util.BuildUtils
 List<String> ehrModulesDirs = [
         "server/modules/onprcEHRModules",
         "server/modules/ehrModules",
-        "externalModules/snprcEHRModules",
-        "externalModules/wnprc-modules",
+        "server/modules/snprcEHRModules",
+        "server/modules/wnprc-modules",
         "server/modules/LabDevKitModules"
 ]
 

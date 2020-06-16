@@ -22,27 +22,16 @@ buildscript {
 import org.labkey.gradle.util.BuildUtils
 
 /*
-  This file is used to determine which projects will be configured during the Gradle build of LabKey Server. 
-
-  You need only provide the leaves of the project tree here; a Gradle project will be created for each 
-  node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
-  ":server:modules" and ":server:modules:core").
+  This settings file include all currently enlisted modules and API projects (JDBC, Java, SAS).
  */
 List<String> excludedDirs = ["test"]
 
-if (hasProperty('excludeExternalModuleDirs'))
+if (hasProperty('gradleExcludeModuleDirs'))
 {
-    excludedDirs.addAll("${excludeExternalModuleDirs}".toLowerCase().split(","))
-}
-// TODO: remove after labModules git migration
-if (new File(getRootDir(), "server/modules/LabDevKitModules/LDK").exists()) {
-    excludedDirs.addAll([
-            "DISCVR",
-            "labModules"
-    ])
+    excludedDirs.addAll("${gradleExcludeModuleDirs}".toLowerCase().split(","))
 }
 
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules", "externalModules"], excludedDirs, true)
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], excludedDirs, true)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"

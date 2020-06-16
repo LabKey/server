@@ -45,9 +45,15 @@ import org.labkey.gradle.util.BuildUtils
  */
 
 // The line below includes the set of modules for a minimally functional LabKey server
-BuildUtils.includeBaseModules(this.settings)
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists())
+{
+    BuildUtils.includeBaseModules(this.settings)
+}
 // The line below will include the server/test project as well as the server/test/modules projects
-BuildUtils.includeTestModules(this.settings, rootDir)
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists())
+{
+    BuildUtils.includeTestModules(this.settings, rootDir)
+}
 
 if (hasProperty("ideaIncludeAllModules") && BuildUtils.isIntellijGradleRefresh(this))
 {

@@ -44,15 +44,25 @@ import org.labkey.gradle.util.BuildUtils
   ":server:modules" and ":server:modules:core").
  */
 
-// The line below includes the set of modules for a minimally functional LabKey server
-if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists())
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()
+        && !hasProperty('excludeBaseModules'))
 {
+    // The line below includes the set of modules for a minimally functional LabKey server
     BuildUtils.includeBaseModules(this.settings)
+
+    // Some test modules require base modules to build JSPs.
+    // TODO: Un-nest this 'if' once test modules can build without platform present.
+    if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists()
+            && !hasProperty('excludeTestModules'))
+    {
+        // The line below will include the server/testAutomation project as well as the server/testAutomation/modules projects
+        BuildUtils.includeTestModules(this.settings, rootDir)
+    }
 }
-// The line below will include the server/test project as well as the server/test/modules projects
-if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists())
+else if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists())
 {
-    BuildUtils.includeTestModules(this.settings, rootDir)
+    // Include test project even if test modules are excluded.
+    include BuildUtils.getTestProjectPath(gradle)
 }
 
 if (hasProperty("ideaIncludeAllModules") && BuildUtils.isIntellijGradleRefresh(this))

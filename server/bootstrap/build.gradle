@@ -1,15 +1,36 @@
+import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.PomFileHelper
+
 plugins {
     id 'java'
     id 'maven-publish'
 }
-apply plugin: 'org.labkey.serverBootstrap'
 
-project.configurations {
-    api.extendsFrom(compile)
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
 }
 
-import org.labkey.gradle.plugin.ServerBootstrap
-import org.labkey.gradle.util.BuildUtils
+dependencies
+        {
+            implementation "org.apache.tomcat:tomcat-api:${project.apacheTomcatVersion}"
+            implementation "org.apache.tomcat:tomcat-catalina:${project.apacheTomcatVersion}"
+            implementation "org.apache.tomcat:tomcat-juli:${project.apacheTomcatVersion}"
+            implementation "org.apache.tomcat:tomcat-util:${project.apacheTomcatVersion}"
+        }
+
+def JAR_BASE_NAME = "labkeyBootstrap"
+project.jar {
+    archiveBaseName.set(JAR_BASE_NAME)
+}
+project.processResources.enabled = false
+project.jar.manifest {
+    attributes provider: 'LabKey'
+    attributes 'Main-Class': "org.labkey.bootstrap.ModuleExtractor"
+}
 
 project.afterEvaluate  {
     project.publishing {
@@ -17,7 +38,7 @@ project.afterEvaluate  {
             libs(MavenPublication) {
                 groupId = project.group
                 from components.java
-                artifactId  = ServerBootstrap.JAR_BASE_NAME
+                artifactId  = JAR_BASE_NAME
                 versionMapping {
                     usage('java-api') {
                         fromResolutionOf('runtimeClasspath')
@@ -29,16 +50,9 @@ project.afterEvaluate  {
                 pom {
                     name = "LabKey Server Bootstrap Classes"
                     description = "The classes used when bootstrapping a LabKey Server instance"
-                    licenses {
-                        license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
-                    }
-                    organization {
-                        name = "LabKey"
-                        url = "http://www.labkey.org"
-                    }
+                    developers PomFileHelper.getLabKeyTeamDevelopers()
+                    licenses PomFileHelper.getApacheLicense()
+                    organization PomFileHelper.getLabKeyOrganization()
                 }
             }
 

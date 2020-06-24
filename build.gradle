@@ -1,3 +1,4 @@
+import org.apache.commons.lang3.SystemUtils
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -59,47 +60,48 @@ String tomcatDirProp = System.getenv('CATALINA_HOME') != null ? System.getenv('C
 if (tomcatDirProp != null && !new File(tomcatDirProp).exists())
     throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
 
-//allprojects {
-//    apply plugin: 'idea'
-//    idea {
-//        module {
-//            outputDir new File(rootDir, "intellijBuild/${project.name}/classes/main")
-//            testOutputDir new File(rootDir, "intellijBuild/${project.name}/classes/test")
-//        }
-//    }
-//}
-
 apply plugin: 'org.labkey.multiGit'
 allprojects {
     // this configuration is needed only in server and testAutomation, but we leave it here (for now) to avoid duplication
-    configurations {
-        driver
-    }
+    configurations
+            {
+                driver
+                utilities
+            }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
+    configurations.utilities.setDescription("Utility binaries for use on Windows platform")
 
-    dependencies {
-        //for SqlUtils
-        driver "net.sourceforge.jtds:jtds:${jtdsVersion}"
-        driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
-    }
+    dependencies
+            {
+                //for SqlUtils
+                driver "net.sourceforge.jtds:jtds:${jtdsVersion}"
+                driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
+
+                if (SystemUtils.IS_OS_WINDOWS)
+                {
+                    utilities "org.labkey.tools.windows:utils:${windowsUtilsVersion}@zip"
+                }
+            }
 
     if (project.hasProperty('includeVcs'))
     {
         apply plugin: 'org.labkey.versioning'
-        versioning {
-            user = project.hasProperty('svn_user') ? project.property('svn_user') : 'cpas'
-            password = project.hasProperty('svn_password') ? project.property('svn_password') : 'cpas'
-        }
+        versioning
+                {
+                    user = project.hasProperty('svn_user') ? project.property('svn_user') : 'cpas'
+                    password = project.hasProperty('svn_password') ? project.property('svn_password') : 'cpas'
+                }
     }
 
     apply plugin: 'org.labkey.base'
     group  'org.labkey'
     version BuildUtils.getVersionNumber(project)
 
-    tasks.withType(JavaCompile) { 
-        sourceCompatibility = project.ext.sourceCompatibility
-        targetCompatibility = project.ext.targetCompatibility
-    }
+    tasks.withType(JavaCompile)
+            {
+                sourceCompatibility = project.ext.sourceCompatibility
+                targetCompatibility = project.ext.targetCompatibility
+            }
 
     ext
             {
@@ -114,6 +116,9 @@ allprojects {
                 // used below.
                 if (project.hasProperty("artifactory_contextUrl"))
                 {
+                    maven {
+                        url "${artifactory_contextUrl}/ext-tools-local"
+                    }
                     maven {
 
                         url "${artifactory_contextUrl}/libs-release"
@@ -146,10 +151,11 @@ allprojects {
                 }
                 jcenter()
             }
-    configurations.all {
-        // Check for updates every build for SNAPSHOT dependencies
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
+    configurations.all
+            {
+                // Check for updates every build for SNAPSHOT dependencies
+                resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+            }
     configurations.all
             {Configuration config ->
                 resolutionStrategy {
@@ -314,9 +320,9 @@ project.task("copyTagLibsBase",
 )
 
 project.task("showDiscrepancies",
-                group: "Help",
-                type: ShowDiscrepancies,
-                description: "Report external dependencies that have more than one version referenced in the modules in this build"
+        group: "Help",
+        type: ShowDiscrepancies,
+        description: "Report external dependencies that have more than one version referenced in the modules in this build"
 )
 
 project.task(

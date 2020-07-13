@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Configuration>
+
+    <Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout pattern="%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n" />
+
+        </Console>
+
+        <!-- This file is manually rolled over at server startup in ModuleLoader.
+             Do not rename here without changing the name there too. -->
+        <RollingFile name="ERRORS"
+                     fileName="logs/labkey-errors.log"
+                     append="true"
+                     bufferedIO="false"
+                     filePattern="logs/labkey-errors.log.%i">
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline   -->
+            <PatternLayout>
+                <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="3"/>
+
+        </RollingFile>
+
+        <!-- This file is manually rolled over at server shutdown in CoreModule.
+             Do not rename here without changing the name there too. -->
+        <RollingFile name="ACTION_STATS"
+                     fileName="logs/labkey-action-stats.tsv"
+                     append="true"
+                     bufferedIO="false"
+                     filePattern="logs/labkey-action-stats.tsv.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="3"/>
+        </RollingFile>
+
+        <!-- This file is manually rolled over at server shutdown in QueryProfilerThread.
+             Do not rename here without changing the name there too. -->
+        <RollingFile name="QUERY_STATS"
+                     fileName="logs/labkey-query-stats.tsv"
+                     append="true"
+                     bufferedIO="false"
+                     filePattern="logs/labkey-query-stats.tsv.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="3"/>
+        </RollingFile>
+
+        <RollingFile name="LABKEY"
+                     fileName="logs/labkey.log"
+                     append="true"
+                     bufferedIO="false"
+                     filePattern="logs/labkey.log.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="LABKEY_AUDIT"
+                     fileName="logs/labkey-audit.log"
+                     append="true"
+                     bufferedIO="false"
+                     filePattern="logs/labkey-audit.log.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <Session name="SESSION">
+            <PatternLayout>
+                <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
+            </PatternLayout>
+        </Session>
+
+
+
+        <!--        <appender name="JMX" class="org.labkey.api.util.MXBeanAppender">-->
+        <!--        </appender>-->
+
+        <!--        <appender name="nullAppender" class="org.apache.log4j.varia.NullAppender">-->
+        <!--        </appender>-->
+
+        <RollingFile name="LABKEYMemory"
+                     fileName="logs/labkeyMemory.log"
+                     append="true"
+                     filePattern="logs/labkeyMemory.log.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss}%m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1000 KB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="THREAD_DUMP"
+                     fileName="logs/thread-dump.log"
+                     append="true"
+                     filePattern="logs/thread-dump.log.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="JSP_STRINGS"
+                     fileName="logs/JspStringPrints.log"
+                     append="true"
+                     filePattern="logs/JspStringPrints.log.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss}%m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1000 KB"/>
+            </Policies>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <!-- special logger that just swallows messages -->
+        <Logger name="null" additivity="false" level="warn">
+            <AppenderRef ref="nullAppender"/>
+        </Logger>
+
+
+        <!-- category for server side script messages -->
+        <Logger name="org.labkey.api.script.ScriptService$Console" level="info">
+            <AppenderRef ref="SESSION"/>
+        </Logger>
+
+
+        <!-- category for Mule messages -->
+        <Logger name="org.mule.MuleManager" level="info"/>
+
+        <!--    <logger name="org.labkey.pipeline.mule.transformers">
+            <level value="debug"/>
+        </logger> -->
+
+        <!-- category for jasper messages -->
+        <Logger name="org.apache.jasper" level="warn"/>
+
+        <!-- application classes -->
+        <Logger name="org.fhcrc" level="info"/>
+
+        <!--        <Logger name="org.labkey" level="error">-->
+        <!--            <AppenderRef ref="ERRORS"/>-->
+        <!--        </Logger>-->
+
+        <Logger name="org.labkey" level="info">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="LABKEY"/>
+        </Logger>
+
+        <Logger name="mondrian." level="info" />
+
+        <!--    <logger name="org.labkey.wiki">
+                <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey.api.action.SpringActionController">
+                <level value="debug"/>
+            </logger> -->
+
+        <!-- only show errors from PipelineJob output -->
+        <Logger name="org.labkey.api.pipeline.PipelineJob" level="error"/>
+
+        <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
+        <Logger name="org.apache.pdfbox" level="fatal"/>
+
+        <!-- this is a very verbose logger for security/permissions checking -->
+        <!--
+        <logger name="org.labkey.api.security.SecurityManager">
+            <level value="debug"/>
+        </logger>
+        -->
+
+        <!-- Add specific module packages or classes to get debug information about
+         features you are working on. -->
+
+        <!--    <logger name="org.labkey.api.data.Table">
+                <level value="debug"/>
+            </logger> -->
+
+        <Logger name="org.labkey.api.data" level="error">
+        </Logger>
+
+        <Logger name="org.labkey.api.dataiterator" level="error">
+        </Logger>
+
+        <Logger name="org.labkey.docker">
+            <level value="info"/>
+        </Logger>
+
+        <Logger name="org.labkey.rstudio" level="info"/>
+
+
+        <!--    <logger name="org.labkey.api.cache">
+                <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey.api.data.TempTableTracker">
+                <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey.query">
+                <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey.pipeline.mule">
+                    <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey.search">
+                <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey.search.model.LuceneSearchServiceImpl">
+                <level value="debug"/>
+            </logger> -->
+
+        <Logger name="org.labkey.api.util.MemTracker" additivity="false" level="debug">
+            <AppenderRef ref="LABKEYMemory"/>
+        </Logger>
+
+        <Logger name="org.labkey.api.util.DebugInfoDumper" level="debug">
+            <AppenderRef ref="THREAD_DUMP"/>
+        </Logger>
+
+        <Logger name="org.labkey.api.jsp.LabKeyJspWriter.string" additivity="false" level="debug">
+            <AppenderRef ref="JSP_STRINGS"/>
+        </Logger>
+
+        <!--    <logger name="org.labkey.api.view.ViewServlet" additivity="false">
+                <level value="debug"/>
+            </logger> -->
+
+        <!--    <logger name="org.labkey">
+                <level value="debug"/>
+                <appender-ref ref="SESSION"/>
+            </logger> -->
+
+        <Logger name="org.labkey.core.admin.ActionsTsvWriter" additivity="false" level="info">
+            <AppenderRef ref="ACTION_STATS"/>
+        </Logger>
+
+        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler$QueryProfilerThread" additivity="false" level="info">
+            <AppenderRef ref="QUERY_STATS"/>
+        </Logger>
+
+        <Logger name="org.labkey.audit.event" level="OFF">
+            <AppenderRef ref="LABKEY_AUDIT"/>
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
+
+        <!--
+          Other audit event types include, but are not limited to:
+            AppPropsEvent
+            AssayPublishAuditEvent
+            AttachmentAuditEvent
+            AuthenticationProviderConfiguration
+            ClientAPIActions
+            ContainerAuditEvent
+            DatasetAuditEvent
+            DomainAuditEvent
+            ExperimentAuditEvent
+            FileSystem
+            FileSystemBatch
+            GroupAuditEvent
+            ListAuditEvent
+            LoggedQuery
+            MessageAuditEvent
+            pipelineProtocolEvent
+            QueryExportAuditEvent
+            QueryUpdateAuditEvent
+            SampleTypeAuditEvent
+            SearchAuditEvent
+            SelectQuery
+         To enable logging of all events, set the level for the org.labkey.audit.event to
+         something other than "OFF".  To enable individual audit event logging, configure the
+         individual stanza like the one shown below, where you prefix the audit event type
+         with 'org.labkey.audit.event'. Then set the level to INFO and specify the appenders.
+        -->
+        <Logger name="org.labkey.audit.event.UserAuditEvent" additivity="false" level="OFF">
+            <AppenderRef ref="LABKEY_AUDIT"/>
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
+
+        <Root level="error">
+            <AppenderRef ref="ERRORS"/>
+        </Root>
+    </Loggers>
+</Configuration>

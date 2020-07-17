@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Configuration>
+<Configuration packages="org.labkey.api.util">
 
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
@@ -92,19 +92,11 @@
             </Policies>
         </RollingFile>
 
-        <Session name="SESSION">
+        <SessionAppender name="SessionAppender">
             <PatternLayout>
                 <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
             </PatternLayout>
-        </Session>
-
-
-
-        <!--        <appender name="JMX" class="org.labkey.api.util.MXBeanAppender">-->
-        <!--        </appender>-->
-
-        <!--        <appender name="nullAppender" class="org.apache.log4j.varia.NullAppender">-->
-        <!--        </appender>-->
+        </SessionAppender>
 
         <RollingFile name="LABKEYMemory"
                      fileName="logs/labkeyMemory.log"
@@ -148,15 +140,10 @@
     </Appenders>
 
     <Loggers>
-        <!-- special logger that just swallows messages -->
-        <Logger name="null" additivity="false" level="warn">
-            <AppenderRef ref="nullAppender"/>
-        </Logger>
-
 
         <!-- category for server side script messages -->
-        <Logger name="org.labkey.api.script.ScriptService$Console" level="info">
-            <AppenderRef ref="SESSION"/>
+        <Logger name="org.labkey.api.script.ScriptService.Console" level="info">
+            <AppenderRef ref="SessionAppender"/>
         </Logger>
 
 
@@ -173,9 +160,6 @@
         <!-- application classes -->
         <Logger name="org.fhcrc" level="info"/>
 
-        <!--        <Logger name="org.labkey" level="error">-->
-        <!--            <AppenderRef ref="ERRORS"/>-->
-        <!--        </Logger>-->
 
         <Logger name="org.labkey" level="info">
             <AppenderRef ref="CONSOLE"/>

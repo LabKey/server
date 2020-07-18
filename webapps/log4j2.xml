@@ -300,6 +300,8 @@
             <AppenderRef ref="CONSOLE"/>
         </Logger>
 
+        <Logger name="NoOpLogger" level="OFF" additivity="false"/>
+
         <Root level="error">
             <AppenderRef ref="ERRORS"/>
         </Root>

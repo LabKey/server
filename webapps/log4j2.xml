@@ -9,8 +9,6 @@
 
         </Console>
 
-        <!-- This file is manually rolled over at server startup in ModuleLoader.
-             Do not rename here without changing the name there too. -->
         <RollingFile name="ERRORS"
                      fileName="logs/labkey-errors.log"
                      append="true"
@@ -28,8 +26,6 @@
 
         </RollingFile>
 
-        <!-- This file is manually rolled over at server shutdown in CoreModule.
-             Do not rename here without changing the name there too. -->
         <RollingFile name="ACTION_STATS"
                      fileName="logs/labkey-action-stats.tsv"
                      append="true"
@@ -46,8 +42,6 @@
             <DefaultRolloverStrategy max="3"/>
         </RollingFile>
 
-        <!-- This file is manually rolled over at server shutdown in QueryProfilerThread.
-             Do not rename here without changing the name there too. -->
         <RollingFile name="QUERY_STATS"
                      fileName="logs/labkey-query-stats.tsv"
                      append="true"
@@ -196,11 +190,9 @@
                 <level value="debug"/>
             </logger> -->
 
-        <Logger name="org.labkey.api.data" level="error">
-        </Logger>
+        <Logger name="org.labkey.api.data"/>
 
-        <Logger name="org.labkey.api.dataiterator" level="error">
-        </Logger>
+        <Logger name="org.labkey.api.dataiterator"/>
 
         <Logger name="org.labkey.docker">
             <level value="info"/>
@@ -258,7 +250,7 @@
             <AppenderRef ref="ACTION_STATS"/>
         </Logger>
 
-        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler$QueryProfilerThread" additivity="false" level="info">
+        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler.QueryProfilerThread" additivity="false" level="info">
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 

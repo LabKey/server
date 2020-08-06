@@ -124,7 +124,7 @@
                      filePattern="logs/JspStringPrints.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd HH:mm:ss}%m%n</Pattern>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <SizeBasedTriggeringPolicy size="1000 KB"/>

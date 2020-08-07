@@ -10,10 +10,10 @@
         </Console>
 
         <RollingFile name="ERRORS"
-                     fileName="logs/labkey-errors.log"
+                     fileName="${sys:labkey.log.home}/labkey-errors.log"
                      append="true"
                      bufferedIO="false"
-                     filePattern="logs/labkey-errors.log.%i">
+                     filePattern="${sys:labkey.log.home}/labkey-errors.log.%i">
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <!-- p=priority c=category d=datetime t=thread m=message n=newline   -->
             <PatternLayout>
@@ -27,10 +27,10 @@
         </RollingFile>
 
         <RollingFile name="ACTION_STATS"
-                     fileName="logs/labkey-action-stats.tsv"
+                     fileName="${sys:labkey.log.home}/labkey-action-stats.tsv"
                      append="true"
                      bufferedIO="false"
-                     filePattern="logs/labkey-action-stats.tsv.%i">
+                     filePattern="${sys:labkey.log.home}/labkey-action-stats.tsv.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%m%n</Pattern>
@@ -43,10 +43,10 @@
         </RollingFile>
 
         <RollingFile name="QUERY_STATS"
-                     fileName="logs/labkey-query-stats.tsv"
+                     fileName="${sys:labkey.log.home}/labkey-query-stats.tsv"
                      append="true"
                      bufferedIO="false"
-                     filePattern="logs/labkey-query-stats.tsv.%i">
+                     filePattern="${sys:labkey.log.home}/labkey-query-stats.tsv.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%m%n</Pattern>
@@ -59,10 +59,10 @@
         </RollingFile>
 
         <RollingFile name="LABKEY"
-                     fileName="logs/labkey.log"
+                     fileName="${sys:labkey.log.home}/labkey.log"
                      append="true"
                      bufferedIO="false"
-                     filePattern="logs/labkey.log.%i">
+                     filePattern="${sys:labkey.log.home}/labkey.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
@@ -73,10 +73,10 @@
         </RollingFile>
 
         <RollingFile name="LABKEY_AUDIT"
-                     fileName="logs/labkey-audit.log"
+                     fileName="${sys:labkey.log.home}/labkey-audit.log"
                      append="true"
                      bufferedIO="false"
-                     filePattern="logs/labkey-audit.log.%i">
+                     filePattern="${sys:labkey.log.home}/labkey-audit.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
@@ -93,9 +93,9 @@
         </SessionAppender>
 
         <RollingFile name="LABKEYMemory"
-                     fileName="logs/labkeyMemory.log"
+                     fileName="${sys:labkey.log.home}/labkeyMemory.log"
                      append="true"
-                     filePattern="logs/labkeyMemory.log.%i">
+                     filePattern="${sys:labkey.log.home}/labkeyMemory.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%d{yyyy-MM-dd HH:mm:ss}%m%n</Pattern>
@@ -106,9 +106,9 @@
         </RollingFile>
 
         <RollingFile name="THREAD_DUMP"
-                     fileName="logs/thread-dump.log"
+                     fileName="${sys:labkey.log.home}/thread-dump.log"
                      append="true"
-                     filePattern="logs/thread-dump.log.%i">
+                     filePattern="${sys:labkey.log.home}/thread-dump.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%m%n</Pattern>
@@ -119,9 +119,9 @@
         </RollingFile>
 
         <RollingFile name="JSP_STRINGS"
-                     fileName="logs/JspStringPrints.log"
+                     fileName="${sys:labkey.log.home}/JspStringPrints.log"
                      append="true"
-                     filePattern="logs/JspStringPrints.log.%i">
+                     filePattern="${sys:labkey.log.home}/JspStringPrints.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout>
                 <Pattern>%d{yyyy-MM-dd HH:mm:ss} %m%n</Pattern>

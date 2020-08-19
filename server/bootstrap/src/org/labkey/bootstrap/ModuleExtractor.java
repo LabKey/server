@@ -259,7 +259,7 @@ public class ModuleExtractor
             //if not modified, and there is no source module file
             //redeploy content to the web app so that
             //new static web content, JSP jars, etc are hot-swapped
-            if (!explodedModule.getSourceModuleFile().exists())
+            if (null == explodedModule.getSourceModuleFile() || !explodedModule.getSourceModuleFile().exists())
             {
                 try
                 {

@@ -5,12 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/* NOTE: these two files need to be the same
-    server/bootstrap/src/org/labkey/bootstrap/ExplodedModuleService.java
-    server/modules/platform/api/src/org/labkey/bootstrap/ExplodedModuleService.java
-  TODO: figure out how to update the build to share this file
- */
-
 /** This interface provides for 'exploding' .module files as well as describing known module directories */
 
 public interface ExplodedModuleService

@@ -319,6 +319,7 @@ project.task("copyTagLibsBase",
             copy.into "${project.buildDir}/webapp"
             copy.include 'WEB-INF/web.xml'
             copy.include 'WEB-INF/*.tld'
+            copy.include 'WEB-INF/*.jspf'
             copy.include 'WEB-INF/tags/**'
         }
 )

@@ -213,8 +213,6 @@ allprojects {
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
                     // Cloud module brings in earlier versions of this library, so we force the later one
                     force "org.apache.tika:tika-core:${tikaVersion}"
-                    // Cloud module and workflow module bring in different versions
-                    force "org.slf4j:jcl-over-slf4j:${jclOverSlf4jVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA
                     force "org.apache.mina:mina-core:${apacheMinaVersion}"
                     // saml has transitive dependencies on old versions of batik and xmlgraphics-commons, which conflict with more recent versions in api
@@ -240,6 +238,10 @@ allprojects {
                         substitute module('bouncycastle:bcmail-jdk14:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
                         substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
                         substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+
+                        // This JAR packages classes with the same names as commons-logging but forces them to use SLF4J instead
+                        // of the normal routing decisions, and can result in very verbose output to STDOUT
+                        substitute module('org.slf4j:jcl-over-slf4j') with module("commons-logging:commons-logging:${commonsLoggingVersion}")
 
                         // jdk5 backport of guava has significant conflicts with guava 18+
                         substitute module('com.google.guava:guava-jdk5') with module("com.google.guava:guava:${guavaVersion}")

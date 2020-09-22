@@ -1,9 +1,9 @@
 // An empty module set that will build the bare minimum set of modules specified in gradle.settings, which are:
 //
-// - The 10 base modules (announcements, api, audit, core, experiment, filecontent, internal, pipeline, query, wiki)
-// - The test modules (all modules in /server/test/modules plus dumbster)
+// - The 8 base modules (api, audit, core, experiment, filecontent, internal, pipeline, query)
+// - The test modules (all modules in /server/test/modules plus devtools)
 //
-// To exclude the test modules, comment out this line in gradle.settings: BuildUtils.includeTestModules(this.settings, rootDir)
+// To exclude the test modules, comment out this line in settings.gradle: BuildUtils.includeTestModules(this.settings, rootDir)
 
 buildscript {
     repositories {

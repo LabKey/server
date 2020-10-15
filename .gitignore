@@ -1,0 +1,21 @@
+# Ignore build generated files
+.gradle/
+.node/
+build/
+enlistment.properties
+server/config.properties
+
+# Ignore other common repository locations
+dist/
+distributions/
+labkey-api-*/
+labkey-ui-components/
+remoteapi/
+server/modules/ 
+server/testAutomation/
+
+# Include the remoteapi README -- this line will override previous exclusion
+!remoteapi/README.md
+
+# Include the modules build.gradle file -- this line will override previous exclusion
+!server/modules/build.gradle

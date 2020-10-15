@@ -19,3 +19,12 @@ server/testAutomation/
 
 # Include the modules build.gradle file -- this line will override previous exclusion
 !server/modules/build.gradle
+
+# Ignore parts of the .idea dir
+.idea/libraries
+.idea/modules
+.idea/.gitignore
+.idea/jarRepositories.xml
+.idea/modules.xml
+.idea/server.iml
+.idea/workspace.xml

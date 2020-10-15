@@ -26,5 +26,4 @@ server/testAutomation/
 .idea/.gitignore
 .idea/jarRepositories.xml
 .idea/modules.xml
-.idea/server.iml
 .idea/workspace.xml

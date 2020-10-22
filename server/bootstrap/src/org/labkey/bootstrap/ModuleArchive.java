@@ -238,8 +238,7 @@ public class ModuleArchive
 
         // delete existing directory so that files that are
         // no longer in the archive are removed
-        // NOTE: we're not deleting the actual directories to reduce churn of delete/creating listeners on the server side
-        ExplodedModule.deleteDirectory(targetDirectory, true);
+        ExplodedModule.deleteDirectory(targetDirectory, false);
 
         long startTime = System.currentTimeMillis();
         int fileCount = 0;

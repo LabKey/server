@@ -118,19 +118,6 @@
             </Policies>
         </RollingFile>
 
-        <RollingFile name="JSP_STRINGS"
-                     fileName="${sys:labkey.log.home}/JspStringPrints.log"
-                     append="true"
-                     filePattern="${sys:labkey.log.home}/JspStringPrints.log.%i">
-            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
-            <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="1000 KB"/>
-            </Policies>
-        </RollingFile>
-
     </Appenders>
 
     <Loggers>
@@ -231,10 +218,6 @@
 
         <Logger name="org.labkey.api.util.DebugInfoDumper" level="debug">
             <AppenderRef ref="THREAD_DUMP"/>
-        </Logger>
-
-        <Logger name="org.labkey.api.jsp.LabKeyJspWriter.string" additivity="false" level="debug">
-            <AppenderRef ref="JSP_STRINGS"/>
         </Logger>
 
         <!--    <logger name="org.labkey.api.view.ViewServlet" additivity="false">

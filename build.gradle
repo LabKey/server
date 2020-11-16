@@ -9,7 +9,7 @@ buildscript {
         maven {
             url "${artifactory_contextUrl}/plugins-release"
         }
-        if (gradlePluginsVersion.contains("SNAPSHOT"))
+        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"

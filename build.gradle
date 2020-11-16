@@ -86,11 +86,6 @@ allprojects {
     if (project.hasProperty('includeVcs'))
     {
         apply plugin: 'org.labkey.versioning'
-        versioning
-                {
-                    user = project.hasProperty('svn_user') ? project.property('svn_user') : 'cpas'
-                    password = project.hasProperty('svn_password') ? project.property('svn_password') : 'cpas'
-                }
     }
 
     apply plugin: 'org.labkey.base'

@@ -32,6 +32,7 @@ plugins {
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 //    id "com.github.ben-manes.versions" version "0.33.0"
+    id "org.labkey.build.multiGit"
 }
 
 allprojects {
@@ -60,7 +61,6 @@ String tomcatDirProp = System.getenv('CATALINA_HOME') != null ? System.getenv('C
 if (tomcatDirProp != null && !new File(tomcatDirProp).exists())
     throw new GradleException("Tomcat home directory ${tomcatDirProp} does not exist.")
 
-apply plugin: 'org.labkey.multiGit'
 allprojects {
     // this configuration is needed only in server and testAutomation, but we leave it here (for now) to avoid duplication
     configurations
@@ -83,14 +83,17 @@ allprojects {
                 }
             }
 
+    // TODO move to base or FileModule?
     if (project.hasProperty('includeVcs'))
     {
         apply plugin: 'org.labkey.versioning'
     }
 
-    apply plugin: 'org.labkey.base'
-    group  'org.labkey'
-    version BuildUtils.getVersionNumber(project)
+    // We apply the base module here so we get the configurations (in particular external and modules)
+    // that can be used for the allDepInsight task below.  I would really prefer not to do this here, but
+    // we'll need to find another solution for allDepInsight (perhaps enumerate projects?)
+    apply plugin: 'org.labkey.build.base'
+
 
     tasks.withType(JavaCompile)
             {
@@ -284,7 +287,7 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
 
 subprojects {
     task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
-        repositories.each{
+        repositories.each {
             println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
         }
     })

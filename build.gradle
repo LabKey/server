@@ -95,12 +95,6 @@ allprojects {
                 targetCompatibility = project.ext.targetCompatibility
             }
 
-    ext
-            {
-                vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
-                installerVersion = "${project.version}-${vcsRevision}"
-            }
-
     repositories
             {
                 // this if statement is necessary because the TeamCity artifactory plugin overrides

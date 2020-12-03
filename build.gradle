@@ -83,12 +83,6 @@ allprojects {
                 }
             }
 
-    // TODO move to base or FileModule?
-    if (project.hasProperty('includeVcs'))
-    {
-        apply plugin: 'org.labkey.versioning'
-    }
-
     // We apply the base module here so we get the configurations (in particular external and modules)
     // that can be used for the allDepInsight task below.  I would really prefer not to do this here, but
     // we'll need to find another solution for allDepInsight (perhaps enumerate projects?)
@@ -106,6 +100,7 @@ allprojects {
                 vcsRevision = BuildUtils.getStandardVCSProperties(project).getProperty("VcsRevision")
                 installerVersion = "${project.version}-${vcsRevision}"
             }
+
     repositories
             {
                 // this if statement is necessary because the TeamCity artifactory plugin overrides

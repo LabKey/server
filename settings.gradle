@@ -44,6 +44,8 @@ import org.labkey.gradle.util.BuildUtils
   ":server:modules" and ":server:modules:core").
  */
 
+include ":server:embedded"
+
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()
         && !hasProperty('excludeBaseModules'))
 {

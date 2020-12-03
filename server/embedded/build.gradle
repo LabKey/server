@@ -1,0 +1,38 @@
+import org.labkey.gradle.util.BuildUtils
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE' apply false
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+}
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.4.0'
+//    implementation platform(SpringBootPlugin.BOM_COORDINATES)
+    implementation "org.apache.tomcat.embed:tomcat-embed-core:9.0.34"
+
+    runtimeOnly 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.34'
+    runtimeOnly 'javax.mail:javax.mail-api'
+    runtimeOnly group: 'com.sun.mail', name: 'javax.mail', version: '1.6.0'
+    runtimeOnly group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '9.0.37'
+    runtimeOnly "org.postgresql:postgresql:42.2.14"
+}
+
+BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))

@@ -6,11 +6,11 @@ import org.labkey.gradle.plugin.XsdDoc
 import org.labkey.gradle.plugin.JsDoc
 import org.apache.commons.lang3.SystemUtils
 
-BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
+//BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle), depProjectConfig: 'runTimeElements')
 dependencies
         {
-            tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
-            tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
+//            tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
+//            tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
 
             remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
         }

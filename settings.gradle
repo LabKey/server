@@ -26,6 +26,7 @@ pluginManagement {
         id 'org.labkey.build.testRunner' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.tomcat' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.xsddoc' version "${gradlePluginsVersion}" apply false
+        id 'org.labkey.versioning' version "${versioningPluginVersion}" apply false
     }
 }
 

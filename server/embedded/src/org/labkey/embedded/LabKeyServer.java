@@ -3,6 +3,7 @@ package org.labkey.embedded;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.logging.log4j.LogManager;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +41,9 @@ public class LabKeyServer
 			protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
 			{
 				tomcat.enableNaming();
-				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", "/Users/ankurjuneja/labkey/server/build/deploy/labkeyWebapp");
+				// Get the minimum properties from Spring injection
+				ContextProperties props = labkeyDataSource();
+				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", props.getWebAppLocation());
                 // Could continue to use labkey.xml/ROOT.xml but we presumably want to push them all into application.properties
                 // or the environment variables
 //				try
@@ -52,12 +55,6 @@ public class LabKeyServer
 //					throw new RuntimeException(e);
 //				}
 
-
-                // Get the minimum properties from Spring injection
-				ContextProperties props = labkeyDataSource();
-
-				// Push them into the context so that the LabKey webapp finds them in the expected spot
-
                 // Add the JDBC connection for the primary DB
                 ContextResource resource = new ContextResource();
 				resource.setName("jdbc/labkeyDataSource");
@@ -66,15 +63,18 @@ public class LabKeyServer
 				resource.setProperty("url", props.url);
 				resource.setProperty("password", props.password);
 				resource.setProperty("username", props.username);
+
+				// Push the properties into the context so that the LabKey webapp finds them in the expected spot
 				context.getNamingResources().addResource(resource);
 
 				// And the master encryption key
-//				context.addParameter("MasterEncryptionKey", props.masterEncryptionKey);
+				context.addParameter("MasterEncryptionKey", props.masterEncryptionKey);
 
 				// Point at the special classloader with the hack for SLF4J
 				WebappLoader loader = new WebappLoader();
 				loader.setLoaderClass(LabKeySpringBootClassLoader.class.getName());
 				context.setLoader(loader);
+				context.setParentClassLoader(this.getClass().getClassLoader());
 
 				return super.getTomcatWebServer(tomcat);
 			}
@@ -91,6 +91,7 @@ public class LabKeyServer
 		public String password;
 		public String driverClassName;
 		public String masterEncryptionKey;
+		public String webAppLocation;
 
 		public String getUrl()
 		{
@@ -140,6 +141,16 @@ public class LabKeyServer
 		public void setMasterEncryptionKey(String masterEncryptionKey)
 		{
 			this.masterEncryptionKey = masterEncryptionKey;
+		}
+
+		public String getWebAppLocation()
+		{
+			return webAppLocation;
+		}
+
+		public void setWebAppLocation(String webAppLocation)
+		{
+			this.webAppLocation = webAppLocation;
 		}
 	}
 

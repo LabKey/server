@@ -57,17 +57,22 @@ public class LabKeyServer
 
 				if (!webAppLocationPresent)
 				{
-					try
+					var destDirectory = "/Users/ankurjuneja/labkey/server";
+					webAppLocation = destDirectory + "/LabKey21.1-SNAPSHOT-1515-community/labkeyWebapp";
+					boolean extracted = new File(webAppLocation).exists();
+
+					if (!extracted)
 					{
-						// TODO : 8021 :replace zipFilePath with zip location and destDirectory with apt location
-						var zipFilePath = "/Users/ankurjuneja/Downloads/LabKey21.1-SNAPSHOT-1515-community.zip";
-						var destDirectory = "/Users/ankurjuneja/labkey/server";
-						LabKeyServer.extractZip(zipFilePath, destDirectory);
-						webAppLocation = destDirectory + "/LabKey21.1-SNAPSHOT-1515-community/labkeyWebapp";
-					}
-					catch (IOException e)
-					{
-						throw new RuntimeException(e);
+						try
+						{
+							// TODO : 8021 :replace zipFilePath with zip location and destDirectory with apt location
+							var zipFilePath = "/Users/ankurjuneja/Downloads/LabKey21.1-SNAPSHOT-1515-community.zip";
+							LabKeyServer.extractZip(zipFilePath, destDirectory);
+						}
+						catch (IOException e)
+						{
+							throw new RuntimeException(e);
+						}
 					}
 				}
 				else

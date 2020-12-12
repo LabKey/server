@@ -80,16 +80,23 @@ public class LabKeyServer
 					webAppLocation = props.getWebAppLocation();
 				}
 
-				StandardContext context = (StandardContext)tomcat.addWebapp("", webAppLocation);
+				// TODO : 8021 :fix context path - put app at root by default
+				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", webAppLocation);
 
                 // Add the JDBC connection for the primary DB
                 ContextResource resource = new ContextResource();
 				resource.setName("jdbc/labkeyDataSource");
+				resource.setAuth("Container");
 				resource.setType(DataSource.class.getName());
 				resource.setProperty("driverClassName", props.driverClassName);
 				resource.setProperty("url", props.url);
 				resource.setProperty("password", props.password);
 				resource.setProperty("username", props.username);
+				resource.setProperty("maxTotal", "20");
+				resource.setProperty("maxIdle", "10");
+				resource.setProperty("maxWaitMillis", "120000");
+				resource.setProperty("accessToUnderlyingConnectionAllowed", "true");
+				resource.setProperty("validationQuery", "SELECT 1");
 
 				// Push the properties into the context so that the LabKey webapp finds them in the expected spot
 				context.getNamingResources().addResource(resource);

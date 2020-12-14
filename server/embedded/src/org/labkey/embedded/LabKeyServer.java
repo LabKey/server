@@ -39,16 +39,22 @@ public class LabKeyServer
 	}
 
 	@Bean
+	public MailProperties smtpSource()
+	{
+		return new MailProperties();
+	}
+
+	@Bean
 	public TomcatServletWebServerFactory servletContainerFactory()
 	{
 		return new TomcatServletWebServerFactory()
 		{
-
 			@Override
 			protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
 			{
 				tomcat.enableNaming();
-				// Get the minimum properties from Spring injection
+
+				// Get the datasource properties from Spring injection
 				ContextProperties props = labkeyDataSource();
 
 				// for development, point to the local deploy/labkeyWebapp directory
@@ -83,23 +89,10 @@ public class LabKeyServer
 				// TODO : 8021 :fix context path - put app at root by default
 				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", webAppLocation);
 
-                // Add the JDBC connection for the primary DB
-                ContextResource resource = new ContextResource();
-				resource.setName("jdbc/labkeyDataSource");
-				resource.setAuth("Container");
-				resource.setType(DataSource.class.getName());
-				resource.setProperty("driverClassName", props.driverClassName);
-				resource.setProperty("url", props.url);
-				resource.setProperty("password", props.password);
-				resource.setProperty("username", props.username);
-				resource.setProperty("maxTotal", "20");
-				resource.setProperty("maxIdle", "10");
-				resource.setProperty("maxWaitMillis", "120000");
-				resource.setProperty("accessToUnderlyingConnectionAllowed", "true");
-				resource.setProperty("validationQuery", "SELECT 1");
-
-				// Push the properties into the context so that the LabKey webapp finds them in the expected spot
-				context.getNamingResources().addResource(resource);
+                // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
+				context.getNamingResources().addResource(getDataSourceResource(props));
+				// Add the SMTP config
+				context.getNamingResources().addResource(getMailResource());
 
 				// And the master encryption key
 				context.addParameter("MasterEncryptionKey", props.masterEncryptionKey);
@@ -111,6 +104,39 @@ public class LabKeyServer
 				context.setParentClassLoader(this.getClass().getClassLoader());
 
 				return super.getTomcatWebServer(tomcat);
+			}
+
+			private ContextResource getDataSourceResource(ContextProperties props)
+			{
+				ContextResource dataSourceResource = new ContextResource();
+				dataSourceResource.setName("jdbc/labkeyDataSource");
+				dataSourceResource.setAuth("Container");
+				dataSourceResource.setType(DataSource.class.getName());
+				dataSourceResource.setProperty("driverClassName", props.driverClassName);
+				dataSourceResource.setProperty("url", props.url);
+				dataSourceResource.setProperty("password", props.password);
+				dataSourceResource.setProperty("username", props.username);
+				dataSourceResource.setProperty("maxTotal", "20");
+				dataSourceResource.setProperty("maxIdle", "10");
+				dataSourceResource.setProperty("maxWaitMillis", "120000");
+				dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", "true");
+				dataSourceResource.setProperty("validationQuery", "SELECT 1");
+
+				return  dataSourceResource;
+			}
+
+			private ContextResource getMailResource()
+			{
+				// Get session/mail properties
+				MailProperties mailProps = smtpSource();
+				ContextResource mailResource = new ContextResource();
+				mailResource.setName("mail/Session");
+				mailResource.setAuth("Container");
+				mailResource.setType("javax.mail.Session");
+				mailResource.setProperty("mail.smtp.host", mailProps.smtpHost);
+				mailResource.setProperty("mail.smtp.user", mailProps.smtpUser);
+				mailResource.setProperty("mail.smtp.port", mailProps.smtpPort);
+				return mailResource;
 			}
 		};
 	}
@@ -234,6 +260,45 @@ public class LabKeyServer
 		public void setWebAppLocation(String webAppLocation)
 		{
 			this.webAppLocation = webAppLocation;
+		}
+	}
+
+	@Configuration
+	@ConfigurationProperties("mail")
+	public static class MailProperties
+	{
+		public String smtpHost;
+		public String smtpUser;
+		public String smtpPort;
+
+		public String getSmtpHost()
+		{
+			return smtpHost;
+		}
+
+		public void setSmtpHost(String smtpHost)
+		{
+			this.smtpHost = smtpHost;
+		}
+
+		public String getSmtpUser()
+		{
+			return smtpUser;
+		}
+
+		public void setSmtpUser(String smtpUser)
+		{
+			this.smtpUser = smtpUser;
+		}
+
+		public String getSmtpPort()
+		{
+			return smtpPort;
+		}
+
+		public void setSmtpPort(String smtpPort)
+		{
+			this.smtpPort = smtpPort;
 		}
 	}
 

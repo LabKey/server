@@ -6,6 +6,16 @@ import org.labkey.gradle.plugin.XsdDoc
 import org.labkey.gradle.plugin.JsDoc
 import org.apache.commons.lang3.SystemUtils
 
+plugins {
+    id 'maven-publish'
+    id 'org.labkey.build.jsdoc'
+    id 'org.labkey.build.xsddoc'
+    id 'org.labkey.build.npmRun'
+    id 'org.labkey.build.tomcat'
+    id 'org.labkey.build.serverDeploy'
+    id 'org.labkey.build.database'
+}
+
 //BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle), depProjectConfig: 'runTimeElements')
 dependencies
         {
@@ -14,11 +24,6 @@ dependencies
 
             remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
         }
-
-apply plugin: 'maven-publish'
-apply plugin: 'org.labkey.jsdoc'
-apply plugin: 'org.labkey.xsddoc'
-apply plugin: 'org.labkey.npmRun'
 
 dependencies
 {
@@ -49,10 +54,6 @@ if (!project.hasProperty('excludeProteomicsBinaries'))
         }
     }
 }
-
-apply plugin: 'org.labkey.tomcat'
-apply plugin: 'org.labkey.serverDeploy'
-apply plugin: 'org.labkey.database'
 
 // This a subset of the XSDs because dependencies get pulled in.
 

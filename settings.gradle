@@ -45,19 +45,19 @@ buildscript {
     // instead of the one that references the published jar.  You may need to adjust the version and the path to the built jar file
     // depending on where you've enlisted in the gradlePlugins repository.  You will need to manually rebuild the jar file
     // to pick up these changes.
-    dependencies {
-        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.22.0-SNAPSHOT.jar")
-        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
-        classpath "commons-io:commons-io:${commonsIoVersion}"
-        classpath "com.yahoo.platform.yui:yuicompressor:2.4.8a"
-        classpath "org.apache.httpcomponents:httpclient:${httpclientVersion}"
-        classpath "org.json:json:20180130"
-        classpath "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-        classpath "org.ajoberstar.grgit:grgit-gradle:3.1.1"
-    }
 //    dependencies {
-//        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+//        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.22.0-SNAPSHOT.jar")
+//        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
+//        classpath "commons-io:commons-io:${commonsIoVersion}"
+//        classpath "com.yahoo.platform.yui:yuicompressor:2.4.8a"
+//        classpath "org.apache.httpcomponents:httpclient:${httpclientVersion}"
+//        classpath "org.json:json:20180130"
+//        classpath "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+//        classpath "org.ajoberstar.grgit:grgit-gradle:3.1.1"
 //    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
     configurations.all {
         // Check for updates every build for SNAPSHOT dependencies
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'

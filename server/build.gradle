@@ -16,11 +16,17 @@ plugins {
     id 'org.labkey.build.database'
 }
 
-//BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle), depProjectConfig: 'runTimeElements')
+if (hasProperty("useEmbeddedTomcat") && getProperty("useEmbeddedTomcat") == "false")
+{
+    BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle)/*, depProjectConfig: 'runTimeElements'*/)
+}
 dependencies
         {
-//            tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
-//            tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
+            if (hasProperty("useEmbeddedTomcat") && getProperty("useEmbeddedTomcat") == "false")
+            {
+                tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
+                tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
+            }
 
             remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
         }

@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LabKeyEmbbedded_Dev" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="server.server.embedded.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.labkey.embedded.LabKeyServer" />
+    <option name="HIDE_BANNER" value="true" />
+    <option name="VM_PARAMETERS" value="-Ddevmode=true" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/server/embedded" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

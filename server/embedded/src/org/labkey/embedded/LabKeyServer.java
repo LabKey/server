@@ -63,8 +63,8 @@ public class LabKeyServer
 
 				if (!webAppLocationPresent)
 				{
-					var destDirectory = "/path/to/labkey/server";
-					webAppLocation = destDirectory + "/LabKey21.1-SNAPSHOT-1515-community/labkeyWebapp";
+					var destDirectory = "./server";
+					webAppLocation = destDirectory + "/distribution/labkeyWebapp";
 					boolean extracted = new File(webAppLocation).exists();
 
 					if (!extracted)
@@ -72,7 +72,7 @@ public class LabKeyServer
 						try
 						{
 							// TODO : 8021 :replace zipFilePath with zip location and destDirectory with apt location
-							var zipFilePath = "/path/to/LabKey21.1-SNAPSHOT-1515-community.zip";
+							var zipFilePath = "./labkey/distribution.zip";
 							LabKeyServer.extractZip(zipFilePath, destDirectory);
 						}
 						catch (IOException e)
@@ -155,39 +155,41 @@ public class LabKeyServer
 		{
 			destDir.mkdir();
 		}
-		ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
-		ZipEntry entry = zipIn.getNextEntry();
-		// iterates over entries in the zip file
-		while (entry != null)
+		try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath)))
 		{
-			String filePath = destDirectory + File.separator + entry.getName();
-			if (!entry.isDirectory())
+			ZipEntry entry = zipIn.getNextEntry();
+			// iterates over entries in the zip file
+			while (entry != null)
 			{
-				// if the entry is a file, extracts it
-				extractFile(zipIn, filePath);
+				String filePath = destDirectory + File.separator + entry.getName();
+				if (!entry.isDirectory())
+				{
+					// if the entry is a file, extracts it
+					extractFile(zipIn, filePath);
+				}
+				else
+				{
+					// if the entry is a directory, make the directory
+					File dir = new File(filePath);
+					dir.mkdirs();
+				}
+				zipIn.closeEntry();
+				entry = zipIn.getNextEntry();
 			}
-			else
-			{
-				// if the entry is a directory, make the directory
-				File dir = new File(filePath);
-				dir.mkdirs();
-			}
-			zipIn.closeEntry();
-			entry = zipIn.getNextEntry();
 		}
-		zipIn.close();
 	}
 
 	private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException
 	{
-		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
-		byte[] bytesIn = new byte[BUFFER_SIZE];
-		int read;
-		while ((read = zipIn.read(bytesIn)) != -1)
+		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath)))
 		{
-			bos.write(bytesIn, 0, read);
+			byte[] bytesIn = new byte[BUFFER_SIZE];
+			int read;
+			while ((read = zipIn.read(bytesIn)) != -1)
+			{
+				bos.write(bytesIn, 0, read);
+			}
 		}
-		bos.close();
 	}
 
 	@Configuration

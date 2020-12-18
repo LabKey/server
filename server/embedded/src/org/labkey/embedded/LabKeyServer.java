@@ -4,6 +4,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
+import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,15 +13,21 @@ import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -65,19 +72,37 @@ public class LabKeyServer
 
 				if (!webAppLocationPresent)
 				{
-					var destDirectory = "./server";
-					webAppLocation = destDirectory + "/distribution/labkeyWebapp";
+					var destDirectory = new File("").getAbsolutePath() + "/server";
+					webAppLocation = destDirectory + "/labkeywebapp";
 					boolean extracted = new File(webAppLocation).exists();
 
 					if (!extracted)
 					{
-						try
+						try (JarFile jar = new JarFile("labkeyServer-21.1-SNAPSHOT.jar"))
 						{
-							// TODO : 8021 :replace zipFilePath with zip location and destDirectory with apt location
-							var zipFilePath = "./labkey/distribution.zip";
-							LabKeyServer.extractZip(zipFilePath, destDirectory);
+							boolean foundDistributionZip = false;
+							Enumeration<JarEntry> entries = jar.entries();
+							while (entries.hasMoreElements())
+							{
+								JarEntry entry = entries.nextElement();
+								String entryName = entry.getName();
+
+								if ("labkey/distribution.zip".equals(entryName))
+								{
+									foundDistributionZip = true;
+									try (var distInputStream = jar.getInputStream(entry))
+									{
+										LabKeyServer.extractZip(distInputStream, destDirectory);
+									}
+								}
+							}
+
+							if (!foundDistributionZip)
+							{
+								throw new ConfigException("Unable to find distribution zip required to run LabKey server.");
+							}
 						}
-						catch (IOException e)
+						catch (IOException | ConfigException e)
 						{
 							throw new RuntimeException(e);
 						}
@@ -97,7 +122,7 @@ public class LabKeyServer
 				context.getNamingResources().addResource(getMailResource());
 
 				// And the master encryption key
-				context.addParameter("MasterEncryptionKey", props.masterEncryptionKey);
+				context.addParameter("MasterEncryptionKey", props.getMasterEncryptionKey());
 
 				// Point at the special classloader with the hack for SLF4J
 				WebappLoader loader = new WebappLoader();
@@ -153,18 +178,18 @@ public class LabKeyServer
 	/**
 	 * Extracts a zip file specified by the zipFilePath to a directory specified by
 	 * destDirectory (will be created if does not exists)
-	 * @param zipFilePath
+	 * @param zipInputStream
 	 * @param destDirectory
 	 * @throws IOException
 	 */
-	public static void extractZip(String zipFilePath, String destDirectory) throws IOException
+	public static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
 	{
 		File destDir = new File(destDirectory);
 		if (!destDir.exists())
 		{
 			destDir.mkdir();
 		}
-		try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath)))
+		try (ZipInputStream zipIn = new ZipInputStream(zipInputStream))
 		{
 			ZipEntry entry = zipIn.getNextEntry();
 			// iterates over entries in the zip file
@@ -201,15 +226,22 @@ public class LabKeyServer
 		}
 	}
 
+	@Validated
 	@Configuration
 	@ConfigurationProperties("labkey")
 	public static class ContextProperties
 	{
+		@NotEmpty (message = "Must provide dataSourceName")
 		private List<String> dataSourceName;
+		@NotEmpty (message = "Must provide database url")
 		private List<String> url;
+		@NotEmpty (message = "Must provide database username")
 		private List<String> username;
+		@NotEmpty (message = "Must provide database password")
 		private List<String> password;
+		@NotEmpty (message = "Must provide database driverClassName")
 		private List<String> driverClassName;
+		@NotNull (message = "Must provide masterEncryptionKey")
 		private String masterEncryptionKey;
 		private String webAppLocation;
 

@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -90,7 +92,7 @@ public class LabKeyServer
 				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", webAppLocation);
 
                 // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
-				context.getNamingResources().addResource(getDataSourceResource(props));
+				getDataSourceResources(props).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 				// Add the SMTP config
 				context.getNamingResources().addResource(getMailResource());
 
@@ -106,23 +108,30 @@ public class LabKeyServer
 				return super.getTomcatWebServer(tomcat);
 			}
 
-			private ContextResource getDataSourceResource(ContextProperties props)
+			private List<ContextResource> getDataSourceResources(ContextProperties props)
 			{
-				ContextResource dataSourceResource = new ContextResource();
-				dataSourceResource.setName("jdbc/labkeyDataSource");
-				dataSourceResource.setAuth("Container");
-				dataSourceResource.setType(DataSource.class.getName());
-				dataSourceResource.setProperty("driverClassName", props.driverClassName);
-				dataSourceResource.setProperty("url", props.url);
-				dataSourceResource.setProperty("password", props.password);
-				dataSourceResource.setProperty("username", props.username);
-				dataSourceResource.setProperty("maxTotal", "20");
-				dataSourceResource.setProperty("maxIdle", "10");
-				dataSourceResource.setProperty("maxWaitMillis", "120000");
-				dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", "true");
-				dataSourceResource.setProperty("validationQuery", "SELECT 1");
+				List<ContextResource> dataSourceResources = new ArrayList<>();
+				var numOfDataResources = props.getUrl().size();
 
-				return  dataSourceResource;
+				for (int i = 0; i < numOfDataResources; i++)
+				{
+					ContextResource dataSourceResource = new ContextResource();
+					dataSourceResource.setName(props.getDataSourceName().get(i));
+					dataSourceResource.setAuth("Container");
+					dataSourceResource.setType(DataSource.class.getName());
+					dataSourceResource.setProperty("driverClassName", props.getDriverClassName().get(i));
+					dataSourceResource.setProperty("url", props.getUrl().get(i));
+					dataSourceResource.setProperty("password", props.getPassword().get(i));
+					dataSourceResource.setProperty("username", props.getUsername().get(i));
+					dataSourceResource.setProperty("maxTotal", "20");
+					dataSourceResource.setProperty("maxIdle", "10");
+					dataSourceResource.setProperty("maxWaitMillis", "120000");
+					dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", "true");
+					dataSourceResource.setProperty("validationQuery", "SELECT 1");
+					dataSourceResources.add(dataSourceResource);
+				}
+
+				return  dataSourceResources;
 			}
 
 			private ContextResource getMailResource()
@@ -196,50 +205,60 @@ public class LabKeyServer
 	@ConfigurationProperties("labkey")
 	public static class ContextProperties
 	{
+		private List<String> dataSourceName;
+		private List<String> url;
+		private List<String> username;
+		private List<String> password;
+		private List<String> driverClassName;
+		private String masterEncryptionKey;
+		private String webAppLocation;
 
-		public String url;
-		public String username;
-		public String password;
-		public String driverClassName;
-		public String masterEncryptionKey;
-		public String webAppLocation;
+		public List<String> getDataSourceName()
+		{
+			return dataSourceName;
+		}
 
-		public String getUrl()
+		public void setDataSourceName(List<String> dataSourceName)
+		{
+			this.dataSourceName = dataSourceName;
+		}
+
+		public List<String> getUrl()
 		{
 			return url;
 		}
 
-		public void setUrl(String url)
+		public void setUrl(List<String> url)
 		{
 			this.url = url;
 		}
 
-		public String getUsername()
+		public List<String> getUsername()
 		{
 			return username;
 		}
 
-		public void setUsername(String username)
+		public void setUsername(List<String> username)
 		{
 			this.username = username;
 		}
 
-		public String getPassword()
+		public List<String> getPassword()
 		{
 			return password;
 		}
 
-		public void setPassword(String password)
+		public void setPassword(List<String> password)
 		{
 			this.password = password;
 		}
 
-		public String getDriverClassName()
+		public List<String> getDriverClassName()
 		{
 			return driverClassName;
 		}
 
-		public void setDriverClassName(String driverClassName)
+		public void setDriverClassName(List<String> driverClassName)
 		{
 			this.driverClassName = driverClassName;
 		}

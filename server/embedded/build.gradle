@@ -18,6 +18,13 @@ sourceSets {
     }
 }
 
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.apache.tomcat.embed:tomcat-embed-core:${apacheTomcatVersion}"
@@ -30,7 +37,7 @@ dependencies {
     runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${apacheTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:42.2.14"
 
-    implementation "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))

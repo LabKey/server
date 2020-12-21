@@ -20,7 +20,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,46 +74,48 @@ public class LabKeyServer
 				boolean webAppLocationPresent = contextProperties.getWebAppLocation() != null;
 				var webAppLocation = "";
 
-				if (!webAppLocationPresent)
-				{
-					var currentPath = new File("").getAbsolutePath();
-					var destDirectory = currentPath + "/server";
-					webAppLocation = destDirectory + "/labkeywebapp";
-					boolean extracted = new File(webAppLocation).exists();
-
-					if (!extracted)
-					{
-						extractExecutableJar(destDirectory, currentPath);
-					}
-				}
-				else
-				{
-					webAppLocation = contextProperties.getWebAppLocation();
-				}
-
-				// TODO : 8021 :fix context path - put app at root by default
-				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", webAppLocation);
-
-                // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
 				try
 				{
+					if (!webAppLocationPresent)
+					{
+						final var currentPath = new File("").getAbsolutePath();
+						var destDirectory = currentPath + "/server";
+						webAppLocation = destDirectory + "/labkeywebapp";
+						boolean extracted = new File(webAppLocation).exists();
+						String jarFilePath = getExecutableJar(currentPath);
+
+						if (!extracted)
+						{
+							extractExecutableJar(destDirectory, jarFilePath);
+						}
+					}
+					else
+					{
+						webAppLocation = contextProperties.getWebAppLocation();
+					}
+
+					// TODO : 8021 :fix context path - put app at root by default
+					StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+
+					// Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
 					getDataSourceResources().forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+
+					// Add the SMTP config
+					context.getNamingResources().addResource(getMailResource());
+
+					// And the master encryption key
+					context.addParameter("MasterEncryptionKey", contextProperties.getMasterEncryptionKey());
+
+					// Point at the special classloader with the hack for SLF4J
+					WebappLoader loader = new WebappLoader();
+					loader.setLoaderClass(LabKeySpringBootClassLoader.class.getName());
+					context.setLoader(loader);
+					context.setParentClassLoader(this.getClass().getClassLoader());
 				}
 				catch (ConfigException e)
 				{
 					throw new RuntimeException(e);
 				}
-				// Add the SMTP config
-				context.getNamingResources().addResource(getMailResource());
-
-				// And the master encryption key
-				context.addParameter("MasterEncryptionKey", contextProperties.getMasterEncryptionKey());
-
-				// Point at the special classloader with the hack for SLF4J
-				WebappLoader loader = new WebappLoader();
-				loader.setLoaderClass(LabKeySpringBootClassLoader.class.getName());
-				context.setLoader(loader);
-				context.setParentClassLoader(this.getClass().getClassLoader());
 
 				return super.getTomcatWebServer(tomcat);
 			}
@@ -185,12 +186,12 @@ public class LabKeyServer
 		};
 	}
 
-	private static void extractExecutableJar(String destDirectory, String currentPath)
+	private static void extractExecutableJar(String destDirectory, String jarFilePath)
 	{
 		try
 		{
 			// check for multiple jars and blow up if multiple are present
-			try (JarFile jar = new JarFile(getExecutableJar(currentPath)))
+			try (JarFile jar = new JarFile(jarFilePath))
 			{
 				boolean foundDistributionZip = false;
 				var entries = jar.entries();
@@ -223,36 +224,31 @@ public class LabKeyServer
 
 	private static String getExecutableJar(String currentPath) throws ConfigException
 	{
-		try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(currentPath)))
+		File currentDir = new File(currentPath);
+		var jarCount = 0;
+		String jarFileName = "";
+
+		for (File file: currentDir.listFiles())
 		{
-			ZipEntry entry = zipIn.getNextEntry();
-			var jarCount = 0;
-			var jarFileName = "";
-			// iterates over entries in the current dir
-			while (entry != null)
+			if (file.getName().endsWith(".jar"))
 			{
-				if (entry.getName().endsWith(".jar"))
-				{
-					jarFileName = entry.getName();
-					jarCount++;
-				}
-				zipIn.closeEntry();
-				entry = zipIn.getNextEntry();
-			}
-			// only 1 executable jar should be there
-			if (jarCount == 1)
-			{
-				return jarFileName;
-			}
-			else
-			{
-				throw new ConfigException("Multiple executable jars found. Must provide only one executable jar");
+				jarFileName = file.getName();
+				jarCount++;
 			}
 		}
-		catch (IOException e)
+
+		if (jarCount == 0)
 		{
-			throw new RuntimeException(e);
+			throw new ConfigException("Executable jar not found.");
 		}
+
+		// only 1 executable jar should be there
+		if (jarCount == 1)
+		{
+			return jarFileName;
+		}
+
+		throw new ConfigException("Multiple executable jars found. Must provide only one executable jar");
 	}
 
 	private static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException

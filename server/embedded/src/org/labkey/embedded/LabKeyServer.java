@@ -20,13 +20,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -42,9 +41,15 @@ public class LabKeyServer
 	}
 
 	@Bean
-	public ContextProperties labkeyDataSource()
+	public ContextProperties contextSource()
 	{
 		return new ContextProperties();
+	}
+
+	@Bean
+	public DataSourceProperties labkeyDataSource()
+	{
+		return new DataSourceProperties();
 	}
 
 	@Bean
@@ -63,66 +68,47 @@ public class LabKeyServer
 			{
 				tomcat.enableNaming();
 
-				// Get the datasource properties from Spring injection
-				ContextProperties props = labkeyDataSource();
+				// Get the context properties from Spring injection
+				ContextProperties contextProperties = contextSource();
 
-				// for development, point to the local deploy/labkeyWebapp directory
-				boolean webAppLocationPresent = props.getWebAppLocation() != null;
+				// for development, point to the local deploy/labkeyWebapp directory in configs/application.properties
+				boolean webAppLocationPresent = contextProperties.getWebAppLocation() != null;
 				var webAppLocation = "";
 
 				if (!webAppLocationPresent)
 				{
-					var destDirectory = new File("").getAbsolutePath() + "/server";
+					var currentPath = new File("").getAbsolutePath();
+					var destDirectory = currentPath + "/server";
 					webAppLocation = destDirectory + "/labkeywebapp";
 					boolean extracted = new File(webAppLocation).exists();
 
 					if (!extracted)
 					{
-						try (JarFile jar = new JarFile("labkeyServer-21.1-SNAPSHOT.jar"))
-						{
-							boolean foundDistributionZip = false;
-							Enumeration<JarEntry> entries = jar.entries();
-							while (entries.hasMoreElements())
-							{
-								JarEntry entry = entries.nextElement();
-								String entryName = entry.getName();
-
-								if ("labkey/distribution.zip".equals(entryName))
-								{
-									foundDistributionZip = true;
-									try (var distInputStream = jar.getInputStream(entry))
-									{
-										LabKeyServer.extractZip(distInputStream, destDirectory);
-									}
-								}
-							}
-
-							if (!foundDistributionZip)
-							{
-								throw new ConfigException("Unable to find distribution zip required to run LabKey server.");
-							}
-						}
-						catch (IOException | ConfigException e)
-						{
-							throw new RuntimeException(e);
-						}
+						extractExecutableJar(destDirectory, currentPath);
 					}
 				}
 				else
 				{
-					webAppLocation = props.getWebAppLocation();
+					webAppLocation = contextProperties.getWebAppLocation();
 				}
 
 				// TODO : 8021 :fix context path - put app at root by default
 				StandardContext context = (StandardContext)tomcat.addWebapp("/labkey", webAppLocation);
 
                 // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
-				getDataSourceResources(props).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+				try
+				{
+					getDataSourceResources().forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+				}
+				catch (ConfigException e)
+				{
+					throw new RuntimeException(e);
+				}
 				// Add the SMTP config
 				context.getNamingResources().addResource(getMailResource());
 
 				// And the master encryption key
-				context.addParameter("MasterEncryptionKey", props.getMasterEncryptionKey());
+				context.addParameter("MasterEncryptionKey", contextProperties.getMasterEncryptionKey());
 
 				// Point at the special classloader with the hack for SLF4J
 				WebappLoader loader = new WebappLoader();
@@ -133,10 +119,19 @@ public class LabKeyServer
 				return super.getTomcatWebServer(tomcat);
 			}
 
-			private List<ContextResource> getDataSourceResources(ContextProperties props)
+			private List<ContextResource> getDataSourceResources() throws ConfigException
 			{
+				DataSourceProperties props = labkeyDataSource();
 				List<ContextResource> dataSourceResources = new ArrayList<>();
 				var numOfDataResources = props.getUrl().size();
+
+				if (numOfDataResources != props.getDataSourceName().size() ||
+						numOfDataResources != props.getDriverClassName().size() ||
+						numOfDataResources != props.getUsername().size() ||
+						numOfDataResources != props.getPassword().size())
+				{
+					throw new ConfigException("DataSources not configured properly. Must have all the required properties for all datasources: dataSourceName, driverClassName, userName, password, url");
+				}
 
 				for (int i = 0; i < numOfDataResources; i++)
 				{
@@ -148,6 +143,7 @@ public class LabKeyServer
 					dataSourceResource.setProperty("url", props.getUrl().get(i));
 					dataSourceResource.setProperty("password", props.getPassword().get(i));
 					dataSourceResource.setProperty("username", props.getUsername().get(i));
+					// TODO : 8021 move this properties to application.properties
 					dataSourceResource.setProperty("maxTotal", "20");
 					dataSourceResource.setProperty("maxIdle", "10");
 					dataSourceResource.setProperty("maxWaitMillis", "120000");
@@ -167,22 +163,99 @@ public class LabKeyServer
 				mailResource.setName("mail/Session");
 				mailResource.setAuth("Container");
 				mailResource.setType("javax.mail.Session");
-				mailResource.setProperty("mail.smtp.host", mailProps.smtpHost);
-				mailResource.setProperty("mail.smtp.user", mailProps.smtpUser);
-				mailResource.setProperty("mail.smtp.port", mailProps.smtpPort);
+				mailResource.setProperty("mail.smtp.host", mailProps.getSmtpHost());
+				mailResource.setProperty("mail.smtp.user", mailProps.getSmtpUser());
+				mailResource.setProperty("mail.smtp.port", mailProps.getSmtpPort());
+
+				if (mailProps.getSmtpFrom() != null &&
+					mailProps.getSmtpPassword() != null &&
+					mailProps.getSmtpStartTlsEnable() != null &&
+					mailProps.getSmtpSocketFactoryClass() != null &&
+					mailProps.getSmtpAuth() != null)
+				{
+					mailResource.setProperty("mail.smtp.from", mailProps.getSmtpFrom());
+					mailResource.setProperty("mail.smtp.password", mailProps.getSmtpPassword());
+					mailResource.setProperty("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
+					mailResource.setProperty("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
+					mailResource.setProperty("mail.smtp.auth", mailProps.getSmtpAuth());
+				}
+
 				return mailResource;
 			}
 		};
 	}
 
-	/**
-	 * Extracts a zip file specified by the zipFilePath to a directory specified by
-	 * destDirectory (will be created if does not exists)
-	 * @param zipInputStream
-	 * @param destDirectory
-	 * @throws IOException
-	 */
-	public static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
+	private static void extractExecutableJar(String destDirectory, String currentPath)
+	{
+		try
+		{
+			// check for multiple jars and blow up if multiple are present
+			try (JarFile jar = new JarFile(getExecutableJar(currentPath)))
+			{
+				boolean foundDistributionZip = false;
+				var entries = jar.entries();
+				while (entries.hasMoreElements())
+				{
+					var entry = entries.nextElement();
+					var entryName = entry.getName();
+
+					if ("labkey/distribution.zip".equals(entryName))
+					{
+						foundDistributionZip = true;
+						try (var distInputStream = jar.getInputStream(entry))
+						{
+							LabKeyServer.extractZip(distInputStream, destDirectory);
+						}
+					}
+				}
+
+				if (!foundDistributionZip)
+				{
+					throw new ConfigException("Unable to find distribution zip required to run LabKey server.");
+				}
+			}
+		}
+		catch (IOException | ConfigException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static String getExecutableJar(String currentPath) throws ConfigException
+	{
+		try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(currentPath)))
+		{
+			ZipEntry entry = zipIn.getNextEntry();
+			var jarCount = 0;
+			var jarFileName = "";
+			// iterates over entries in the current dir
+			while (entry != null)
+			{
+				if (entry.getName().endsWith(".jar"))
+				{
+					jarFileName = entry.getName();
+					jarCount++;
+				}
+				zipIn.closeEntry();
+				entry = zipIn.getNextEntry();
+			}
+			// only 1 executable jar should be there
+			if (jarCount == 1)
+			{
+				return jarFileName;
+			}
+			else
+			{
+				throw new ConfigException("Multiple executable jars found. Must provide only one executable jar");
+			}
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
 	{
 		File destDir = new File(destDirectory);
 		if (!destDir.exists())
@@ -228,8 +301,8 @@ public class LabKeyServer
 
 	@Validated
 	@Configuration
-	@ConfigurationProperties("labkey")
-	public static class ContextProperties
+	@ConfigurationProperties("labkeydatasource")
+	public static class DataSourceProperties
 	{
 		@NotEmpty (message = "Must provide dataSourceName")
 		private List<String> dataSourceName;
@@ -241,9 +314,6 @@ public class LabKeyServer
 		private List<String> password;
 		@NotEmpty (message = "Must provide database driverClassName")
 		private List<String> driverClassName;
-		@NotNull (message = "Must provide masterEncryptionKey")
-		private String masterEncryptionKey;
-		private String webAppLocation;
 
 		public List<String> getDataSourceName()
 		{
@@ -294,16 +364,16 @@ public class LabKeyServer
 		{
 			this.driverClassName = driverClassName;
 		}
+	}
 
-		public String getMasterEncryptionKey()
-		{
-			return masterEncryptionKey;
-		}
-
-		public void setMasterEncryptionKey(String masterEncryptionKey)
-		{
-			this.masterEncryptionKey = masterEncryptionKey;
-		}
+	@Validated
+	@Configuration
+	@ConfigurationProperties("context")
+	public static class ContextProperties
+	{
+		private String webAppLocation;
+		@NotNull (message = "Must provide masterEncryptionKey")
+		private String masterEncryptionKey;
 
 		public String getWebAppLocation()
 		{
@@ -314,15 +384,30 @@ public class LabKeyServer
 		{
 			this.webAppLocation = webAppLocation;
 		}
+
+		public String getMasterEncryptionKey()
+		{
+			return masterEncryptionKey;
+		}
+
+		public void setMasterEncryptionKey(String masterEncryptionKey)
+		{
+			this.masterEncryptionKey = masterEncryptionKey;
+		}
 	}
 
 	@Configuration
 	@ConfigurationProperties("mail")
 	public static class MailProperties
 	{
-		public String smtpHost;
-		public String smtpUser;
-		public String smtpPort;
+		private String smtpHost;
+		private String smtpUser;
+		private String smtpPort;
+		private String smtpFrom;
+		private String smtpPassword;
+		private String smtpStartTlsEnable;
+		private String smtpSocketFactoryClass;
+		private String smtpAuth;
 
 		public String getSmtpHost()
 		{
@@ -352,6 +437,56 @@ public class LabKeyServer
 		public void setSmtpPort(String smtpPort)
 		{
 			this.smtpPort = smtpPort;
+		}
+
+		public String getSmtpFrom()
+		{
+			return smtpFrom;
+		}
+
+		public void setSmtpFrom(String smtpFrom)
+		{
+			this.smtpFrom = smtpFrom;
+		}
+
+		public String getSmtpPassword()
+		{
+			return smtpPassword;
+		}
+
+		public void setSmtpPassword(String smtpPassword)
+		{
+			this.smtpPassword = smtpPassword;
+		}
+
+		public String getSmtpStartTlsEnable()
+		{
+			return smtpStartTlsEnable;
+		}
+
+		public void setSmtpStartTlsEnable(String smtpStartTlsEnable)
+		{
+			this.smtpStartTlsEnable = smtpStartTlsEnable;
+		}
+
+		public String getSmtpSocketFactoryClass()
+		{
+			return smtpSocketFactoryClass;
+		}
+
+		public void setSmtpSocketFactoryClass(String smtpSocketFactoryClass)
+		{
+			this.smtpSocketFactoryClass = smtpSocketFactoryClass;
+		}
+
+		public String getSmtpAuth()
+		{
+			return smtpAuth;
+		}
+
+		public void setSmtpAuth(String smtpAuth)
+		{
+			this.smtpAuth = smtpAuth;
 		}
 	}
 

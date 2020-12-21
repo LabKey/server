@@ -1,14 +1,14 @@
 import org.labkey.gradle.util.BuildUtils
 
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'org.springframework.boot' version '2.3.3.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE' apply false
+    id "java"
+    id "maven-publish"
+    id "org.springframework.boot" version "${springBootVersion}"
+    id "io.spring.dependency-management" version "1.0.8.RELEASE" apply false
 }
 
-apply plugin: 'java'
-apply plugin: 'io.spring.dependency-management'
+apply plugin: "java"
+apply plugin: "io.spring.dependency-management"
 
 sourceSets {
     main {
@@ -19,18 +19,18 @@ sourceSets {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web:2.4.0'
-    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.34'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation "org.apache.tomcat.embed:tomcat-embed-core:${apacheTomcatVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
 
 
-    runtimeOnly 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.34'
-    runtimeOnly 'javax.mail:javax.mail-api:1.6.2'
-    runtimeOnly group: 'com.sun.mail', name: 'javax.mail', version: '1.6.0'
-    runtimeOnly group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '9.0.37'
+    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${apacheTomcatVersion}"
+    runtimeOnly "javax.mail:javax.mail-api:1.6.2"
+    runtimeOnly group: "com.sun.mail", name: "javax.mail", version: "1.6.0"
+    runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${apacheTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:42.2.14"
 
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
 }
 
 BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))

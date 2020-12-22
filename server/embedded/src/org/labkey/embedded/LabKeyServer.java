@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -36,19 +35,13 @@ public class LabKeyServer
 
 	public static void main(String[] args)
 	{
-		ApplicationContext ctx = SpringApplication.run(LabKeyServer.class, args);
+		SpringApplication.run(LabKeyServer.class, args);
 	}
 
 	@Bean
 	public ContextProperties contextSource()
 	{
 		return new ContextProperties();
-	}
-
-	@Bean
-	public DataSourceProperties labkeyDataSource()
-	{
-		return new DataSourceProperties();
 	}
 
 	@Bean
@@ -98,7 +91,7 @@ public class LabKeyServer
 					StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
 
 					// Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
-					getDataSourceResources().forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+					getDataSourceResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
 					// Add the SMTP config
 					context.getNamingResources().addResource(getMailResource());
@@ -120,9 +113,8 @@ public class LabKeyServer
 				return super.getTomcatWebServer(tomcat);
 			}
 
-			private List<ContextResource> getDataSourceResources() throws ConfigException
+			private List<ContextResource> getDataSourceResources(ContextProperties props) throws ConfigException
 			{
-				DataSourceProperties props = labkeyDataSource();
 				List<ContextResource> dataSourceResources = new ArrayList<>();
 				var numOfDataResources = props.getUrl().size();
 
@@ -190,7 +182,6 @@ public class LabKeyServer
 	{
 		try
 		{
-			// check for multiple jars and blow up if multiple are present
 			try (JarFile jar = new JarFile(jarFilePath))
 			{
 				boolean foundDistributionZip = false;
@@ -225,30 +216,28 @@ public class LabKeyServer
 	private static String getExecutableJar(String currentPath) throws ConfigException
 	{
 		File currentDir = new File(currentPath);
-		var jarCount = 0;
-		String jarFileName = "";
+		List<String> jarsPresent = new ArrayList<>();
 
 		for (File file: currentDir.listFiles())
 		{
 			if (file.getName().endsWith(".jar"))
 			{
-				jarFileName = file.getName();
-				jarCount++;
+				jarsPresent.add(file.getName());
 			}
 		}
 
-		if (jarCount == 0)
+		if (jarsPresent.size() == 0)
 		{
 			throw new ConfigException("Executable jar not found.");
 		}
 
-		// only 1 executable jar should be there
-		if (jarCount == 1)
+		// only 1 jar should be there
+		if (jarsPresent.size() == 1)
 		{
-			return jarFileName;
+			return jarsPresent.get(0);
 		}
 
-		throw new ConfigException("Multiple executable jars found. Must provide only one executable jar");
+		throw new ConfigException("Multiple jars found - " + jarsPresent.toString() + ". Must provide only one jar.");
 	}
 
 	private static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
@@ -297,8 +286,8 @@ public class LabKeyServer
 
 	@Validated
 	@Configuration
-	@ConfigurationProperties("labkeydatasource")
-	public static class DataSourceProperties
+	@ConfigurationProperties("context")
+	public static class ContextProperties
 	{
 		@NotEmpty (message = "Must provide dataSourceName")
 		private List<String> dataSourceName;
@@ -310,6 +299,10 @@ public class LabKeyServer
 		private List<String> password;
 		@NotEmpty (message = "Must provide database driverClassName")
 		private List<String> driverClassName;
+
+		private String webAppLocation;
+		@NotNull (message = "Must provide masterEncryptionKey")
+		private String masterEncryptionKey;
 
 		public List<String> getDataSourceName()
 		{
@@ -360,16 +353,6 @@ public class LabKeyServer
 		{
 			this.driverClassName = driverClassName;
 		}
-	}
-
-	@Validated
-	@Configuration
-	@ConfigurationProperties("context")
-	public static class ContextProperties
-	{
-		private String webAppLocation;
-		@NotNull (message = "Must provide masterEncryptionKey")
-		private String masterEncryptionKey;
 
 		public String getWebAppLocation()
 		{

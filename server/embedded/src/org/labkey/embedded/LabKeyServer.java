@@ -160,16 +160,24 @@ public class LabKeyServer
                 mailResource.setProperty("mail.smtp.user", mailProps.getSmtpUser());
                 mailResource.setProperty("mail.smtp.port", mailProps.getSmtpPort());
 
-                if (mailProps.getSmtpFrom() != null &&
-                        mailProps.getSmtpPassword() != null &&
-                        mailProps.getSmtpStartTlsEnable() != null &&
-                        mailProps.getSmtpSocketFactoryClass() != null &&
-                        mailProps.getSmtpAuth() != null)
+                if (mailProps.getSmtpFrom() != null)
                 {
                     mailResource.setProperty("mail.smtp.from", mailProps.getSmtpFrom());
+                }
+                if (mailProps.getSmtpPassword() != null)
+                {
                     mailResource.setProperty("mail.smtp.password", mailProps.getSmtpPassword());
+                }
+                if (mailProps.getSmtpStartTlsEnable() != null)
+                {
                     mailResource.setProperty("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
+                }
+                if (mailProps.getSmtpSocketFactoryClass() != null)
+                {
                     mailResource.setProperty("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
+                }
+                if (mailProps.getSmtpAuth() != null)
+                {
                     mailResource.setProperty("mail.smtp.auth", mailProps.getSmtpAuth());
                 }
 
@@ -220,7 +228,7 @@ public class LabKeyServer
 
         for (File file: currentDir.listFiles())
         {
-            if (file.getName().endsWith(".jar"))
+            if (file.getName().toLowerCase().endsWith(".jar"))
             {
                 jarsPresent.add(file.getName());
             }

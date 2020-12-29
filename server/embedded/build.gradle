@@ -1,14 +1,12 @@
 import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.PropertiesUtils
 
 plugins {
     id "java"
     id "maven-publish"
     id "org.springframework.boot" version "${springBootVersion}"
-    id "io.spring.dependency-management" version "1.0.8.RELEASE" apply false
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
 }
-
-apply plugin: "java"
-apply plugin: "io.spring.dependency-management"
 
 sourceSets {
     main {
@@ -28,16 +26,36 @@ configurations {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.apache.tomcat.embed:tomcat-embed-core:${apacheTomcatVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
-
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
 
     runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${apacheTomcatVersion}"
     runtimeOnly "javax.mail:javax.mail-api:1.6.2"
     runtimeOnly group: "com.sun.mail", name: "javax.mail", version: "1.6.0"
     runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${apacheTomcatVersion}"
-    runtimeOnly "org.postgresql:postgresql:42.2.14"
+    runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
+
+project.tasks.register("stopEmbeddedTomcat", DefaultTask) {
+    DefaultTask task ->
+        task.group='Application'
+        task.description("Shut down embedded Tomcat server started with SpringBoot")
+        task.doLast {
+
+            def applicationProperties = PropertiesUtils.getApplicationProperties(project)
+            def port = applicationProperties["server.port"]
+            def endpoint = "localhost:$port/actuator/shutdown"
+            def command = "curl -X POST $endpoint"
+            task.logger.quiet("Sending command to $endpoint")
+            def proc = command.execute()
+            proc.waitFor()
+            if (proc.exitValue() != 0)
+                task.logger.quiet("Shutdown command exited with non-zero status ${proc.exitValue()}")
+            else
+                task.logger.quiet("Shutdown successful")
+        }
+}

@@ -5,7 +5,7 @@
     <option name="HIDE_BANNER" value="true" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="VM_PARAMETERS" value="-Ddevmode=true" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/server/embedded" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build/deploy/embedded" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />

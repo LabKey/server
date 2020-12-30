@@ -48,7 +48,12 @@ project.tasks.register("stopEmbeddedTomcat", DefaultTask) {
 
             def applicationProperties = PropertiesUtils.getApplicationProperties(project)
             def port = applicationProperties["server.port"]
-            def endpoint = "localhost:$port/actuator/shutdown"
+            def protocol = "http://"
+            if (project.hasProperty("useSsl"))
+            {
+                protocol = "https://"
+            }
+            def endpoint =  "${protocol}localhost:$port/actuator/shutdown"
             def command = "curl -X POST $endpoint"
             task.logger.quiet("Sending command to $endpoint")
             def proc = command.execute()

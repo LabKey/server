@@ -1,5 +1,4 @@
 import org.labkey.gradle.util.BuildUtils
-import org.labkey.gradle.util.PropertiesUtils
 
 plugins {
     id "java"
@@ -39,28 +38,3 @@ dependencies {
 }
 
 BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
-
-project.tasks.register("stopEmbeddedTomcat", DefaultTask) {
-    DefaultTask task ->
-        task.group='Application'
-        task.description("Shut down embedded Tomcat server started with SpringBoot")
-        task.doLast {
-
-            def applicationProperties = PropertiesUtils.getApplicationProperties(project)
-            def port = applicationProperties["server.port"]
-            def protocol = "http://"
-            if (project.hasProperty("useSsl"))
-            {
-                protocol = "https://"
-            }
-            def endpoint =  "${protocol}localhost:$port/actuator/shutdown"
-            def command = "curl -X POST $endpoint"
-            task.logger.quiet("Sending command to $endpoint")
-            def proc = command.execute()
-            proc.waitFor()
-            if (proc.exitValue() != 0)
-                task.logger.quiet("Shutdown command exited with non-zero status ${proc.exitValue()}")
-            else
-                task.logger.quiet("Shutdown successful")
-        }
-}

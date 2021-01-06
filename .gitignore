@@ -4,7 +4,6 @@
 build/
 enlistment.properties
 server/config.properties
-server/embedded/config/application.properties
 
 # Ignore other common repository locations
 dist/

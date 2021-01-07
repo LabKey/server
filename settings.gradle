@@ -46,7 +46,7 @@ buildscript {
     // depending on where you've enlisted in the gradlePlugins repository.  You will need to manually rebuild the jar file
     // to pick up these changes.
 //    dependencies {
-//        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.9.2-SNAPSHOT.jar")
+//        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.22.0-SNAPSHOT.jar")
 //        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
 //        classpath "commons-io:commons-io:${commonsIoVersion}"
 //        classpath "com.yahoo.platform.yui:yuicompressor:2.4.8a"
@@ -74,6 +74,10 @@ import org.labkey.gradle.util.BuildUtils
   node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
   ":server:modules" and ":server:modules:core").
  */
+if (hasProperty("useEmbeddedTomcat"))
+{
+    include ":server:embedded"
+}
 
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()
         && !hasProperty('excludeBaseModules'))

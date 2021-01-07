@@ -4,6 +4,7 @@ gradle.ext.platformProjectPath=":server:modules:platform" // The gradle path to 
 gradle.ext.commonAssaysProjectPath=":server:modules:commonAssays" // The gradle path to the project containing the common assay modules such as ms2 and elisa
 gradle.ext.apiProjectPath=":server:modules:platform:api"
 gradle.ext.bootstrapProjectPath=":server:bootstrap"
+gradle.ext.embeddedProjectPath=":server:embedded"
 gradle.ext.internalProjectPath=":server:modules:platform:internal"
 gradle.ext.remoteApiProjectPath=":remoteapi:labkey-api-java:labkey-client-api"
 gradle.ext.sasApiProjectPath=":remoteapi:labkey-api-java:labkey-api-sas"

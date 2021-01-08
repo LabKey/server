@@ -1,5 +1,5 @@
 # embedded
-The LabKey server application can now be started with embedded tomcat.
+LabKey Server can now be started with embedded Tomcat.
 
 #### Setup
 1. Uncomment useEmbeddedTomcat, useLocalBuild and useSsl (if you have the local ssl setup, more instructions below) in root level gradle.propeties file
@@ -33,4 +33,4 @@ The following task has been added as well
 
 
 #### Troubleshooting
-+ If use classpath module of LabKeyEmbbedded_Dev configuration has no selected value and/or main class appears to be unresolved, try Invalidating Caches and Restart of IntelliJ
++ If use classpath module of LabKeyEmbedded_Dev configuration has no selected value and/or main class appears to be unresolved, try Invalidating Caches and Restart of IntelliJ

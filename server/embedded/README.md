@@ -9,7 +9,7 @@ The LabKey server application can now be started with embedded tomcat.
 5. Select LabKeyEmbbedded_Dev from IntelliJ run configurations
 
 #### Embedded tomcat gradle properties explained:
-+ useEmbeddedTomcat - if present, this will cause the :server:embedded project to be included in your local set of Gradle projects to be built.  This also will affect the behavior of the pickPG and deployApp tasks and is required to be present in order to build a distribution with an embedded Tomcat server.  This property is present in the root-level gradle.properties file, but commented out by default
++ useEmbeddedTomcat - if present, this will cause the :server:embedded project to be included in your local set of Gradle projects to be built.  This also will affect the behavior of the pickPG and deployApp tasks and is required to be present in order to build a distribution with an embedded Tomcat server. This property is present in the root-level gradle.properties file, but commented out by default
 + useLocalBuild - If present, will allow the embedded server to use the locally built modules from build/deploy/modules.  This property is present in the root-level gradle.properties file, but commented out by default
 + useSsl - If present, the default port for the server will be 8443 instead of 8080 and the server.ssl properties in the application.properties file will be uncommented.  Note, however, that these ssl properties will still need to be updated by hand to reflect your local certificate location, password, etc.
 
@@ -19,7 +19,7 @@ Note that it is only the presence of these properties that matter, not the value
 The following tasks have been updated with new logic based on the presence of the useEmbeddedTomcat property:
 
 + startTomcat - If useEmbeddedTomcat is defined, starts the server using whatever executable jar is in the build/deploy/embedded directory.  If there is more than one jar file there, the task will fail.
-+ stopTomcat - If useEmbeddedTomcat is defined, stops the server that is running on the port provided in build/deploy/embedded/config/application.properties.  This uses the Spring Actuator mentioned above so if you have a non-embedded server running that does not have the actuator, this command will have no effect.  The command logs a message to give an indication of whether it was successful or not.  For example:
++ stopTomcat - If useEmbeddedTomcat is defined, stops the server that is running on the port provided in build/deploy/embedded/config/application.properties.  This uses the Spring Actuator so if you have a non-embedded server running that does not have the actuator, this command will have no effect. The command logs a message to give an indication of whether it was successful or not.  For example:
 > Task :server:stopEmbeddedTomcat
 Shutdown successful
 OR

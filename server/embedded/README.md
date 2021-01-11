@@ -1,11 +1,6 @@
 # embedded
 LabKey Server can now be started with embedded Tomcat.
 
-#### Setup
-1. Uncomment useEmbeddedTomcat, useLocalBuild and useSsl (if you have the local ssl setup, more instructions below) in root level gradle.propeties file
-2. gradle refresh
-3. pickpg/pickmssql
-4. gradle cleanBuild, cleanDeploy and deployApp
 ### Setup
 1. Within the root-level `gradle.properties` file, uncomment the `useEmbeddedTomcat` and `useLocalBuild` properties.  If using SSL, also uncomment the `useSsl` property (and see further instructions below).
 2. `gradlew cleanBuild`

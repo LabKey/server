@@ -1,5 +1,5 @@
 # embedded
-LabKey Server can now be started with embedded Tomcat. This feature is in development phase and not ready for use in production. Free versions of IntelliJ may lack support for Spring boot debug configurations required to run the embedded Tomcat.
+LabKey Server can now be started with embedded Tomcat. **This feature is in development phase and not ready for use in production. Free versions of IntelliJ may lack support for Spring boot debug configurations required to run the embedded Tomcat.**
 
 ### Setup
 1. Within the root-level `gradle.properties` file, uncomment the `useEmbeddedTomcat` and `useLocalBuild` properties.  If using SSL, also uncomment the `useSsl` property (and see further instructions below).

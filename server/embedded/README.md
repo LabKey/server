@@ -34,4 +34,9 @@ The following task has been added as well
 
 
 #### Troubleshooting
-+ If use classpath module of LabKeyEmbedded_Dev configuration has no selected value and/or main class appears to be unresolved, try Invalidating Caches and Restart of IntelliJ
++ If stating your server from the LabKeyEmbedded_Dev configuration fails, this is likely due to IntelliJ not being able to find the embedded project on which the configuration depends. There are a few things you should check:
+    + Ensure that the `useEmbeddedTomcat` property is uncommented in the root-level `build.gradle file
+    + Within the Gradle window, ensure that the `:server:embedded` project is listed.  If it is not, run the task `gradle projects` on the command line to see if it appears in that listing.  If it does, try a Gradle refresh within IntelliJ.  If it is not in the output from the `projects` command, look at your `settings.gradle` file to see why this might be.
+    + From the Configurations menu, choose the "Edit Configurations ..." and then under the Spring Boot section, choose the `LabKeyEmbedded_Dev` configuration.
+    + If the there is nothing selected for "Use classpath of module", open the dropdown and choose `<root>.server.embedded.main`, where `<root>` is the name of the root of your enlistment.
+    + If there are no options presented for "Use classpath of module" and the embedded module does appear in the Gradle projects listing, try `File -> Invalidate Caches / Restart`

@@ -48,7 +48,6 @@
     <!-- Pipeline configuration -->
     <!--@@pipeline@@    <Parameter name="org.labkey.api.pipeline.config" value="@@pipelineConfigPath@@"/> @@pipeline@@-->
 
-    <!--        brokerURL="tcp://localhost:61616" userName="username" password="password" -->
     <!--@@jmsConfig@@ <Resource name="jms/ConnectionFactory" auth="Container"
         type="org.apache.activemq.ActiveMQConnectionFactory"
         factory="org.apache.activemq.jndi.JNDIReferenceFactory"

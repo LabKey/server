@@ -205,7 +205,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
 
         ModuleArchive existingModuleArchive = new ModuleArchive(existingArchive, _log);
         ModuleArchive updatedModuleArchive = new ModuleArchive(updatedArchive, _log);
-        if (!existingModuleArchive.getModuleName().equals(updatedModuleArchive.getModuleName()))
+        if (!existingModuleArchive.getModuleName().equalsIgnoreCase(updatedModuleArchive.getModuleName()))
             throw new IllegalArgumentException("Module name doesn't match, expected " + existingModuleArchive.getModuleName());
 
         File existingTarget = existingModuleArchive.getDefaultExplodedLocation();

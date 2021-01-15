@@ -211,7 +211,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         File existingTarget = existingModuleArchive.getDefaultExplodedLocation();
         File updatedTarget = updatedModuleArchive.getDefaultExplodedLocation();
 
-        if (!updatedTarget.getName().equals(existingTarget.getName()))
+        if (!updatedTarget.getName().equalsIgnoreCase(existingTarget.getName()))
             throw new IllegalArgumentException("Target directories for new and existing archive don't match");
         if (!explodedModuleDirectory.equals(existingTarget))
             throw new IllegalArgumentException("Module archive and exploded directory don't match");

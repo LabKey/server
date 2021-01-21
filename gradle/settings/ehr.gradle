@@ -42,6 +42,7 @@ include ":server:modules:tnprc_ehr"
 include ":server:modules:tnprc_billing"
 include ":server:modules:dataintegration"
 include ":server:modules:premium"
+include ":server:modules:ldap"
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"

@@ -13,6 +13,7 @@ pluginManagement {
     plugins {
         id 'org.labkey.build.antlr' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.api' version "${gradlePluginsVersion}" apply false
+        id 'org.labkey.build.applyLicenses' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.base' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.distribution' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.fileModule' version "${gradlePluginsVersion}" apply false

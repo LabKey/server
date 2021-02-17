@@ -32,6 +32,8 @@ import java.util.zip.ZipInputStream;
 public class LabKeyServer
 {
     private static final int BUFFER_SIZE = 4096;
+    private static final String SERVER_GUID = "serverGUID";
+    private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
 
     public static void main(String[] args)
     {
@@ -98,6 +100,12 @@ public class LabKeyServer
 
                     // And the master encryption key
                     context.addParameter("MasterEncryptionKey", contextProperties.getMasterEncryptionKey());
+
+                    // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
+                    if (null != contextProperties.getServerGUID())
+                    {
+                        context.addParameter(SERVER_GUID_PARAMETER_NAME, contextProperties.getServerGUID());
+                    }
 
                     // Point at the special classloader with the hack for SLF4J
                     WebappLoader loader = new WebappLoader();
@@ -311,6 +319,7 @@ public class LabKeyServer
         private String webAppLocation;
         @NotNull (message = "Must provide masterEncryptionKey")
         private String masterEncryptionKey;
+        private String serverGUID;
 
         public List<String> getDataSourceName()
         {
@@ -380,6 +389,16 @@ public class LabKeyServer
         public void setMasterEncryptionKey(String masterEncryptionKey)
         {
             this.masterEncryptionKey = masterEncryptionKey;
+        }
+
+        public String getServerGUID()
+        {
+            return serverGUID;
+        }
+
+        public void setServerGUID(String serverGUID)
+        {
+            this.serverGUID = serverGUID;
         }
     }
 

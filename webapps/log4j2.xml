@@ -131,9 +131,9 @@
         <!-- category for Mule messages -->
         <Logger name="org.mule.MuleManager" level="info"/>
 
-        <!--    <logger name="org.labkey.pipeline.mule.transformers">
-            <level value="debug"/>
-        </logger> -->
+        <!--
+            <Logger name="org.labkey.pipeline.mule.transformers" level="debug"/>
+         -->
 
         <!-- category for jasper messages -->
         <Logger name="org.apache.jasper" level="warn"/>
@@ -149,13 +149,13 @@
 
         <Logger name="mondrian." level="info" />
 
-        <!--    <logger name="org.labkey.wiki">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.wiki" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey.api.action.SpringActionController">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.api.action.SpringActionController" level="debug"/>
+        -->
 
         <!-- only show errors from PipelineJob output -->
         <Logger name="org.labkey.api.pipeline.PipelineJob" level="error"/>
@@ -165,17 +165,15 @@
 
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--
-        <logger name="org.labkey.api.security.SecurityManager">
-            <level value="debug"/>
-        </logger>
+            <Logger name="org.labkey.api.security.SecurityManager" level="debug"/>
         -->
 
         <!-- Add specific module packages or classes to get debug information about
          features you are working on. -->
 
-        <!--    <logger name="org.labkey.api.data.Table">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.api.data.Table" level="debug"/>
+        -->
 
         <Logger name="org.labkey.api.data"/>
 
@@ -188,29 +186,29 @@
         <Logger name="org.labkey.rstudio" level="info"/>
 
 
-        <!--    <logger name="org.labkey.api.cache">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.api.cache" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey.api.data.TempTableTracker">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.api.data.TempTableTracker" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey.query">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.query" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey.pipeline.mule">
-                    <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.pipeline.mule" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey.search">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.search" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey.search.model.LuceneSearchServiceImpl">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.search.model.LuceneSearchServiceImpl" level="debug"/>
+        -->
 
         <Logger name="org.labkey.api.util.MemTracker" additivity="false" level="debug">
             <AppenderRef ref="LABKEYMemory"/>
@@ -220,14 +218,15 @@
             <AppenderRef ref="THREAD_DUMP"/>
         </Logger>
 
-        <!--    <logger name="org.labkey.api.view.ViewServlet" additivity="false">
-                <level value="debug"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey.api.view.ViewServlet" additivity="false" level="debug"/>
+        -->
 
-        <!--    <logger name="org.labkey">
-                <level value="debug"/>
-                <appender-ref ref="SESSION"/>
-            </logger> -->
+        <!--
+            <Logger name="org.labkey" level="debug">
+                <AppenderRef ref="SESSION"/>
+            </Logger>
+         -->
 
         <Logger name="org.labkey.core.admin.ActionsTsvWriter" additivity="false" level="info">
             <AppenderRef ref="ACTION_STATS"/>

@@ -17,8 +17,8 @@ server/testAutomation/
 # Include the remoteapi README -- this line will override previous exclusion
 !remoteapi/README.md
 
-# Include the modules build.gradle file -- this line will override previous exclusion
-!server/modules/build.gradle
+# Include the modules README.md file -- this line will override previous exclusion
+!server/modules/README.md
 
 # Ignore parts of the .idea dir
 .idea/libraries/

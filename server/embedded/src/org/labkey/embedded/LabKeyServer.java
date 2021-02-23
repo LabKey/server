@@ -89,8 +89,11 @@ public class LabKeyServer
                         webAppLocation = contextProperties.getWebAppLocation();
                     }
 
-                    // TODO : 8021 :fix context path - put app at root by default
+                    // tomcat requires a unique context path other than root here
+                    // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+                    // set the root path to the context explicitly
+                    context.setPath("");
 
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
                     getDataSourceResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));

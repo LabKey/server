@@ -136,7 +136,7 @@ allprojects {
                         }
                     }
                 }
-                jcenter()
+                mavenCentral()
             }
     configurations.all
             {

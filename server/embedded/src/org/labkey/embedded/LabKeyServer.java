@@ -32,11 +32,18 @@ import java.util.zip.ZipInputStream;
 public class LabKeyServer
 {
     private static final int BUFFER_SIZE = 4096;
+    private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
     private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
 
     public static void main(String[] args)
     {
+        // Issue 40038: Ride-or-die Mode - default to shutting down by default in embedded deployment scenario
+        if (System.getProperty(TERMINATE_ON_STARTUP_FAILURE) == null)
+        {
+            System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
+        }
+
         SpringApplication.run(LabKeyServer.class, args);
     }
 

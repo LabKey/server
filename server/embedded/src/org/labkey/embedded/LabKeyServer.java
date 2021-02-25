@@ -32,11 +32,18 @@ import java.util.zip.ZipInputStream;
 public class LabKeyServer
 {
     private static final int BUFFER_SIZE = 4096;
+    private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
     private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
 
     public static void main(String[] args)
     {
+        // Issue 40038: Ride-or-die Mode - default to shutting down by default in embedded deployment scenario
+        if (System.getProperty(TERMINATE_ON_STARTUP_FAILURE) == null)
+        {
+            System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
+        }
+
         SpringApplication.run(LabKeyServer.class, args);
     }
 
@@ -89,8 +96,11 @@ public class LabKeyServer
                         webAppLocation = contextProperties.getWebAppLocation();
                     }
 
-                    // TODO : 8021 :fix context path - put app at root by default
+                    // tomcat requires a unique context path other than root here
+                    // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+                    // set the root path to the context explicitly
+                    context.setPath("");
 
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
                     getDataSourceResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));

@@ -1,3 +1,6 @@
+# Ignore user-providde files
+.envrc
+
 # Ignore build generated files
 .gradle/
 .node/
@@ -27,3 +30,5 @@ server/testAutomation/
 .idea/jarRepositories.xml
 .idea/modules.xml
 .idea/workspace.xml
+.idea/dataSources.xml
+.idea/dataSources.local.xml

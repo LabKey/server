@@ -60,11 +60,6 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         // to have multiple instances share the Tomcat binaries but have their own ./logs, ./conf, etc directories
         // Thus, we want to use catalina.base for our place to find log files. http://www.jguru.com/faq/view.jsp?EID=1121565
         PipelineBootstrapConfig.ensureLogHomeSet(System.getProperty("catalina.base") + "/logs");
-
-        // Suppress overly verbose logging from Tomcat about WebSocket connections not closing in the ideal pattern
-        // https://bz.apache.org/bugzilla/show_bug.cgi?id=59062
-        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.apache.tomcat.websocket.server.WsRemoteEndpointImplServer");
-        logger.setLevel(Level.WARNING);
     }
 
     private ModuleExtractor _moduleExtractor;

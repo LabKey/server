@@ -383,23 +383,38 @@ project.task(
     }
 })
 
-project.tasks.register('intelliJConfigure') {
-    DefaultTask task ->
-        task.group = "Configure"
-        task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
-        task.doLast({
-            project.copy({
-                CopySpec copy ->
-                    copy.from(".idea/runConfigurations/templates")
-                    copy.into(".idea/runConfigurations")
-                    copy.filter({ String line ->
-                        return line.replace("PATH_SEPARATOR", File.pathSeparator)
-                    })
-            })
-            project.copy({
-                CopySpec copy ->
-                    copy.from("./.idea/templates")
-                    copy.into(".idea/")
-            })
+project.tasks.register('ijWorkspaceSetup', Copy) {
+    Copy copy ->
+        copy.group = "IntelliJ"
+        copy.description = "Copy the workspace template file. Used for initial setup of IntelliJ project"
+        copy.from(".idea/configTemplates/workspace.xml")
+        copy.into('.idea')
+}
+
+project.tasks.register("ijRunConfigurationsSetup", Copy) {
+    Copy copy ->
+        copy.group = "IntelliJ"
+        copy.description = "Copy run configurations from templates, substituting path separators for this OS"
+        copy.from(".idea/runConfigurations/templates")
+        copy.into(".idea/runConfigurations")
+        copy.filter({ String line ->
+            return line.replace("PATH_SEPARATOR", File.pathSeparator)
         })
 }
+
+project.tasks.register("ijCodeSetup", Copy) {
+    Copy copy ->
+        copy.group = "IntelliJ"
+        copy.description = "Copy template files from .idea/configTemplates to .idea directory (excluding the workspace.xml file)"
+        copy.from(".idea/configTemplates")
+        copy.into(".idea/")
+        copy.exclude("workspace.xml")
+}
+
+project.tasks.register('ijConfigure') {
+    DefaultTask task ->
+        task.group = "IntelliJ"
+        task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
+}
+
+project.tasks.ijConfigure.dependsOn(project.tasks.ijCodeSetup, project.tasks.ijRunConfigurationsSetup, project.tasks.ijWorkspaceSetup)

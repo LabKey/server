@@ -21,7 +21,7 @@
     <bytecodeTargetLevel target="14" />
   </component>
   <component name="TypeScriptCompiler">
-    <option name="nodeInterpreterTextField" value="$PROJECT_DIR$/build/.node/node/bin/node" />
+    <option name="nodeInterpreterTextField" value="$PROJECT_DIR$/.node/node/bin/node" />
     <option name="typeScriptCompilerParams" value="-p $PROJECT_DIR$/server/modules/platform/core/node_modules/@labkey/build/webpack/tsconfig.json" />
     <option name="typeScriptServiceDirectory" value="$PROJECT_DIR$/server/modules/platform/core/node_modules/typescript" />
     <option name="versionType" value="SERVICE_DIRECTORY" />

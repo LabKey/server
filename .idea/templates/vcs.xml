@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GithubSharedProjectSettings">
+    <option name="branchProtectionPatterns">
+      <list>
+        <option value="develop" />
+        <option value="release.*" />
+        <option value="master" />
+        <option value="main" />
+      </list>
+    </option>
+  </component>
+  <component name="IssueNavigationConfiguration">
+    <option name="links">
+      <list>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="(Fix|Spec|Spec ID|Spec Issue|Secure Issue|Issue)( +#?)([0-9]+)" />
+          <option name="linkRegexp" value="https://www.labkey.org/issues/home/Developer/issues/details.view?issueId=$3" />
+        </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="(Epic|Story|Item)( +#?)([0-9]+)" />
+          <option name="linkRegexp" value="https://www.scrumwise.com/scrum/#/backlog-item/$3" />
+        </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="^([0-9]+) ?:" />
+          <option name="linkRegexp" value="https://www.labkey.org/issues/home/Developer/issues/details.view?issueId=$1" />
+        </IssueNavigationLink>
+      </list>
+    </option>
+  </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/modules/commonAssays" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/modules/platform" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/modules/tutorialModules" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/testAutomation" vcs="Git" />
+  </component>
+</project>

@@ -382,3 +382,24 @@ project.task(
         println("The following projects use NPM in their builds:\n\t${npmProjects.join("\n\t")}\n")
     }
 })
+
+project.tasks.register('intelliJConfigure') {
+    DefaultTask task ->
+        task.group = "Configure"
+        task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
+        task.doLast({
+            project.copy({
+                CopySpec copy ->
+                    copy.from(".idea/runConfigurations/templates")
+                    copy.into(".idea/runConfigurations")
+                    copy.filter({ String line ->
+                        return line.replace("PATH_SEPARATOR", File.pathSeparator)
+                    })
+            })
+            project.copy({
+                CopySpec copy ->
+                    copy.from("./.idea/templates")
+                    copy.into(".idea/")
+            })
+        })
+}

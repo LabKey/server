@@ -32,3 +32,12 @@ server/testAutomation/
 .idea/workspace.xml
 .idea/dataSources.xml
 .idea/dataSources.local.xml
+# Files installed from templates
+.idea/runConfigurations/LabKey_Dev.xml
+.idea/runConfigurations/LabKey_Production.xml
+.idea/runConfigurations/LabKeyEmbedded_Dev.xml
+.idea/gradle.xml
+.idea/compiler.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/sqldialects.xml

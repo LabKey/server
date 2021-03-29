@@ -69,6 +69,11 @@
       <replaceConfiguration name="String constructor passed bytes without specifying character encoding" text="new String($arg1$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" useStaticImport="true" replacement="new String($arg1$, StringUtilsLabKey.DEFAULT_CHARSET)">
         <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" expressionTypes="byte[]" within="" contains="" />
       </replaceConfiguration>
+      <replaceConfiguration name="Errors.reject(errorCode)" uuid="754a8524-698d-3596-a571-f9779f728f3a" description="Spring wants an error code, not just the error messsage." problemDescriptor="Don't use a message in place of the errorCode" text="$Errors$.reject($x$)" recursive="false" caseInsensitive="false" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="$Errors$.reject(org.labkey.api.action.SpringActionController.ERROR_MSG, $x$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Errors" regexp="Errors" withinHierarchy="true" within="" contains="" />
+        <constraint name="x" within="" contains="" />
+      </replaceConfiguration>
       <searchConfiguration name="System.out" text="System.$out$" recursive="true" caseInsensitive="true" type="JAVA">
         <constraint name="out" regexp="(out|err)" within="" contains="" />
       </searchConfiguration>

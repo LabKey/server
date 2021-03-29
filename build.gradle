@@ -386,7 +386,7 @@ project.task(
 project.tasks.register('ijWorkspaceSetup', Copy) {
     Copy copy ->
         copy.group = "IntelliJ"
-        copy.description = "Copy the workspace template file. Used for initial setup of IntelliJ project"
+        copy.description = "Copy the workspace template file. Used only once, for initial setup of the IntelliJ project."
         copy.from(".idea/configTemplates/workspace.xml")
         copy.into('.idea')
 }
@@ -417,4 +417,4 @@ project.tasks.register('ijConfigure') {
         task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
 }
 
-project.tasks.ijConfigure.dependsOn(project.tasks.ijCodeSetup, project.tasks.ijRunConfigurationsSetup, project.tasks.ijWorkspaceSetup)
+project.tasks.ijConfigure.dependsOn(project.tasks.ijCodeSetup, project.tasks.ijRunConfigurationsSetup)

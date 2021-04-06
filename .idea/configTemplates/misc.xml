@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="web" url="file://$PROJECT_DIR$" />
-  </component>
-  <component name="JavaScriptSettings">
-    <option name="languageLevel" value="ES5" />
-  </component>
-  <component name="ProjectResources">
-    <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_14" project-jdk-name="labkey" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/intellijBuild" />
-  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="labkey" project-jdk-type="JavaSDK"/>
 </project>

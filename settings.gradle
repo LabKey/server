@@ -47,14 +47,14 @@ buildscript {
     // depending on where you've enlisted in the gradlePlugins repository.  You will need to manually rebuild the jar file
     // to pick up these changes.
 //    dependencies {
-//        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.22.0-SNAPSHOT.jar")
+//        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.26.0-gradle7Updates-SNAPSHOT.jar")
 //        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
 //        classpath "commons-io:commons-io:${commonsIoVersion}"
 //        classpath "com.yahoo.platform.yui:yuicompressor:2.4.8a"
 //        classpath "org.apache.httpcomponents:httpclient:${httpclientVersion}"
-//        classpath "org.json:json:20180130"
-//        classpath "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
-//        classpath "org.ajoberstar.grgit:grgit-gradle:3.1.1"
+//        classpath "org.json:json:20210307"
+//        classpath "com.fasterxml.jackson.core:jackson-databind:2.12.2"
+//        classpath "org.ajoberstar.grgit:grgit-gradle:4.1.0"
 //    }
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"

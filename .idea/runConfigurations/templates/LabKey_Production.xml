@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="labkey" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="org.apache.catalina.startup.Bootstrap" />
-    <module name="root.server.modules.platform.api.main" />
+    <module name="api_main" />
     <option name="PROGRAM_PARAMETERS" value="start" />
     <option name="VM_PARAMETERS" value="-Dcatalina.base=&quot;./&quot; -Dcatalina.home=&quot;./&quot; -Djava.io.tmpdir=&quot;./temp&quot; -Ddevmode=false -Dsun.io.useCanonCaches=false -Xmx2G -classpath &quot;./bin/*PATH_SEPARATOR$APPLICATION_HOME_DIR$/lib/idea_rt.jar&quot;" />
     <option name="WORKING_DIRECTORY" value="/usr/local/apache-tomcat-9.0.33" />

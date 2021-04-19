@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="LabKeyEmbbedded_Dev" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="labkey-server.server.embedded.main" />
+    <module name="org.labkey.labkey-server.server.embedded.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="org.labkey.embedded.LabKeyServer" />
     <option name="HIDE_BANNER" value="true" />
     <option name="ENABLE_JMX_AGENT" value="false" />

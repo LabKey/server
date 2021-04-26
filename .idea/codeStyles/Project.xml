@@ -12,9 +12,15 @@
       <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="20" />
       <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="20" />
     </JavaCodeStyleSettings>
-    <XML>
-      <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
-    </XML>
+    <TypeScriptCodeStyleSettings version="0">
+      <option name="FORCE_SEMICOLON_STYLE" value="true" />
+      <option name="USE_DOUBLE_QUOTES" value="false" />
+      <option name="FORCE_QUOTE_STYlE" value="true" />
+      <option name="PREFER_EXPLICIT_TYPES_VARS_FIELDS" value="true" />
+      <option name="PREFER_EXPLICIT_TYPES_FUNCTION_RETURNS" value="true" />
+      <option name="PREFER_EXPLICIT_TYPES_FUNCTION_EXPRESSION_RETURNS" value="true" />
+      <option name="SPACES_WITHIN_IMPORTS" value="true" />
+    </TypeScriptCodeStyleSettings>
     <ADDITIONAL_INDENT_OPTIONS fileType="txt">
       <option name="INDENT_SIZE" value="2" />
     </ADDITIONAL_INDENT_OPTIONS>
@@ -70,13 +76,13 @@
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="TypeScript">
-      <option name="BRACE_STYLE" value="2" />
-      <option name="CLASS_BRACE_STYLE" value="2" />
-      <option name="METHOD_BRACE_STYLE" value="2" />
-      <option name="ELSE_ON_NEW_LINE" value="true" />
       <option name="WHILE_ON_NEW_LINE" value="true" />
       <option name="CATCH_ON_NEW_LINE" value="true" />
       <option name="FINALLY_ON_NEW_LINE" value="true" />
+      <option name="IF_BRACE_FORCE" value="3" />
+      <option name="DOWHILE_BRACE_FORCE" value="3" />
+      <option name="WHILE_BRACE_FORCE" value="3" />
+      <option name="FOR_BRACE_FORCE" value="3" />
     </codeStyleSettings>
   </code_scheme>
 </component>

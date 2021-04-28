@@ -303,16 +303,19 @@ subprojects {
 // task for api does not work when modules may be evaluated before the api module is evaluated.  Attempts to
 // declare evaluationDependsOn(:server:api) for each of these projects did not work.
 // This task is defined at the root to eliminate problems with evaluation order
-project.task("copyTagLibsBase",
-        type: Copy,
-        {CopySpec copy ->
-            copy.from "${BuildUtils.getApiProjectPath(gradle).replace(":", "/").substring(1)}/webapp"
-            copy.into "${project.buildDir}/webapp"
-            copy.include 'WEB-INF/web.xml'
-            copy.include 'WEB-INF/*.tld'
-            copy.include 'WEB-INF/*.jspf'
-        }
-)
+if (project.findProject(BuildUtils.getApiProjectPath(gradle)) != null)
+{
+    project.task("copyTagLibsBase",
+            type: Copy,
+            { CopySpec copy ->
+                copy.from "${BuildUtils.getApiProjectPath(gradle).replace(":", "/").substring(1)}/webapp"
+                copy.into "${project.buildDir}/webapp"
+                copy.include 'WEB-INF/web.xml'
+                copy.include 'WEB-INF/*.tld'
+                copy.include 'WEB-INF/*.jspf'
+            }
+    )
+}
 
 project.task("showDiscrepancies",
         group: "Help",

@@ -33,6 +33,14 @@ dependencies
    xsdDoc "docflex:docflex-xml-re:${docflexXmlReVersion}"
 }
 
+project.tasks.register("tomcatLibsZip", Zip) {
+    Zip zip ->
+        zip.group = "Build"
+        zip.description = "produce jar file with jars to be deployed in \$CATALINA_HOME/lib"
+        zip.from project.configurations.tomcatJars.getAsFileTree()
+        zip.archiveBaseName.set("tomcat-libs")
+        zip.destinationDirectory = project.file(project.labkey.explodedModuleLibDir)
+}
 
 configurations
         {
@@ -154,10 +162,25 @@ project.publishing {
             }
         }
 
+        tomcatJars(MavenPublication) {
+            groupId = 'org.labkey.api'
+            artifactId = 'tomcat-libs'
+            version = project.version
+            artifact project.tasks.tomcatLibsZip
+            pom {
+                name = "LabKey Server Tomcat Libs"
+                description = "Additional Tomcat libs for LabKey Server."
+                developers PomFileHelper.getLabKeyTeamDevelopers()
+                licenses PomFileHelper.getApacheLicense()
+                organization PomFileHelper.getLabKeyOrganization()
+                scm PomFileHelper.getLabKeyGitScm()
+            }
+        }
+
         if (BuildUtils.shouldPublish(project))
         {
             project.artifactoryPublish {
-                publications('jsDocs', 'xsdDocs')
+                publications('jsDocs', 'xsdDocs', 'tomcatJars')
             }
             project.subprojects {
                 artifactoryPublish.skip = true

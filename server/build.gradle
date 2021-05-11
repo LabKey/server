@@ -33,6 +33,7 @@ dependencies
    xsdDoc "docflex:docflex-xml-re:${docflexXmlReVersion}"
 }
 
+// Bundle and publish tomcat libs to enable distributions built by standalone modules
 project.tasks.register("tomcatLibsZip", Zip) {
     Zip zip ->
         zip.group = GroupNames.BUILD

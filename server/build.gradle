@@ -35,7 +35,7 @@ dependencies
 
 project.tasks.register("tomcatLibsZip", Zip) {
     Zip zip ->
-        zip.group = "Build"
+        zip.group = GroupNames.BUILD
         zip.description = "produce jar file with jars to be deployed in \$CATALINA_HOME/lib"
         zip.from project.configurations.tomcatJars.getAsFileTree()
         zip.archiveBaseName.set("tomcat-libs")
@@ -163,7 +163,7 @@ project.publishing {
         }
 
         tomcatJars(MavenPublication) {
-            groupId = 'org.labkey.api'
+            groupId = 'org.labkey.build'
             artifactId = 'tomcat-libs'
             version = project.version
             artifact project.tasks.tomcatLibsZip

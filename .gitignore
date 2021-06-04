@@ -7,6 +7,8 @@
 build/
 enlistment.properties
 server/config.properties
+#IntelliJ build output directory
+server/bootstrap/out/
 
 # Ignore other common repository locations
 dist/

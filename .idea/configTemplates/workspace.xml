@@ -62,6 +62,9 @@
       </breakpoint_any>
     </exception_breakpoints>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="SCHEME" value="Project" />
+  </component>
   <component name="Git.Settings">
     <option name="UPDATE_TYPE" value="REBASE" />
     <option name="PUSH_UPDATE_ALL_ROOTS" value="false" />

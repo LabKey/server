@@ -209,9 +209,6 @@ allprojects {
                     // saml has transitive dependencies on old versions of batik and xmlgraphics-commons, which conflict with more recent versions in api
                     force "org.apache.xmlgraphics:batik-css:${batikVersion}"
                     force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
-                    // force consistency in TCRdb, mspipeline, omerointegration
-                    force "ch.qos.logback:logback-classic:${logbackVersion}"
-                    force "ch.qos.logback:logback-core:${logbackVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"

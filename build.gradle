@@ -31,7 +31,7 @@ plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
-//    id "com.github.ben-manes.versions" version "0.33.0"
+//    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
 }
 
@@ -212,6 +212,11 @@ allprojects {
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"
+                    // force junit and hamcrest versions to be consistent with what comes from labkey-client-api via json-simple.
+                    // The hamcrest dependencies come through transitively from jackson, json-simple, junit, jmock
+                    force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
+                    force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
+                    force "junit:junit:${junitVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

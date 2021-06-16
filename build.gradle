@@ -217,6 +217,8 @@ allprojects {
                     force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
                     force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
                     force "junit:junit:${junitVersion}"
+                    // force consistency in nlp and saml that bring this in transitively
+                    force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

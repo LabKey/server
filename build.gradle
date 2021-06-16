@@ -31,7 +31,7 @@ plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
-//    id "com.github.ben-manes.versions" version "0.33.0"
+//    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
 }
 
@@ -209,12 +209,19 @@ allprojects {
                     // saml has transitive dependencies on old versions of batik and xmlgraphics-commons, which conflict with more recent versions in api
                     force "org.apache.xmlgraphics:batik-css:${batikVersion}"
                     force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
-                    // force consistency in TCRdb, mspipeline, omerointegration
-                    force "ch.qos.logback:logback-classic:${logbackVersion}"
-                    force "ch.qos.logback:logback-core:${logbackVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"
+                    // force junit and hamcrest versions to be consistent with what comes from labkey-client-api via json-simple.
+                    // The hamcrest dependencies come through transitively from jackson, json-simple, junit, jmock
+                    force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
+                    force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
+                    force "junit:junit:${junitVersion}"
+                    // force consistency in nlp and saml that bring this in transitively
+                    force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
+                    // force consistency in transitive dependency for fileTransfer compared to api
+                    // This can be removed when the googleHttpClient version is updated to bring in a consistent version
+                    force "com.google.code.findbugs:jsr305:${jsr305Version}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

@@ -219,6 +219,9 @@ allprojects {
                     force "junit:junit:${junitVersion}"
                     // force consistency in nlp and saml that bring this in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
+                    // force consistency in transitive dependency for fileTransfer compared to api
+                    // This can be removed when the googleHttpClient version is updated to bring in a consistent version
+                    force "com.google.code.findbugs:jsr305:${jsr305Version}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

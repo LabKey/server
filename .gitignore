@@ -28,12 +28,14 @@ server/testAutomation/
 # Ignore parts of the .idea dir
 .idea/libraries/
 .idea/modules/
+.idea/shelf
 .idea/.gitignore
 .idea/jarRepositories.xml
 .idea/modules.xml
 .idea/workspace.xml
 .idea/dataSources.xml
 .idea/dataSources.local.xml
+.idea/.name
 # Files installed from templates
 .idea/runConfigurations/LabKey_Dev.xml
 .idea/runConfigurations/LabKey_Production.xml

@@ -180,14 +180,6 @@ project.publishing {
 
         if (BuildUtils.shouldPublish(project))
         {
-            var embeddedProject = project.findProject(BuildUtils.getEmbeddedProjectPath(project.gradle))
-
-            if (embeddedProject != null)
-            {
-                project.artifactoryPublish {
-                    embeddedProject.publications('embeddedJar')
-                }
-            }
             project.artifactoryPublish {
                 publications('jsDocs', 'xsdDocs', 'tomcatJars')
             }

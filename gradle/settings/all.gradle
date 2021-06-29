@@ -31,6 +31,12 @@ if (hasProperty('gradleExcludeModuleDirs'))
     excludedDirs.addAll("${gradleExcludeModuleDirs}".toLowerCase().split(","))
 }
 
+// Include ':server:embedded' unless explicitly excluded
+if (!excludedDirs.contains("embedded"))
+{
+    include BuildUtils.getEmbeddedProjectPath(gradle)
+}
+
 BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], excludedDirs, true)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents

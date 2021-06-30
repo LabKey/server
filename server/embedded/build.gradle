@@ -55,5 +55,13 @@ project.publishing {
                 scm PomFileHelper.getLabKeyGitScm()
             }
         }
+
+        if (BuildUtils.shouldPublish(project))
+        {
+            project.artifactoryPublish {
+                publications('embeddedJar')
+            }
+            project.artifactoryPublish.skip = false
+        }
     }
 }

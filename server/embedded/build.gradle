@@ -1,4 +1,5 @@
 import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.PomFileHelper
 
 plugins {
     id "java"
@@ -37,3 +38,30 @@ dependencies {
 }
 
 BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
+
+project.publishing {
+    publications {
+        embeddedJar(MavenPublication) {
+            groupId = 'org.labkey.build'
+            artifactId = 'embedded'
+            version = project.version
+            artifact project.tasks.jar.outputs.files.singleFile
+            pom {
+                name = "LabKey Server Embedded"
+                description = "LabKey classes for producing distributions with embedded TomCat."
+                developers PomFileHelper.getLabKeyTeamDevelopers()
+                licenses PomFileHelper.getApacheLicense()
+                organization PomFileHelper.getLabKeyOrganization()
+                scm PomFileHelper.getLabKeyGitScm()
+            }
+        }
+
+        if (BuildUtils.shouldPublish(project))
+        {
+            project.artifactoryPublish {
+                publications('embeddedJar')
+            }
+            project.artifactoryPublish.skip = false
+        }
+    }
+}

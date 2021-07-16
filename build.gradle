@@ -135,6 +135,12 @@ allprojects {
                             }
                         }
                     }
+// Temporarily uncomment the block below and update the four-digit number to allow building with Tomcat versions that
+// haven't been released yet. The "VOTE" emails sent to the Tomcat dev email list include a staging repo URL. In
+// addition to updating the url to match, you'll also need to update apacheTomcatVersion in gradle.properties.
+//                    maven {
+//                    	url "https://repository.apache.org/content/repositories/orgapachetomcat-1322/"
+//                    }
                 }
                 mavenCentral()
             }
@@ -247,13 +253,6 @@ allprojects {
 
                         // This library was renamed
                         substitute module('org.codehaus.woodstox:woodstox-core-asl') with module("com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}")
-
-                        if (project.hasProperty('apacheTomcatVersion'))
-                        {
-                            // For in-flight features in 'platform' and 'commonAssays' repositories
-                            substitute module('org.apache.tomcat:jasper') with module("org.apache.tomcat:tomcat-jasper:${apacheTomcatVersion}")
-                            substitute module('org.apache.tomcat:jsp-api') with module("org.apache.tomcat:tomcat-jsp-api:${apacheTomcatVersion}")
-                        }
                     }
                 }
             }

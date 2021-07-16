@@ -16,10 +16,12 @@ sourceSets {
 
 dependencies
         {
-            implementation "org.apache.tomcat:tomcat-api:${project.apacheTomcatVersion}"
-            implementation "org.apache.tomcat:tomcat-catalina:${project.apacheTomcatVersion}"
-            implementation "org.apache.tomcat:tomcat-juli:${project.apacheTomcatVersion}"
-            implementation "org.apache.tomcat:tomcat-util:${project.apacheTomcatVersion}"
+            def tomcatVersion = BuildUtils.useEmbeddedTomcat(project) ? project.springBootTomcatVersion : project.apacheTomcatVersion
+
+            implementation "org.apache.tomcat:tomcat-api:${tomcatVersion}"
+            implementation "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
+            implementation "org.apache.tomcat:tomcat-juli:${tomcatVersion}"
+            implementation "org.apache.tomcat:tomcat-util:${tomcatVersion}"
         }
 
 def JAR_BASE_NAME = "labkeyBootstrap"

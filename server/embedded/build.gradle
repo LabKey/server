@@ -28,10 +28,10 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
 
-    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${apacheTomcatVersion}"
+    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${springBootTomcatVersion}"
     runtimeOnly "javax.mail:javax.mail-api:1.6.2"
     runtimeOnly group: "com.sun.mail", name: "javax.mail", version: "1.6.0"
-    runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${apacheTomcatVersion}"
+    runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${springBootTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")

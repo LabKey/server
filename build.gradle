@@ -3,6 +3,7 @@ import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.plugin.NpmRun
+import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 buildscript {
     repositories {
@@ -412,3 +413,10 @@ project.tasks.register('ijConfigure') {
 }
 
 project.tasks.ijConfigure.dependsOn(project.tasks.ijCodeSetup, project.tasks.ijRunConfigurationsSetup)
+
+project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
+    group = GroupNames.NPM_RUN
+    description = "Given an alpha version prefix for npm packages via the property -P${PurgeNpmAlphaVersions.ALPHA_PREFIX_PROPERTY}=yourPrefix, " +
+            "removes all packages with versions that match that prefix from Artifactory (e.g., @labkey/components-1.2.3-yourPrefix.0 and @labkey/workflow-0.3.4-yourPrefix.1). " +
+            " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
+}

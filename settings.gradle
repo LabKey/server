@@ -10,6 +10,9 @@ pluginManagement {
             }
         }
     }
+    // For testing changes to the gradle plugins, uncomment the includeBuild line below and reference the location of
+    // your gradlePlugin enlistment.  The plugins will get built automatically when executing tasks here.
+//    includeBuild '../gradlePlugin'
     plugins {
         id 'org.labkey.build.antlr' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.api' version "${gradlePluginsVersion}" apply false
@@ -42,20 +45,6 @@ buildscript {
             }
         }
     }
-    // For testing changes to the gradle plugins, use the dependencies block below to pick up the locally built jar file
-    // instead of the one that references the published jar.  You may need to adjust the version and the path to the built jar file
-    // depending on where you've enlisted in the gradlePlugins repository.  You will need to manually rebuild the jar file
-    // to pick up these changes.
-//    dependencies {
-//        classpath files("../gradlePlugin/build/libs/gradlePlugin-1.26.0-gradle7Updates-SNAPSHOT.jar")
-//        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
-//        classpath "commons-io:commons-io:${commonsIoVersion}"
-//        classpath "com.yahoo.platform.yui:yuicompressor:2.4.8a"
-//        classpath "org.apache.httpcomponents:httpclient:${httpclientVersion}"
-//        classpath "org.json:json:20210307"
-//        classpath "com.fasterxml.jackson.core:jackson-databind:2.12.2"
-//        classpath "org.ajoberstar.grgit:grgit-gradle:4.1.0"
-//    }
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
     }

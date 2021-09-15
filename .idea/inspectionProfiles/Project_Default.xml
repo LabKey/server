@@ -45,6 +45,14 @@
         <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
         <constraint name="__context__" target="true" within="" contains="" />
       </replaceConfiguration>
+      <replaceConfiguration name="Log4J logger - notes for Loggers page" problemDescriptor="Use LogHelper to provide a description to help admins choose their logging level" text="org.apache.logging.log4j.LogManager.getLogger($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.logging.LogHelper.getLogger($Arg$, &quot;Fill in description&quot;)">
+        <constraint name="Arg" within="" contains="" />
+        <constraint name="__context__" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="Log4J 1.x logger - Use Log4J 2.x, add logger notes" problemDescriptor="Use Log4J 2.x instead of 1.x. Use LogHelper to provide a description to help admins choose their logging level" text="org.apache.log4j.LogManager.getLogger($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.logging.LogHelper.getLogger($Arg$, &quot;Fill in description&quot;)">
+        <constraint name="Arg" within="" contains="" />
+        <constraint name="__context__" within="" contains="" />
+      </replaceConfiguration>
       <replaceConfiguration name="OutputStreamWriter used without specifying character encoding" text="new OutputStreamWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
         <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.OutputStream" exprTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>

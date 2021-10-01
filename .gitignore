@@ -31,6 +31,7 @@ server/testAutomation/
 .idea/shelf
 .idea/.gitignore
 .idea/jarRepositories.xml
+.idea/jsLibraryMappings.xml
 .idea/modules.xml
 .idea/workspace.xml
 .idea/dataSources.xml

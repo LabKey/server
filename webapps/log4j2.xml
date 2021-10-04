@@ -21,8 +21,22 @@
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="3"/>
+            <DefaultRolloverStrategy fileIndex="min">
+                <Delete basePath="${sys:labkey.log.home}">
+                    <ScriptCondition>
+                        <!-- Use custom Java code to retain the first log file from the current session if it's about
+                        to be rotated out. It may have root cause information about problems that would otherwise be lost -->
+                        <Script name="retainFirst" language="rhino"><![CDATA[
+                                var ErrorLogRotator = org.labkey.api.util.logging.ErrorLogRotator;
+                                var rotator = new ErrorLogRotator();
+                                rotator.filter(pathList);
+                            ]]>
+                        </Script>
+                    </ScriptCondition>
+                </Delete>
+            </DefaultRolloverStrategy>
 
         </RollingFile>
 

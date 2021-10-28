@@ -176,8 +176,6 @@ allprojects {
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
                     // force version for ms2, saml, fileTransfer, harvest, scrumtime, api, accounts, docker
                     force "commons-codec:commons-codec:${commonsCodecVersion}"
-                    // force version consistency in OmeroIntegration, API, probably many more
-                    force "org.apache.commons:commons-collections4:${commonsCollections4Version}"
                     // force version consistency in TCRdb, SequenceAnalysis, API
                     force "org.apache.commons:commons-math3:${commonsMath3Version}"
                     // force version for api, accounts, fileTransfer, harvest, scrumtime, docker
@@ -202,8 +200,6 @@ allprojects {
                         force "xml-apis:xml-apis:${xmlApisVersion}"
                     // cloud and SequenceAnalysis bring this in as a transitive dependency.  We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
-                    // TargetedMS uses this directly, and OmeroIntegration brings this in as a transitive dependency
-                    force "com.google.protobuf:protobuf-java:${googleProtocolBufVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"

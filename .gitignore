@@ -18,6 +18,7 @@ labkey-ui-components/
 remoteapi/
 server/modules/ 
 server/testAutomation/
+tools/
 
 # Include the remoteapi README -- this line will override previous exclusion
 !remoteapi/README.md

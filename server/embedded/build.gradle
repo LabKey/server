@@ -21,6 +21,7 @@ configurations {
     runtimeClasspath {
         extendsFrom developmentOnly
     }
+    embedded
 }
 
 dependencies {
@@ -64,6 +65,10 @@ project.publishing {
             project.artifactoryPublish.skip = false
         }
     }
+}
+
+project.artifacts {
+    embedded project.tasks.bootJar
 }
 
 // The primary artifact from this build should be the jar produced from the bootJar task as that contains

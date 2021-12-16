@@ -21,6 +21,7 @@ configurations {
     runtimeClasspath {
         extendsFrom developmentOnly
     }
+    embedded
 }
 
 dependencies {
@@ -45,7 +46,7 @@ project.publishing {
             groupId = 'org.labkey.build'
             artifactId = 'embedded'
             version = project.version
-            artifact project.tasks.jar.outputs.files.singleFile
+            artifact project.tasks.bootJar.outputs.files.singleFile
             pom {
                 name = "LabKey Server Embedded"
                 description = "LabKey classes for producing distributions with embedded TomCat."
@@ -64,4 +65,16 @@ project.publishing {
             project.artifactoryPublish.skip = false
         }
     }
+}
+
+project.artifacts {
+    embedded project.tasks.bootJar
+}
+
+// The primary artifact from this build should be the jar produced from the bootJar task as that contains
+// the SpringBoot classes.  This default jar task produces a jar file containing only the classes from src,
+// which no one really needs.  If produced, this is the jar file that will be used in distributions, making
+// them not really embedding anything.
+jar {
+ onlyIf { false }
 }

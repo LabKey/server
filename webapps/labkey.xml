@@ -25,7 +25,7 @@
     <Loader loaderClass="org.labkey.bootstrap.LabKeyBootstrapClassLoader" />
 
     <!-- Encryption key for encrypted property store -->
-    <Parameter name="MasterEncryptionKey" value="@@masterEncryptionKey@@" />
+    <Parameter name="EncryptionKey" value="@@masterEncryptionKey@@" />
 
     <!--@@extraJdbcDataSource@@
     <Resource name="jdbc/@@extraJdbcDataSource@@" auth="Container"

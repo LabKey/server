@@ -56,9 +56,9 @@ buildscript {
 //        classpath "com.fasterxml.jackson.core:jackson-databind:2.12.2"
 //        classpath "org.ajoberstar.grgit:grgit-gradle:4.1.0"
 //    }
-//    dependencies {
-//        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-//    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
     configurations.all {
         // Check for updates every build for SNAPSHOT dependencies
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'

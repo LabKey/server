@@ -5,21 +5,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.labkey.test.BaseWebDriverTest;
-import org.labkey.test.TestTimeoutException;
-import org.labkey.test.categories.InDevelopment;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
-@Category({InDevelopment.class})
+@Category({})
 public class ${NAME} extends BaseWebDriverTest
 {
+    private static final String USER = "template_user@${NAME}.test";
+
     @Override
-    protected void doCleanup(boolean afterTest) throws TestTimeoutException
+    protected void doCleanup(boolean afterTest)
     {
-        super.doCleanup(afterTest);
+        _containerHelper.deleteProject(getProjectName(), afterTest);
+        _userHelper.deleteUsers(afterTest, USER);
     }
 
     @BeforeClass
@@ -33,24 +34,19 @@ public class ${NAME} extends BaseWebDriverTest
     private void doSetup()
     {
         _containerHelper.createProject(getProjectName(), null);
+        _userHelper.createUser(USER);
     }
 
     @Before
     public void preTest()
     {
-        goToProjectHome();
+        goToProjectHome(); // TODO: Remove if this is not necessary before each test
     }
 
     @Test
     public void testSomething()
     {
-        // Test code
-    }
-   
-    @Override
-    protected BrowserType bestBrowser()
-    {
-        return BrowserType.CHROME;
+        assertTrue("Test something", true);
     }
 
     @Override

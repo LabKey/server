@@ -99,14 +99,9 @@ if (project.findProject(schemasProjectPath))
 }
 
 if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")) != null)
-{
-    xsdFiles += [project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayProvider.xsd"),
-                 project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayPipelineTasks.xsd")]
-}
+    xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayProvider.xsd")
 if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")) != null)
     xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")).file("schemas/lists.xsd")
-if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "pipeline"))  != null)
-    xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "pipeline")).file("schemas/pipelineTasks.xsd")
 if (project.findProject(":server:modules:dataintegration")  != null)
     xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
 if (project.findProject(":server:modules:redcap") != null)

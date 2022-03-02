@@ -109,7 +109,7 @@ public class LabKeyServer
                     context.getNamingResources().addResource(getMailResource());
 
                     // And the master encryption key
-                    context.addParameter("MasterEncryptionKey", contextProperties.getMasterEncryptionKey());
+                    context.addParameter("encryptionKey", contextProperties.getEncryptionKey());
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
                     if (null != contextProperties.getServerGUID())
@@ -327,8 +327,8 @@ public class LabKeyServer
         private List<String> driverClassName;
 
         private String webAppLocation;
-        @NotNull (message = "Must provide masterEncryptionKey")
-        private String masterEncryptionKey;
+        @NotNull (message = "Must provide encryptionKey")
+        private String encryptionKey;
         private String serverGUID;
 
         public List<String> getDataSourceName()
@@ -391,14 +391,14 @@ public class LabKeyServer
             this.webAppLocation = webAppLocation;
         }
 
-        public String getMasterEncryptionKey()
+        public String getEncryptionKey()
         {
-            return masterEncryptionKey;
+            return encryptionKey;
         }
 
-        public void setMasterEncryptionKey(String masterEncryptionKey)
+        public void setEncryptionKey(String encryptionKey)
         {
-            this.masterEncryptionKey = masterEncryptionKey;
+            this.encryptionKey = encryptionKey;
         }
 
         public String getServerGUID()

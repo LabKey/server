@@ -109,7 +109,7 @@ public class LabKeyServer
                     context.getNamingResources().addResource(getMailResource());
 
                     // And the master encryption key
-                    context.addParameter("encryptionKey", contextProperties.getEncryptionKey());
+                    context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
                     if (null != contextProperties.getServerGUID())

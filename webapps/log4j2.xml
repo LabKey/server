@@ -53,7 +53,7 @@
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="3"/>
+            <DefaultRolloverStrategy max="3" fileIndex="min" />
         </RollingFile>
 
         <RollingFile name="QUERY_STATS"
@@ -69,7 +69,7 @@
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="3"/>
+            <DefaultRolloverStrategy max="3" fileIndex="min" />
         </RollingFile>
 
         <RollingFile name="LABKEY"
@@ -84,6 +84,7 @@
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
+            <DefaultRolloverStrategy fileIndex="min" />
         </RollingFile>
 
         <RollingFile name="LABKEY_AUDIT"
@@ -98,6 +99,7 @@
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
+            <DefaultRolloverStrategy fileIndex="min" />
         </RollingFile>
 
         <SessionAppender name="SessionAppender">
@@ -117,6 +119,7 @@
             <Policies>
                 <SizeBasedTriggeringPolicy size="1000 KB"/>
             </Policies>
+            <DefaultRolloverStrategy fileIndex="min" />
         </RollingFile>
 
         <RollingFile name="THREAD_DUMP"
@@ -130,6 +133,7 @@
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
+            <DefaultRolloverStrategy fileIndex="min" />
         </RollingFile>
 
     </Appenders>

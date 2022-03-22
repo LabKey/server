@@ -161,6 +161,8 @@ allprojects {
                     force "org.slf4j:slf4j-api:${slf4jLog4jApiVersion}"
                     // force some newer versions than are brought in by mondrian (et al.)
                     force "xerces:xercesImpl:${xercesImplVersion}"
+                    // force invalid version 0 so the build will fail if we inadvertently include the old log4j with its possible vulnerabilities again
+                    force "log4j:log4j:0"
                     force "org.apache.logging.log4j:log4j-core:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-api:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-1.2-api:${log4j2Version}"

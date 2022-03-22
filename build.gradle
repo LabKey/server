@@ -69,6 +69,9 @@ allprojects {
                 driver
                 utilities
             }
+    configurations.all {
+        exclude group: "log4j", module:"log4j"
+    }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")
 
@@ -161,10 +164,6 @@ allprojects {
                     force "org.slf4j:slf4j-api:${slf4jLog4jApiVersion}"
                     // force some newer versions than are brought in by mondrian (et al.)
                     force "xerces:xercesImpl:${xercesImplVersion}"
-                    // Force an invalid version so the build will fail if we inadvertently include the old log4j with its possible vulnerabilities.
-                    // If the build fails, add a dependency closure configuration that excludes log4j (e.g., { exclude group: "log4j", module:"log4j" })
-                    // to the dependency that brings it in.
-                    force "log4j:log4j:doNotInclude"
                     force "org.apache.logging.log4j:log4j-core:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-api:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-1.2-api:${log4j2Version}"

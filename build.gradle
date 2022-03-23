@@ -69,6 +69,7 @@ allprojects {
                 driver
                 utilities
             }
+    // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
     configurations.all {
         exclude group: "log4j", module:"log4j"
     }

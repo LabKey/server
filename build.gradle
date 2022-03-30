@@ -7,8 +7,9 @@ import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 buildscript {
     repositories {
+        mavenCentral()
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url "${artifactory_contextUrl}/plugins-release-no-mc"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
@@ -98,6 +99,7 @@ allprojects {
 
     repositories
             {
+                mavenCentral()
                 // this if statement is necessary because the TeamCity artifactory plugin overrides
                 // the repositories but does not use these artifactory_ urls.  For others who are
                 // developing or building, you do need to specify the three artifactory_ properties
@@ -143,7 +145,7 @@ allprojects {
 //                    	url "https://repository.apache.org/content/repositories/orgapachetomcat-1322/"
 //                    }
                 }
-                mavenCentral()
+
             }
     configurations.all
             {

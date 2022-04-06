@@ -70,6 +70,10 @@ allprojects {
                 driver
                 utilities
             }
+    // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
+    configurations.all {
+        exclude group: "log4j", module:"log4j"
+    }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")
 

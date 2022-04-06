@@ -15,11 +15,24 @@
  */
 package org.labkey.bootstrap;
 
-import java.io.*;
-import java.util.*;
-import java.net.URL;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /*
 * User: Dave
@@ -253,13 +266,14 @@ public class ExplodedModule
             return;
 
         dst.createNewFile();
-        try (FileChannel sourceChannel = new FileInputStream(src).getChannel();
-             FileChannel destChannel = new FileOutputStream(dst).getChannel())
+        try (FileInputStream is = new FileInputStream(src); FileChannel in = is.getChannel();
+             FileLock lockIn = in.lock(0L, Long.MAX_VALUE, true); FileOutputStream os = new FileOutputStream(dst);
+             FileChannel out = os.getChannel(); FileLock lockOut = out.lock())
         {
-            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+            in.transferTo(0, in.size(), out);
+            os.getFD().sync();
+            dst.setLastModified(src.lastModified());
         }
-
-        dst.setLastModified(src.lastModified());
     }
 
     public boolean equals(Object o)

@@ -278,6 +278,7 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
             }
             defaults
                     {
+                        publishBuildInfo = false
                         publishPom = true
                         publishIvy = false
                     }

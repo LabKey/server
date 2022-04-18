@@ -6,6 +6,7 @@ import org.labkey.gradle.plugin.NpmRun
 
 buildscript {
     repositories {
+        mavenCentral()
         maven {
             url "${artifactory_contextUrl}/plugins-release"
         }
@@ -97,6 +98,7 @@ allprojects {
 
     repositories
             {
+                mavenCentral()
                 // this if statement is necessary because the TeamCity artifactory plugin overrides
                 // the repositories but does not use these artifactory_ urls.  For others who are
                 // developing or building, you do need to specify the three artifactory_ properties
@@ -136,7 +138,6 @@ allprojects {
                         }
                     }
                 }
-                mavenCentral()
             }
     configurations.all
             {
@@ -265,6 +266,7 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
             }
             defaults
                     {
+                        publishBuildInfo = false
                         publishPom = true
                         publishIvy = false
                     }

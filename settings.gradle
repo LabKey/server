@@ -1,6 +1,4 @@
 
-import org.labkey.gradle.util.BuildUtils
-
 pluginManagement {
     repositories {
         maven {
@@ -69,7 +67,7 @@ buildscript {
 
 apply from: 'gradle/settings/parameters.gradle'
 
-//import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.BuildUtils
 /*
   This file is used to determine which projects will be configured during the Gradle build of LabKey Server.
 
@@ -106,8 +104,6 @@ else if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.g
 if (hasProperty("ideaIncludeAllModules") && BuildUtils.isIntellijGradleRefresh(this))
 {
     apply from: "gradle/settings/all.gradle" // Get all modules when refreshing gradle projects from IntelliJ
-    include ":server:testAutomation:buildTestModules:communityArtifacts"
-    include ":server:testAutomation:buildTestModules:starterArtifacts"
 }
 // Using the property 'moduleSet', you can apply a settings script from the gradle/settings directory with the name of the moduleSet
 else if (hasProperty('moduleSet'))
@@ -119,10 +115,10 @@ else if (hasProperty('moduleSet'))
         {
             throw new FileNotFoundException("No module set definitions found in '<labkey>/gradle/settings/'")
         }
-        List<String> moduleSets = new ArrayList<>()
+        List<String> moduleSets = new ArrayList<>();
         for (File file : files)
         {
-            moduleSets.add(file.getName().replace(".gradle", ""))
+            moduleSets.add(file.getName().replace(".gradle", ""));
         }
         throw new FileNotFoundException(String.format("Module set '${moduleSet}' does not exist. Choose one of: %s (e.g. '-PmoduleSet=%s')", moduleSets.join(", "), moduleSets.get(0)))
     }
@@ -135,18 +131,14 @@ else
     // You must make sure to pass this list to the appropriate calls to `BuildUtils.includeModules`
     List<String> excludedModules = []
 
-    // The line below recursively includes all modules in server/modules and server/modules
-//    BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules, true)
+    // The line below recursively includes all modules in server/modules 
+    BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules, true)
 
     // The line below includes all modules in server/modules, server/modules/platform, and server/modules/commonAssays, but not other module containers (e.g. server/modules/customModules)
     //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR, BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)
 
     // The line below includes all modules in server/modules as well as modules within any module containers there (e.g. server/modules/platform)
     //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules, true)
-    BuildUtils.includeModules(this.settings, rootDir, [
-//            BuildUtils.SERVER_MODULES_DIR,
-            BuildUtils.PLATFORM_MODULES_DIR
-    ], excludedModules)
 
     // The line below includes all modules in the server/modules/customModules directory
     //BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.CUSTOM_MODULES_GIT_DIR], excludedModules)
@@ -161,43 +153,7 @@ else
 
     // The line below is an example of how to include a single module
     //include ":server:modules:workflow"
-    include ":server:modules:commonAssays:ms2"
-    include ":server:modules:commonAssays:luminex"
-    include ":server:modules:commonAssays:flow"
-    include ":server:modules:commonAssays:nab"
-    include ":server:modules:provenance"
-    include ":server:modules:assayreport"
-    include ":server:modules:assayRequest"
-    include ":server:modules:recipe"
-    include ":server:modules:inventory"
-    include ":server:modules:labbook"
-    include ":server:modules:puppeteer"
-    include ":server:modules:biologics"
-    include ":server:modules:compliance"
-    include ":server:modules:accounts"
-//    include ":server:modules:trialServices"
-//    include ":server:modules:trialShare"
-//    include ":server:modules:dataFinder"
-    include ":server:modules:sampleManagement"
-//    include ":server:modules:Response"
-//    include ":server:modules:lygos:PlateScreen"
-    include ":server:modules:premium"
-    include ":server:modules:connectors"
-//    include ":remoteapi:labkey-api-jdbc"
-//    include ":remoteapi:labkey-api-java:labkey-client-api"
-//    include ":server:modules:cds"
-//    include ":server:modules:dataintegration"
-    include ":server:modules:snd"
-//    include ":server:localModules:labWork"
-//    include ":server:testAutomation:buildTestModules:communityArtifacts"
-//    include ":server:testAutomation:buildTestModules:starterArtifacts"
-    include ":distributions:base"
-    include ":distributions:community"
-//    include ":distributions:client-api"
-    include ":server:testAutomation:distributions:teamcity"
-//    include ':serverProvisioning'
 }
-//project(':serverProvisioning').projectDir=new File(settingsDir, '../serverProvisioning')
 
 if (hasProperty('extraIncludes'))
 {

@@ -98,7 +98,6 @@ allprojects {
 
     repositories
             {
-                mavenCentral()
                 // this if statement is necessary because the TeamCity artifactory plugin overrides
                 // the repositories but does not use these artifactory_ urls.  For others who are
                 // developing or building, you do need to specify the three artifactory_ properties
@@ -138,6 +137,7 @@ allprojects {
                         }
                     }
                 }
+                mavenCentral()
             }
     configurations.all
             {

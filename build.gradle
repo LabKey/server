@@ -7,6 +7,7 @@ import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 buildscript {
     repositories {
+        mavenCentral()
         maven {
             url "${artifactory_contextUrl}/plugins-release"
         }
@@ -276,6 +277,7 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
             }
             defaults
                     {
+                        publishBuildInfo = false
                         publishPom = true
                         publishIvy = false
                     }

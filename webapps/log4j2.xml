@@ -167,6 +167,7 @@
 
         <Logger name="org.opensaml.xmlsec" level="DEBUG">
             <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="LABKEY"/>
         </Logger>
 
         <Logger name="mondrian." level="info" />

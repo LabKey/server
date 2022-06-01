@@ -165,10 +165,16 @@
             <AppenderRef ref="LABKEY"/>
         </Logger>
 
-        <Logger name="org.opensaml.xmlsec" level="DEBUG">
+        <!-- uncomment for debugging SAML issues
+        <Logger name="org.opensaml" level="DEBUG">
             <AppenderRef ref="CONSOLE"/>
             <AppenderRef ref="LABKEY"/>
         </Logger>
+
+        <Logger name="org.apache.xml.security" level="DEBUG">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="LABKEY"/>
+        </Logger> -->
 
         <Logger name="mondrian." level="info" />
 

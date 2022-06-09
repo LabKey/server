@@ -165,6 +165,18 @@
             <AppenderRef ref="LABKEY"/>
         </Logger>
 
+        <!-- uncomment to enable 'DEBUG' level on external SAML libraries to troubleshoot.
+        Note: you will also have to set dependency on slf4j lib in saml/build.gradle - uncomment 'slf4j' external libraries and build
+        <Logger name="org.opensaml" level="DEBUG">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="LABKEY"/>
+        </Logger>
+
+        <Logger name="org.apache.xml.security" level="DEBUG">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="LABKEY"/>
+        </Logger> -->
+
         <Logger name="mondrian." level="info" />
 
         <!--

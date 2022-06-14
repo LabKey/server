@@ -85,7 +85,7 @@ allprojects {
                 //for SqlUtils
                 driver "net.sourceforge.jtds:jtds:${jtdsVersion}"
                 driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
-                driver "com.microsoft.sqlserver:mssql-jdbc:${microsoftJdbcVersion}"
+                driver "com.microsoft.sqlserver:mssql-jdbc:${mssqlJdbcVersion}"
 
                 if (SystemUtils.IS_OS_WINDOWS)
                 {

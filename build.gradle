@@ -236,6 +236,20 @@ allprojects {
                     // force consistency in transitive dependency for fileTransfer compared to api
                     // This can be removed when the googleHttpClient version is updated to bring in a consistent version
                     force "com.google.code.findbugs:jsr305:${jsr305Version}"
+                    // force consistency in docker and connectors, saml, nlp
+                    force "org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}"
+                    // force consistency in docker and connectors and saml, nlp
+                    force "org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}"
+                    // force consistency with netty jar files for docker and UserReg-WS
+                    force "io.netty:netty-resolver:${nettyVersion}"
+                    force "io.netty:netty-handler:${nettyVersion}"
+                    force "io.netty:netty-handler-proxy:${nettyVersion}"
+                    force "io.netty:netty-buffer:${nettyVersion}"
+                    force "io.netty:netty-transport:${nettyVersion}"
+                    force "io.netty:netty-codec-socks:${nettyVersion}"
+                    force "io.netty:netty-codec:${nettyVersion}"
+                    force "io.netty:netty-common:${nettyVersion}"
+                    force "io.netty:netty-codec-http:${nettyVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

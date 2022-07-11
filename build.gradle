@@ -238,7 +238,7 @@ allprojects {
                     force "com.google.code.findbugs:jsr305:${jsr305Version}"
                     // force consistency in docker and connectors, saml, nlp
                     force "org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}"
-                    // force consistency in docker and connectors and saml, nlp
+                    // force consistency in docker and connectors and saml
                     force "org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}"
                     // force consistency with netty jar files for docker and UserReg-WS
                     force "io.netty:netty-resolver:${nettyVersion}"

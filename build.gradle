@@ -12,7 +12,7 @@ buildscript {
             url "https://plugins.gradle.org/m2"
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            url "${artifactory_contextUrl}/plugins-release"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
@@ -113,7 +113,7 @@ allprojects {
                     }
                     maven {
 
-                        url "${artifactory_contextUrl}/libs-release-no-proxy"
+                        url "${artifactory_contextUrl}/libs-release"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
                         {
@@ -127,7 +127,7 @@ allprojects {
                         }
                     }
                     maven {
-                        url "${artifactory_contextUrl}/libs-snapshot-no-proxy"
+                        url "${artifactory_contextUrl}/libs-snapshot"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
                         {

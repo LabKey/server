@@ -12,7 +12,7 @@ buildscript {
             url "https://plugins.gradle.org/m2"
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            url "${artifactory_contextUrl}/plugins-release"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
@@ -109,36 +109,52 @@ allprojects {
                 if (project.hasProperty("artifactory_contextUrl"))
                 {
                     maven {
+                        // using individual repos from Artifactory because the pentaho (and gradle-plugins) repositories incorrectly respond with a 200 status code
+                        // even when resources are not available.
+                        url "${artifactory_contextUrl}/libs-release-local"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                    maven {
+
+                        url "${artifactory_contextUrl}/ext-release-local"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                    maven {
+                        url "${artifactory_contextUrl}/libs-snapshot"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                    maven {
                         url "${artifactory_contextUrl}/ext-tools-local"
-                    }
-                    maven {
-
-                        url "${artifactory_contextUrl}/libs-release-no-proxy"
-
-                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-                        {
-                            credentials {
-                                username = artifactory_user
-                                password = artifactory_password
-                            }
-                            authentication {
-                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-                            }
-                        }
-                    }
-                    maven {
-                        url "${artifactory_contextUrl}/libs-snapshot-no-proxy"
-
-                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
-                        {
-                            credentials {
-                                username = artifactory_user
-                                password = artifactory_password
-                            }
-                            authentication {
-                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-                            }
-                        }
                     }
 // Temporarily uncomment the block below and update the four-digit number to allow building with Tomcat versions that
 // haven't been released yet. The "VOTE" emails sent to the Tomcat dev email list include a staging repo URL. In
@@ -147,7 +163,46 @@ allprojects {
 //                    	url "https://repository.apache.org/content/repositories/orgapachetomcat-1322/"
 //                    }
                 }
+                // this is located after our local repos because we need to pick up our version of radeox instead of the one found in mavenCentral
+                // (should probably have published our mods with a different version)
                 mavenCentral()
+                if (project.hasProperty("artifactory_contextUrl"))
+                {
+                    maven {
+
+                        url "${artifactory_contextUrl}/sencha"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                }
+                // This repository should always be last because it currently incorrectly returns a 200 status when requesting artifacts it does not have
+                if (project.hasProperty("artifactory_contextUrl"))
+                {
+                    maven {
+
+                        url "${artifactory_contextUrl}/pentaho"
+
+                        if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+                        {
+                            credentials {
+                                username = artifactory_user
+                                password = artifactory_password
+                            }
+                            authentication {
+                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                            }
+                        }
+                    }
+                }
             }
     configurations.all
             {

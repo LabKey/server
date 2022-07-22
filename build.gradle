@@ -128,6 +128,9 @@ allprojects {
                                 password = artifactory_password
                             }
                         }
+                        authentication {
+                            basic(BasicAuthentication)
+                        }
                     }
                     maven {
                         url "${artifactory_contextUrl}/libs-snapshot"
@@ -138,6 +141,9 @@ allprojects {
                                 username = artifactory_user
                                 password = artifactory_password
                             }
+                        }
+                        authentication {
+                            basic(BasicAuthentication)
                         }
                     }
 // Temporarily uncomment the block below and update the four-digit number to allow building with Tomcat versions that

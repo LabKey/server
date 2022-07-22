@@ -127,9 +127,6 @@ allprojects {
                                 username = artifactory_user
                                 password = artifactory_password
                             }
-                            authentication {
-                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
-                            }
                         }
                     }
                     maven {
@@ -140,9 +137,6 @@ allprojects {
                             credentials {
                                 username = artifactory_user
                                 password = artifactory_password
-                            }
-                            authentication {
-                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
                             }
                         }
                     }

@@ -128,7 +128,7 @@ allprojects {
                                 password = artifactory_password
                             }
                             authentication {
-                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                                basic(BasicAuthentication)
                             }
                         }
                     }
@@ -142,7 +142,7 @@ allprojects {
                                 password = artifactory_password
                             }
                             authentication {
-                                basic(BasicAuthentication) // enable preemptive authentication to get around https://www.jfrog.com/jira/browse/RTFACT-4434
+                                basic(BasicAuthentication)
                             }
                         }
                     }

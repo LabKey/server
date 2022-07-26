@@ -127,9 +127,9 @@ allprojects {
                                 username = artifactory_user
                                 password = artifactory_password
                             }
-                        }
-                        authentication {
-                            basic(BasicAuthentication)
+                            authentication {
+                                basic(BasicAuthentication)
+                            }
                         }
                     }
                     maven {
@@ -141,9 +141,9 @@ allprojects {
                                 username = artifactory_user
                                 password = artifactory_password
                             }
-                        }
-                        authentication {
-                            basic(BasicAuthentication)
+                            authentication {
+                                basic(BasicAuthentication)
+                            }
                         }
                     }
 // Temporarily uncomment the block below and update the four-digit number to allow building with Tomcat versions that

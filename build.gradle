@@ -251,6 +251,9 @@ allprojects {
                     force "io.netty:netty-common:${nettyVersion}"
                     force "io.netty:netty-codec-http:${nettyVersion}"
 
+                    force "org.springframework:spring-core:${springVersion}"
+                    force "org.springframework:spring-expression:5.3.17"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

@@ -252,7 +252,7 @@ allprojects {
                     force "io.netty:netty-codec-http:${nettyVersion}"
 
                     force "org.springframework:spring-core:${springVersion}"
-                    force "org.springframework:spring-expression:5.3.17"
+                    force "org.springframework:spring-expression:5.3.22"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

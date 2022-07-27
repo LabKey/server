@@ -251,6 +251,9 @@ allprojects {
                     force "io.netty:netty-common:${nettyVersion}"
                     force "io.netty:netty-codec-http:${nettyVersion}"
 
+                    // Issue 45969 - update to spring-expression 5.3.22 while keeping the rest of Spring on an older
+                    // release until we can do the full update. Need to force both so that spring-expression (a
+                    // transitive dependency) doesn't pull spring-core to the same newer version
                     force "org.springframework:spring-core:${springVersion}"
                     force "org.springframework:spring-expression:5.3.22"
 

@@ -320,10 +320,12 @@ subprojects {
             })
         })
     
-    task("allDepInsight",
-            type: DependencyInsightReportTask,
-            group: "Help",
-            description: "Displays the insight into a specific dependency across all projects")
+    project.tasks.register("allDepInsight", DependencyInsightReportTask) {
+            DependencyInsightReportTask t -> 
+                t.group = "Help"
+                t.description = "Displays the insight into a specific dependency across all projects"
+                t.showingAllVariants=false
+    }
     task("allDependencies",
             type: DependencyReportTask,
             group: "Help",

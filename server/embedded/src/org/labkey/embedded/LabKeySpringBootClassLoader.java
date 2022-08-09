@@ -1,5 +1,6 @@
 package org.labkey.embedded;
 
+import org.apache.logging.slf4j.SLF4JLoggerContext;
 import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 /**
@@ -21,7 +22,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     @Override
     protected boolean filter(String name, boolean isClassName)
     {
-        if (name.startsWith("org.slf4j."))
+        if (name.startsWith("org.slf4j.") || name.startsWith("org.apache.logging.log4j.") || name.startsWith("org.apache.logging.slf4j."))
         {
             return true;
         }

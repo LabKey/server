@@ -1,5 +1,4 @@
 import org.labkey.gradle.util.BuildUtils
-import org.labkey.gradle.util.PomFileHelper
 
 plugins {
     id "java"
@@ -7,6 +6,9 @@ plugins {
     id "org.springframework.boot" version "${springBootVersion}"
     id "io.spring.dependency-management" version "1.0.8.RELEASE"
 }
+
+// 'dependency-management' plugin doesn't allow us to use 'resolutionStrategy.force' to lock versions
+ext['log4j2.version'] = log4j2Version
 
 sourceSets {
     main {

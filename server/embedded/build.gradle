@@ -33,9 +33,6 @@ dependencies {
     runtimeOnly "javax.mail:javax.mail-api:1.6.2"
     runtimeOnly group: "com.sun.mail", name: "javax.mail", version: "1.6.0"
     runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${springBootTomcatVersion}"
-    runtimeOnly group: "org.apache.logging.log4j", name: "log4j-api", version: "2.18.0"
-    runtimeOnly group: "org.apache.logging.log4j", name: "log4j-core", version: "2.18.0"
-    runtimeOnly group: "org.apache.logging.log4j", name: "log4j-to-slf4j", version: "2.18.0"
     runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")

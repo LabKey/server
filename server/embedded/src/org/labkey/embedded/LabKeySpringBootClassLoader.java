@@ -1,6 +1,5 @@
 package org.labkey.embedded;
 
-import org.apache.logging.slf4j.SLF4JLoggerContext;
 import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 import java.io.IOException;

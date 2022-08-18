@@ -8,7 +8,6 @@
         driverClassName="@@jdbcDriverClassName@@"
         url="@@jdbcURL@@"
         maxTotal="20"
-        initialSize="3"
         maxIdle="3"
         minIdle="1"
         maxWaitMillis="120000"

@@ -76,7 +76,7 @@ allprojects {
     // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
     configurations.all {
         exclude group: "log4j", module:"log4j"
-        exclude group: "jakarta.activation", module: "jakarta.activation"
+        exclude group: "com.sun.activation", module: "jakarta.activation"
     }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")

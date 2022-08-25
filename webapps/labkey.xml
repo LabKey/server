@@ -8,10 +8,14 @@
         driverClassName="@@jdbcDriverClassName@@"
         url="@@jdbcURL@@"
         maxTotal="20"
-        maxIdle="10"
+        maxIdle="3"
+        minIdle="1"
         maxWaitMillis="120000"
+        testOnBorrow="false"
+        testWhileIdle="true"
+        timeBetweenEvictionRunsMillis="300000"
+        minEvictableIdleTimeMillis="300000"
         accessToUnderlyingConnectionAllowed="true"
-        validationQuery="SELECT 1"
         />
 
     <Resource name="mail/Session" auth="Container"

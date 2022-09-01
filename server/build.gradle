@@ -23,7 +23,7 @@ dependencies
         {
             tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
             tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
-            remotePipelineJars "javax.servlet:servlet-api:${servletApiVersion}"
+            remotePipelineJars "javax.servlet:javax.servlet-api:${servletApiVersion}"
         }
 
 dependencies

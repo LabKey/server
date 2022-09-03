@@ -94,7 +94,7 @@ allprojects {
             }
 
     // We apply the base module here so we get the configurations (in particular external and modules)
-    // that can be used for the allDepInsight task below.  I would really prefer not to do this here, but
+    // that can be used for the allDepInsight task below. I would really prefer not to do this here, but
     // we'll need to find another solution for allDepInsight (perhaps enumerate projects?)
     apply plugin: 'org.labkey.build.base'
 
@@ -109,7 +109,7 @@ allprojects {
             {
                 mavenCentral()
                 // this if statement is necessary because the TeamCity artifactory plugin overrides
-                // the repositories but does not use these artifactory_ urls.  For others who are
+                // the repositories but does not use these artifactory_ urls. For others who are
                 // developing or building, you do need to specify the three artifactory_ properties
                 // used below.
                 if (project.hasProperty("artifactory_contextUrl"))
@@ -208,7 +208,7 @@ allprojects {
                     // an older version for the docflex library we use
                     if (!config.name.equals('xsdDoc'))
                         force "xml-apis:xml-apis:${xmlApisVersion}"
-                    // cloud and SequenceAnalysis bring this in as a transitive dependency.  We resolve to the later version here to keep things consistent
+                    // cloud and SequenceAnalysis bring this in as a transitive dependency. We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
@@ -233,9 +233,6 @@ allprojects {
                     // force consistency in nlp and saml that bring these in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
                     force "com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}"
-                    // force consistency in transitive dependency for fileTransfer compared to api
-                    // This can be removed when the googleHttpClient version is updated to bring in a consistent version
-                    force "com.google.code.findbugs:jsr305:${jsr305Version}"
                     // force consistency in docker and connectors, saml, nlp
                     force "org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}"
                     // force consistency in docker and connectors and saml
@@ -254,7 +251,7 @@ allprojects {
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
-                        // are generated.  Because dependency substitution does not understand the use of classifiers, we cannot
+                        // are generated. Because dependency substitution does not understand the use of classifiers, we cannot
                         // use this mechanism in general (plus, it's very slow for our many-module build).
                         if (project.findProject(BuildUtils.getRemoteApiProjectPath(gradle)) && BuildUtils.shouldBuildFromSource(project.project(BuildUtils.getRemoteApiProjectPath(gradle))))
                             substitute module('org.labkey:labkey-client-api') with project(BuildUtils.getRemoteApiProjectPath(gradle))

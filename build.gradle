@@ -190,8 +190,10 @@ allprojects {
                     force "org.apache.commons:commons-math3:${commonsMath3Version}"
                     // force version for api, accounts, fileTransfer, harvest, scrumtime, docker
                     force "org.apache.httpcomponents:httpcore:${httpcoreVersion}"
+                    force "org.apache.httpcomponents.core5:httpcore5:${httpcore5Version}"
                     // force version for api, docker, fileTransfer, harvest, scrumtime, accounts
                     force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
+                    force "org.apache.httpcomponents.client5:httpclient5:${httpclient5Version}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
                     // force version for accounts, api, query

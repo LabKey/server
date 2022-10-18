@@ -16,8 +16,6 @@
 
 package org.labkey.bootstrap;
 
-import org.apache.tomcat.util.collections.CaseInsensitiveKeyMap;
-
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,13 +82,12 @@ public class ModuleExtractor
                 }).filter(Objects::nonNull).toList();
 
         // verify there are no duplicates
-        var nameSet = new CaseInsensitiveKeyMap<ModuleArchive>();
+        var nameSet = new HashMap<String,ModuleArchive>();
         for (var moduleArchive : archives)
         {
-            ModuleArchive found = nameSet.put(moduleArchive.getModuleName(), moduleArchive);
+            ModuleArchive found = nameSet.put(moduleArchive.getModuleName().toLowerCase(), moduleArchive);
             if (null != found)
             {
-                nameSet.put(moduleArchive.getModuleName(), moduleArchive);
                 var re = new IllegalStateException("LabKey found two modules with the name \"" + moduleArchive.getModuleName() + "\".  Please resolve this problem and restart the server");
                 _log.error("Unable to extract module archive " + found.getFile().getPath() + "!");
                 _log.error("Unable to extract module archive " + moduleArchive.getFile().getPath(), re);

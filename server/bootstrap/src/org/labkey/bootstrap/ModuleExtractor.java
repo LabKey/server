@@ -63,14 +63,44 @@ public class ModuleExtractor
         // list is critical in this case. File.listFiles() can't estimate the size of its results, so invoking parallel()
         // directly leads to a terrible splitting strategy that has no parallelization benefit.
         // https://stackoverflow.com/questions/34341656/why-is-files-list-parallel-stream-performing-so-much-slower-than-using-collect
-        _moduleDirectories.streamAllModuleDirectories()
-            .flatMap(dir-> {File[] files=dir.listFiles(moduleArchiveFilter); return null==files ? null : Stream.of(files);})
-            .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
-            .parallelStream()
-            .forEach(moduleArchiveFile->{
+        var archives = _moduleDirectories.streamAllModuleDirectories()
+                .flatMap(dir -> {
+                    File[] files = dir.listFiles(moduleArchiveFilter);
+                    return null == files ? null : Stream.of(files);
+                })
+                .map(moduleArchiveFile -> {
+                    try
+                    {
+                        return new ModuleArchive(moduleArchiveFile, _log);
+                    }
+                    catch (IOException e)
+                    {
+                        _log.error("Unable to open module archive " + moduleArchiveFile.getPath() + "!", e);
+                        _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList();
+
+        // verify there are no duplicates
+        var nameSet = new HashMap<String,ModuleArchive>();
+        for (var moduleArchive : archives)
+        {
+            ModuleArchive found = nameSet.put(moduleArchive.getModuleName().toLowerCase(), moduleArchive);
+            if (null != found)
+            {
+                var re = new IllegalStateException("LabKey found two modules with the name \"" + moduleArchive.getModuleName() + "\".  Please resolve this problem and restart the server");
+                _log.error("Unable to extract module archive " + found.getFile().getPath() + "!");
+                _log.error("Unable to extract module archive " + moduleArchive.getFile().getPath(), re);
+                throw re;
+            }
+        }
+
+        // extract
+        archives.parallelStream()
+            .forEach(moduleArchive->{
+                File moduleArchiveFile = moduleArchive.getFile();
                 try
                 {
-                    ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
                     File dir = moduleArchive.extractAll();
                     _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
                     mapModuleDirToArchive.put(dir.getAbsoluteFile(), moduleArchive);

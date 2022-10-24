@@ -16,7 +16,7 @@
 package org.labkey.bootstrap;
 
 /**
- * Here for backwards compatibility with labkey.xml (or similar) deployment descriptors that still refer to the this class
+ * Here for backwards compatibility with labkey.xml (or similar) deployment descriptors that still refer to this class
  * by name. Using LabKeyBootstrapClassLoader is the preferred class.
  */
 @Deprecated

@@ -1,9 +1,9 @@
 import org.apache.commons.lang3.SystemUtils
+import org.labkey.gradle.plugin.NpmRun
+import org.labkey.gradle.task.PurgeNpmAlphaVersions
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
-import org.labkey.gradle.plugin.NpmRun
-import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 buildscript {
     repositories {
@@ -229,8 +229,8 @@ allprojects {
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"
-                    // force junit and hamcrest versions to be consistent with what comes from labkey-client-api via json-simple.
-                    // The hamcrest dependencies come through transitively from jackson, json-simple, junit, jmock
+                    // force junit and hamcrest versions to be consistent with what comes from labkey-client-api.
+                    // The hamcrest dependencies come through transitively from jackson, junit, jmock
                     force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
                     force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
                     force "junit:junit:${junitVersion}"

@@ -46,7 +46,7 @@
     -->
 
     <!-- Pipeline configuration -->
-    <Parameter name="org.labkey.api.pipeline.config" value="/Users/jeckels/release22.3/server/configs/config-webserver"/>
+    <!--@@pipeline@@    <Parameter name="org.labkey.api.pipeline.config" value="@@pipelineConfigPath@@"/> @@pipeline@@-->
 
     <!--@@jmsConfig@@ <Resource name="jms/ConnectionFactory" auth="Container"
         type="org.apache.activemq.ActiveMQConnectionFactory"

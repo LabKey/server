@@ -83,7 +83,6 @@ allprojects {
     dependencies
             {
                 //for SqlUtils
-                driver "net.sourceforge.jtds:jtds:${jtdsVersion}"
                 driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
                 driver "com.microsoft.sqlserver:mssql-jdbc:${mssqlJdbcVersion}"
 

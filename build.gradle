@@ -237,9 +237,9 @@ allprojects {
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
                     force "com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}"
                     // force consistency in docker and connectors, saml, nlp
-                    force "org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}"
+                    force "org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}"
                     // force consistency in docker and connectors and saml
-                    force "org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}"
+                    force "org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}"
                     // force consistency with netty jar files for docker and UserReg-WS
                     force "io.netty:netty-resolver:${nettyVersion}"
                     force "io.netty:netty-handler:${nettyVersion}"
@@ -260,10 +260,15 @@ allprojects {
                             substitute module('org.labkey:labkey-client-api') with project(BuildUtils.getRemoteApiProjectPath(gradle))
                         // mule and tika bring in different versions of bouncycastle package via transitive dependencies, but these versions
                         // result in a StackOverflow when starting tomcat so we substitute new libraries for both versions that are brought in.
-                        substitute module('bouncycastle:bcprov-jdk14:138') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                        substitute module('bouncycastle:bcmail-jdk14:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
-                        substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}")
-                        substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcprov-jdk14:138') with module("org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcmail-jdk14:138') with module("org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcprov-jdk15:1.45') with module("org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}")
+                        substitute module('bouncycastle:bcmail-jdk15:138') with module("org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}")
+
+                        // Docker and SAML are bringing in older -jdk15on versions (more recent versions have been renamed with -jdk18on suffix)
+                        substitute module('org.bouncycastle:bcprov-jdk15on:1.54') with module("org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}")
+                        substitute module('org.bouncycastle:bcprov-jdk15on:1.64') with module("org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}")
+                        substitute module('org.bouncycastle:bcpkix-jdk15on:1.64') with module("org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}")
 
                         // This JAR packages classes with the same names as commons-logging but forces them to use SLF4J instead
                         // of the normal routing decisions, and can result in very verbose output to STDOUT

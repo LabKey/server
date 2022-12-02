@@ -22,6 +22,11 @@
         <constraint name="Expression" script="&quot;&quot;" regexp="(h|q|text|textLink|generateButton|PageFlowUtil.\w*)\(.*\)" nameOfExprType="java.lang.String" negateName="true" within="" contains="" />
         <constraint name="JspWriter" script="&quot;&quot;" nameOfExprType="javax.servlet.jsp.JspWriter" within="" contains="" />
       </searchConfiguration>
+      <replaceConfiguration name="File.createTempFile()" text="File.createTempFile($Parameter$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformat
+AccordingToStyle="false" shortenFQN="false" replacement="FileUtil.createTempFile($Parameter$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Parameter" maxCount="3" within="" contains="" />
+      </replaceConfiguration>
       <replaceConfiguration name="File.getCanonicalPath() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalPath()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$).getAbsolutePath()">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />

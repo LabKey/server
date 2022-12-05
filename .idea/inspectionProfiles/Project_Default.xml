@@ -2,6 +2,7 @@
   <profile version="1.0" is_locked="false">
     <option name="myName" value="Project Default" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="CatchMayIgnoreExceptionMerged" />
@@ -10,7 +11,6 @@
       <option name="m_ignoreTestCases" value="true" />
       <option name="m_ignoreIgnoreParameter" value="true" />
     </inspection_tool>
-    <inspection_tool class="JUnit3StyleTestMethodInJUnit4Class" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="JUnitRule" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="Java8CollectionsApi" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MissingOverrideAnnotation" enabled="true" level="WARNING" enabled_by_default="true">

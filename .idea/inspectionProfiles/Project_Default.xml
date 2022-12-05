@@ -2,7 +2,6 @@
   <profile version="1.0" is_locked="false">
     <option name="myName" value="Project Default" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="CatchMayIgnoreExceptionMerged" />
@@ -11,6 +10,7 @@
       <option name="m_ignoreTestCases" value="true" />
       <option name="m_ignoreIgnoreParameter" value="true" />
     </inspection_tool>
+    <inspection_tool class="JUnit3StyleTestMethodInJUnit4Class" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="JUnitRule" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="Java8CollectionsApi" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MissingOverrideAnnotation" enabled="true" level="WARNING" enabled_by_default="true">
@@ -22,10 +22,16 @@
         <constraint name="Expression" script="&quot;&quot;" regexp="(h|q|text|textLink|generateButton|PageFlowUtil.\w*)\(.*\)" nameOfExprType="java.lang.String" negateName="true" within="" contains="" />
         <constraint name="JspWriter" script="&quot;&quot;" nameOfExprType="javax.servlet.jsp.JspWriter" within="" contains="" />
       </searchConfiguration>
-      <replaceConfiguration name="File.createTempFile()" text="File.createTempFile($Parameter$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformat
-AccordingToStyle="false" shortenFQN="false" replacement="FileUtil.createTempFile($Parameter$)">
+      <replaceConfiguration name="File.createTempFile() typically creates file with wide read permissions" text="java.io.File.createTempFile($Arg1$, $Arg2$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.FileUtil.createTempFile($Arg1$, $Arg2$)">
         <constraint name="__context__" within="" contains="" />
-        <constraint name="Parameter" maxCount="3" within="" contains="" />
+        <constraint name="Arg2" within="" contains="" />
+        <constraint name="Arg1" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="File.createTempFile() typically creates file with wide read permissions" text="java.io.File.createTempFile($Arg1$, $Arg2$, $Arg3$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.FileUtil.createTempFile($Arg1$, $Arg2$, $Arg3$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Arg3" within="" contains="" />
+        <constraint name="Arg2" within="" contains="" />
+        <constraint name="Arg1" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="File.getCanonicalPath() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalPath()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$).getAbsolutePath()">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />

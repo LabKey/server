@@ -22,6 +22,17 @@
         <constraint name="Expression" script="&quot;&quot;" regexp="(h|q|text|textLink|generateButton|PageFlowUtil.\w*)\(.*\)" nameOfExprType="java.lang.String" negateName="true" within="" contains="" />
         <constraint name="JspWriter" script="&quot;&quot;" nameOfExprType="javax.servlet.jsp.JspWriter" within="" contains="" />
       </searchConfiguration>
+      <replaceConfiguration name="File.createTempFile() typically creates file with wide read permissions" text="java.io.File.createTempFile($Arg1$, $Arg2$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.FileUtil.createTempFile($Arg1$, $Arg2$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Arg2" within="" contains="" />
+        <constraint name="Arg1" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="File.createTempFile() typically creates file with wide read permissions" text="java.io.File.createTempFile($Arg1$, $Arg2$, $Arg3$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.FileUtil.createTempFile($Arg1$, $Arg2$, $Arg3$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Arg3" within="" contains="" />
+        <constraint name="Arg2" within="" contains="" />
+        <constraint name="Arg1" within="" contains="" />
+      </replaceConfiguration>
       <replaceConfiguration name="File.getCanonicalPath() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalPath()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$).getAbsolutePath()">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />

@@ -183,14 +183,14 @@ allprojects {
                     force "commons-pool:commons-pool:${commonsPoolVersion}"
                     // force version for consistency with query, saml, LDK, api
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
-                    // force version for ms2, saml, fileTransfer, harvest, scrumtime, api, accounts, docker
+                    // force version for ms2, saml, fileTransfer, harvest, api, accounts, docker
                     force "commons-codec:commons-codec:${commonsCodecVersion}"
                     // force version consistency in TCRdb, SequenceAnalysis, API
                     force "org.apache.commons:commons-math3:${commonsMath3Version}"
-                    // force version for cloud, docker, fileTransfer, googledrive, scrumtime, tcrb, wnprc_ehr
+                    // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpcore:${httpcoreVersion}"
                     force "org.apache.httpcomponents.core5:httpcore5:${httpcore5Version}"
-                    // force version for cloud, docker, fileTransfer, googledrive, scrumtime, tcrb, wnprc_ehr
+                    // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
                     force "org.apache.httpcomponents.client5:httpclient5:${httpclient5Version}"
                     // force version for SequenceAnalysis, api, cloud

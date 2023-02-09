@@ -51,8 +51,3 @@ if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getRem
 {
     include BuildUtils.getRemoteApiProjectPath(gradle)
 }
-
-if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getSasApiProjectPath(gradle))).exists())
-{
-    include BuildUtils.getSasApiProjectPath(gradle)
-}

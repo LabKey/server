@@ -120,10 +120,10 @@ project.jsDoc.paths = [
     "modules/platform/api/webapp/clientapi/ext3",
     "modules/platform/api/webapp/clientapi/ext4",
     "modules/platform/api/webapp/clientapi/ext4/data",
-    "modules/platform/internal/webapp/labkey.js",
+    "modules/platform/core/webapp/labkey.js",
     "modules/platform/visualization/resources/web/vis/genericChart/genericChartHelper.js",
     "modules/platform/visualization/resources/web/vis/timeChart/timeChartHelper.js",
-    "modules/platform/internal/webapp/vis/src"
+    "modules/platform/core/webapp/vis/src"
 ]
 
 project.publishing {

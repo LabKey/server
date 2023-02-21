@@ -1,1 +1,2 @@
 include ":server:testAutomation:buildTestModules:starterArtifacts"
+include ":server:minification"

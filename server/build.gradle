@@ -115,15 +115,15 @@ project.xsdDoc.xsdFiles=xsdFiles
 
 project.jsDoc.paths = [
     "modules/platform/api/webapp/clientapi",
-    "modules/platform/api/webapp/clientapi/dom",
     "modules/platform/api/webapp/clientapi/core",
+    "modules/platform/api/webapp/clientapi/dom",
     "modules/platform/api/webapp/clientapi/ext3",
     "modules/platform/api/webapp/clientapi/ext4",
     "modules/platform/api/webapp/clientapi/ext4/data",
     "modules/platform/core/webapp/labkey.js",
+    "modules/platform/core/webapp/vis/src",
     "modules/platform/visualization/resources/web/vis/genericChart/genericChartHelper.js",
-    "modules/platform/visualization/resources/web/vis/timeChart/timeChartHelper.js",
-    "modules/platform/core/webapp/vis/src"
+    "modules/platform/visualization/resources/web/vis/timeChart/timeChartHelper.js"
 ]
 
 project.publishing {

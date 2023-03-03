@@ -21,7 +21,7 @@ buildscript {
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
     }
-    configurations.all {
+    configurations.configureEach {
         // Check for updates every build for SNAPSHOT dependencies
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }

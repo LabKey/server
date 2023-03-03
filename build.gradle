@@ -25,7 +25,7 @@ buildscript {
     dependencies {
         classpath "org.labkey.build:versioning:${versioningPluginVersion}"
     }
-    configurations.all {
+    configurations.configureEach {
         // Check for updates every build for SNAPSHOT dependencies
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
@@ -53,7 +53,7 @@ allprojects {
     {
         apply plugin: 'com.jfrog.artifactory'
     }
-    project.tasks.withType(JavaCompile) {
+    project.tasks.withType(JavaCompile).configureEach {
         JavaCompile compile ->
             compile.options.incremental = true  // Gradle 3.4
             compile.options.encoding = 'UTF-8'
@@ -74,7 +74,7 @@ allprojects {
                 utilities
             }
     // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
-    configurations.all {
+    configurations.configureEach {
         exclude group: "log4j", module:"log4j"
     }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
@@ -99,7 +99,7 @@ allprojects {
 
 
     tasks.withType(JavaCompile)
-            {
+            .configureEach {
                 sourceCompatibility = project.ext.sourceCompatibility
                 targetCompatibility = project.ext.targetCompatibility
             }
@@ -154,12 +154,12 @@ allprojects {
                 }
 
             }
-    configurations.all
+    configurations.configureEach
             {
                 // Check for updates every build for SNAPSHOT dependencies
                 resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
             }
-    configurations.all
+    configurations.configureEach
             {Configuration config ->
                 resolutionStrategy {
                     // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
@@ -314,18 +314,27 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
 }
 
 subprojects {
-    task("showRepos", group: "Help", description: "Show the list of repositories currently in use.").doLast({
-        repositories.each {
-            println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
-        }
-    })
-    project.task("showConfigs", group: "help", description: "Show all the configurations available in the project and their published artifacts")
-        .doLast({
-            project.configurations.forEach({
-                Configuration config ->
-                    println(config.name + ": (${config.getDescription()})")
+    project.tasks.register("showRepos", DefaultTask) {
+        task ->
+            task.group = "Help"
+            task.description = "Show the list of repositories currently in use."
+            task..doLast({
+                repositories.each {
+                    println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
+                }
             })
-        })
+    }
+    project.tasks.register("showConfigs") {
+        task ->
+            task.group = GroupNames.HELP
+            task.description = "Show all the configurations available in the project and their published artifacts"
+            task.doLast({
+                project.configurations.forEach({
+                    Configuration config ->
+                        println(config.name + ": (${config.getDescription()})")
+                })
+            })
+    }
     
     project.tasks.register("allDepInsight", DependencyInsightReportTask) {
             DependencyInsightReportTask t -> 
@@ -333,80 +342,88 @@ subprojects {
                 t.description = "Displays the insight into a specific dependency across all projects"
                 t.showingAllVariants=false
     }
-    task("allDependencies",
-            type: DependencyReportTask,
-            group: "Help",
-            description: "Displays the dependencies for all projects")
+    project.tasks.register("allDependencies", DependencyReportTask) {
+        task ->
+            task.group = GroupNames.HELP
+            task.description = "Displays the dependencies for all projects"
+    }
 }
 
-project.task("showDiscrepancies",
-        group: "Help",
-        type: ShowDiscrepancies,
-        description: "Report external dependencies that have more than one version referenced in the modules in this build"
-)
+project.tasks.register("showDiscrepancies", ShowDiscrepancies) {
+    task ->
+        task.group = "Help"
+        task.description = "Report external dependencies that have more than one version referenced in the modules in this build"
+}
 
-project.task(
-        'getModulesManifest',
-        group: GroupNames.DISTRIBUTION,
-        description: "Creates a csv file with a list of the modules for each distribution. By default it will be " +
+project.tasks.register('getModulesManifest', DefaultTask) {
+    task ->
+        task.group = GroupNames.DISTRIBUTION
+        task.description = "Creates a csv file with a list of the modules for each distribution. By default it will be " +
                 "placed in a directory called manifests in the root of this labkey installation. Specify another " +
                 "directory by using \"-PmanifestDir\". The default file name is distributionModules.csv; specify " +
                 "another name using \"-PmanifestFileName\"."
-).doLast({
-    String manifestDir = "${project.getRootProject().getProjectDir()}/manifests"
-    String manifestFileName = "distributionModules.csv"
+        task.doLast({
+            String manifestDir = "${project.getRootProject().getProjectDir()}/manifests"
+            String manifestFileName = "distributionModules.csv"
 
-    if (project.hasProperty("manifestDir")) {
-        manifestDir = project.manifestDir
-    }
-
-    if (project.hasProperty("manifestFileName")) {
-        manifestFileName = project.manifestFileName
-    }
-
-    project.mkdir(manifestDir)
-    File manifestFile = project.file("${manifestDir}/${manifestFileName}")
-
-    StringBuilder manifestString = new StringBuilder("distribution,moduleName\n")
-    project.allprojects({Project sp ->
-        if (sp.configurations.getNames().contains("distribution")) {
-            String distName
-            if (sp.getName().startsWith("test_")) {
-                // This is for the test_*prc case.
-                distName = sp.getName()
+            if (project.hasProperty("manifestDir"))
+            {
+                manifestDir = project.manifestDir
             }
-            else {
-                distName = sp.tasks.distribution.hasProperty("subDirName") ?
-                        sp.tasks.distribution.subDirName :
-                        sp.getName()
+
+            if (project.hasProperty("manifestFileName"))
+            {
+                manifestFileName = project.manifestFileName
             }
-            sp.configurations.distribution
-                    .getAllDependencies()
-                    .withType(ProjectDependency)
-                    .each({dep ->
-                manifestString.append("${distName},${dep.name}\n")
+
+            project.mkdir(manifestDir)
+            File manifestFile = project.file("${manifestDir}/${manifestFileName}")
+
+            StringBuilder manifestString = new StringBuilder("distribution,moduleName\n")
+            project.allprojects({ Project sp ->
+                if (sp.configurations.getNames().contains("distribution"))
+                {
+                    String distName
+                    if (sp.getName().startsWith("test_"))
+                    {
+                        // This is for the test_*prc case.
+                        distName = sp.getName()
+                    }
+                    else
+                    {
+                        distName = sp.tasks.distribution.hasProperty("subDirName") ?
+                                sp.tasks.distribution.subDirName :
+                                sp.getName()
+                    }
+                    sp.configurations.distribution
+                            .getAllDependencies()
+                            .withType(ProjectDependency)
+                            .each({ dep ->
+                                manifestString.append("${distName},${dep.name}\n")
+                            })
+                }
             })
-        }
-    })
-    manifestFile.text = manifestString.toString()
-})
+            manifestFile.text = manifestString.toString()
+        })
+}
 
-project.task(
-    'listNpmProjects',
-    group: GroupNames.NPM_RUN,
-    description:"List all projects that employ npm in their build"
-).doLast({
-    List<String> npmProjects = []
-    project.allprojects({Project p ->
-        if (p.getPlugins().hasPlugin(NpmRun.class))
-            npmProjects.add("${p.path} (${NpmRun.useYarn(p) ? 'yarn' : 'npm'})")
-    })
-    if (npmProjects.size == 0)
-        println("No projects found containing ${NpmRun.NPM_PROJECT_FILE}")
-    else {
-        println("The following projects use NPM in their builds:\n\t${npmProjects.join("\n\t")}\n")
-    }
-})
+project.tasks.register('listNpmProjects', DefaultTask) {
+    task ->
+        task.group = GroupNames.NPM_RUN
+        task.description ="List all projects that employ npm in their build"
+        task.doLast({
+            List<String> npmProjects = []
+            project.allprojects({Project p ->
+                if (p.getPlugins().hasPlugin(NpmRun.class))
+                    npmProjects.add("${p.path} (${NpmRun.useYarn(p) ? 'yarn' : 'npm'})")
+            })
+            if (npmProjects.size() == 0)
+                println("No projects found containing ${NpmRun.NPM_PROJECT_FILE}")
+            else {
+                println("The following projects use NPM in their builds:\n\t${npmProjects.join("\n\t")}\n")
+            }
+        })
+}
 
 project.tasks.register('ijWorkspaceSetup', Copy) {
     Copy copy ->

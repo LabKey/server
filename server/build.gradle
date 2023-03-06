@@ -196,12 +196,15 @@ project.tasks.register("cleanDocs", DefaultTask) {
         })
 }
 
-task('createModule', type: CreateModule, group: "Module",
-        description: "Creates a new module. Use moduleName property to specify the name of the module to be created. " +
-                "Use moduleDestination to specify the full path to destination" +
-                "Use createFiles to control which subdirectories are created.  Include some subset of api, test, and/or schema " +
-                    "in a comma delimited list to create those subdirectories in the new module. If none are required, still " +
-                    "include -PcreateFiles with no value to avoid being prompted." )
+tasks.register('createModule', CreateModule) {
+    task ->
+        task.group = GroupNames.MODULE
+        task.description = "Creates a new module. Use moduleName property to specify the name of the module to be created. " +
+            "Use moduleDestination to specify the full path to destination" +
+            "Use createFiles to control which subdirectories are created.  Include some subset of api, test, and/or schema " +
+            "in a comma delimited list to create those subdirectories in the new module. If none are required, still " +
+            "include -PcreateFiles with no value to avoid being prompted."
+}
 
 // We add this configuration here so we have a single location to link to for the npm and node executables.
 // Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode

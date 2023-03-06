@@ -318,7 +318,7 @@ subprojects {
         task ->
             task.group = "Help"
             task.description = "Show the list of repositories currently in use."
-            task..doLast({
+            task.doLast({
                 repositories.each {
                     println "repository: ${it.name} (${it.hasProperty("url") ? it.url : it.getDirs()})"
                 }

@@ -178,6 +178,7 @@ allprojects {
                     // force version for consistency with workflow, api, SequenceAnalysis
                     force "org.apache.commons:commons-lang3:${commonsLang3Version}"
                     force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
+                    force "commons-fileupload:commons-fileupload:${commonsFileuploadVersion}"
                     force "commons-io:commons-io:${commonsIoVersion}"
                     force "commons-logging:commons-logging:${commonsLoggingVersion}"
                     force "commons-pool:commons-pool:${commonsPoolVersion}"

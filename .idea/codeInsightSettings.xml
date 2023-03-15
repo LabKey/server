@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaProjectCodeInsightSettings">
+    <excluded-names>
+      <name>com.google.gwt.core.client.impl.AsyncFragmentLoader.Logger</name>
+      <name>common.Logger</name>
+      <name>java.lang.System.Logger</name>
+      <name>java.util.logging.Logger</name>
+      <name>org.apache.commons.lang.StringUtils</name>
+      <name>org.apache.logging.log4j.core.Logger</name>
+      <name>org.apache.tika.utils.StringUtils</name>
+      <name>org.apache.tomcat.util.buf.StringUtils</name>
+      <name>org.eclipse.jdt.internal.compiler.batch.Main.Logger</name>
+      <name>org.jfree.util.StringUtils</name>
+      <name>org.labkey.api.gwt.client.util.StringUtils</name>
+      <name>org.slf4j.Logger</name>
+    </excluded-names>
+  </component>
+</project>

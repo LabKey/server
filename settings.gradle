@@ -81,6 +81,8 @@ if (hasProperty("useEmbeddedTomcat"))
     include ":server:embedded"
 }
 
+include BuildUtils.getMinificationProjectPath(gradle)
+
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()
         && !hasProperty('excludeBaseModules'))
 {

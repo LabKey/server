@@ -3,17 +3,27 @@
   <component name="JavaProjectCodeInsightSettings">
     <excluded-names>
       <name>com.google.gwt.core.client.impl.AsyncFragmentLoader.Logger</name>
+      <name>com.google.gwt.util.tools.shared.StringUtils</name>
+      <name>com.mchange.lang.StringUtils</name>
+      <name>com.mchange.v2.lang.StringUtils</name>
       <name>common.Logger</name>
       <name>java.lang.System.Logger</name>
       <name>java.util.logging.Logger</name>
+      <name>org.apache.camel.processor.Logger</name>
+      <name>org.apache.commons.codec.binary.StringUtils</name>
       <name>org.apache.commons.lang.StringUtils</name>
+      <name>org.apache.fop.afp.util.StringUtils</name>
       <name>org.apache.logging.log4j.core.Logger</name>
       <name>org.apache.tika.utils.StringUtils</name>
       <name>org.apache.tomcat.util.buf.StringUtils</name>
+      <name>org.apache.tomcat.util.codec.binary.StringUtils</name>
       <name>org.eclipse.jdt.internal.compiler.batch.Main.Logger</name>
       <name>org.jfree.util.StringUtils</name>
       <name>org.labkey.api.gwt.client.util.StringUtils</name>
+      <name>org.mule.util.StringUtils</name>
+      <name>org.safehaus.uuid.Logger</name>
       <name>org.slf4j.Logger</name>
+      <name>org.springframework.util.StringUtils</name>
     </excluded-names>
   </component>
 </project>

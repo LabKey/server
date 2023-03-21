@@ -1,15 +1,17 @@
 
 pluginManagement {
-    repositories {
-        maven {
-            url "${artifactory_contextUrl}/plugins-release"
-        }
-        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT")) {
-            maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
-            }
-        }
-    }
+    // This doesn't seem necessary. Remove?
+//    repositories {
+//        maven {
+//            url "${artifactory_contextUrl}/plugins-release"
+//        }
+//        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT")) {
+//            mavenLocal()
+//            maven {
+//                url "${artifactory_contextUrl}/plugins-snapshot-local"
+//            }
+//        }
+//    }
     plugins {
         id 'org.labkey.build.antlr' version "${gradlePluginsVersion}" apply false
         id 'org.labkey.build.api' version "${gradlePluginsVersion}" apply false
@@ -37,24 +39,15 @@ buildscript {
             url "${artifactory_contextUrl}/plugins-release"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT")) {
+            // For testing changes to the gradle plugins. Publish 'gradlePlugins' locally using 'publishToMavenLocal'.
+            // Update 'gradlePluginsVersion' to match the plugin SNAPSHOT version.
+            // You will need to rerun the publish task to pick up new changes.
+            mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
             }
         }
     }
-    // For testing changes to the gradle plugins, uncomment the dependencies block below and reference the location
-    // of your gradlePlugin enlistment.  Then comment out the following dependencies
-    // block.  You will need to build the gradlePlugins jar file manually to pick up new changes.
-//    dependencies {
-//        classpath files("../gradlePlugin/build/libs/gradlePlugin-${gradlePluginsVersion}.jar")
-//        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
-//        classpath "org.apache.commons:commons-text:1.9"
-//        classpath "commons-io:commons-io:${commonsIoVersion}"
-//        classpath "org.apache.httpcomponents:httpclient:${httpclientVersion}"
-//        classpath "org.json:json:20210307"
-//        classpath "com.fasterxml.jackson.core:jackson-databind:2.12.2"
-//        classpath "org.ajoberstar.grgit:grgit-gradle:4.1.0"
-//    }
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
     }

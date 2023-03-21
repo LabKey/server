@@ -6,6 +6,7 @@ buildscript {
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
+            mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
             }

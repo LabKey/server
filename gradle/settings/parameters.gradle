@@ -10,4 +10,5 @@ gradle.ext.remoteApiProjectPath=":remoteapi:labkey-api-java"
 gradle.ext.jdbcApiProjectPath=":remoteapi:labkey-api-jdbc"
 gradle.ext.schemasProjectPath=":server:modules:platform:api"
 gradle.ext.testProjectPath=":server:testAutomation"
+gradle.ext.minificationProjectPath=":server:minification"
 gradle.ext.nodeBinProjectPath=":" // The npm and node executables downloaded into this project's build directory will be the target of the links created by the synlinkNode task

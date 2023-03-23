@@ -1,35 +1,30 @@
 
 pluginManagement {
-    // This doesn't seem necessary. Remove?
-//    repositories {
-//        maven {
-//            url "${artifactory_contextUrl}/plugins-release"
-//        }
-//        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT")) {
-//            mavenLocal()
-//            maven {
-//                url "${artifactory_contextUrl}/plugins-snapshot-local"
-//            }
-//        }
-//    }
-    plugins {
-        id 'org.labkey.build.antlr' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.api' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.applyLicenses' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.base' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.distribution' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.fileModule' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.javaModule' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.jsdoc' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.module' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.multiGit' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.npmRun' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.serverDeploy' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.teamCity' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.testRunner' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.tomcat' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.build.xsddoc' version "${gradlePluginsVersion}" apply false
-        id 'org.labkey.versioning' version "${versioningPluginVersion}" apply false
+    repositories {
+        maven {
+            url "${artifactory_contextUrl}/plugins-release"
+        }
+        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
+        {
+            mavenLocal()
+            maven {
+                url "${artifactory_contextUrl}/plugins-snapshot-local"
+            }
+        }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == 'org.labkey.versioning')
+            {
+                // Versioning isn't published with plugin markers
+                useModule("org.labkey.build:versioning:${versioningPluginVersion}")
+            }
+            else if (requested.id.namespace == 'org.labkey.build')
+            {
+                // This doesn't really do anything. The jar on the classpath will take precedence
+                useVersion("${gradlePluginsVersion}")
+            }
+        }
     }
 }
 

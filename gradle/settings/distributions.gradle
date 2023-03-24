@@ -5,25 +5,13 @@ buildscript {
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
+            mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
             }
 
         }
     }
-    // For testing changes to the gradle plugins, uncomment the dependencies block below and reference the location
-    // of your gradlePlugin enlistment.  Then comment out the following dependencies
-    // block.  You will need to build the gradlePlugins jar file manually to pick up new changes.
-//    dependencies {
-//        classpath files("../gradlePlugin/build/libs/gradlePlugin-${gradlePluginsVersion}.jar")
-//        classpath "org.apache.commons:commons-lang3:${commonsLang3Version}"
-//        classpath "org.apache.commons:commons-text:${commonsTextVersion}"
-//        classpath "commons-io:commons-io:${commonsIoVersion}"
-//        classpath "org.apache.httpcomponents:httpclient:${httpclientVersion}"
-//        classpath "org.json:json:${orgJsonVersion}"
-//        classpath "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
-//        classpath "org.ajoberstar.grgit:grgit-gradle:${grgitGradleVersion}"
-//    }
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
     }

@@ -5,39 +5,13 @@ import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2"
-        }
-        maven {
-            url "${artifactory_contextUrl}/plugins-release"
-        }
-        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
-        {
-            maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
-            }
-
-        }
-    }
-    dependencies {
-        classpath "org.labkey.build:versioning:${versioningPluginVersion}"
-    }
-    configurations.configureEach {
-        // Check for updates every build for SNAPSHOT dependencies
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-
-}
-
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 //    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
+    id 'org.labkey.versioning' apply false // Need this for our 'base' plugin to get the version specified in settings.gradle
 }
 
 allprojects {

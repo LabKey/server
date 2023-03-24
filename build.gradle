@@ -11,7 +11,7 @@ plugins {
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 //    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
-    id 'org.labkey.versioning' apply false // Need this for our 'base' plugin version specified in settings.gradle
+    id 'org.labkey.versioning' apply false // Need this for our 'base' plugin to get the version specified in settings.gradle
 }
 
 allprojects {

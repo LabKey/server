@@ -4,26 +4,3 @@
 // - The test modules (all modules in /server/test/modules plus devtools)
 //
 // To exclude the test modules, comment out this line in settings.gradle: BuildUtils.includeTestModules(this.settings, rootDir)
-
-buildscript {
-    repositories {
-        maven {
-            url "${artifactory_contextUrl}/plugins-release"
-        }
-        if (gradlePluginsVersion.contains("SNAPSHOT"))
-        {
-            mavenLocal()
-            maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
-            }
-
-        }
-    }
-    dependencies {
-        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-    }
-    configurations.configureEach {
-        // Check for updates every build for SNAPSHOT dependencies
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-}

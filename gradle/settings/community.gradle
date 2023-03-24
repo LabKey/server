@@ -1,38 +1,11 @@
 
-buildscript {
-    repositories {
-        maven {
-            url "${artifactory_contextUrl}/plugins-release"
-        }
-        if (gradlePluginsVersion.contains("SNAPSHOT"))
-        {
-            mavenLocal()
-            maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
-            }
-
-        }
-    }
-    dependencies {
-        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-    }
-    configurations.configureEach {
-        // Check for updates every build for SNAPSHOT dependencies
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-}
-
-import org.labkey.gradle.util.BuildUtils
-
-BuildUtils.includeBaseModules(this.settings)
+// Base modules will be included automatically by `settings.gradle`
 include ":server:modules:platform:announcements"
 include ":server:modules:platform:assay"
 include ":server:modules:platform:issues"
 include ":server:modules:platform:list"
-include ":server:modules:commonAssays:ms2"
 include ":server:modules:platform:search"
 include ":server:modules:platform:study"
 include ":server:modules:platform:survey"
-include ":server:modules:targetedms"
 include ":server:modules:platform:visualization"
 include ":server:modules:platform:wiki"

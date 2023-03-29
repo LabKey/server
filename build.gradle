@@ -291,6 +291,10 @@ allprojects {
                     // force consistency in nlp and saml that bring these in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
                     force "com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}"
+                    // force consistency in docker and connectors, saml, nlp
+                    force "org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}"
+                    // force consistency in docker and connectors and saml
+                    force "org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}"
                     // force consistency in transitive dependency for fileTransfer compared to api
                     // This can be removed when the googleHttpClient version is updated to bring in a consistent version
                     force "com.google.code.findbugs:jsr305:${jsr305Version}"

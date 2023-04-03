@@ -21,6 +21,10 @@ allprojects {
         apply plugin: 'org.owasp.dependencycheck'
         dependencyCheck {
             outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}"
+            analyzers {
+                assemblyEnabled = false
+                nodeEnabled = false
+            }
         }
     }
     if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))

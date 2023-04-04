@@ -22,8 +22,8 @@ allprojects {
         dependencyCheck {
             outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}"
             analyzers {
-                assemblyEnabled = false
-                nodeEnabled = false
+                assemblyEnabled = false // Sets whether the .NET Assembly Analyzer should be used.
+                nodeEnabled = false // Sets whether the Node.js Analyzer should be used.
             }
         }
     }

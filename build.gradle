@@ -241,7 +241,11 @@ allprojects {
                     force "io.netty:netty-codec-http:${nettyVersion}"
                     force "io.netty:netty-transport-native-epoll:${nettyVersion}"
                     force "io.netty:netty-transport-native-kqueue:${nettyVersion}"
+
+                    // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
+                    // Force consistency across pipeline, SequenceAnalysis, and query
+                    force "javax.xml.bind:jaxb-api:${jaxbApiVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

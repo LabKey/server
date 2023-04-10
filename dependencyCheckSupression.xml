@@ -38,7 +38,8 @@
         <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
     </suppress>
 
-    <!-- Guava has deprecated the problematic com.google.common.io.Files.createTempDir(), the topic of this CVE, and we don't call it -->
+    <!-- Guava has deprecated the problematic com.google.common.io.Files.createTempDir(), the topic of this CVE,
+     and we don't call it. https://github.com/google/guava/issues/4011 -->
     <suppress>
         <notes><![CDATA[
    file name: guava-31.1-jre.jar

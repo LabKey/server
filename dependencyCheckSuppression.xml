@@ -82,4 +82,17 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
         <vulnerabilityName>CVE-2016-1000027</vulnerabilityName>
     </suppress>
+
+
+    <!--
+    For our purposes, Random is good enough, and not worth publishing our own version of the artifact that uses
+    SecureRandom. https://github.com/penggle/kaptcha/issues/3
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: kaptcha-2.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.code\.kaptcha/kaptcha@.*$</packageUrl>
+        <cve>CVE-2018-18531</cve>
+    </suppress>
 </suppressions>

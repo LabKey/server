@@ -47,4 +47,39 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
         <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
     </suppress>
+
+    <!--
+    Actually packages MINA 2.2.1 but dependency check confuses the version number.
+    https://search.maven.org/artifact/org.apache.directory.api/api-parent/2.1.3/jar?eh=
+     -->
+    <suppress>
+        <notes><![CDATA[
+   file name: api-all-2.1.3.jar (shaded: org.apache.directory.api:api-ldap-net-mina:2.1.3)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.directory\.api/api\-ldap\-net\-mina@.*$</packageUrl>
+        <cve>CVE-2021-41973</cve>
+    </suppress>
+
+    <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: xercesImpl-2.12.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/xerces/xercesImpl@.*$</packageUrl>
+        <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
+    </suppress>
+
+
+    <!--
+     We don't use any classes from org.springframework.remoting.httpinvoker like HttpInvokerServiceExporter
+     https://github.com/spring-projects/spring-framework/issues/24434
+     The unsafe classes are slated for complete removal in Spring 6.x
+     -->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-web-5.3.26.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <vulnerabilityName>CVE-2016-1000027</vulnerabilityName>
+    </suppress>
 </suppressions>

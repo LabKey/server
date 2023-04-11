@@ -27,7 +27,10 @@
         <cve>CVE-2022-45688</cve>
     </suppress>
 
-    <!-- GWT uses Protobuf internally, meaning the handful of CVEs in 2.5.0 are not a concern. https://github.com/gwtproject/gwt/issues/9778 -->
+    <!--
+    GWT uses Protobuf internally but doesn't expose it, meaning the handful of CVEs in 2.5.0 are not a concern.
+    https://github.com/gwtproject/gwt/issues/9778
+    -->
     <suppress>
         <notes><![CDATA[
    file name: gwt-servlet-2.10.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
@@ -94,5 +97,57 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.code\.kaptcha/kaptcha@.*$</packageUrl>
         <cve>CVE-2018-18531</cve>
+    </suppress>
+
+    <!-- False positive - we're not bundling Struts as part of Mule -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.modules:mule-module-ognl:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-ognl@.*$</packageUrl>
+        <cve>CVE-2016-3093</cve>
+    </suppress>
+
+
+    <!-- False positive - we're not bundling Windows PGP -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.modules:mule-module-pgp:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-pgp@.*$</packageUrl>
+        <cve>CVE-2001-0265</cve>
+    </suppress>
+
+    <!-- No WebSockets for Mule, so no risk -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.modules:mule-module-wssecurity:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-wssecurity@.*$</packageUrl>
+        <cve>CVE-2021-4236</cve>
+    </suppress>
+
+    <!-- No FTP for Mule, so no risk -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.transports:mule-transport-ftp:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.transports/mule\-transport\-ftp@.*$</packageUrl>
+        <cve>CVE-2023-22551</cve>
+    </suppress>
+
+    <!-- False positive - different XFire, and we're certainly not opening UDP port 25777 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.transports:mule-transport-xfire:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.transports/mule\-transport\-xfire@.*$</packageUrl>
+        <cve>CVE-2006-5391</cve>
+    </suppress>
+
+    <!-- Suppress all NPM, since we're focused on server-side Java library reporting here -->
+    <suppress>
+        <packageUrl regex="true">^pkg:npm/.*</packageUrl>
+        <vulnerabilityName regex="true">.*</vulnerabilityName>
     </suppress>
 </suppressions>

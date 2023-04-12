@@ -4,6 +4,8 @@ import org.labkey.gradle.task.PurgeNpmAlphaVersions
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.plugin.NpmRun
+import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
@@ -321,7 +323,7 @@ subprojects {
     }
     
     project.tasks.register("allDepInsight", DependencyInsightReportTask) {
-            DependencyInsightReportTask t -> 
+            DependencyInsightReportTask t ->
                 t.group = "Help"
                 t.description = "Displays the insight into a specific dependency across all projects"
                 t.showingAllVariants=false

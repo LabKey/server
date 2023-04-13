@@ -145,12 +145,6 @@
         <cve>CVE-2006-5391</cve>
     </suppress>
 
-    <!-- Suppress all NPM, since we're focused on server-side Java library reporting here -->
-    <suppress>
-        <packageUrl regex="true">^pkg:npm/.*</packageUrl>
-        <vulnerabilityName regex="true">.*</vulnerabilityName>
-    </suppress>
-
     <!-- Checker is confusing this library and the WNPRC GoogleDrive module with the OSX Desktop Google Drive application -->
     <suppress>
         <notes><![CDATA[

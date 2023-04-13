@@ -27,6 +27,9 @@ allprojects {
             analyzers {
                 assemblyEnabled = false // Sets whether the .NET Assembly Analyzer should be used.
                 nodeEnabled = false // Sets whether the Node.js Analyzer should be used.
+                nodeAudit {
+                    enabled = false
+                }
             }
             skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath']
             skipProjects = [':server:testAutomation']

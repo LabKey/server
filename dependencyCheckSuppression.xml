@@ -150,4 +150,27 @@
         <packageUrl regex="true">^pkg:npm/.*</packageUrl>
         <vulnerabilityName regex="true">.*</vulnerabilityName>
     </suppress>
+
+    <!-- Checker is confusing this library with the OSX Desktop Google Drive application -->
+    <suppress>
+        <notes><![CDATA[
+   file name: google-api-services-drive-v3-rev197-1.25.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.apis/google\-api\-services\-drive@.*$</packageUrl>
+        <cve>CVE-2022-3421</cve>
+    </suppress>
+
+
+    <!--
+    This is a dependency of Java-FPDF, used by the WNPRC billing module for PDF generation, which hasn't been updated
+    to reference the now-renamed Commons Imaging library instead of the old Sanselan incubator. The CVE is related
+    to file parsing, not generation so we're not vulnerable
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: sanselan-0.97-incubator.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sanselan/sanselan@.*$</packageUrl>
+        <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
+    </suppress>
 </suppressions>

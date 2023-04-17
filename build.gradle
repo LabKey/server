@@ -252,6 +252,9 @@ allprojects {
                     // Force consistency across pipeline, SequenceAnalysis, and query
                     force "javax.xml.bind:jaxb-api:${jaxbApiVersion}"
 
+                    // Force consistency between pipeline's ActiveMQ  and cloud's jClouds dependencies
+                    force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

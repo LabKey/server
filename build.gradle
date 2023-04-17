@@ -23,10 +23,16 @@ allprojects {
         apply plugin: 'org.owasp.dependencycheck'
         dependencyCheck {
             outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}"
+            suppressionFile = "${project.rootProject.rootDir}/dependencyCheckSuppression.xml"
             analyzers {
                 assemblyEnabled = false // Sets whether the .NET Assembly Analyzer should be used.
                 nodeEnabled = false // Sets whether the Node.js Analyzer should be used.
+                nodeAudit {
+                    enabled = false
+                }
             }
+            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath']
+            skipProjects = [':server:testAutomation']
         }
     }
     if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
@@ -238,6 +244,16 @@ allprojects {
                     force "io.netty:netty-codec:${nettyVersion}"
                     force "io.netty:netty-common:${nettyVersion}"
                     force "io.netty:netty-codec-http:${nettyVersion}"
+                    force "io.netty:netty-transport-native-epoll:${nettyVersion}"
+                    force "io.netty:netty-transport-native-kqueue:${nettyVersion}"
+
+                    // Force consistency for dependencies from pipeline and query
+                    force "org.dom4j:dom4j:${dom4jVersion}"
+                    // Force consistency across pipeline, SequenceAnalysis, and query
+                    force "javax.xml.bind:jaxb-api:${jaxbApiVersion}"
+
+                    // Force consistency between pipeline's ActiveMQ  and cloud's jClouds dependencies
+                    force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

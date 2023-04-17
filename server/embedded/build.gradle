@@ -32,6 +32,15 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
 
+    // This is a transitive dependency from spring-boot-starter that we're forcing to pick up CVE hotfixes. We're not
+    // vulnerable since we're not accepting untrusted Spring Boot config files, but this cleans up the reporting.
+    // At some point Spring Boot should update its preferred version and we can yank this
+    implementation('org.yaml:snakeyaml') {
+        version {
+            strictly '1.33'
+        }
+    }
+
     runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${springBootTomcatVersion}"
     runtimeOnly "javax.mail:javax.mail-api:1.6.2"
     runtimeOnly group: "com.sun.mail", name: "javax.mail", version: "1.6.0"

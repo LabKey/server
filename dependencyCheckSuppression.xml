@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- Prevent match against unrelated "rengine" at https://github.com/yogeshojha/rengine -->
+    <suppress>
+        <notes><![CDATA[
+      file name: rengine-0.6-8.1.jar
+      ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.rforge/rengine@.*$</packageUrl>
+        <cve>CVE-2022-1813</cve>
+        <cve>CVE-2021-39491</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: rserve-0.6-8.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.rforge/rserve@.*$</packageUrl>
+        <cve>CVE-2022-1813</cve>
+        <cve>CVE-2021-39491</cve>
+    </suppress>
+
+    <!-- Prevent match against unrelated JSON library -->
+    <suppress>
+        <notes><![CDATA[
+   file name: json-20230227.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+
+    <!--
+    GWT uses Protobuf internally but doesn't expose it, meaning the handful of CVEs in 2.5.0 are not a concern.
+    https://github.com/gwtproject/gwt/issues/9778
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: gwt-servlet-2.10.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf-java</cpe>
+        <vulnerabilityName>CVE-2022-3509</vulnerabilityName>
+        <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
+    </suppress>
+
+    <!-- Guava has deprecated the problematic com.google.common.io.Files.createTempDir(), the topic of this CVE,
+     and we don't call it. https://github.com/google/guava/issues/4011 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: guava-31.1-jre.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
+    </suppress>
+
+    <!--
+    Actually packages MINA 2.2.1 but dependency check confuses the version number.
+    https://search.maven.org/artifact/org.apache.directory.api/api-parent/2.1.3/jar?eh=
+     -->
+    <suppress>
+        <notes><![CDATA[
+   file name: api-all-2.1.3.jar (shaded: org.apache.directory.api:api-ldap-net-mina:2.1.3)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.directory\.api/api\-ldap\-net\-mina@.*$</packageUrl>
+        <cve>CVE-2021-41973</cve>
+    </suppress>
+
+    <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: xercesImpl-2.12.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/xerces/xercesImpl@.*$</packageUrl>
+        <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
+    </suppress>
+
+
+    <!--
+     We don't use any classes from org.springframework.remoting.httpinvoker like HttpInvokerServiceExporter
+     https://github.com/spring-projects/spring-framework/issues/24434
+     The unsafe classes are slated for complete removal in Spring 6.x
+     -->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-web-5.3.26.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <vulnerabilityName>CVE-2016-1000027</vulnerabilityName>
+    </suppress>
+
+
+    <!--
+    For our purposes, Random is good enough, and not worth publishing our own version of the artifact that uses
+    SecureRandom. https://github.com/penggle/kaptcha/issues/3
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: kaptcha-2.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.code\.kaptcha/kaptcha@.*$</packageUrl>
+        <cve>CVE-2018-18531</cve>
+    </suppress>
+
+    <!-- False positive - we're not bundling Struts as part of Mule -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.modules:mule-module-ognl:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-ognl@.*$</packageUrl>
+        <cve>CVE-2016-3093</cve>
+    </suppress>
+
+
+    <!-- False positive - we're not bundling Windows PGP -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.modules:mule-module-pgp:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-pgp@.*$</packageUrl>
+        <cve>CVE-2001-0265</cve>
+    </suppress>
+
+    <!-- No WebSockets for Mule, so no risk -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.modules:mule-module-wssecurity:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-wssecurity@.*$</packageUrl>
+        <cve>CVE-2021-4236</cve>
+    </suppress>
+
+    <!-- No FTP for Mule, so no risk -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.transports:mule-transport-ftp:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.transports/mule\-transport\-ftp@.*$</packageUrl>
+        <cve>CVE-2023-22551</cve>
+    </suppress>
+
+    <!-- False positive - different XFire, and we're certainly not opening UDP port 25777 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mule-module-builders-1.4.4e.jar (shaded: org.mule.transports:mule-transport-xfire:1.4.4)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mule\.transports/mule\-transport\-xfire@.*$</packageUrl>
+        <cve>CVE-2006-5391</cve>
+    </suppress>
+
+    <!-- Checker is confusing this library and the WNPRC GoogleDrive module with the OSX Desktop Google Drive application -->
+    <suppress>
+        <notes><![CDATA[
+   file name: google-api-services-drive-v3-rev197-1.25.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.apis/google\-api\-services\-drive@.*$</packageUrl>
+        <cve>CVE-2022-3421</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: GoogleDrive_api-23.5-SNAPSHOT.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.labkey/GoogleDrive@.*$</packageUrl>
+        <cve>CVE-2022-3421</cve>
+    </suppress>
+
+
+    <!--
+    This is a dependency of Java-FPDF, used by the WNPRC billing module for PDF generation, which hasn't been updated
+    to reference the now-renamed Commons Imaging library instead of the old Sanselan incubator. The CVE is related
+    to file parsing, not generation so we're not vulnerable
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: sanselan-0.97-incubator.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sanselan/sanselan@.*$</packageUrl>
+        <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
+    </suppress>
+
+    <!--
+    This is a transitive dependency from spring-boot-starter that we're forcing to get CVE hotfixes. We're not
+    vulnerable since we're not accepting untrusted Spring Boot config files. See more details at
+    https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE-2022-1471
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: snakeyaml-1.33.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <cve>CVE-2022-1471</cve>
+    </suppress>
+
+</suppressions>

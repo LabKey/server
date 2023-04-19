@@ -32,7 +32,7 @@ allprojects {
                 }
             }
             formats = ['HTML', 'JUNIT']
-            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath']
+            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
         }
     }

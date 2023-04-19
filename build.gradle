@@ -444,6 +444,7 @@ project.tasks.register("ijRunConfigurationsSetup", Copy) {
         copy.filter({ String line ->
             return line.replace("PATH_SEPARATOR", File.pathSeparator)
         })
+        copy.mustRunAfter(project.tasks.ijCodeSetup)
 }
 
 project.tasks.register("ijCodeSetup", Copy) {
@@ -459,9 +460,9 @@ project.tasks.register('ijConfigure') {
     DefaultTask task ->
         task.group = "IntelliJ"
         task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
+        task.dependsOn(project.tasks.ijCodeSetup)
+        task.dependsOn(project.tasks.ijRunConfigurationsSetup)
 }
-
-project.tasks.ijConfigure.dependsOn(project.tasks.ijCodeSetup, project.tasks.ijRunConfigurationsSetup)
 
 project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
     group = GroupNames.NPM_RUN

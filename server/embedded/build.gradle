@@ -31,9 +31,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
-    
-    // Specify a version to get the latest hotfix for a CVE. Can revert once Spring Boot updates
-    implementation "org.springframework:spring-expression:${springVersion}"
 
     // This is a transitive dependency from spring-boot-starter that we're forcing to pick up CVE hotfixes. We're not
     // vulnerable since we're not accepting untrusted Spring Boot config files, but this cleans up the reporting.

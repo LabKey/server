@@ -31,7 +31,7 @@ allprojects {
                     enabled = false
                 }
             }
-            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath']
+            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
         }
     }

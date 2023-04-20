@@ -1,7 +1,11 @@
 buildscript {
     repositories {
+        mavenCentral()
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url "https://plugins.gradle.org/m2"
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {

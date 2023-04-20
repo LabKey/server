@@ -185,6 +185,8 @@ allprojects {
                     // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
                     force "org.apache.httpcomponents.client5:httpclient5:${httpclient5Version}"
+                    // force version for postgresql jdbc, cloud, docker, fileTransfer, saml, query, GoogleDrive, WNPRC_EHR
+                    force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
                     // force version for accounts, api, query

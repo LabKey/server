@@ -31,6 +31,7 @@ allprojects {
                     enabled = false
                 }
             }
+            formats = ['HTML', 'JUNIT']
             skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
         }

@@ -2,9 +2,7 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2"
-        }
+        gradlePluginPortal()
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
@@ -35,9 +33,7 @@ pluginManagement {
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2"
-        }
+        gradlePluginPortal()
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
@@ -54,7 +50,7 @@ buildscript {
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
     }
-    configurations.all {
+    configurations.configureEach {
         // Check for updates every build for SNAPSHOT dependencies
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
@@ -114,10 +110,10 @@ else if (hasProperty('moduleSet'))
         {
             throw new FileNotFoundException("No module set definitions found in '<labkey>/gradle/settings/'")
         }
-        List<String> moduleSets = new ArrayList<>();
+        List<String> moduleSets = new ArrayList<>()
         for (File file : files)
         {
-            moduleSets.add(file.getName().replace(".gradle", ""));
+            moduleSets.add(file.getName().replace(".gradle", ""))
         }
         throw new FileNotFoundException(String.format("Module set '${moduleSet}' does not exist. Choose one of: %s (e.g. '-PmoduleSet=%s')", moduleSets.join(", "), moduleSets.get(0)))
     }

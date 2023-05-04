@@ -1,8 +1,10 @@
 
 pluginManagement {
     repositories {
+        mavenCentral()
+        gradlePluginPortal()
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT")) {
             maven {
@@ -33,8 +35,10 @@ pluginManagement {
 
 buildscript {
     repositories {
+        mavenCentral()
+        gradlePluginPortal()
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT")) {
             maven {

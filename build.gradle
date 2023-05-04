@@ -31,7 +31,8 @@ allprojects {
                     enabled = false
                 }
             }
-            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath']
+            formats = ['HTML', 'JUNIT']
+            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
         }
     }
@@ -104,7 +105,7 @@ allprojects {
                     }
                     maven {
 
-                        url "${artifactory_contextUrl}/libs-release"
+                        url "${artifactory_contextUrl}/libs-release-no-proxy"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
                         {
@@ -118,7 +119,7 @@ allprojects {
                         }
                     }
                     maven {
-                        url "${artifactory_contextUrl}/libs-snapshot"
+                        url "${artifactory_contextUrl}/libs-snapshot-no-proxy"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
                         {
@@ -185,6 +186,8 @@ allprojects {
                     // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
                     force "org.apache.httpcomponents.client5:httpclient5:${httpclient5Version}"
+                    // force version for postgresql jdbc, cloud, docker, fileTransfer, saml, query, GoogleDrive, WNPRC_EHR
+                    force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
                     // force version for accounts, api, query
@@ -444,6 +447,7 @@ project.tasks.register("ijRunConfigurationsSetup", Copy) {
         copy.filter({ String line ->
             return line.replace("PATH_SEPARATOR", File.pathSeparator)
         })
+        copy.mustRunAfter(project.tasks.ijCodeSetup)
 }
 
 project.tasks.register("ijCodeSetup", Copy) {
@@ -459,9 +463,9 @@ project.tasks.register('ijConfigure') {
     DefaultTask task ->
         task.group = "IntelliJ"
         task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
+        task.dependsOn(project.tasks.ijCodeSetup)
+        task.dependsOn(project.tasks.ijRunConfigurationsSetup)
 }
-
-project.tasks.ijConfigure.dependsOn(project.tasks.ijCodeSetup, project.tasks.ijRunConfigurationsSetup)
 
 project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
     group = GroupNames.NPM_RUN

@@ -1,8 +1,10 @@
 
 pluginManagement {
     repositories {
+        mavenCentral()
+        gradlePluginPortal()
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
@@ -30,8 +32,10 @@ pluginManagement {
 
 buildscript {
     repositories {
+        mavenCentral()
+        gradlePluginPortal()
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url "${artifactory_contextUrl}/plugins-release-no-proxy"
         }
         if (gradlePluginsVersion.contains("SNAPSHOT")) {
             // For testing changes to the gradle plugins. Publish 'gradlePlugins' locally using 'publishToMavenLocal'.

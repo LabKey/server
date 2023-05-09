@@ -5,7 +5,6 @@ gradle.ext.commonAssaysProjectPath=":server:modules:commonAssays" // The gradle 
 gradle.ext.apiProjectPath=":server:modules:platform:api"
 gradle.ext.bootstrapProjectPath=":server:bootstrap"
 gradle.ext.embeddedProjectPath=":server:embedded"
-gradle.ext.internalProjectPath=":server:modules:platform:internal"
 gradle.ext.remoteApiProjectPath=":remoteapi:labkey-api-java"
 gradle.ext.jdbcApiProjectPath=":remoteapi:labkey-api-jdbc"
 gradle.ext.schemasProjectPath=":server:modules:platform:api"

@@ -1,10 +1,10 @@
+import org.apache.commons.lang3.SystemUtils
+import org.labkey.gradle.plugin.JsDoc
+import org.labkey.gradle.plugin.XsdDoc
 import org.labkey.gradle.task.CreateModule
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PomFileHelper
-import org.labkey.gradle.plugin.XsdDoc
-import org.labkey.gradle.plugin.JsDoc
-import org.apache.commons.lang3.SystemUtils
 
 plugins {
     id 'maven-publish'
@@ -214,4 +214,4 @@ project.node {
     npmWorkDir = project.file("${project.rootProject.buildDir}/.node")
     yarnWorkDir = project.file("${project.rootProject.buildDir}/.node")
 }
-project.tasks.deployApp.dependsOn(project.tasks.npmSetup)
+project.tasks.named('deployApp').configure { dependsOn(project.tasks.npmSetup) }

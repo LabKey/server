@@ -49,7 +49,7 @@ configurations
         }
 configurations.binaries.setDescription("Utility and proteomics binaries")
 
-if (!project.hasProperty('excludeProteomicsBinaries'))
+if (project.hasProperty('includeProteomicsBinaries'))
 {
     dependencies
     {

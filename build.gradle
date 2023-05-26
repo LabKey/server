@@ -221,6 +221,8 @@ allprojects {
                         force "xml-apis:xml-apis:${xmlApisVersion}"
                     // cloud and SequenceAnalysis bring this in as a transitive dependency. We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
+                    // Google HTTP Client Library and Guava bring in different versions; force the latest
+                    force "com.google.errorprone:error_prone_annotations:${googleErrorProneAnnotationsVersion}"
                     // different google APIs bring in different versions; force the latest
                     force "com.google.http-client:google-http-client-gson:${googleHttpClientGsonVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions

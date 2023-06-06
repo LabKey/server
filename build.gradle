@@ -103,7 +103,9 @@ allprojects {
                     maven {
                         url "${artifactory_contextUrl}/ext-tools-local"
                         content {
-                            includeGroup "org.labkey.tools"
+                            includeGroup "org.labkey.tools.windows"
+                            includeGroup "org.labkey.tools.linux"
+                            includeGroup "org.labkey.tools.osx"
                         }
                     }
                     maven {

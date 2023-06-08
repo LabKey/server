@@ -1,15 +1,37 @@
 buildscript {
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        mavenCentral {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
+            content {
+                includeGroup "org.labkey.build"
+                includeGroup "org.labkey.versioning"
+            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
             mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
+                content {
+                    includeGroup "org.labkey.build"
+                    includeGroup "org.labkey.versioning"
+                }
             }
 
         }

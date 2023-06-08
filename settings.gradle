@@ -2,15 +2,33 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
+            content {
+                includeGroup "org.labkey.build"
+                includeGroup "org.labkey.versioning"
+            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
             mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
+                content {
+                    includeGroup "org.labkey.build"
+                    includeGroup "org.labkey.versioning"
+                }
             }
         }
     }
@@ -33,9 +51,16 @@ pluginManagement {
 buildscript {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT")) {
             // For testing changes to the gradle plugins. Publish 'gradlePlugins' locally using 'publishToMavenLocal'.
@@ -44,6 +69,9 @@ buildscript {
             mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
             }
         }
     }

@@ -188,4 +188,21 @@
         <cve>CVE-2022-1471</cve>
     </suppress>
 
+    <!-- Jackson stack overflow when serializing a cyclic object tree. We don't deploy untrusted modules, so not a
+    concern as there is no deserialization risk. They may mitigate in 2.16.0 which is months away. -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.13.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-35116</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.15.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-35116</vulnerabilityName>
+    </suppress>
+
 </suppressions>

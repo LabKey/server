@@ -229,6 +229,8 @@ allprojects {
                     force "com.google.errorprone:error_prone_annotations:${googleErrorProneAnnotationsVersion}"
                     // different google APIs bring in different versions; force the latest
                     force "com.google.http-client:google-http-client-gson:${googleHttpClientGsonVersion}"
+                    // Force patched version of GPRC, dependency of
+                    force "io.grpc:grpc-context:${grpcVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"

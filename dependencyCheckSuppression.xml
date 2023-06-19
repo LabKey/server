@@ -205,4 +205,14 @@
         <vulnerabilityName>CVE-2023-35116</vulnerabilityName>
     </suppress>
 
+    <!-- No patched version of mjson available (the code hasn't changed in 3+ years). Checking uses in HTSJDK, which
+    pulls it in, it's only used for tests or to parse the results of an HTTP connection that HTSJDK initiates. -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mjson-1.4.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.sharegov/mjson@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-34611</vulnerabilityName>
+    </suppress>
+
 </suppressions>

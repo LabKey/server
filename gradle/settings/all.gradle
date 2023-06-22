@@ -11,14 +11,14 @@ buildscript {
             }
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            url "${artifactory_contextUrl}/plugins-release"
             mavenContent {
                 releasesOnly()
             }
-            content {
-                includeGroup "org.labkey.build"
-                includeGroup "org.labkey.versioning"
-            }
+//            content {
+//                includeGroup "org.labkey.build"
+//                includeGroup "org.labkey.versioning"
+//            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
@@ -28,10 +28,10 @@ buildscript {
                 mavenContent {
                     snapshotsOnly()
                 }
-                content {
-                    includeGroup "org.labkey.build"
-                    includeGroup "org.labkey.versioning"
-                }
+//                content {
+//                    includeGroup "org.labkey.build"
+//                    includeGroup "org.labkey.versioning"
+//                }
             }
 
         }

@@ -8,7 +8,7 @@ pluginManagement {
             }
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            url "${artifactory_contextUrl}/plugins-release"
             mavenContent {
                 releasesOnly()
             }
@@ -57,7 +57,7 @@ buildscript {
             }
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            url "${artifactory_contextUrl}/plugins-release"
             mavenContent {
                 releasesOnly()
             }

@@ -15,10 +15,10 @@ buildscript {
             mavenContent {
                 releasesOnly()
             }
-            content {
-                includeGroup "org.labkey.build"
-                includeGroup "org.labkey.versioning"
-            }
+//            content {
+//                includeGroup "org.labkey.build"
+//                includeGroup "org.labkey.versioning"
+//            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
@@ -28,10 +28,10 @@ buildscript {
                 mavenContent {
                     snapshotsOnly()
                 }
-                content {
-                    includeGroup "org.labkey.build"
-                    includeGroup "org.labkey.versioning"
-                }
+//                content {
+//                    includeGroup "org.labkey.build"
+//                    includeGroup "org.labkey.versioning"
+//                }
             }
 
         }

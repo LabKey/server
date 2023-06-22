@@ -12,10 +12,10 @@ pluginManagement {
             mavenContent {
                 releasesOnly()
             }
-            content {
-                includeGroup "org.labkey.build"
-                includeGroup "org.labkey.versioning"
-            }
+//            content {
+//                includeGroup "org.labkey.build"
+//                includeGroup "org.labkey.versioning"
+//            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
         {
@@ -25,10 +25,10 @@ pluginManagement {
                 mavenContent {
                     snapshotsOnly()
                 }
-                content {
-                    includeGroup "org.labkey.build"
-                    includeGroup "org.labkey.versioning"
-                }
+//                content {
+//                    includeGroup "org.labkey.build"
+//                    includeGroup "org.labkey.versioning"
+//                }
             }
         }
     }

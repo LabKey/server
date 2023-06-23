@@ -262,6 +262,7 @@ allprojects {
                     force "org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}"
                     // force consistency with netty jar files for docker and UserReg-WS
                     force "io.netty:netty-resolver:${nettyVersion}"
+                    force "io.netty:netty-resolver-dns:${nettyVersion}"
                     force "io.netty:netty-handler:${nettyVersion}"
                     force "io.netty:netty-handler-proxy:${nettyVersion}"
                     force "io.netty:netty-buffer:${nettyVersion}"
@@ -270,6 +271,7 @@ allprojects {
                     force "io.netty:netty-codec:${nettyVersion}"
                     force "io.netty:netty-common:${nettyVersion}"
                     force "io.netty:netty-codec-http:${nettyVersion}"
+                    force "io.netty:netty-codec-http2:${nettyVersion}"
                     force "io.netty:netty-transport-native-epoll:${nettyVersion}"
                     force "io.netty:netty-transport-native-kqueue:${nettyVersion}"
 

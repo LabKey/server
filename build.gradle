@@ -247,6 +247,8 @@ allprojects {
                     force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
+                    // force consistency between API and Java remote API
+                    force "org.json:json:${orgJsonVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"
                     // force junit and hamcrest versions to be consistent with what comes from labkey-client-api.
                     // The hamcrest dependencies come through transitively from jackson, junit, jmock

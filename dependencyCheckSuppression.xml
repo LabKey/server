@@ -215,4 +215,13 @@
         <vulnerabilityName>CVE-2023-34611</vulnerabilityName>
     </suppress>
 
+    <!-- This is a patched version of jTidy but the OWASP checker is confused about the different version numbering schemes -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jtidy-1.0.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.jtidy/jtidy@.*$</packageUrl>
+        <cve>CVE-2023-34623</cve>
+    </suppress>
+
 </suppressions>

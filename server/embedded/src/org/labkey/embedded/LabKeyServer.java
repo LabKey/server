@@ -155,7 +155,7 @@ public class LabKeyServer
                     dataSourceResource.setProperty("password", props.getPassword().get(i));
                     dataSourceResource.setProperty("username", props.getUsername().get(i));
                     // TODO : 8021 move this properties to application.properties
-                    dataSourceResource.setProperty("maxTotal", "20");
+                    dataSourceResource.setProperty("maxTotal", "50");
                     dataSourceResource.setProperty("maxIdle", "10");
                     dataSourceResource.setProperty("maxWaitMillis", "120000");
                     dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", "true");

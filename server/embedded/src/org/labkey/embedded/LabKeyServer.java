@@ -35,6 +35,10 @@ public class LabKeyServer
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
     private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
+    private static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
+    private static final String MAX_IDLE_DEFAULT = "10";
+    private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
+    private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
 
     public static void main(String[] args)
     {
@@ -154,12 +158,27 @@ public class LabKeyServer
                     dataSourceResource.setProperty("url", props.getUrl().get(i));
                     dataSourceResource.setProperty("password", props.getPassword().get(i));
                     dataSourceResource.setProperty("username", props.getUsername().get(i));
-                    // TODO : 8021 move this properties to application.properties
-                    dataSourceResource.setProperty("maxTotal", "20");
-                    dataSourceResource.setProperty("maxIdle", "10");
-                    dataSourceResource.setProperty("maxWaitMillis", "120000");
-                    dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", "true");
-                    dataSourceResource.setProperty("validationQuery", "SELECT 1");
+
+                    String maxTotal = props.getMaxTotal().get(i);
+                    maxTotal = maxTotal != null ? maxTotal.trim() : MAX_TOTAL_CONNECTIONS_DEFAULT;
+                    dataSourceResource.setProperty("maxTotal", maxTotal);
+
+                    String maxIdle = props.getMaxIdle().get(i);
+                    maxIdle = maxIdle != null ? maxIdle.trim() : MAX_IDLE_DEFAULT;
+                    dataSourceResource.setProperty("maxIdle", maxIdle);
+
+                    String maxWait = props.getMaxWaitMillis().get(i);
+                    maxWait = maxWait != null ? maxWait.trim() : MAX_WAIT_MILLIS_DEFAULT;
+                    dataSourceResource.setProperty("maxWaitMillis", maxWait);
+
+                    String allowAccess = props.getAccessToUnderlyingConnectionAllowed().get(i);
+                    allowAccess = allowAccess != null ? allowAccess : "true";
+                    dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", allowAccess);
+
+                    String validationQuery = props.getValidationQuery().get(i);
+                    validationQuery = validationQuery != null ? validationQuery.trim() : VALIDATION_QUERY_DEFAULT;
+                    dataSourceResource.setProperty("validationQuery", validationQuery);
+
                     dataSourceResources.add(dataSourceResource);
                 }
 
@@ -330,6 +349,11 @@ public class LabKeyServer
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
         private String serverGUID;
+        private List<String> maxTotal;
+        private List<String> maxIdle;
+        private List<String> maxWaitMillis;
+        private List<String> accessToUnderlyingConnectionAllowed;
+        private List<String> validationQuery;
 
         public List<String> getDataSourceName()
         {
@@ -409,6 +433,57 @@ public class LabKeyServer
         public void setServerGUID(String serverGUID)
         {
             this.serverGUID = serverGUID;
+        }
+
+        public List<String> getMaxTotal()
+        {
+            return maxTotal;
+        }
+
+        public void setMaxTotal(List<String> maxTotal)
+        {
+            this.maxTotal = maxTotal;
+        }
+
+
+        public void setMaxIdle(List<String> maxIdle)
+        {
+            this.maxIdle = maxIdle;
+        }
+
+        public List<String> getMaxIdle()
+        {
+            return this.maxIdle;
+        }
+
+        public void setAccessToUnderlyingConnectionAllowed(List<String> accessToUnderlyingConnectionAllowed)
+        {
+            this.accessToUnderlyingConnectionAllowed = accessToUnderlyingConnectionAllowed;
+        }
+
+        public List<String> getAccessToUnderlyingConnectionAllowed()
+        {
+            return this.accessToUnderlyingConnectionAllowed;
+        }
+
+        public void setMaxWaitMillis(List<String> maxWaitMillis)
+        {
+            this.maxWaitMillis = maxWaitMillis;
+        }
+
+        public List<String> getMaxWaitMillis()
+        {
+            return this.maxWaitMillis;
+        }
+
+        public List<String> getValidationQuery()
+        {
+            return validationQuery;
+        }
+
+        public void setValidationQuery(List<String> validationQuery)
+        {
+            this.validationQuery = validationQuery;
         }
     }
 

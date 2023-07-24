@@ -233,4 +233,13 @@
         <cve>CVE-2023-35887</cve>
     </suppress>
 
+    <!-- 23.0.1 includes the patch for this low severity CVE but it's still matching so manually suppress it -->
+    <suppress>
+        <notes><![CDATA[
+   file name: graal-sdk-23.0.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.graalvm\.sdk/graal\-sdk@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-22006</vulnerabilityName>
+    </suppress>
+
 </suppressions>

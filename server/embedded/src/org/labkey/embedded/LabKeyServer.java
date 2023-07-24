@@ -38,6 +38,7 @@ public class LabKeyServer
     private static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
     private static final String MAX_IDLE_DEFAULT = "10";
     private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
+    private static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
     private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
 
     public static void main(String[] args)
@@ -172,7 +173,7 @@ public class LabKeyServer
                     dataSourceResource.setProperty("maxWaitMillis", maxWait);
 
                     String allowAccess = props.getAccessToUnderlyingConnectionAllowed().get(i);
-                    allowAccess = allowAccess != null ? allowAccess : "true";
+                    allowAccess = allowAccess != null ? allowAccess : ACCESS_TO_CONNECTION_ALLOWED_DEFAULT;
                     dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", allowAccess);
 
                     String validationQuery = props.getValidationQuery().get(i);

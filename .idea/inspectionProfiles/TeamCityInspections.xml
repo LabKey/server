@@ -708,6 +708,10 @@
       <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" within="" contains="" />
       <constraint name="arg0" within="" contains="" />
     </replaceConfiguration>
+    <replaceConfiguration name="JSONObject(JSONObject)" text="new JSONObject($Expression$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="false" shortenFQN="false" replacement="new JSONObject($Expression$.toMap())">
+      <constraint name="__context__" within="" contains="" />
+      <constraint name="Expression" nameOfExprType="JSONObject" within="" contains="" />
+    </replaceConfiguration>
   </inspection_tool>
   <inspection_tool class="SafeVarargsDetector" enabled="false" level="WARNING" enabled_by_default="false" />
   <inspection_tool class="SameParameterValue" enabled="false" level="WARNING" enabled_by_default="false" />

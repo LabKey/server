@@ -161,23 +161,23 @@ public class LabKeyServer
                     dataSourceResource.setProperty("username", props.getUsername().get(i));
 
                     String maxTotal = props.getMaxTotal().get(i);
-                    maxTotal = maxTotal != null ? maxTotal.trim() : MAX_TOTAL_CONNECTIONS_DEFAULT;
+                    maxTotal = maxTotal != null && !maxTotal.isBlank()  ? maxTotal.trim() : MAX_TOTAL_CONNECTIONS_DEFAULT;
                     dataSourceResource.setProperty("maxTotal", maxTotal);
 
                     String maxIdle = props.getMaxIdle().get(i);
-                    maxIdle = maxIdle != null ? maxIdle.trim() : MAX_IDLE_DEFAULT;
+                    maxIdle = maxIdle != null && !maxIdle.isBlank() ? maxIdle.trim() : MAX_IDLE_DEFAULT;
                     dataSourceResource.setProperty("maxIdle", maxIdle);
 
                     String maxWait = props.getMaxWaitMillis().get(i);
-                    maxWait = maxWait != null ? maxWait.trim() : MAX_WAIT_MILLIS_DEFAULT;
+                    maxWait = maxWait != null && !maxWait.isBlank() ? maxWait.trim() : MAX_WAIT_MILLIS_DEFAULT;
                     dataSourceResource.setProperty("maxWaitMillis", maxWait);
 
                     String allowAccess = props.getAccessToUnderlyingConnectionAllowed().get(i);
-                    allowAccess = allowAccess != null ? allowAccess : ACCESS_TO_CONNECTION_ALLOWED_DEFAULT;
+                    allowAccess = allowAccess != null && !allowAccess.isBlank() ? allowAccess : ACCESS_TO_CONNECTION_ALLOWED_DEFAULT;
                     dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", allowAccess);
 
                     String validationQuery = props.getValidationQuery().get(i);
-                    validationQuery = validationQuery != null ? validationQuery.trim() : VALIDATION_QUERY_DEFAULT;
+                    validationQuery = validationQuery != null && !validationQuery.isBlank() ? validationQuery.trim() : VALIDATION_QUERY_DEFAULT;
                     dataSourceResource.setProperty("validationQuery", validationQuery);
 
                     dataSourceResources.add(dataSourceResource);

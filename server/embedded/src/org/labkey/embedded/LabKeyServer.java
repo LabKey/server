@@ -160,30 +160,33 @@ public class LabKeyServer
                     dataSourceResource.setProperty("password", props.getPassword().get(i));
                     dataSourceResource.setProperty("username", props.getUsername().get(i));
 
-                    String maxTotal = props.getMaxTotal().get(i);
-                    maxTotal = maxTotal != null && !maxTotal.isBlank()  ? maxTotal.trim() : MAX_TOTAL_CONNECTIONS_DEFAULT;
-                    dataSourceResource.setProperty("maxTotal", maxTotal);
-
-                    String maxIdle = props.getMaxIdle().get(i);
-                    maxIdle = maxIdle != null && !maxIdle.isBlank() ? maxIdle.trim() : MAX_IDLE_DEFAULT;
-                    dataSourceResource.setProperty("maxIdle", maxIdle);
-
-                    String maxWait = props.getMaxWaitMillis().get(i);
-                    maxWait = maxWait != null && !maxWait.isBlank() ? maxWait.trim() : MAX_WAIT_MILLIS_DEFAULT;
-                    dataSourceResource.setProperty("maxWaitMillis", maxWait);
-
-                    String allowAccess = props.getAccessToUnderlyingConnectionAllowed().get(i);
-                    allowAccess = allowAccess != null && !allowAccess.isBlank() ? allowAccess : ACCESS_TO_CONNECTION_ALLOWED_DEFAULT;
-                    dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", allowAccess);
-
-                    String validationQuery = props.getValidationQuery().get(i);
-                    validationQuery = validationQuery != null && !validationQuery.isBlank() ? validationQuery.trim() : VALIDATION_QUERY_DEFAULT;
-                    dataSourceResource.setProperty("validationQuery", validationQuery);
+                    dataSourceResource.setProperty("maxTotal", getPropValue(props.getMaxTotal(), i, MAX_TOTAL_CONNECTIONS_DEFAULT, "maxTotal"));
+                    dataSourceResource.setProperty("maxIdle", getPropValue(props.getMaxIdle(), i, MAX_IDLE_DEFAULT, "maxIdle"));
+                    dataSourceResource.setProperty("maxWaitMillis", getPropValue(props.getMaxWaitMillis(), i, MAX_WAIT_MILLIS_DEFAULT, "maxWaitMillis"));
+                    dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", getPropValue(props.getAccessToUnderlyingConnectionAllowed(), i, ACCESS_TO_CONNECTION_ALLOWED_DEFAULT, "accessToUnderlyingConnectionAllowed"));
+                    dataSourceResource.setProperty("validationQuery", getPropValue(props.getValidationQuery(), i, VALIDATION_QUERY_DEFAULT, "validationQuery"));
 
                     dataSourceResources.add(dataSourceResource);
                 }
 
                 return  dataSourceResources;
+            }
+
+            private String getPropValue(List<String> propList, int index, String defaultValue, String propName)
+            {
+                if (propList == null)
+                    return defaultValue;
+
+                try
+                {
+                    String val = propList.get(index);
+                    return val != null && !val.isBlank() ? val.trim() : MAX_TOTAL_CONNECTIONS_DEFAULT;
+                }
+                catch (IndexOutOfBoundsException e)
+                {
+                    logger.debug(String.format("%1$s property was not provided for resource [%2$s], using default", propName, index));
+                    return defaultValue;
+                }
             }
 
             private ContextResource getMailResource()

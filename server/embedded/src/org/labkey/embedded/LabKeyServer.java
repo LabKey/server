@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -172,24 +173,19 @@ public class LabKeyServer
                 return  dataSourceResources;
             }
 
-            private String getPropValue(List<String> propList, int index, String defaultValue, String propName)
+            private String getPropValue(Map<Integer, String> propValues, Integer resourceKey, String defaultValue, String propName)
             {
-                if (propList == null)
+                if (propValues == null)
                 {
                     logger.debug(String.format("%1$s property was not provided, using default", propName));
                     return defaultValue;
                 }
 
-                try
-                {
-                    String val = propList.get(index);
-                    return val != null && !val.isBlank() ? val.trim() : MAX_TOTAL_CONNECTIONS_DEFAULT;
-                }
-                catch (IndexOutOfBoundsException e)
-                {
-                    logger.debug(String.format("%1$s property was not provided for resource [%2$s], using default", propName, index));
-                    return defaultValue;
-                }
+                if (!propValues.containsKey(resourceKey))
+                    logger.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
+
+                String val = propValues.getOrDefault(resourceKey, defaultValue);
+                return val != null && !val.isBlank() ? val.trim() : defaultValue;
             }
 
             private ContextResource getMailResource()
@@ -356,11 +352,11 @@ public class LabKeyServer
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
         private String serverGUID;
-        private List<String> maxTotal;
-        private List<String> maxIdle;
-        private List<String> maxWaitMillis;
-        private List<String> accessToUnderlyingConnectionAllowed;
-        private List<String> validationQuery;
+        private Map<Integer, String> maxTotal;
+        private Map<Integer, String> maxIdle;
+        private Map<Integer, String> maxWaitMillis;
+        private Map<Integer, String> accessToUnderlyingConnectionAllowed;
+        private Map<Integer, String> validationQuery;
 
         public List<String> getDataSourceName()
         {
@@ -442,53 +438,53 @@ public class LabKeyServer
             this.serverGUID = serverGUID;
         }
 
-        public List<String> getMaxTotal()
+        public Map<Integer, String> getMaxTotal()
         {
             return maxTotal;
         }
 
-        public void setMaxTotal(List<String> maxTotal)
+        public void setMaxTotal(Map<Integer, String> maxTotal)
         {
             this.maxTotal = maxTotal;
         }
 
 
-        public void setMaxIdle(List<String> maxIdle)
+        public void setMaxIdle(Map<Integer, String> maxIdle)
         {
             this.maxIdle = maxIdle;
         }
 
-        public List<String> getMaxIdle()
+        public Map<Integer, String> getMaxIdle()
         {
             return this.maxIdle;
         }
 
-        public void setAccessToUnderlyingConnectionAllowed(List<String> accessToUnderlyingConnectionAllowed)
+        public void setAccessToUnderlyingConnectionAllowed(Map<Integer, String> accessToUnderlyingConnectionAllowed)
         {
             this.accessToUnderlyingConnectionAllowed = accessToUnderlyingConnectionAllowed;
         }
 
-        public List<String> getAccessToUnderlyingConnectionAllowed()
+        public Map<Integer, String> getAccessToUnderlyingConnectionAllowed()
         {
             return this.accessToUnderlyingConnectionAllowed;
         }
 
-        public void setMaxWaitMillis(List<String> maxWaitMillis)
+        public void setMaxWaitMillis(Map<Integer, String> maxWaitMillis)
         {
             this.maxWaitMillis = maxWaitMillis;
         }
 
-        public List<String> getMaxWaitMillis()
+        public Map<Integer, String> getMaxWaitMillis()
         {
             return this.maxWaitMillis;
         }
 
-        public List<String> getValidationQuery()
+        public Map<Integer, String> getValidationQuery()
         {
             return validationQuery;
         }
 
-        public void setValidationQuery(List<String> validationQuery)
+        public void setValidationQuery(Map<Integer, String> validationQuery)
         {
             this.validationQuery = validationQuery;
         }
@@ -587,5 +583,4 @@ public class LabKeyServer
             this.smtpAuth = smtpAuth;
         }
     }
-
 }

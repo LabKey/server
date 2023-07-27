@@ -175,7 +175,10 @@ public class LabKeyServer
             private String getPropValue(List<String> propList, int index, String defaultValue, String propName)
             {
                 if (propList == null)
+                {
+                    logger.debug(String.format("%1$s property was not provided, using default", propName));
                     return defaultValue;
+                }
 
                 try
                 {

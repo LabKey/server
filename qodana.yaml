@@ -21,8 +21,6 @@ profile:
 #The following options are only applied in CI/CD environment
 #These options are ignored during local run
 
-projectJDK: "labkey"
-
 exclude:
   - name: All
     paths:

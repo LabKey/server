@@ -217,7 +217,7 @@ allprojects {
                     force "xalan:xalan:${xalanVersion}"
                     // genotyping brings in a much older version of this, so we force a newer version for compatibility
                     force "org.apache.commons:commons-compress:${commonsCompressVersion}"
-                    // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk:2.14.3 uses much older version
+                    // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk which references an older version
                     force "org.tukaani:xz:${tukaaniXZVersion}"
                     // force version for api, LDK, pipeline, query, saml, but not for the xsdDoc configuration, which requires
                     // an older version for the docflex library we use
@@ -225,6 +225,8 @@ allprojects {
                         force "xml-apis:xml-apis:${xmlApisVersion}"
                     // cloud and SequenceAnalysis bring this in as a transitive dependency. We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
+                    // Google oauth2-http Library and api-common (via Picard) bring in different versions; force the latest
+                    force "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
                     // Google HTTP Client Library and Guava bring in different versions; force the latest
                     force "com.google.errorprone:error_prone_annotations:${googleErrorProneAnnotationsVersion}"
                     // different google APIs bring in different versions; force the latest
@@ -236,8 +238,6 @@ allprojects {
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
-                    // This is a dependency for HTSJDK. Force to avoid a deserialization problem. Remove once HTSJDK bumps its preferred version
-                    force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
                     // Cloud module brings in earlier versions of this library, so we force the later one
                     force "org.apache.tika:tika-core:${tikaVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA

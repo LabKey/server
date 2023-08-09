@@ -251,7 +251,8 @@
                 file name: quartz-2.3.2.jar
             ]]>
         </notes>
-        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler\./quartz@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
         <cve>CVE-2023-39017</cve>
+        <cpe>cpe:/a:softwareag:quartz</cpe>
     </suppress>
 </suppressions>

@@ -225,12 +225,14 @@ allprojects {
                         force "xml-apis:xml-apis:${xmlApisVersion}"
                     // cloud and SequenceAnalysis bring this in as a transitive dependency. We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
-                    // Google oauth2-http Library and api-common (via Picard) bring in different versions; force the latest
+
+                    // Google oauth2-http Library and api-common (via Picard, and perhaps others) bring in different versions; force the latest
                     force "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
+                    force "com.google.http-client:google-http-client-apache-v2:${googleHttpClientVersion}"
+                    force "com.google.http-client:google-http-client-gson:${googleHttpClientVersion}"
+
                     // Google HTTP Client Library and Guava bring in different versions; force the latest
                     force "com.google.errorprone:error_prone_annotations:${googleErrorProneAnnotationsVersion}"
-                    // different google APIs bring in different versions; force the latest
-                    force "com.google.http-client:google-http-client-gson:${googleHttpClientGsonVersion}"
                     // Force patched version of GPRC, dependency of a number of Google service APIs in WNPRC and fileTransfer
                     force "io.grpc:grpc-context:${grpcVersion}"
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions

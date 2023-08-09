@@ -242,9 +242,8 @@
         <vulnerabilityName>CVE-2023-22006</vulnerabilityName>
     </suppress>
 
-    <!-- While the severity for this is relatively high, it is unclear whether the current release candidate versions
-      are also susceptible leaving us with no real upgrade path. Also, currently we only execute codified job configurations,
-      and are not using the vulnerable method. For additional info see: Issue #48405
+    <!-- The CVE is against Quartz Jobs, not the core Quartz library, so this is a false positive given our actual dependency.
+     For additional info see: Issue #48405
     -->
     <suppress>
         <notes>

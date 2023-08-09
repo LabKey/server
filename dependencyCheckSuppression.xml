@@ -233,4 +233,18 @@
         <vulnerabilityName>CVE-2023-22006</vulnerabilityName>
     </suppress>
 
+    <!-- While the severity for this is relatively high, it is unclear whether the current release candidate versions
+      are also susceptible leaving us with no real upgrade path. Also, currently we only execute codified job configurations,
+      and are not using the vulnerable method. Issue #48405
+    -->
+    <suppress>
+        <notes>
+            <![CDATA[
+                file name: quartz-2.3.2.jar
+            ]]>
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler\./quartz@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-39017</vulnerabilityName>
+    </suppress>
+
 </suppressions>

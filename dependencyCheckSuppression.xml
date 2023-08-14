@@ -242,4 +242,17 @@
         <vulnerabilityName>CVE-2023-22006</vulnerabilityName>
     </suppress>
 
+    <!-- The CVE is against Quartz Jobs, not the core Quartz library, so this is a false positive given our actual dependency.
+     For additional info see: Issue #48405
+    -->
+    <suppress>
+        <notes>
+            <![CDATA[
+                file name: quartz-2.3.2.jar
+            ]]>
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
+        <cve>CVE-2023-39017</cve>
+        <cpe>cpe:/a:softwareag:quartz</cpe>
+    </suppress>
 </suppressions>

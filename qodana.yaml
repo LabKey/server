@@ -28,6 +28,28 @@ exclude:
       - server/modules/OConnorLabModules
       - server/modules/reagent
       - server/modules/customModules
+      - server/modules/platform/announcements
+#      - server/modules/platform/api
+#      - server/modules/platform/assay
+      - server/modules/platform/audit
+      - server/modules/platform/bigiron
+#      - server/modules/platform/core
+      - server/modules/platform/devtools
+#      - server/modules/platform/experiment
+      - server/modules/platform/filecontent
+      - server/modules/platform/internal
+      - server/modules/platform/issues
+      - server/modules/platform/list
+      - server/modules/platform/mothership
+      - server/modules/platform/pipeline
+#      - server/modules/platform/query
+      - server/modules/platform/search
+      - server/modules/platform/specimen
+      - server/modules/platform/study
+      - server/modules/platform/survey
+      - server/modules/platform/timeline
+      - server/modules/platform/visualization
+      - server/modules/platform/wiki
 
 #Execute shell command before Qodana execution
 #bootstrap: sh ./prepare-qodana.sh

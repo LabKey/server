@@ -218,7 +218,7 @@ allprojects {
                     // genotyping brings in a much older version of this, so we force a newer version for compatibility
                     force "org.apache.commons:commons-compress:${commonsCompressVersion}"
                     // Force ant to be a newer version (transitive dependency of query > eigenbase-resgen > eigenbase-xom)
-                    force "org.apache.ant:ant:${apacheAntVersion}"
+                    force "org.apache.ant:ant:${antVersion}"
                     // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk which references an older version
                     force "org.tukaani:xz:${tukaaniXZVersion}"
                     // force version for api, LDK, pipeline, query, saml, but not for the xsdDoc configuration, which requires

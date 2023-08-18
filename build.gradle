@@ -317,6 +317,11 @@ allprojects {
 
                         // This library was renamed
                         substitute module('org.codehaus.woodstox:woodstox-core-asl') using module("com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}")
+
+                        // Avoid conflicts with declared dependencies on the newer versions from 'net.hydromatic'
+                        substitute module('eigenbase:eigenbase-properties:1.1.2') using module("net.hydromatic:eigenbase-properties:${eigenbasePropertiesVersion}")
+                        substitute module('eigenbase:eigenbase-resgen:1.3.1') using module("net.hydromatic:eigenbase-resgen:${eigenbaseResgenVersion}")
+                        substitute module('eigenbase:eigenbase-xom:1.3.5') using module("net.hydromatic:eigenbase-xom:${eigenbaseXomVersion}")
                     }
                 }
             }

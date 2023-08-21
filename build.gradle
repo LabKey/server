@@ -8,12 +8,19 @@ import org.labkey.gradle.plugin.NpmRun
 import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 plugins {
+    id "org.jetbrains.qodana"  version "0.1.13"
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 //    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
     id 'org.labkey.versioning' apply false // Need this for our 'base' plugin to get the version specified in settings.gradle
+}
+
+qodana {
+    saveReport = true
+    showReport =true
+    showReportPort = 8082
 }
 
 allprojects {

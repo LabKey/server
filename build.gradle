@@ -231,6 +231,21 @@ allprojects {
                     force "com.google.http-client:google-http-client-gson:${googleHttpClientGsonVersion}"
                     // Force patched version of GPRC, dependency of a number of Google service APIs in WNPRC and fileTransfer
                     force "io.grpc:grpc-context:${grpcVersion}"
+
+                    // TODO Remove these when the Picard version brought in by the SequenceAnalysis module is upgraded to use a version >=1.57.2
+                    force "io.grpc:grpc-alts:${grpcVersion}"
+                    force "io.grpc:grpc-auth:${grpcVersion}"
+                    force "io.grpc:grpc-core:${grpcVersion}"
+                    force "io.grpc:grpc-googleapis:${grpcVersion}"
+                    force "io.grpc:grpc-grpclb:${grpcVersion}"
+                    force "io.grpc:grpc-netty-shaded:${grpcVersion}"
+                    force "io.grpc:grpc-protobuf:${grpcVersion}"
+                    force "io.grpc:grpc-protobuf-lite:${grpcVersion}"
+                    force "io.grpc:grpc-rls:${grpcVersion}"
+                    force "io.grpc:grpc-services:${grpcVersion}"
+                    force "io.grpc:grpc-stub:${grpcVersion}"
+                    force "io.grpc:grpc-xds:${grpcVersion}"
+
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"

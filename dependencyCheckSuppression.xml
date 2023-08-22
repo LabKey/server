@@ -236,15 +236,4 @@
         <cve>CVE-2023-39017</cve>
         <cpe>cpe:/a:softwareag:quartz</cpe>
     </suppress>
-
-    <!-- TODO: remove when importing dependencies move to the patched versions (>1.57.2)
-        The CVE afflicts multiple GRPC libraries brought in by Picard. We don't deploy these libraries, so we can safely supress this.
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: grpc-context-1.56.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.grpc/grpc\-.*@.*$</packageUrl>
-        <cve>CVE-2023-33953</cve>
-    </suppress>
 </suppressions>

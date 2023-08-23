@@ -255,4 +255,15 @@
         <cve>CVE-2023-39017</cve>
         <cpe>cpe:/a:softwareag:quartz</cpe>
     </suppress>
+
+    <!--
+    The CVE has a low impact (DDOS) and targets older versions of Postgres (<= v12.2)
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: postgresql-42.6.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.postgresql/postgresql@.*$</packageUrl>
+        <vulnerabilityName>CVE-2020-21469</vulnerabilityName>
+    </suppress>
 </suppressions>

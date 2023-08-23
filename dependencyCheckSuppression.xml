@@ -257,7 +257,7 @@
     </suppress>
 
     <!--
-    The CVE has a low impact (DDOS) and targets older versions of Postgres (<= v12.2)
+    The CVE has a low impact (DDOS) and targets older versions of Postgres (<= v12.2), not the JDBC driver itself.
     -->
     <suppress>
         <notes><![CDATA[

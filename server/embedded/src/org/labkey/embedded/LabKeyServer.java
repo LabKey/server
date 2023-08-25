@@ -3,6 +3,7 @@ package org.labkey.embedded;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.SpringApplication;
@@ -73,6 +74,16 @@ public class LabKeyServer
             @Override
             protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
             {
+                var v = new JsonAccessLogValve();
+                v.setPrefix("stdout");
+                v.setDirectory("/dev");
+                v.setBuffered(false);
+                v.setContainer(tomcat.getHost());
+                v.setSuffix("");
+                v.setFileDateFormat("");
+                v.setPattern("%h %l %u %t \"%r\" %s %b");
+                tomcat.getEngine().getPipeline().addValve(v);
+
                 tomcat.enableNaming();
 
                 // Get the context properties from Spring injection
@@ -135,6 +146,7 @@ public class LabKeyServer
                     loader.setLoaderClass(LabKeySpringBootClassLoader.class.getName());
                     context.setLoader(loader);
                     context.setParentClassLoader(this.getClass().getClassLoader());
+
                 }
                 catch (ConfigException e)
                 {

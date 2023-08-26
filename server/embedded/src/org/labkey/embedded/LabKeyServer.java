@@ -65,6 +65,11 @@ public class LabKeyServer
     {
         return new MailProperties();
     }
+    @Bean
+    public JsonAccessLog jsonAccessLog()
+    {
+        return new JsonAccessLog();
+    }
 
     @Bean
     public TomcatServletWebServerFactory servletContainerFactory()
@@ -74,16 +79,6 @@ public class LabKeyServer
             @Override
             protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
             {
-                var v = new JsonAccessLogValve();
-                v.setPrefix("stdout");
-                v.setDirectory("/dev");
-                v.setBuffered(false);
-                v.setContainer(tomcat.getHost());
-                v.setSuffix("");
-                v.setFileDateFormat("");
-                v.setPattern("%h %l %u %t \"%r\" %s %b");
-                tomcat.getEngine().getPipeline().addValve(v);
-
                 tomcat.enableNaming();
 
                 // Get the context properties from Spring injection
@@ -146,14 +141,40 @@ public class LabKeyServer
                     loader.setLoaderClass(LabKeySpringBootClassLoader.class.getName());
                     context.setLoader(loader);
                     context.setParentClassLoader(this.getClass().getClassLoader());
-
                 }
                 catch (ConfigException e)
                 {
                     throw new RuntimeException(e);
                 }
 
+                JsonAccessLog logConfig = jsonAccessLog();
+                if (logConfig.isEnabled())
+                {
+                   configureJsonAccessLogging(tomcat, logConfig);
+                }
+
                 return super.getTomcatWebServer(tomcat);
+            }
+
+            // Issue 48565: allow for JSON-formatted access logs in embedded tomcat
+            private void configureJsonAccessLogging(Tomcat tomcat, JsonAccessLog logConfig)
+            {
+                var v = new JsonAccessLogValve();
+
+                // Configure for stdout, our only current use case
+                v.setPrefix("stdout");
+                v.setDirectory("/dev");
+                v.setBuffered(false);
+                v.setSuffix("");
+                v.setFileDateFormat("");
+                v.setContainer(tomcat.getHost());
+
+                // Now the settings that we support via application.properties
+                v.setPattern(logConfig.getPattern());
+                v.setConditionIf(logConfig.getConditionIf());
+                v.setConditionUnless(logConfig.getConditionUnless());
+
+                tomcat.getEngine().getPipeline().addValve(v);
             }
 
             private List<ContextResource> getDataSourceResources(ContextProperties props) throws ConfigException
@@ -348,6 +369,56 @@ public class LabKeyServer
             {
                 bos.write(bytesIn, 0, read);
             }
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("jsonaccesslog")
+    public static class JsonAccessLog
+    {
+        private boolean enabled;
+        private String pattern = "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s";
+        private String conditionIf;
+        private String conditionUnless;
+
+        public boolean isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled)
+        {
+            this.enabled = enabled;
+        }
+
+        public String getPattern()
+        {
+            return pattern;
+        }
+
+        public void setPattern(String pattern)
+        {
+            this.pattern = pattern;
+        }
+
+        public String getConditionIf()
+        {
+            return conditionIf;
+        }
+
+        public void setConditionIf(String conditionIf)
+        {
+            this.conditionIf = conditionIf;
+        }
+
+        public String getConditionUnless()
+        {
+            return conditionUnless;
+        }
+
+        public void setConditionUnless(String conditionUnless)
+        {
+            this.conditionUnless = conditionUnless;
         }
     }
 

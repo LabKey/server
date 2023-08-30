@@ -249,7 +249,7 @@
     </suppress>
 
     <!--
-    Looks like because Netty doesn't turn on cert checking by default this gets flagged periodically. per the discussion
+    Netty doesn't turn on cert checking by default, so this gets flagged periodically. per the linked discussion
     this should be handled/enabled when configuring the client to use https.
      For more info see: https://github.com/jeremylong/DependencyCheck/issues/5912#issuecomment-1699363391 and the subsequent rabbit-hole.
     -->

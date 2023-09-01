@@ -257,6 +257,17 @@
     </suppress>
 
     <!--
+    The CVE has a low impact (DDOS) and targets older versions of Postgres (<= v12.2), not the JDBC driver itself.
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: postgresql-42.6.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.postgresql/postgresql@.*$</packageUrl>
+        <vulnerabilityName>CVE-2020-21469</vulnerabilityName>
+    </suppress>
+
+    <!--
     Netty doesn't turn on cert checking by default, so this gets flagged periodically. per the linked discussion
     this should be handled/enabled when configuring the client to use https.
      For more info see: https://github.com/jeremylong/DependencyCheck/issues/5912#issuecomment-1699363391 and the subsequent rabbit-hole.

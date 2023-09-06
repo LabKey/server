@@ -105,6 +105,13 @@ public class LabKeyServer
                     // tomcat requires a unique context path other than root here
                     // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+
+                    // Issue 48426: Allow config for desired work directory
+                    if (contextProperties.getWorkDirLocation() != null)
+                    {
+                        context.setWorkDir(contextProperties.getWorkDirLocation());
+                    }
+
                     // set the root path to the context explicitly
                     context.setPath("");
 
@@ -349,6 +356,7 @@ public class LabKeyServer
         private List<String> driverClassName;
 
         private String webAppLocation;
+        private String workDirLocation;
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
         private String serverGUID;
@@ -416,6 +424,16 @@ public class LabKeyServer
         public void setWebAppLocation(String webAppLocation)
         {
             this.webAppLocation = webAppLocation;
+        }
+
+        public String getWorkDirLocation()
+        {
+            return workDirLocation;
+        }
+
+        public void setWorkDirLocation(String workDirLocation)
+        {
+            this.workDirLocation = workDirLocation;
         }
 
         public String getEncryptionKey()

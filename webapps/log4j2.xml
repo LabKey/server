@@ -136,6 +136,21 @@
             <DefaultRolloverStrategy fileIndex="min" />
         </RollingFile>
 
+        <RollingFile name="INDEXED_DOCUMENTS"
+                     fileName="${sys:labkey.log.home}/labkey-indexed-documents.log"
+                     append="true"
+                     bufferedIO="false"
+                     filePattern="${sys:labkey.log.home}/labkey-indexed-documents.log.%i">
+            <!-- d=datetime m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%d{ISO8601} %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="3" fileIndex="min" />
+        </RollingFile>
+
     </Appenders>
 
     <Loggers>
@@ -242,6 +257,10 @@
 
         <Logger name="org.labkey.api.util.MemTracker" additivity="false" level="debug">
             <AppenderRef ref="LABKEYMemory"/>
+        </Logger>
+
+        <Logger name="org.labkey.api.search.SearchService$SearchCategory" additivity="false" level="debug">
+            <AppenderRef ref="INDEXED_DOCUMENTS"/>
         </Logger>
 
         <Logger name="org.labkey.api.util.DebugInfoDumper" level="debug">

@@ -177,6 +177,7 @@ else
     // The line below is an example of how to include a single module
     //include ":server:modules:workflow"
     include ":server:modules:MacCossLabModules:panoramapublic"
+    include ":server:modules:ehrModules:EHR_App"
 }
 
 if (hasProperty('extraIncludes'))

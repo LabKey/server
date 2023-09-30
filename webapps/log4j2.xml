@@ -259,7 +259,7 @@
             <AppenderRef ref="LABKEYMemory"/>
         </Logger>
 
-        <Logger name="org.labkey.api.search.SearchService$SearchCategory" additivity="false" level="debug">
+        <Logger name="org.labkey.api.search.SearchService$SearchCategory" additivity="false" level="info">
             <AppenderRef ref="INDEXED_DOCUMENTS"/>
         </Logger>
 

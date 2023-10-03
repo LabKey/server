@@ -304,7 +304,7 @@ allprojects {
                     // Force consistency between pipeline's ActiveMQ  and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 
-                    // Force snappy-java version for CVE-2023-43642
+                    // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.
                     force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
 
                     dependencySubstitution {

@@ -251,7 +251,7 @@ allprojects {
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
-                    // This is a dependency for HTSJDK. Force to avoid a deserialization problem. Remove once HTSJDK bumps its preferred version
+                    // This is a dependency for HTSJDK. Force to avoid a deserialization problem. Remove once HTSJDK bumps its preferred version.
                     force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
                     // Cloud module brings in earlier versions of this library, so we force the later one
                     force "org.apache.tika:tika-core:${tikaVersion}"

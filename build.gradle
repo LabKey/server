@@ -257,6 +257,8 @@ allprojects {
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
+                    // This is a dependency for HTSJDK. Force version for CVE-2023-43642
+                    force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
                     // Cloud module brings in earlier versions of this library, so we force the later one
                     force "org.apache.tika:tika-core:${tikaVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA

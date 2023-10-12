@@ -4,8 +4,6 @@ import org.labkey.gradle.task.PurgeNpmAlphaVersions
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
-import org.labkey.gradle.plugin.NpmRun
-import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
@@ -157,10 +155,12 @@ allprojects {
                     maven {
                         // Mondrian dependencies are available via this repository. It's a direct dependency of the Query
                         // module but is declared here as many modules depend on Query and therefore need it as well.
-                    	url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
                         content {
-                            excludeGroupByRegex "org\\.labkey.*"
-                        }
+                            includeGroup "pentaho"
+                            includeGroup "org.pentaho"
+                            includeGroup "org.olap4j"
+                            includeGroup "javacup"
                     }
                 }
 

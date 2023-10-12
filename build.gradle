@@ -159,7 +159,10 @@ allprojects {
                         // module but is declared here as many modules depend on Query and therefore need it as well.
                     	url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
                         content {
-                            excludeGroupByRegex "org\\.labkey.*"
+                            includeGroup "pentaho"
+                            includeGroup "org.pentaho"
+                            includeGroup "org.olap4j"
+                            includeGroup "javacup"
                         }
                     }
                 }

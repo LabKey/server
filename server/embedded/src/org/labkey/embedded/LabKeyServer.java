@@ -129,6 +129,19 @@ public class LabKeyServer
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
+                    if (contextProperties.getOldEncryptionKey() != null)
+                    {
+                        context.addParameter("OldEncryptionKey", contextProperties.getOldEncryptionKey());
+                    }
+
+                    if (contextProperties.getRequiredModules() != null)
+                    {
+                        context.addParameter("requiredModules", contextProperties.getRequiredModules());
+                    }
+                    if (contextProperties.getPipelineConfig() != null)
+                    {
+                        context.addParameter("org.labkey.api.pipeline.config", contextProperties.getPipelineConfig());
+                    }
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
                     if (null != contextProperties.getServerGUID())
@@ -442,6 +455,9 @@ public class LabKeyServer
         private String workDirLocation;
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
+        private String oldEncryptionKey;
+        private String pipelineConfig;
+        private String requiredModules;
         private String serverGUID;
         private Map<Integer, String> maxTotal;
         private Map<Integer, String> maxIdle;
@@ -527,6 +543,36 @@ public class LabKeyServer
         public void setEncryptionKey(String encryptionKey)
         {
             this.encryptionKey = encryptionKey;
+        }
+
+        public String getOldEncryptionKey()
+        {
+            return oldEncryptionKey;
+        }
+
+        public void setOldEncryptionKey(String oldEncryptionKey)
+        {
+            this.oldEncryptionKey = oldEncryptionKey;
+        }
+
+        public String getPipelineConfig()
+        {
+            return pipelineConfig;
+        }
+
+        public void setPipelineConfig(String pipelineConfig)
+        {
+            this.pipelineConfig = pipelineConfig;
+        }
+
+        public String getRequiredModules()
+        {
+            return requiredModules;
+        }
+
+        public void setRequiredModules(String requiredModules)
+        {
+            this.requiredModules = requiredModules;
         }
 
         public String getServerGUID()

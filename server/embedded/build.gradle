@@ -31,7 +31,38 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
-    
+
+    // Force to the latest Tomcat version until Spring Boot 2.7.17 is released and we can adopt it
+    implementation('org.apache.tomcat.embed:tomcat-embed-core') {
+        version {
+            strictly "${springBootTomcatVersion}"
+        }
+    }
+    implementation('org.apache.tomcat.embed:tomcat-embed-el') {
+        version {
+            strictly "${springBootTomcatVersion}"
+        }
+    }
+    implementation('org.apache.tomcat.embed:tomcat-embed-websocket') {
+        version {
+            strictly "${springBootTomcatVersion}"
+        }
+    }
+    implementation('org.apache.tomcat:tomcat-annotations-api') {
+        version {
+            strictly "${springBootTomcatVersion}"
+        }
+    }
+    implementation('org.apache.tomcat:tomcat-jsp-api') {
+        version {
+            strictly "${springBootTomcatVersion}"
+        }
+    }
+//
+//    force ":${springBootTomcatVersion}"
+//    force "org.apache.tomcat.embed:tomcat-embed-el:"
+//    force "org.apache.tomcat.embed:tomcat-embed-websocket:${springBootTomcatVersion}"
+
     // This is a transitive dependency from spring-boot-starter that we're forcing to pick up CVE hotfixes. We're not
     // vulnerable since we're not accepting untrusted Spring Boot config files, but this cleans up the reporting.
     // At some point Spring Boot should update its preferred version and we can yank this

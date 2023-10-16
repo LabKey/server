@@ -58,10 +58,6 @@ dependencies {
             strictly "${springBootTomcatVersion}"
         }
     }
-//
-//    force ":${springBootTomcatVersion}"
-//    force "org.apache.tomcat.embed:tomcat-embed-el:"
-//    force "org.apache.tomcat.embed:tomcat-embed-websocket:${springBootTomcatVersion}"
 
     // This is a transitive dependency from spring-boot-starter that we're forcing to pick up CVE hotfixes. We're not
     // vulnerable since we're not accepting untrusted Spring Boot config files, but this cleans up the reporting.

@@ -64,7 +64,7 @@ public class ContentSecurityPolicyFilter implements Filter
         {
             String paramName = paramNames.nextElement();
             String paramValue = filterConfig.getInitParameter(paramName);
-            if ("policy".equals(paramName))
+            if ("policy".equalsIgnoreCase(paramName))
             {
                 String s = paramValue.trim();
                 s = s.replace( '\n', ' ' );
@@ -75,7 +75,7 @@ public class ContentSecurityPolicyFilter implements Filter
                 policy = s;
                 nonceSubstIndex = policy.indexOf(NONCE_SUBST);
             }
-            else if ("disposition".equals(paramName))
+            else if ("disposition".equalsIgnoreCase(paramName))
             {
                 String s = paramValue.trim();
                 if (!"report".equalsIgnoreCase(s) && !"enforce".equalsIgnoreCase(s))

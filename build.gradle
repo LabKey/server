@@ -163,7 +163,6 @@ allprojects {
                             includeGroup "org.pentaho"
                             includeGroup "org.olap4j"
                             includeGroup "javacup"
-                            includeGroup "eigenbase"
                         }
                     }
                 }

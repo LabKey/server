@@ -32,7 +32,11 @@ import java.util.Enumeration;
             frame-ancestors 'self' ;
           </param-value>
         </init-param>
-      </filter>
+        <init-param>
+          <param-name>disposition</param-name>
+          <param-value>enforce</param-value>
+        </init-param>
+ </filter>
       <filter-mapping>
         <filter-name>Content Security Policy Filter Filter</filter-name>
         <url-pattern>/*</url-pattern>
@@ -46,8 +50,11 @@ public class ContentSecurityPolicyFilter implements Filter
     private static final String NONCE_SUBST = "${REQUEST.SCRIPT.NONCE}";
     private static final String HEADER_NONCE = "org.labkey.filters.ContentSecurityPolicyFilter#NONCE";  // needs to match PageConfig.HEADER_NONCE
     private static final String CONTENT_SECURITY_POLICY_HEADER_NAME = "Content-Security-Policy";
+    private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME = "Content-Security-Policy-Report-Only";
     private String policy = "";
     private int nonceSubstIndex = -1;
+
+    private boolean reportOnly = false;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException
@@ -68,9 +75,16 @@ public class ContentSecurityPolicyFilter implements Filter
                 policy = s;
                 nonceSubstIndex = policy.indexOf(NONCE_SUBST);
             }
+            else if ("disposition".equals(paramName))
+            {
+                String s = paramValue.trim();
+                if (!"report".equalsIgnoreCase(s) && !"enforce".equalsIgnoreCase(s))
+                    throw new ServletException("ContentSecurityPolicyFilter is misconfigured, unexpected disposition value: " + s);
+                reportOnly = "report".equalsIgnoreCase(s);
+            }
             else
             {
-                throw new ServletException("ContentSecurityPolicyFilter is mis-configured, unexpected parameter name: " + paramName);
+                throw new ServletException("ContentSecurityPolicyFilter is misconfigured, unexpected parameter name: " + paramName);
             }
         }
     }
@@ -90,7 +104,8 @@ public class ContentSecurityPolicyFilter implements Filter
             var csp = policy;
             if (nonceSubstIndex != -1)
                 csp = csp.substring(0,nonceSubstIndex) + getScriptNonceHeader(req) + csp.substring(nonceSubstIndex + NONCE_SUBST.length());
-            resp.setHeader(CONTENT_SECURITY_POLICY_HEADER_NAME, csp);
+            var header = reportOnly ? CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME : CONTENT_SECURITY_POLICY_HEADER_NAME;
+            resp.setHeader(header, csp);
         }
         chain.doFilter(request, response);
     }

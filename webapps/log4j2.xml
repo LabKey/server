@@ -136,6 +136,20 @@
             <DefaultRolloverStrategy fileIndex="min" />
         </RollingFile>
 
+        <RollingFile name="CSP_REPORT"
+                     fileName="${sys:labkey.log.home}/csp-report.log"
+                     append="true"
+                     filePattern="${sys:labkey.log.home}/csp-report.log.%i">
+            <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
+            <PatternLayout>
+                <Pattern>%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="min" />
+        </RollingFile>
+
         <RollingFile name="INDEXED_DOCUMENTS"
                      fileName="${sys:labkey.log.home}/labkey-indexed-documents.log"
                      append="true"
@@ -265,6 +279,11 @@
 
         <Logger name="org.labkey.api.util.DebugInfoDumper" level="debug">
             <AppenderRef ref="THREAD_DUMP"/>
+        </Logger>
+
+        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction"  additivity="false" level="warn">
+            <AppenderRef ref="CSP_REPORT" />
+            <AppenderRef ref="CONSOLE"/>
         </Logger>
 
         <!--

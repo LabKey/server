@@ -157,9 +157,12 @@ allprojects {
                     maven {
                         // Mondrian dependencies are available via this repository. It's a direct dependency of the Query
                         // module but is declared here as many modules depend on Query and therefore need it as well.
-                    	url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
                         content {
-                            excludeGroupByRegex "org\\.labkey.*"
+                            includeGroup "pentaho"
+                            includeGroup "org.pentaho"
+                            includeGroup "org.olap4j"
+                            includeGroup "javacup"
                         }
                     }
                 }
@@ -257,6 +260,8 @@ allprojects {
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
+                    // This is a dependency for HTSJDK. Force version for CVE-2023-43642
+                    force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
                     // Cloud module brings in earlier versions of this library, so we force the later one
                     force "org.apache.tika:tika-core:${tikaVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA

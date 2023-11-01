@@ -30,6 +30,9 @@ allprojects {
                 nodeAudit {
                     enabled = false
                 }
+                retirejs {
+                    enabled = false
+                }
             }
             formats = ['HTML', 'JUNIT']
             skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']

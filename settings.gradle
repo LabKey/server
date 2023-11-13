@@ -103,11 +103,20 @@ if (hasProperty("useEmbeddedTomcat"))
 
 include BuildUtils.getMinificationProjectPath(gradle)
 
+// A list of directory names or fully qualified module paths that correspond to modules to be excluded from configuration.
+// Items may be individual module names (e.g. 'luminex'), module container names (e.g. 'customModules'), or paths (e.g., ':server:modules:commonAssays:flow')
+// You must make sure to pass this list to the appropriate calls to `BuildUtils.includeModules`
+List<String> excludedModules = []
+if (hasProperty('excludedModulePaths'))
+{
+    excludedModules.addAll("${excludedModulePaths}".split(","))
+}
+
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()
         && !hasProperty('excludeBaseModules'))
 {
     // The line below includes the set of modules for a minimally functional LabKey server
-    BuildUtils.includeBaseModules(this.settings)
+    BuildUtils.includeBaseModules(this.settings, excludedModules)
 
     // Some test modules require base modules to build JSPs.
     // TODO: Un-nest this 'if' once test modules can build without platform present.
@@ -115,7 +124,7 @@ if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPla
             && !hasProperty('excludeTestModules'))
     {
         // The line below will include the server/testAutomation project as well as the server/testAutomation/modules projects
-        BuildUtils.includeTestModules(this.settings, rootDir)
+        BuildUtils.includeTestModules(this.settings, rootDir, excludedModules)
     }
 }
 else if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists())
@@ -149,10 +158,6 @@ else if (hasProperty('moduleSet'))
 }
 else
 {
-    // A list of directory names that correspond to modules to be excluded from configuration.
-    // Items may be individual module names (e.g. 'luminex') or module container names (e.g. 'customModules')
-    // You must make sure to pass this list to the appropriate calls to `BuildUtils.includeModules`
-    List<String> excludedModules = []
 
     // The line below recursively includes all modules in server/modules 
     BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.SERVER_MODULES_DIR], excludedModules, true)
@@ -188,7 +193,7 @@ if (hasProperty('extraIncludes'))
 
 if (hasProperty('extraModuleDirs'))
 {
-    BuildUtils.includeModules(this.settings, rootDir, Arrays.asList("${extraModuleDirs}".split(",")), [])
+    BuildUtils.includeModules(this.settings, rootDir, Arrays.asList("${extraModuleDirs}".split(",")), excludedModules)
 }
 
 if (hasProperty('inheritedDistPath'))

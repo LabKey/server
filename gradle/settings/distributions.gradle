@@ -44,4 +44,8 @@ import org.labkey.gradle.util.BuildUtils
 
 apply from: 'all.gradle'
 
-BuildUtils.includeModules(this.settings, rootDir, ["distributions"], [])
+List<String> excludedModules = []
+if (hasProperty('excludedModulePaths'))
+    excludedModules.addAll("${excludedModulePaths}".split(","))
+
+BuildUtils.includeModules(this.settings, rootDir, ["distributions"], excludedModules)

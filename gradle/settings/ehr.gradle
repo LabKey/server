@@ -57,8 +57,13 @@ List<String> ehrModulesDirs = [
         "server/modules/LabDevKitModules"
 ]
 
-BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], [])
-BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, [])
+List<String> excludedModules = []
+if (hasProperty('excludedModulePaths'))
+    excludedModules.addAll("${excludedModulePaths}".split(","))
+
+
+BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)
+BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, excludedModules)
 
 include ":server:modules:snd"
 include ":server:modules:tnprc_ehr"

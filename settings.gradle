@@ -107,9 +107,9 @@ include BuildUtils.getMinificationProjectPath(gradle)
 // Items may be individual module names (e.g. 'luminex'), module container names (e.g. 'customModules'), or paths (e.g., ':server:modules:commonAssays:flow')
 // You must make sure to pass this list to the appropriate calls to `BuildUtils.includeModules`
 List<String> excludedModules = []
-if (hasProperty('excludedModulePaths'))
+if (hasProperty('excludedModules'))
 {
-    excludedModules.addAll("${excludedModulePaths}".split(","))
+    excludedModules.addAll("${excludedModules}".split(","))
 }
 
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()

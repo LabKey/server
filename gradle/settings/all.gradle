@@ -55,8 +55,8 @@ if (hasProperty('gradleExcludeModuleDirs'))
 {
     excludedDirs.addAll("${gradleExcludeModuleDirs}".toLowerCase().split(","))
 }
-if (hasProperty('excludedModulePaths'))
-    exclusions.addAll("${excludedModulePaths}".split(","))
+if (hasProperty('excludedModules'))
+    exclusions.addAll("${excludedModules}".split(","))
 
 // Include ':server:embedded' unless explicitly excluded
 if (!exclusions.contains("embedded"))

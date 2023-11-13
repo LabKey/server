@@ -58,8 +58,8 @@ List<String> ehrModulesDirs = [
 ]
 
 List<String> excludedModules = []
-if (hasProperty('excludedModulePaths'))
-    excludedModules.addAll("${excludedModulePaths}".split(","))
+if (hasProperty('excludedModules'))
+    excludedModules.addAll("${excludedModules}".split(","))
 
 
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)

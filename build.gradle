@@ -380,6 +380,8 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
     artifactoryPublish.skip = true
 }
 
+project.log.info("##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']")
+
 subprojects {
     project.tasks.register("showRepos", DefaultTask) {
         task ->

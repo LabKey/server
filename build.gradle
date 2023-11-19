@@ -22,12 +22,15 @@ allprojects {
         // Comment in to enable the tasks for owasp dependency checking
         apply plugin: 'org.owasp.dependencycheck'
         dependencyCheck {
-            outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}"
+            outputDirectory = project.rootProject.layout.buildDirectory.file("reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}").get().asFile
             suppressionFile = "${project.rootProject.rootDir}/dependencyCheckSuppression.xml"
             analyzers {
                 assemblyEnabled = false // Sets whether the .NET Assembly Analyzer should be used.
                 nodeEnabled = false // Sets whether the Node.js Analyzer should be used.
                 nodeAudit {
+                    enabled = false
+                }
+                retirejs {
                     enabled = false
                 }
             }

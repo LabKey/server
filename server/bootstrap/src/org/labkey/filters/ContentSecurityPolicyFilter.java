@@ -13,7 +13,44 @@ import java.security.SecureRandom;
 import java.util.Enumeration;
 
 
-/** example usage
+/** example usage,
+
+ very strict, disallows 'external' websites, disallows unsafe-inline, but only reports violations (does not enforce)
+ good for test automation!
+
+  <pre>
+      <filter>
+        <filter-name>Content Security Policy Filter Filter</filter-name>
+        <filter-class>org.labkey.filters.ContentSecurityPolicyFilter</filter-class>
+        <init-param>
+          <param-name>policy</param-name>
+          <param-value>
+            default-src 'self';
+            connect-src 'self' ;
+            object-src 'none' ;
+            style-src 'self' 'unsafe-inline' ;
+            img-src 'self' data: ;
+            script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}';
+            base-uri 'self' ;
+            upgrade-insecure-requests ;
+            frame-ancestors 'self' ;
+            report-to /labkey/admin-contentsecuritypolicyreport.api ;
+            report-uri /labkey/admin-contentsecuritypolicyreport.api ;
+          </param-value>
+        </init-param>
+        <init-param>
+          <param-name>disposition</param-name>
+          <param-value>report</param-value>
+        </init-param>
+      </filter>
+      <filter-mapping>
+        <filter-name>Content Security Policy Filter Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+      </filter-mapping>
+  </pre>
+
+  less strict but enforces directives, (NOTE: unsafe-inline is still required for many modules)
+
   <pre>
       <filter>
         <filter-name>Content Security Policy Filter Filter</filter-name>
@@ -22,26 +59,30 @@ import java.util.Enumeration;
           <param-name>policy</param-name>
           <param-value>
             default-src 'self' https: ;
-            connect-src 'self' ;
+            connect-src 'self' https: ;
             object-src 'none' ;
             style-src 'self' https: 'unsafe-inline' ;
-            img-src 'self' https: data: ;
-            script-src 'self' 'unsafe-inline' 'unsafe-eval' ;
+            img-src 'self' data: ;
+            script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}';
             base-uri 'self' ;
             upgrade-insecure-requests ;
             frame-ancestors 'self' ;
+            report-to /labkey/admin-contentsecuritypolicyreport.api ;
+            report-uri /labkey/admin-contentsecuritypolicyreport.api ;
           </param-value>
         </init-param>
         <init-param>
           <param-name>disposition</param-name>
           <param-value>enforce</param-value>
         </init-param>
- </filter>
+      </filter>
       <filter-mapping>
         <filter-name>Content Security Policy Filter Filter</filter-name>
         <url-pattern>/*</url-pattern>
       </filter-mapping>
   </pre>
+
+ Do not copy-and-paste these examples for any production environment without understanding the meaning of each directive!
  */
 
 

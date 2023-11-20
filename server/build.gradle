@@ -208,13 +208,17 @@ tasks.register('createModule', CreateModule) {
 
 project.tasks.register("reportVersionToTeamCity", DefaultTask) {
     DefaultTask task ->
-        task.group = GroupNames.DOCUMENTATION
-        task.description = "Report version number '${labkeyVersion}' to TeamCity"
+        task.group = GroupNames.PUBLISHING
+        task.description = "Report version number (${labkeyVersion}) to TeamCity"
         task.doLast({
             println "##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']"
         })
 }
-project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }
+if (project.hasProperty("teamcity"))
+{
+    project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }
+}
+
 
 // We add this configuration here so we have a single location to link to for the npm and node executables.
 // Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode

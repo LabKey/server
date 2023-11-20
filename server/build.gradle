@@ -211,6 +211,7 @@ project.tasks.register("reportVersionToTeamCity", DefaultTask) {
         task.group = GroupNames.PUBLISHING
         task.description = "Report version number (${labkeyVersion}) to TeamCity"
         task.doLast({
+            // https://www.jetbrains.com/help/teamcity/2018.1/build-script-interaction-with-teamcity.html#adding-or-changing-a-build-parameter
             println "##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']"
         })
 }

@@ -211,7 +211,7 @@ project.tasks.register("reportVersionToTeamCity", DefaultTask) {
         task.group = GroupNames.DOCUMENTATION
         task.description = "Report version number '${labkeyVersion}' to TeamCity"
         task.doLast({
-            project.logger.info("##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']")
+            println "##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']"
         })
 }
 project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }

@@ -5,7 +5,10 @@ import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.labkey.bootstrap.ConfigException;
+import org.labkey.filters.ContentSecurityPolicyFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,6 +45,7 @@ public class LabKeyServer
     private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
     private static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
     private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
+    private static final String CSP_FILTER_NAME = "ContentSecurityPolicyFilter";
 
     public static void main(String[] args)
     {
@@ -65,6 +69,13 @@ public class LabKeyServer
     {
         return new MailProperties();
     }
+
+    @Bean
+    public CSPFilterProperties cspSource()
+    {
+        return new CSPFilterProperties();
+    }
+
     @Bean
     public JsonAccessLog jsonAccessLog()
     {
@@ -111,6 +122,24 @@ public class LabKeyServer
                     // tomcat requires a unique context path other than root here
                     // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+                    CSPFilterProperties cspFilterProperties = cspSource();
+
+                    if (cspFilterProperties.getDisposition() != null && cspFilterProperties.getPolicy() != null)
+                    {
+                        FilterDef filterDef = new FilterDef();
+                        filterDef.setFilterName(CSP_FILTER_NAME);
+                        filterDef.setFilter(new ContentSecurityPolicyFilter());
+                        filterDef.addInitParameter("policy", cspFilterProperties.getPolicy());
+                        filterDef.addInitParameter("disposition", cspFilterProperties.getDisposition());
+
+                        FilterMap filterMap = new FilterMap();
+                        filterMap.setFilterName(CSP_FILTER_NAME);
+                        filterMap.addURLPattern("/*");
+
+                        context.addFilterDef(filterDef);
+                        context.addFilterMap(filterMap);
+                    }
+
 
                     // Issue 48426: Allow config for desired work directory
                     if (contextProperties.getWorkDirLocation() != null)
@@ -728,6 +757,34 @@ public class LabKeyServer
         public void setSmtpAuth(String smtpAuth)
         {
             this.smtpAuth = smtpAuth;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("csp")
+    public static class CSPFilterProperties
+    {
+        private String disposition;
+        private String policy;
+
+        public String getDisposition()
+        {
+            return disposition;
+        }
+
+        public void setDisposition(String disposition)
+        {
+            this.disposition = disposition;
+        }
+
+        public String getPolicy()
+        {
+            return policy;
+        }
+
+        public void setPolicy(String policy)
+        {
+            this.policy = policy;
         }
     }
 }

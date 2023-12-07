@@ -10,7 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /** example usage,
@@ -89,12 +93,16 @@ import java.util.Enumeration;
 public class ContentSecurityPolicyFilter implements Filter
 {
     private static final String NONCE_SUBST = "${REQUEST.SCRIPT.NONCE}";
+    private static final String ALLOWED_CONNECT_SUBSTITUTION = "${REQUEST.ALLOWED.CONNECTIONS}";
     private static final String HEADER_NONCE = "org.labkey.filters.ContentSecurityPolicyFilter#NONCE";  // needs to match PageConfig.HEADER_NONCE
     private static final String CONTENT_SECURITY_POLICY_HEADER_NAME = "Content-Security-Policy";
     private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME = "Content-Security-Policy-Report-Only";
     private String policy = "";
     private int nonceSubstIndex = -1;
+    private int allowedConnectionSubstitutionIndex = -1;
+    private static String connectionSrc = "";
 
+    private static final Map<String, String> allowedConnectionSources = new ConcurrentHashMap<>();
     private boolean reportOnly = false;
 
     @Override
@@ -115,6 +123,7 @@ public class ContentSecurityPolicyFilter implements Filter
                 s = s.replace((char)0x2019, (char)0x027);     // RIGHT SINGLE QUOTATION MARK -> APOSTROPHE
                 policy = s;
                 nonceSubstIndex = policy.indexOf(NONCE_SUBST);
+                allowedConnectionSubstitutionIndex = policy.indexOf(ALLOWED_CONNECT_SUBSTITUTION);
             }
             else if ("disposition".equalsIgnoreCase(paramName))
             {
@@ -145,10 +154,31 @@ public class ContentSecurityPolicyFilter implements Filter
             var csp = policy;
             if (nonceSubstIndex != -1)
                 csp = csp.substring(0,nonceSubstIndex) + getScriptNonceHeader(req) + csp.substring(nonceSubstIndex + NONCE_SUBST.length());
+
+            if (allowedConnectionSubstitutionIndex != -1 )
+            {
+                csp = csp.substring(0,allowedConnectionSubstitutionIndex)
+                        + connectionSrc
+                        + csp.substring(allowedConnectionSubstitutionIndex + ALLOWED_CONNECT_SUBSTITUTION.length());
+            }
             var header = reportOnly ? CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME : CONTENT_SECURITY_POLICY_HEADER_NAME;
             resp.setHeader(header, csp);
         }
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Return concatenated list of allowed connection hosts
+     * @param allowedConnectionSources
+     * @return
+     */
+    private static String getAllowedConnectionsHeader(Collection<String> allowedConnectionSources)
+    {
+        //Remove substitution parameter if no sources are registered
+        if (allowedConnectionSources.isEmpty())
+            return "";
+
+        return allowedConnectionSources.stream().distinct().collect(Collectors.joining(" "));
     }
 
 
@@ -166,4 +196,16 @@ public class ContentSecurityPolicyFilter implements Filter
     }
 
     private static final SecureRandom rand = new SecureRandom();
+
+    public static void registerAllowedConnectionSource(String key, String allowedUrl)
+    {
+        allowedConnectionSources.put(key, allowedUrl);
+        connectionSrc = getAllowedConnectionsHeader(allowedConnectionSources.values());
+    }
+
+    public static void unregisterAllowedConnectionSource(String key)
+    {
+        allowedConnectionSources.remove(key);
+        connectionSrc = getAllowedConnectionsHeader(allowedConnectionSources.values());
+    }
 }

@@ -10,9 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /** example usage,
@@ -98,9 +100,9 @@ public class ContentSecurityPolicyFilter implements Filter
     private String policy = "";
     private int nonceSubstIndex = -1;
     private int allowedConnectionSubstitutionIndex = -1;
+    private static String connectionSrc = "";
 
-    private static final Set<String> allowedConnectionSources = new CopyOnWriteArraySet<>();
-
+    private static final Map<String, String> allowedConnectionSources = new ConcurrentHashMap<>();
     private boolean reportOnly = false;
 
     @Override
@@ -153,10 +155,10 @@ public class ContentSecurityPolicyFilter implements Filter
             if (nonceSubstIndex != -1)
                 csp = csp.substring(0,nonceSubstIndex) + getScriptNonceHeader(req) + csp.substring(nonceSubstIndex + NONCE_SUBST.length());
 
-            if (allowedConnectionSubstitutionIndex != -1)
+            if (allowedConnectionSubstitutionIndex != -1 )
             {
                 csp = csp.substring(0,allowedConnectionSubstitutionIndex)
-                        + getAllowedConnectionsHeader(allowedConnectionSources)
+                        + connectionSrc
                         + csp.substring(allowedConnectionSubstitutionIndex + ALLOWED_CONNECT_SUBSTITUTION.length());
             }
             var header = reportOnly ? CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME : CONTENT_SECURITY_POLICY_HEADER_NAME;
@@ -170,13 +172,13 @@ public class ContentSecurityPolicyFilter implements Filter
      * @param allowedConnectionSources
      * @return
      */
-    private static String getAllowedConnectionsHeader(Set<String> allowedConnectionSources)
+    private static String getAllowedConnectionsHeader(Collection<String> allowedConnectionSources)
     {
         //Remove substitution parameter if no sources are registered
         if (allowedConnectionSources.isEmpty())
             return "";
 
-        return String.join(" ", allowedConnectionSources);
+        return allowedConnectionSources.stream().distinct().collect(Collectors.joining(" "));
     }
 
 
@@ -195,8 +197,15 @@ public class ContentSecurityPolicyFilter implements Filter
 
     private static final SecureRandom rand = new SecureRandom();
 
-    public static void registerAllowedConnectionSource(String allowedUrl)
+    public static void registerAllowedConnectionSource(String key, String allowedUrl)
     {
-        allowedConnectionSources.add(allowedUrl);
+        allowedConnectionSources.put(key, allowedUrl);
+        connectionSrc = getAllowedConnectionsHeader(allowedConnectionSources.values());
+    }
+
+    public static void unregisterAllowedConnectionSource(String key)
+    {
+        allowedConnectionSources.remove(key);
+        connectionSrc = getAllowedConnectionsHeader(allowedConnectionSources.values());
     }
 }

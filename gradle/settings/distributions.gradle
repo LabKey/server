@@ -1,15 +1,33 @@
 buildscript {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
+            content {
+                includeGroup "org.labkey.build"
+                includeGroup "org.labkey.versioning"
+            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
             mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
+                content {
+                    includeGroup "org.labkey.build"
+                    includeGroup "org.labkey.versioning"
+                }
             }
 
         }
@@ -26,4 +44,8 @@ import org.labkey.gradle.util.BuildUtils
 
 apply from: 'all.gradle'
 
-BuildUtils.includeModules(this.settings, rootDir, ["distributions"], [])
+List<String> excludedModules = []
+if (hasProperty('excludedModules'))
+    excludedModules.addAll("${excludedModules}".split(","))
+
+BuildUtils.includeModules(this.settings, rootDir, ["distributions"], excludedModules)

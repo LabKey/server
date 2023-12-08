@@ -4,8 +4,6 @@ import org.labkey.gradle.task.PurgeNpmAlphaVersions
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
-import org.labkey.gradle.plugin.NpmRun
-import org.labkey.gradle.task.PurgeNpmAlphaVersions
 
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
@@ -22,12 +20,15 @@ allprojects {
         // Comment in to enable the tasks for owasp dependency checking
         apply plugin: 'org.owasp.dependencycheck'
         dependencyCheck {
-            outputDirectory = "${project.rootProject.buildDir}/reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}"
+            outputDirectory = project.rootProject.layout.buildDirectory.file("reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}").get().asFile
             suppressionFile = "${project.rootProject.rootDir}/dependencyCheckSuppression.xml"
             analyzers {
                 assemblyEnabled = false // Sets whether the .NET Assembly Analyzer should be used.
                 nodeEnabled = false // Sets whether the Node.js Analyzer should be used.
                 nodeAudit {
+                    enabled = false
+                }
+                retirejs {
                     enabled = false
                 }
             }
@@ -102,9 +103,13 @@ allprojects {
                 {
                     maven {
                         url "${artifactory_contextUrl}/ext-tools-local"
+                        content {
+                            includeGroup "org.labkey.tools.windows"
+                            includeGroup "org.labkey.tools.linux"
+                            includeGroup "org.labkey.tools.osx"
+                        }
                     }
                     maven {
-
                         url "${artifactory_contextUrl}/libs-release-no-proxy"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
@@ -116,6 +121,9 @@ allprojects {
                             authentication {
                                 basic(BasicAuthentication)
                             }
+                        }
+                        mavenContent {
+                            releasesOnly()
                         }
                     }
                     maven {
@@ -131,7 +139,16 @@ allprojects {
                                 basic(BasicAuthentication)
                             }
                         }
+                        mavenContent {
+                            snapshotsOnly()
+                        }
+                        content {
+                            includeGroup "org.labkey"
+                            includeGroup "org.labkey.api"
+                            includeGroup "org.labkey.module"
+                        }
                     }
+
 // Temporarily uncomment the block below and update the four-digit number to allow building with Tomcat versions that
 // haven't been released yet. The "VOTE" emails sent to the Tomcat dev email list include a staging repo URL. In
 // addition to updating the url to match, you'll also need to update apacheTomcatVersion in gradle.properties.
@@ -141,7 +158,13 @@ allprojects {
                     maven {
                         // Mondrian dependencies are available via this repository. It's a direct dependency of the Query
                         // module but is declared here as many modules depend on Query and therefore need it as well.
-                    	url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        content {
+                            includeGroup "pentaho"
+                            includeGroup "org.pentaho"
+                            includeGroup "org.olap4j"
+                            includeGroup "javacup"
+                        }
                     }
                 }
 
@@ -198,7 +221,9 @@ allprojects {
                     force "xalan:xalan:${xalanVersion}"
                     // genotyping brings in a much older version of this, so we force a newer version for compatibility
                     force "org.apache.commons:commons-compress:${commonsCompressVersion}"
-                    // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk:2.14.3 uses much older version
+                    // Force ant to be a newer version (transitive dependency of query > eigenbase-resgen > eigenbase-xom)
+                    force "org.apache.ant:ant:${antVersion}"
+                    // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk which references an older version
                     force "org.tukaani:xz:${tukaaniXZVersion}"
                     // force version for api, LDK, pipeline, query, saml, but not for the xsdDoc configuration, which requires
                     // an older version for the docflex library we use
@@ -206,15 +231,38 @@ allprojects {
                         force "xml-apis:xml-apis:${xmlApisVersion}"
                     // cloud and SequenceAnalysis bring this in as a transitive dependency. We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
+
+                    // Google oauth2-http Library and api-common (via Picard, and perhaps others) bring in different versions; force the latest
+                    force "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
+                    force "com.google.http-client:google-http-client-apache-v2:${googleHttpClientVersion}"
+                    force "com.google.http-client:google-http-client-gson:${googleHttpClientVersion}"
+
                     // Google HTTP Client Library and Guava bring in different versions; force the latest
                     force "com.google.errorprone:error_prone_annotations:${googleErrorProneAnnotationsVersion}"
-                    // different google APIs bring in different versions; force the latest
-                    force "com.google.http-client:google-http-client-gson:${googleHttpClientGsonVersion}"
+                    // Force patched version of GPRC, dependency of a number of Google service APIs in WNPRC and fileTransfer
+                    force "io.grpc:grpc-context:${grpcVersion}"
+
+                    // TODO Remove these when the Picard version brought in by the SequenceAnalysis module is upgraded to use a version >=1.57.2
+                    force "io.grpc:grpc-alts:${grpcVersion}"
+                    force "io.grpc:grpc-auth:${grpcVersion}"
+                    force "io.grpc:grpc-core:${grpcVersion}"
+                    force "io.grpc:grpc-googleapis:${grpcVersion}"
+                    force "io.grpc:grpc-grpclb:${grpcVersion}"
+                    force "io.grpc:grpc-netty-shaded:${grpcVersion}"
+                    force "io.grpc:grpc-protobuf:${grpcVersion}"
+                    force "io.grpc:grpc-protobuf-lite:${grpcVersion}"
+                    force "io.grpc:grpc-rls:${grpcVersion}"
+                    force "io.grpc:grpc-services:${grpcVersion}"
+                    force "io.grpc:grpc-stub:${grpcVersion}"
+                    force "io.grpc:grpc-xds:${grpcVersion}"
+
                     // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
                     force "com.github.samtools:htsjdk:${htsjdkVersion}"
+                    // This is a dependency for HTSJDK. Force version for CVE-2023-43642
+                    force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
                     // Cloud module brings in earlier versions of this library, so we force the later one
                     force "org.apache.tika:tika-core:${tikaVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA
@@ -224,6 +272,8 @@ allprojects {
                     force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
+                    // force consistency between API and Java remote API
+                    force "org.json:json:${orgJsonVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"
                     // force junit and hamcrest versions to be consistent with what comes from labkey-client-api.
                     // The hamcrest dependencies come through transitively from jackson, junit, jmock
@@ -239,6 +289,7 @@ allprojects {
                     force "org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}"
                     // force consistency with netty jar files for docker and UserReg-WS
                     force "io.netty:netty-resolver:${nettyVersion}"
+                    force "io.netty:netty-resolver-dns:${nettyVersion}"
                     force "io.netty:netty-handler:${nettyVersion}"
                     force "io.netty:netty-handler-proxy:${nettyVersion}"
                     force "io.netty:netty-buffer:${nettyVersion}"
@@ -247,6 +298,7 @@ allprojects {
                     force "io.netty:netty-codec:${nettyVersion}"
                     force "io.netty:netty-common:${nettyVersion}"
                     force "io.netty:netty-codec-http:${nettyVersion}"
+                    force "io.netty:netty-codec-http2:${nettyVersion}"
                     force "io.netty:netty-transport-native-epoll:${nettyVersion}"
                     force "io.netty:netty-transport-native-kqueue:${nettyVersion}"
 
@@ -257,6 +309,9 @@ allprojects {
 
                     // Force consistency between pipeline's ActiveMQ  and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
+
+                    // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.
+                    force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
@@ -286,6 +341,11 @@ allprojects {
 
                         // This library was renamed
                         substitute module('org.codehaus.woodstox:woodstox-core-asl') using module("com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}")
+
+                        // Avoid conflicts with declared dependencies on the newer versions from 'net.hydromatic'
+                        substitute module('eigenbase:eigenbase-properties') using module("net.hydromatic:eigenbase-properties:${eigenbasePropertiesVersion}")
+                        substitute module('eigenbase:eigenbase-resgen') using module("net.hydromatic:eigenbase-resgen:${eigenbaseResgenVersion}")
+                        substitute module('eigenbase:eigenbase-xom') using module("net.hydromatic:eigenbase-xom:${eigenbaseXomVersion}")
                     }
                 }
             }

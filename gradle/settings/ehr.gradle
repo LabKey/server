@@ -1,15 +1,33 @@
 buildscript {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
+            content {
+                includeGroup "org.labkey.build"
+                includeGroup "org.labkey.versioning"
+            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
             mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
+                content {
+                    includeGroup "org.labkey.build"
+                    includeGroup "org.labkey.versioning"
+                }
             }
 
         }
@@ -39,8 +57,13 @@ List<String> ehrModulesDirs = [
         "server/modules/LabDevKitModules"
 ]
 
-BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], [])
-BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, [])
+List<String> excludedModules = []
+if (hasProperty('excludedModules'))
+    excludedModules.addAll("${excludedModules}".split(","))
+
+
+BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)
+BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, excludedModules)
 
 include ":server:modules:snd"
 include ":server:modules:tnprc_ehr"

@@ -3,8 +3,12 @@ package org.labkey.embedded;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.labkey.bootstrap.ConfigException;
+import org.labkey.filters.ContentSecurityPolicyFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -35,6 +40,12 @@ public class LabKeyServer
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
     private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
+    private static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
+    private static final String MAX_IDLE_DEFAULT = "10";
+    private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
+    private static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
+    private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
+    private static final String CSP_FILTER_NAME = "ContentSecurityPolicyFilter";
 
     public static void main(String[] args)
     {
@@ -57,6 +68,18 @@ public class LabKeyServer
     public MailProperties smtpSource()
     {
         return new MailProperties();
+    }
+
+    @Bean
+    public CSPFilterProperties cspSource()
+    {
+        return new CSPFilterProperties();
+    }
+
+    @Bean
+    public JsonAccessLog jsonAccessLog()
+    {
+        return new JsonAccessLog();
     }
 
     @Bean
@@ -99,6 +122,31 @@ public class LabKeyServer
                     // tomcat requires a unique context path other than root here
                     // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+                    CSPFilterProperties cspFilterProperties = cspSource();
+
+                    if (cspFilterProperties.getDisposition() != null && cspFilterProperties.getPolicy() != null)
+                    {
+                        FilterDef filterDef = new FilterDef();
+                        filterDef.setFilterName(CSP_FILTER_NAME);
+                        filterDef.setFilter(new ContentSecurityPolicyFilter());
+                        filterDef.addInitParameter("policy", cspFilterProperties.getPolicy());
+                        filterDef.addInitParameter("disposition", cspFilterProperties.getDisposition());
+
+                        FilterMap filterMap = new FilterMap();
+                        filterMap.setFilterName(CSP_FILTER_NAME);
+                        filterMap.addURLPattern("/*");
+
+                        context.addFilterDef(filterDef);
+                        context.addFilterMap(filterMap);
+                    }
+
+
+                    // Issue 48426: Allow config for desired work directory
+                    if (contextProperties.getWorkDirLocation() != null)
+                    {
+                        context.setWorkDir(contextProperties.getWorkDirLocation());
+                    }
+
                     // set the root path to the context explicitly
                     context.setPath("");
 
@@ -110,6 +158,19 @@ public class LabKeyServer
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
+                    if (contextProperties.getOldEncryptionKey() != null)
+                    {
+                        context.addParameter("OldEncryptionKey", contextProperties.getOldEncryptionKey());
+                    }
+
+                    if (contextProperties.getRequiredModules() != null)
+                    {
+                        context.addParameter("requiredModules", contextProperties.getRequiredModules());
+                    }
+                    if (contextProperties.getPipelineConfig() != null)
+                    {
+                        context.addParameter("org.labkey.api.pipeline.config", contextProperties.getPipelineConfig());
+                    }
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
                     if (null != contextProperties.getServerGUID())
@@ -128,7 +189,34 @@ public class LabKeyServer
                     throw new RuntimeException(e);
                 }
 
+                JsonAccessLog logConfig = jsonAccessLog();
+                if (logConfig.isEnabled())
+                {
+                   configureJsonAccessLogging(tomcat, logConfig);
+                }
+
                 return super.getTomcatWebServer(tomcat);
+            }
+
+            // Issue 48565: allow for JSON-formatted access logs in embedded tomcat
+            private void configureJsonAccessLogging(Tomcat tomcat, JsonAccessLog logConfig)
+            {
+                var v = new JsonAccessLogValve();
+
+                // Configure for stdout, our only current use case
+                v.setPrefix("stdout");
+                v.setDirectory("/dev");
+                v.setBuffered(false);
+                v.setSuffix("");
+                v.setFileDateFormat("");
+                v.setContainer(tomcat.getHost());
+
+                // Now the settings that we support via application.properties
+                v.setPattern(logConfig.getPattern());
+                v.setConditionIf(logConfig.getConditionIf());
+                v.setConditionUnless(logConfig.getConditionUnless());
+
+                tomcat.getEngine().getPipeline().addValve(v);
             }
 
             private List<ContextResource> getDataSourceResources(ContextProperties props) throws ConfigException
@@ -154,16 +242,32 @@ public class LabKeyServer
                     dataSourceResource.setProperty("url", props.getUrl().get(i));
                     dataSourceResource.setProperty("password", props.getPassword().get(i));
                     dataSourceResource.setProperty("username", props.getUsername().get(i));
-                    // TODO : 8021 move this properties to application.properties
-                    dataSourceResource.setProperty("maxTotal", "20");
-                    dataSourceResource.setProperty("maxIdle", "10");
-                    dataSourceResource.setProperty("maxWaitMillis", "120000");
-                    dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", "true");
-                    dataSourceResource.setProperty("validationQuery", "SELECT 1");
+
+                    dataSourceResource.setProperty("maxTotal", getPropValue(props.getMaxTotal(), i, MAX_TOTAL_CONNECTIONS_DEFAULT, "maxTotal"));
+                    dataSourceResource.setProperty("maxIdle", getPropValue(props.getMaxIdle(), i, MAX_IDLE_DEFAULT, "maxIdle"));
+                    dataSourceResource.setProperty("maxWaitMillis", getPropValue(props.getMaxWaitMillis(), i, MAX_WAIT_MILLIS_DEFAULT, "maxWaitMillis"));
+                    dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", getPropValue(props.getAccessToUnderlyingConnectionAllowed(), i, ACCESS_TO_CONNECTION_ALLOWED_DEFAULT, "accessToUnderlyingConnectionAllowed"));
+                    dataSourceResource.setProperty("validationQuery", getPropValue(props.getValidationQuery(), i, VALIDATION_QUERY_DEFAULT, "validationQuery"));
+
                     dataSourceResources.add(dataSourceResource);
                 }
 
                 return  dataSourceResources;
+            }
+
+            private String getPropValue(Map<Integer, String> propValues, Integer resourceKey, String defaultValue, String propName)
+            {
+                if (propValues == null)
+                {
+                    logger.debug(String.format("%1$s property was not provided, using default", propName));
+                    return defaultValue;
+                }
+
+                if (!propValues.containsKey(resourceKey))
+                    logger.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
+
+                String val = propValues.getOrDefault(resourceKey, defaultValue);
+                return val != null && !val.isBlank() ? val.trim() : defaultValue;
             }
 
             private ContextResource getMailResource()
@@ -310,6 +414,56 @@ public class LabKeyServer
         }
     }
 
+    @Configuration
+    @ConfigurationProperties("jsonaccesslog")
+    public static class JsonAccessLog
+    {
+        private boolean enabled;
+        private String pattern = "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s";
+        private String conditionIf;
+        private String conditionUnless;
+
+        public boolean isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled)
+        {
+            this.enabled = enabled;
+        }
+
+        public String getPattern()
+        {
+            return pattern;
+        }
+
+        public void setPattern(String pattern)
+        {
+            this.pattern = pattern;
+        }
+
+        public String getConditionIf()
+        {
+            return conditionIf;
+        }
+
+        public void setConditionIf(String conditionIf)
+        {
+            this.conditionIf = conditionIf;
+        }
+
+        public String getConditionUnless()
+        {
+            return conditionUnless;
+        }
+
+        public void setConditionUnless(String conditionUnless)
+        {
+            this.conditionUnless = conditionUnless;
+        }
+    }
+
     @Validated
     @Configuration
     @ConfigurationProperties("context")
@@ -327,9 +481,18 @@ public class LabKeyServer
         private List<String> driverClassName;
 
         private String webAppLocation;
+        private String workDirLocation;
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
+        private String oldEncryptionKey;
+        private String pipelineConfig;
+        private String requiredModules;
         private String serverGUID;
+        private Map<Integer, String> maxTotal;
+        private Map<Integer, String> maxIdle;
+        private Map<Integer, String> maxWaitMillis;
+        private Map<Integer, String> accessToUnderlyingConnectionAllowed;
+        private Map<Integer, String> validationQuery;
 
         public List<String> getDataSourceName()
         {
@@ -391,6 +554,16 @@ public class LabKeyServer
             this.webAppLocation = webAppLocation;
         }
 
+        public String getWorkDirLocation()
+        {
+            return workDirLocation;
+        }
+
+        public void setWorkDirLocation(String workDirLocation)
+        {
+            this.workDirLocation = workDirLocation;
+        }
+
         public String getEncryptionKey()
         {
             return encryptionKey;
@@ -401,6 +574,36 @@ public class LabKeyServer
             this.encryptionKey = encryptionKey;
         }
 
+        public String getOldEncryptionKey()
+        {
+            return oldEncryptionKey;
+        }
+
+        public void setOldEncryptionKey(String oldEncryptionKey)
+        {
+            this.oldEncryptionKey = oldEncryptionKey;
+        }
+
+        public String getPipelineConfig()
+        {
+            return pipelineConfig;
+        }
+
+        public void setPipelineConfig(String pipelineConfig)
+        {
+            this.pipelineConfig = pipelineConfig;
+        }
+
+        public String getRequiredModules()
+        {
+            return requiredModules;
+        }
+
+        public void setRequiredModules(String requiredModules)
+        {
+            this.requiredModules = requiredModules;
+        }
+
         public String getServerGUID()
         {
             return serverGUID;
@@ -409,6 +612,57 @@ public class LabKeyServer
         public void setServerGUID(String serverGUID)
         {
             this.serverGUID = serverGUID;
+        }
+
+        public Map<Integer, String> getMaxTotal()
+        {
+            return maxTotal;
+        }
+
+        public void setMaxTotal(Map<Integer, String> maxTotal)
+        {
+            this.maxTotal = maxTotal;
+        }
+
+
+        public void setMaxIdle(Map<Integer, String> maxIdle)
+        {
+            this.maxIdle = maxIdle;
+        }
+
+        public Map<Integer, String> getMaxIdle()
+        {
+            return this.maxIdle;
+        }
+
+        public void setAccessToUnderlyingConnectionAllowed(Map<Integer, String> accessToUnderlyingConnectionAllowed)
+        {
+            this.accessToUnderlyingConnectionAllowed = accessToUnderlyingConnectionAllowed;
+        }
+
+        public Map<Integer, String> getAccessToUnderlyingConnectionAllowed()
+        {
+            return this.accessToUnderlyingConnectionAllowed;
+        }
+
+        public void setMaxWaitMillis(Map<Integer, String> maxWaitMillis)
+        {
+            this.maxWaitMillis = maxWaitMillis;
+        }
+
+        public Map<Integer, String> getMaxWaitMillis()
+        {
+            return this.maxWaitMillis;
+        }
+
+        public Map<Integer, String> getValidationQuery()
+        {
+            return validationQuery;
+        }
+
+        public void setValidationQuery(Map<Integer, String> validationQuery)
+        {
+            this.validationQuery = validationQuery;
         }
     }
 
@@ -506,4 +760,31 @@ public class LabKeyServer
         }
     }
 
+    @Configuration
+    @ConfigurationProperties("csp")
+    public static class CSPFilterProperties
+    {
+        private String disposition;
+        private String policy;
+
+        public String getDisposition()
+        {
+            return disposition;
+        }
+
+        public void setDisposition(String disposition)
+        {
+            this.disposition = disposition;
+        }
+
+        public String getPolicy()
+        {
+            return policy;
+        }
+
+        public void setPolicy(String policy)
+        {
+            this.policy = policy;
+        }
+    }
 }

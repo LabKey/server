@@ -1,15 +1,37 @@
 buildscript {
     repositories {
-        mavenCentral()
-        gradlePluginPortal()
+        mavenCentral {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
         maven {
             url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
+            content {
+                includeGroup "org.labkey.build"
+                includeGroup "org.labkey.versioning"
+            }
         }
         if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
             mavenLocal()
             maven {
                 url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
+                content {
+                    includeGroup "org.labkey.build"
+                    includeGroup "org.labkey.versioning"
+                }
             }
 
         }
@@ -27,20 +49,22 @@ import org.labkey.gradle.util.BuildUtils
 /*
   This settings file include all currently enlisted modules and API projects (JDBC, Java, SAS).
  */
-List<String> excludedDirs = ["test"]
+List<String> exclusions = ["test"]
 
 if (hasProperty('gradleExcludeModuleDirs'))
 {
     excludedDirs.addAll("${gradleExcludeModuleDirs}".toLowerCase().split(","))
 }
+if (hasProperty('excludedModules'))
+    exclusions.addAll("${excludedModules}".split(","))
 
 // Include ':server:embedded' unless explicitly excluded
-if (!excludedDirs.contains("embedded"))
+if (!exclusions.contains("embedded"))
 {
     include BuildUtils.getEmbeddedProjectPath(gradle)
 }
 
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], excludedDirs, true)
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], exclusions, true)
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
 include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"

@@ -45,7 +45,8 @@ public class LabKeyServer
     private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
     private static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
     private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
-    private static final String CSP_FILTER_NAME = "ContentSecurityPolicyFilter";
+    private static final String REPORT_CSP_FILTER_NAME = "ReportContentSecurityPolicyFilter";
+    private static final String ENFORCE_CSP_FILTER_NAME = "EnforceContentSecurityPolicyFilter";
 
     public static void main(String[] args)
     {
@@ -124,22 +125,14 @@ public class LabKeyServer
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
                     CSPFilterProperties cspFilterProperties = cspSource();
 
-                    if (cspFilterProperties.getDisposition() != null && cspFilterProperties.getPolicy() != null)
+                    if (cspFilterProperties.getEnforce() != null)
                     {
-                        FilterDef filterDef = new FilterDef();
-                        filterDef.setFilterName(CSP_FILTER_NAME);
-                        filterDef.setFilter(new ContentSecurityPolicyFilter());
-                        filterDef.addInitParameter("policy", cspFilterProperties.getPolicy());
-                        filterDef.addInitParameter("disposition", cspFilterProperties.getDisposition());
-
-                        FilterMap filterMap = new FilterMap();
-                        filterMap.setFilterName(CSP_FILTER_NAME);
-                        filterMap.addURLPattern("/*");
-
-                        context.addFilterDef(filterDef);
-                        context.addFilterMap(filterMap);
+                        addCSPFilter("enforce", cspFilterProperties.getEnforce(), ENFORCE_CSP_FILTER_NAME ,context);
                     }
-
+                    if (cspFilterProperties.getReport() != null)
+                    {
+                        addCSPFilter("report", cspFilterProperties.getReport(), REPORT_CSP_FILTER_NAME, context);
+                    }
 
                     // Issue 48426: Allow config for desired work directory
                     if (contextProperties.getWorkDirLocation() != null)
@@ -196,6 +189,23 @@ public class LabKeyServer
                 }
 
                 return super.getTomcatWebServer(tomcat);
+            }
+
+
+            private void addCSPFilter(String disposition, String policy, String filterName, StandardContext context)
+            {
+                FilterDef filterDef = new FilterDef();
+                filterDef.setFilterName(filterName);
+                filterDef.setFilter(new ContentSecurityPolicyFilter());
+                filterDef.addInitParameter("policy", policy);
+                filterDef.addInitParameter("disposition", disposition);
+
+                FilterMap filterMap = new FilterMap();
+                filterMap.setFilterName(filterName);
+                filterMap.addURLPattern("/*");
+
+                context.addFilterDef(filterDef);
+                context.addFilterMap(filterMap);
             }
 
             // Issue 48565: allow for JSON-formatted access logs in embedded tomcat
@@ -764,27 +774,27 @@ public class LabKeyServer
     @ConfigurationProperties("csp")
     public static class CSPFilterProperties
     {
-        private String disposition;
-        private String policy;
+        private String enforce;
+        private String report;
 
-        public String getDisposition()
+        public String getEnforce()
         {
-            return disposition;
+            return enforce;
         }
 
-        public void setDisposition(String disposition)
+        public void setEnforce(String enforce)
         {
-            this.disposition = disposition;
+            this.enforce = enforce;
         }
 
-        public String getPolicy()
+        public String getReport()
         {
-            return policy;
+            return report;
         }
 
-        public void setPolicy(String policy)
+        public void setReport(String report)
         {
-            this.policy = policy;
+            this.report = report;
         }
     }
 }

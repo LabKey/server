@@ -239,7 +239,7 @@ allprojects {
                     // Force patched version of GPRC, dependency of a number of Google service APIs in WNPRC and fileTransfer
                     force "io.grpc:grpc-context:${grpcVersion}"
 
-                    // TODO Remove these when the Picard version brought in by the SequenceAnalysis module is upgraded to use a version >=1.57.2
+                    // TODO Remove these when the Picard version brought in by the SequenceAnalysis module is upgraded to use a version of grpc > 1.60.0
                     force "io.grpc:grpc-alts:${grpcVersion}"
                     force "io.grpc:grpc-auth:${grpcVersion}"
                     force "io.grpc:grpc-core:${grpcVersion}"

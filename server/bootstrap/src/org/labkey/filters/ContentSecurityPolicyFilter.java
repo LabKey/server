@@ -93,7 +93,7 @@ import java.util.stream.Collectors;
 public class ContentSecurityPolicyFilter implements Filter
 {
     private static final String NONCE_SUBST = "${REQUEST.SCRIPT.NONCE}";
-    private static final String ALLOWED_CONNECT_SUBSTITUTION = "${REQUEST.ALLOWED.CONNECTIONS}";
+    private static final String ALLOWED_CONNECT_SUBSTITUTION = "${LABKEY.ALLOWED.CONNECTIONS}";
     private static final String HEADER_NONCE = "org.labkey.filters.ContentSecurityPolicyFilter#NONCE";  // needs to match PageConfig.HEADER_NONCE
     private static final String CONTENT_SECURITY_POLICY_HEADER_NAME = "Content-Security-Policy";
     private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME = "Content-Security-Policy-Report-Only";

@@ -16,6 +16,20 @@
         <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-6378</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+       file name: logback-classic-1.2.12.jar
+       ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-6481</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: logback-core-1.2.12.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-6481</vulnerabilityName>
+    </suppress>
 
     <!-- Prevent match against unrelated "rengine" at https://github.com/yogeshojha/rengine -->
     <suppress>

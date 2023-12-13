@@ -7,10 +7,18 @@
     <option name="WHILE_ON_NEW_LINE" value="true" />
     <option name="CATCH_ON_NEW_LINE" value="true" />
     <option name="FINALLY_ON_NEW_LINE" value="true" />
+    <JSCodeStyleSettings version="0">
+      <option name="USE_DOUBLE_QUOTES" value="false" />
+      <option name="IMPORTS_WRAP" value="0" />
+      <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
+      <option name="SPACES_WITHIN_IMPORTS" value="true" />
+      <option name="IMPORT_SORT_MODULE_NAME" value="true" />
+      <option name="IMPORT_USE_NODE_RESOLUTION" value="FALSE" />
+    </JSCodeStyleSettings>
     <JavaCodeStyleSettings>
       <option name="FIELD_NAME_PREFIX" value="_" />
-      <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="20" />
-      <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="20" />
+      <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="2000" />
+      <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="2000" />
     </JavaCodeStyleSettings>
     <TypeScriptCodeStyleSettings version="0">
       <option name="FORCE_SEMICOLON_STYLE" value="true" />
@@ -20,6 +28,7 @@
       <option name="PREFER_EXPLICIT_TYPES_FUNCTION_RETURNS" value="true" />
       <option name="PREFER_EXPLICIT_TYPES_FUNCTION_EXPRESSION_RETURNS" value="true" />
       <option name="SPACES_WITHIN_IMPORTS" value="true" />
+      <option name="IMPORT_USE_NODE_RESOLUTION" value="GLOBAL" />
     </TypeScriptCodeStyleSettings>
     <ADDITIONAL_INDENT_OPTIONS fileType="txt">
       <option name="INDENT_SIZE" value="2" />
@@ -29,6 +38,12 @@
       <option name="ELSE_ON_NEW_LINE" value="true" />
       <option name="WHILE_ON_NEW_LINE" value="true" />
       <option name="CATCH_ON_NEW_LINE" value="true" />
+    </codeStyleSettings>
+    <codeStyleSettings language="CSS">
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="TAB_SIZE" value="2" />
+      </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="ECMA Script Level 4">
       <option name="BRACE_STYLE" value="2" />
@@ -62,7 +77,6 @@
       <option name="FINALLY_ON_NEW_LINE" value="true" />
     </codeStyleSettings>
     <codeStyleSettings language="JavaScript">
-      <option name="ELSE_ON_NEW_LINE" value="true" />
       <option name="WHILE_ON_NEW_LINE" value="true" />
       <option name="CATCH_ON_NEW_LINE" value="true" />
       <option name="FINALLY_ON_NEW_LINE" value="true" />
@@ -73,6 +87,16 @@
     <codeStyleSettings language="Python">
       <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="SASS">
+      <indentOptions>
+        <option name="TAB_SIZE" value="2" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="SCSS">
+      <indentOptions>
+        <option name="TAB_SIZE" value="2" />
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="TypeScript">

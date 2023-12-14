@@ -1,0 +1,64 @@
+buildscript {
+    repositories {
+        mavenCentral {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "org\\.labkey.*"
+            }
+        }
+        maven {
+            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            mavenContent {
+                releasesOnly()
+            }
+            content {
+                includeGroup "org.labkey.build"
+                includeGroup "org.labkey.versioning"
+            }
+        }
+        if (gradlePluginsVersion.contains("SNAPSHOT"))
+        {
+            mavenLocal()
+            maven {
+                url "${artifactory_contextUrl}/plugins-snapshot-local"
+                mavenContent {
+                    snapshotsOnly()
+                }
+                content {
+                    includeGroup "org.labkey.build"
+                    includeGroup "org.labkey.versioning"
+                }
+            }
+
+        }
+    }
+    dependencies {
+        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
+    }
+    configurations.configureEach {
+        // Check for updates every build for SNAPSHOT dependencies
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+import org.labkey.gradle.util.BuildUtils
+
+// Add modules here as they are migrated to tomcat 10
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules/platform"], [], true)
+
+
+// include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
+include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
+
+//if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getJdbcApiProjectPath(gradle))).exists())
+//{
+//    include BuildUtils.getJdbcApiProjectPath(gradle)
+//}
+
+//if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getRemoteApiProjectPath(gradle))).exists())
+//{
+//    include BuildUtils.getRemoteApiProjectPath(gradle)
+//}

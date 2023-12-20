@@ -22,8 +22,8 @@ BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjec
 dependencies
         {
             tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
-            tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
-            remotePipelineJars "javax.servlet:javax.servlet-api:${servletApiVersion}"
+            tomcatJars  "jakarta.activation:jakarta.activation-api:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
+            remotePipelineJars "jakarta.servlet:jakarta.servlet-api:${servletApiVersion}"
         }
 
 dependencies

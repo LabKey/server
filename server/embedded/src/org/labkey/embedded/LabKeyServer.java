@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -287,7 +287,7 @@ public class LabKeyServer
                 ContextResource mailResource = new ContextResource();
                 mailResource.setName("mail/Session");
                 mailResource.setAuth("Container");
-                mailResource.setType("javax.mail.Session");
+                mailResource.setType("jakarta.mail.Session");
                 mailResource.setProperty("mail.smtp.host", mailProps.getSmtpHost());
                 mailResource.setProperty("mail.smtp.user", mailProps.getSmtpUser());
                 mailResource.setProperty("mail.smtp.port", mailProps.getSmtpPort());
@@ -366,7 +366,7 @@ public class LabKeyServer
             }
         }
 
-        if (jarsPresent.size() == 0)
+        if (jarsPresent.isEmpty())
         {
             throw new ConfigException("Executable jar not found.");
         }

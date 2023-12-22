@@ -47,7 +47,16 @@ buildscript {
 import org.labkey.gradle.util.BuildUtils
 
 // Add modules here as they are migrated to tomcat 10
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules/platform"], [], true)
+BuildUtils.includeModules(this.settings, rootDir, [
+        "server/modules/cas",
+        "server/modules/cloudServices",
+        "server/modules/commonAssays",
+        "server/modules/dataintegration",
+        "server/modules/mfa",
+        "server/modules/platform",
+        "server/modules/premium",
+        "server/modules/saml",
+], [], true)
 
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents

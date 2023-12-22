@@ -96,7 +96,7 @@ BuildUtils.includeModules(this.settings, rootDir, [
         "server/modules/puppeteer",
 //        "server/modules/pushdownloads",
 //        "server/modules/reagent",
-//        "server/modules/recipe",
+        "server/modules/recipe",
 //        "server/modules/redcap",
         "server/modules/redshift",
 //        "server/modules/rstudio",

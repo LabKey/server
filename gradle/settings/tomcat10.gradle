@@ -73,7 +73,7 @@ BuildUtils.includeModules(this.settings, rootDir, [
 //        "server/modules/customModules",
 //        "server/modules/dataFinder",
         "server/modules/dataintegration",
-//        "server/modules/docker",
+        "server/modules/docker",
 //        "server/modules/ehrModules",
 //        "server/modules/evaluationContent",
 //        "server/modules/fileTransfer",

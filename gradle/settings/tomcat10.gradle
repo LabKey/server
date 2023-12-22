@@ -48,13 +48,16 @@ import org.labkey.gradle.util.BuildUtils
 
 // Add modules here as they are migrated to tomcat 10
 BuildUtils.includeModules(this.settings, rootDir, [
+        "server/modules/assayRequest",
         "server/modules/cas",
         "server/modules/cloudServices",
         "server/modules/commonAssays",
         "server/modules/dataintegration",
+        "server/modules/ldap",
         "server/modules/mfa",
         "server/modules/platform",
         "server/modules/premium",
+        "server/modules/redshift",
         "server/modules/saml",
 ], [], true)
 

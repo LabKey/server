@@ -46,19 +46,15 @@ buildscript {
 }
 import org.labkey.gradle.util.BuildUtils
 
-// Add modules here as they are migrated to tomcat 10
+// Remove modules from this as they are migrated to tomcat 10
 BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [
         "BimberLabKeyModules",
         "DiscvrLabKeyModules",
         "LabDevKitModules",
-        "MacCossLabModules",
-        "OConnorLabModules",
-        "connectors",
         "ehrModules",
         "johnsHopkinsEHRModules",
         "nircEHRModules",
         "onprcEHRModules",
-        "rstudio",
         "snd",
         "snprcEHRModules",
         "tnprc_billing",

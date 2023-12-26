@@ -47,20 +47,7 @@ buildscript {
 import org.labkey.gradle.util.BuildUtils
 
 // Remove modules from this as they are migrated to tomcat 10
-BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [
-        "BimberLabKeyModules",
-        "DiscvrLabKeyModules",
-        "LabDevKitModules",
-        "ehrModules",
-        "johnsHopkinsEHRModules",
-        "nircEHRModules",
-        "onprcEHRModules",
-        "snd",
-        "snprcEHRModules",
-        "tnprc_billing",
-        "tnprc_ehr",
-        "wnprc-modules",
-], true)
+BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [], true)
 
 
 // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents

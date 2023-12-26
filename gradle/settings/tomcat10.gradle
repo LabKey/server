@@ -50,16 +50,6 @@ import org.labkey.gradle.util.BuildUtils
 BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], [
         "BimberLabKeyModules",
         "DiscvrLabKeyModules",
-        "LabDevKitModules",
-        "ehrModules",
-        "johnsHopkinsEHRModules",
-        "nircEHRModules",
-        "onprcEHRModules",
-        "snd",
-        "snprcEHRModules",
-        "tnprc_billing",
-        "tnprc_ehr",
-        "wnprc-modules",
 ], true)
 
 

@@ -1,6 +1,7 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0" is_locked="false">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="35f0afe5-6749-3bcd-88fe-638b65ec3b43" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -73,6 +74,10 @@
       <replaceConfiguration name="BufferedReader(InputStreamReader) used without specifying character encoding" text="new BufferedReader(new InputStreamReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
         <constraint name="Arg" within="" contains="" />
       </replaceConfiguration>
+      <searchConfiguration name="HtmlView(String)" description="Deprecated" problemDescriptor="Use HtmlView(HtmlString)" text="new HtmlView($Argument$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Argument" nameOfExprType="String" minCount="0" maxCount="2147483647" within="" contains="" />
+      </searchConfiguration>
       <replaceConfiguration name="InputStreamReader used without specifying character encoding" text="new InputStreamReader($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
         <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
         <constraint name="__context__" target="true" within="" contains="" />

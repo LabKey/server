@@ -215,6 +215,15 @@ dependencyResolutionManagement {
 class RenamedDependencyRule implements ComponentMetadataRule {
     void execute(ComponentMetadataContext context) {
         context.details.with {
+            // Make local and remote modules collide
+            if (id.group == 'org.labkey.module') {
+                allVariants {
+                    it.withCapabilities {
+                        it.addCapability('org.labkey', id.name, id.version)
+                    }
+                }
+            }
+
             // 'net.hydromatic' is the new group coordinate for 'eigenbase' packages
             if (id.group == 'eigenbase') {
                 allVariants {

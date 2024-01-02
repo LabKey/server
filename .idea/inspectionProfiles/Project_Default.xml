@@ -1,6 +1,7 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0" is_locked="false">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="35f0afe5-6749-3bcd-88fe-638b65ec3b43" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -41,6 +42,27 @@
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
+      <replaceConfiguration name="File.mkdir() used without validating filename - use FileUtil.mkdir(File file) instead" text="$arg$.mkdir()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.mkdir($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="File.mkdirs() used without validating filename - use FileUtil.mkdirs(File file) instead" text="$arg$.mkdirs()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.mkdirs($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="File.createNewFile() used without validating filename - use FileUtil.createNewFile(File file) instead" text="$arg$.createNewFile()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createNewFile($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="Files.createDirectory(Path) used without validating filename - use FileUtil.createDirectory(Path) instead" text="Files.createDirectory($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createDirectory($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.nio.file.Path" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="Files.createDirectories(Path) used without validating filename - use FileUtil.createDirectories(Path) instead" text="Files.createDirectories($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createDirectories($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.nio.file.Path" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="Files.createFile(Path) used without validating filename - use FileUtil.createFile(Path) instead" text="Files.createFile($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createFile($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.nio.file.Path" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
+      </replaceConfiguration>
       <searchConfiguration name="PrintWriter used without specifying encoding" text="new PrintWriter($Parameter$, $Parameter2$)" recursive="false" caseInsensitive="false" type="JAVA">
         <constraint name="Parameter" script="&quot;&quot;" nameOfExprType="java.io.File|java.io.OutputStream|java.lang.String" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
         <constraint name="Parameter2" script="&quot;&quot;" nameOfExprType="boolean" minCount="0" within="" contains="" />
@@ -52,6 +74,10 @@
       <replaceConfiguration name="BufferedReader(InputStreamReader) used without specifying character encoding" text="new BufferedReader(new InputStreamReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
         <constraint name="Arg" within="" contains="" />
       </replaceConfiguration>
+      <searchConfiguration name="HtmlView(String)" description="Deprecated" problemDescriptor="Use HtmlView(HtmlString)" text="new HtmlView($Argument$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Argument" nameOfExprType="String" minCount="0" maxCount="2147483647" within="" contains="" />
+      </searchConfiguration>
       <replaceConfiguration name="InputStreamReader used without specifying character encoding" text="new InputStreamReader($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
         <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
         <constraint name="__context__" target="true" within="" contains="" />

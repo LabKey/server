@@ -1,5 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+
+    <!-- We do not include logback with our embedded tomcat distributions -->
+    <suppress>
+       <notes><![CDATA[
+       file name: logback-classic-1.2.12.jar
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
+       <vulnerabilityName>CVE-2023-6378</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: logback-core-1.2.12.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-6378</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+       file name: logback-classic-1.2.12.jar
+       ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-6481</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: logback-core-1.2.12.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-6481</vulnerabilityName>
+    </suppress>
+
     <!-- Prevent match against unrelated "rengine" at https://github.com/yogeshojha/rengine -->
     <suppress>
         <notes><![CDATA[
@@ -236,4 +267,52 @@
         <cve>CVE-2023-39017</cve>
         <cpe>cpe:/a:softwareag:quartz</cpe>
     </suppress>
+
+    <!--
+    The CVE has a low impact (DDOS) and targets older versions of Postgres (<= v12.2), not the JDBC driver itself.
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: postgresql-42.6.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.postgresql/postgresql@.*$</packageUrl>
+        <vulnerabilityName>CVE-2020-21469</vulnerabilityName>
+    </suppress>
+
+    <!--
+    Netty doesn't turn on cert checking by default, so this gets flagged periodically. per the linked discussion
+    this should be handled/enabled when configuring the client to use https.
+     For more info see: https://github.com/jeremylong/DependencyCheck/issues/5912#issuecomment-1699363391 and the subsequent rabbit-hole.
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: netty-handler-4.1.100.Final.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-4586</vulnerabilityName>
+    </suppress>
+
+    <!--
+    json-java versioning does not work with cpe; suppressing specifically for CVE-2023-5072
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: json-20231013.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <cve>CVE-2023-5072</cve>
+    </suppress>
+
+    <!--
+    false-positive CVE as per https://github.com/dom4j/dom4j/issues/171
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: dom4j-2.1.4.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.dom4j/dom4j@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-45960</vulnerabilityName>
+    </suppress>
+
 </suppressions>
+

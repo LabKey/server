@@ -40,7 +40,7 @@ project.tasks.register("tomcatLibsZip", Zip) {
         zip.description = "produce jar file with jars to be deployed in \$CATALINA_HOME/lib"
         zip.from project.configurations.tomcatJars.getAsFileTree()
         zip.archiveBaseName.set("tomcat-libs")
-        zip.destinationDirectory = project.file(project.labkey.explodedModuleLibDir)
+        zip.destinationDirectory.set(project.file(project.labkey.explodedModuleLibDir))
 }
 
 configurations
@@ -206,12 +206,27 @@ tasks.register('createModule', CreateModule) {
             "include -PcreateFiles with no value to avoid being prompted."
 }
 
+project.tasks.register("reportVersionToTeamCity", DefaultTask) {
+    DefaultTask task ->
+        task.group = GroupNames.PUBLISHING
+        task.description = "Report version number (${labkeyVersion}) to TeamCity"
+        task.doLast({
+            // https://www.jetbrains.com/help/teamcity/2018.1/build-script-interaction-with-teamcity.html#adding-or-changing-a-build-parameter
+            println "##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']"
+        })
+}
+if (project.hasProperty("teamcity"))
+{
+    project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }
+}
+
+
 // We add this configuration here so we have a single location to link to for the npm and node executables.
 // Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode
 // task we need a single location, and one that works even when not building from source (Issue 35207)
 project.node {
-    workDir = project.file("${project.rootProject.buildDir}/.node")
-    npmWorkDir = project.file("${project.rootProject.buildDir}/.node")
-    yarnWorkDir = project.file("${project.rootProject.buildDir}/.node")
+    workDir = BuildUtils.getRootBuildDirFile(project, ".node")
+    npmWorkDir = BuildUtils.getRootBuildDirFile(project, ".node")
+    yarnWorkDir = BuildUtils.getRootBuildDirFile(project, ".node")
 }
 project.tasks.named('deployApp').configure { dependsOn(project.tasks.npmSetup) }

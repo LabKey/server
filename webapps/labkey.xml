@@ -16,7 +16,6 @@
         timeBetweenEvictionRunsMillis="300000"
         minEvictableIdleTimeMillis="300000"
         accessToUnderlyingConnectionAllowed="true"
-        validationQuery="SELECT 1"
         />
 
     <Resource name="mail/Session" auth="Container"

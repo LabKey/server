@@ -3,8 +3,12 @@ package org.labkey.embedded;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.labkey.bootstrap.ConfigException;
+import org.labkey.filters.ContentSecurityPolicyFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -41,6 +45,8 @@ public class LabKeyServer
     private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
     private static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
     private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
+    private static final String REPORT_CSP_FILTER_NAME = "ReportContentSecurityPolicyFilter";
+    private static final String ENFORCE_CSP_FILTER_NAME = "EnforceContentSecurityPolicyFilter";
 
     public static void main(String[] args)
     {
@@ -63,6 +69,18 @@ public class LabKeyServer
     public MailProperties smtpSource()
     {
         return new MailProperties();
+    }
+
+    @Bean
+    public CSPFilterProperties cspSource()
+    {
+        return new CSPFilterProperties();
+    }
+
+    @Bean
+    public JsonAccessLog jsonAccessLog()
+    {
+        return new JsonAccessLog();
     }
 
     @Bean
@@ -105,6 +123,23 @@ public class LabKeyServer
                     // tomcat requires a unique context path other than root here
                     // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+                    CSPFilterProperties cspFilterProperties = cspSource();
+
+                    if (cspFilterProperties.getEnforce() != null)
+                    {
+                        addCSPFilter("enforce", cspFilterProperties.getEnforce(), ENFORCE_CSP_FILTER_NAME ,context);
+                    }
+                    if (cspFilterProperties.getReport() != null)
+                    {
+                        addCSPFilter("report", cspFilterProperties.getReport(), REPORT_CSP_FILTER_NAME, context);
+                    }
+
+                    // Issue 48426: Allow config for desired work directory
+                    if (contextProperties.getWorkDirLocation() != null)
+                    {
+                        context.setWorkDir(contextProperties.getWorkDirLocation());
+                    }
+
                     // set the root path to the context explicitly
                     context.setPath("");
 
@@ -116,6 +151,19 @@ public class LabKeyServer
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
+                    if (contextProperties.getOldEncryptionKey() != null)
+                    {
+                        context.addParameter("OldEncryptionKey", contextProperties.getOldEncryptionKey());
+                    }
+
+                    if (contextProperties.getRequiredModules() != null)
+                    {
+                        context.addParameter("requiredModules", contextProperties.getRequiredModules());
+                    }
+                    if (contextProperties.getPipelineConfig() != null)
+                    {
+                        context.addParameter("org.labkey.api.pipeline.config", contextProperties.getPipelineConfig());
+                    }
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
                     if (null != contextProperties.getServerGUID())
@@ -134,7 +182,51 @@ public class LabKeyServer
                     throw new RuntimeException(e);
                 }
 
+                JsonAccessLog logConfig = jsonAccessLog();
+                if (logConfig.isEnabled())
+                {
+                   configureJsonAccessLogging(tomcat, logConfig);
+                }
+
                 return super.getTomcatWebServer(tomcat);
+            }
+
+
+            private void addCSPFilter(String disposition, String policy, String filterName, StandardContext context)
+            {
+                FilterDef filterDef = new FilterDef();
+                filterDef.setFilterName(filterName);
+                filterDef.setFilter(new ContentSecurityPolicyFilter());
+                filterDef.addInitParameter("policy", policy);
+                filterDef.addInitParameter("disposition", disposition);
+
+                FilterMap filterMap = new FilterMap();
+                filterMap.setFilterName(filterName);
+                filterMap.addURLPattern("/*");
+
+                context.addFilterDef(filterDef);
+                context.addFilterMap(filterMap);
+            }
+
+            // Issue 48565: allow for JSON-formatted access logs in embedded tomcat
+            private void configureJsonAccessLogging(Tomcat tomcat, JsonAccessLog logConfig)
+            {
+                var v = new JsonAccessLogValve();
+
+                // Configure for stdout, our only current use case
+                v.setPrefix("stdout");
+                v.setDirectory("/dev");
+                v.setBuffered(false);
+                v.setSuffix("");
+                v.setFileDateFormat("");
+                v.setContainer(tomcat.getHost());
+
+                // Now the settings that we support via application.properties
+                v.setPattern(logConfig.getPattern());
+                v.setConditionIf(logConfig.getConditionIf());
+                v.setConditionUnless(logConfig.getConditionUnless());
+
+                tomcat.getEngine().getPipeline().addValve(v);
             }
 
             private List<ContextResource> getDataSourceResources(ContextProperties props) throws ConfigException
@@ -332,6 +424,56 @@ public class LabKeyServer
         }
     }
 
+    @Configuration
+    @ConfigurationProperties("jsonaccesslog")
+    public static class JsonAccessLog
+    {
+        private boolean enabled;
+        private String pattern = "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s";
+        private String conditionIf;
+        private String conditionUnless;
+
+        public boolean isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled)
+        {
+            this.enabled = enabled;
+        }
+
+        public String getPattern()
+        {
+            return pattern;
+        }
+
+        public void setPattern(String pattern)
+        {
+            this.pattern = pattern;
+        }
+
+        public String getConditionIf()
+        {
+            return conditionIf;
+        }
+
+        public void setConditionIf(String conditionIf)
+        {
+            this.conditionIf = conditionIf;
+        }
+
+        public String getConditionUnless()
+        {
+            return conditionUnless;
+        }
+
+        public void setConditionUnless(String conditionUnless)
+        {
+            this.conditionUnless = conditionUnless;
+        }
+    }
+
     @Validated
     @Configuration
     @ConfigurationProperties("context")
@@ -349,8 +491,12 @@ public class LabKeyServer
         private List<String> driverClassName;
 
         private String webAppLocation;
+        private String workDirLocation;
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
+        private String oldEncryptionKey;
+        private String pipelineConfig;
+        private String requiredModules;
         private String serverGUID;
         private Map<Integer, String> maxTotal;
         private Map<Integer, String> maxIdle;
@@ -418,6 +564,16 @@ public class LabKeyServer
             this.webAppLocation = webAppLocation;
         }
 
+        public String getWorkDirLocation()
+        {
+            return workDirLocation;
+        }
+
+        public void setWorkDirLocation(String workDirLocation)
+        {
+            this.workDirLocation = workDirLocation;
+        }
+
         public String getEncryptionKey()
         {
             return encryptionKey;
@@ -426,6 +582,36 @@ public class LabKeyServer
         public void setEncryptionKey(String encryptionKey)
         {
             this.encryptionKey = encryptionKey;
+        }
+
+        public String getOldEncryptionKey()
+        {
+            return oldEncryptionKey;
+        }
+
+        public void setOldEncryptionKey(String oldEncryptionKey)
+        {
+            this.oldEncryptionKey = oldEncryptionKey;
+        }
+
+        public String getPipelineConfig()
+        {
+            return pipelineConfig;
+        }
+
+        public void setPipelineConfig(String pipelineConfig)
+        {
+            this.pipelineConfig = pipelineConfig;
+        }
+
+        public String getRequiredModules()
+        {
+            return requiredModules;
+        }
+
+        public void setRequiredModules(String requiredModules)
+        {
+            this.requiredModules = requiredModules;
         }
 
         public String getServerGUID()
@@ -581,6 +767,34 @@ public class LabKeyServer
         public void setSmtpAuth(String smtpAuth)
         {
             this.smtpAuth = smtpAuth;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("csp")
+    public static class CSPFilterProperties
+    {
+        private String enforce;
+        private String report;
+
+        public String getEnforce()
+        {
+            return enforce;
+        }
+
+        public void setEnforce(String enforce)
+        {
+            this.enforce = enforce;
+        }
+
+        public String getReport()
+        {
+            return report;
+        }
+
+        public void setReport(String report)
+        {
+            this.report = report;
         }
     }
 }

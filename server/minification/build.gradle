@@ -1,1 +1,1 @@
-apply plugin: 'org.labkey.npmRun'
+apply plugin: 'org.labkey.build.npmRun'

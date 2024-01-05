@@ -213,6 +213,8 @@ allprojects {
                     force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
+                    // force version for SequenceAnalysis, TargetedMS
+                    force "com.google.protobuf:protobuf-java:${googleProtocolBufVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
                     // force version for accounts, docker, api, workflow

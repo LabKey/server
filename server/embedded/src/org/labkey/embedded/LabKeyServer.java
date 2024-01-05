@@ -11,6 +11,7 @@ import org.labkey.bootstrap.ConfigException;
 import org.labkey.filters.ContentSecurityPolicyFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
@@ -56,7 +57,9 @@ public class LabKeyServer
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
         }
 
-        SpringApplication.run(LabKeyServer.class, args);
+        SpringApplication application = new SpringApplication(LabKeyServer.class);
+        application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
+        application.run(args);
     }
 
     @Bean

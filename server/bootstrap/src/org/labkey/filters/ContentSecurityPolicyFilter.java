@@ -19,7 +19,11 @@ import java.util.stream.Collectors;
 
 /** example usage,
 
- very strict, disallows 'external' websites, disallows unsafe-inline, but only reports violations (does not enforce)
+ NOTE: as of Jan 2024, browsers do not correctly handle the MDN recommended "report-to" directive.  Furthermore, including both
+ report-uri and report-to directives breaks Chrome.  So the current recommendation is to use the 'deprecated" report-uri
+ directive.
+
+ Example 1 : very strict, disallows 'external' websites, disallows unsafe-inline, but only reports violations (does not enforce)
  good for test automation!
 
   <pre>
@@ -38,7 +42,6 @@ import java.util.stream.Collectors;
             base-uri 'self' ;
             upgrade-insecure-requests ;
             frame-ancestors 'self' ;
-            report-to /labkey/admin-contentsecuritypolicyreport.api ;
             report-uri /labkey/admin-contentsecuritypolicyreport.api ;
           </param-value>
         </init-param>
@@ -53,7 +56,7 @@ import java.util.stream.Collectors;
       </filter-mapping>
   </pre>
 
-  less strict but enforces directives, (NOTE: unsafe-inline is still required for many modules)
+ Example 2 : less strict but enforces directives, (NOTE: unsafe-inline is still required for many modules)
 
   <pre>
       <filter>
@@ -71,7 +74,6 @@ import java.util.stream.Collectors;
             base-uri 'self' ;
             upgrade-insecure-requests ;
             frame-ancestors 'self' ;
-            report-to /labkey/admin-contentsecuritypolicyreport.api ;
             report-uri /labkey/admin-contentsecuritypolicyreport.api ;
           </param-value>
         </init-param>

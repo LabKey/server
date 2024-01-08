@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 /** example usage,
 
- NOTE: as of Jan 2024, browsers do not correctly the MDN recommended "report-to" directive.  Furthermore, including both
+ NOTE: as of Jan 2024, browsers do not correctly handle the MDN recommended "report-to" directive.  Furthermore, including both
  report-uri and report-to directives breaks Chrome.  So the current recommendation is to use the 'deprecated" report-uri
  directive.
 

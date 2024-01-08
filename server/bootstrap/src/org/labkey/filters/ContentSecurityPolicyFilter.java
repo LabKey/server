@@ -19,9 +19,7 @@ import java.util.stream.Collectors;
 
 /** example usage,
 
- NOTE: as of Jan 2024, browsers do not correctly handle the MDN recommended "report-to" directive.  Furthermore, including both
- report-uri and report-to directives breaks Chrome.  So the current recommendation is to use the 'deprecated" report-uri
- directive.
+ NOTE: LabKey does not yet support setting the "Report-To" header, so we do not support the report-to CSP directive.
 
  Example 1 : very strict, disallows 'external' websites, disallows unsafe-inline, but only reports violations (does not enforce)
  good for test automation!

@@ -97,7 +97,9 @@ public class ContentSecurityPolicyFilter implements Filter
     private static final String HEADER_NONCE = "org.labkey.filters.ContentSecurityPolicyFilter#NONCE";  // needs to match PageConfig.HEADER_NONCE
     private static final String CONTENT_SECURITY_POLICY_HEADER_NAME = "Content-Security-Policy";
     private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME = "Content-Security-Policy-Report-Only";
+    private static final String REPORTING_ENDPOINTS_HEADER_NAME = "Reporting-Endpoints";
     private String policy = "";
+    private String endpoints = null;
     private int nonceSubstIndex = -1;
     private int allowedConnectionSubstitutionIndex = -1;
     private static String connectionSrc = "";
@@ -132,6 +134,10 @@ public class ContentSecurityPolicyFilter implements Filter
                     throw new ServletException("ContentSecurityPolicyFilter is misconfigured, unexpected disposition value: " + s);
                 reportOnly = "report".equalsIgnoreCase(s);
             }
+            else if ("endpoints".equalsIgnoreCase(paramName))
+            {
+                endpoints = paramValue.trim().replaceAll("\\s+", " ");
+            }
             else
             {
                 throw new ServletException("ContentSecurityPolicyFilter is misconfigured, unexpected parameter name: " + paramName);
@@ -162,7 +168,11 @@ public class ContentSecurityPolicyFilter implements Filter
                         + csp.substring(allowedConnectionSubstitutionIndex + ALLOWED_CONNECT_SUBSTITUTION.length());
             }
             var header = reportOnly ? CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER_NAME : CONTENT_SECURITY_POLICY_HEADER_NAME;
-            resp.setHeader(header, csp);
+            resp.addHeader(header, csp);
+            if (endpoints != null)
+            {
+                resp.addHeader(REPORTING_ENDPOINTS_HEADER_NAME, endpoints);
+            }
         }
         chain.doFilter(request, response);
     }

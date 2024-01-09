@@ -128,13 +128,15 @@ public class LabKeyServer
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
                     CSPFilterProperties cspFilterProperties = cspSource();
 
+                    String endpoints = cspFilterProperties.getEndpoints();
                     if (cspFilterProperties.getEnforce() != null)
                     {
-                        addCSPFilter("enforce", cspFilterProperties.getEnforce(), ENFORCE_CSP_FILTER_NAME ,context);
+                        addCSPFilter("enforce", cspFilterProperties.getEnforce(), ENFORCE_CSP_FILTER_NAME, endpoints, context);
+                        endpoints = null; // Only need to define endpoints once
                     }
                     if (cspFilterProperties.getReport() != null)
                     {
-                        addCSPFilter("report", cspFilterProperties.getReport(), REPORT_CSP_FILTER_NAME, context);
+                        addCSPFilter("report", cspFilterProperties.getReport(), REPORT_CSP_FILTER_NAME, endpoints, context);
                     }
 
                     // Issue 48426: Allow config for desired work directory
@@ -195,13 +197,14 @@ public class LabKeyServer
             }
 
 
-            private void addCSPFilter(String disposition, String policy, String filterName, StandardContext context)
+            private void addCSPFilter(String disposition, String policy, String filterName, String endpoints, StandardContext context)
             {
                 FilterDef filterDef = new FilterDef();
                 filterDef.setFilterName(filterName);
                 filterDef.setFilter(new ContentSecurityPolicyFilter());
                 filterDef.addInitParameter("policy", policy);
                 filterDef.addInitParameter("disposition", disposition);
+                filterDef.addInitParameter("endpoints", endpoints);
 
                 FilterMap filterMap = new FilterMap();
                 filterMap.setFilterName(filterName);
@@ -779,6 +782,7 @@ public class LabKeyServer
     {
         private String enforce;
         private String report;
+        private String endpoints;
 
         public String getEnforce()
         {
@@ -798,6 +802,16 @@ public class LabKeyServer
         public void setReport(String report)
         {
             this.report = report;
+        }
+
+        public String getEndpoints()
+        {
+            return endpoints;
+        }
+
+        public void setEndpoints(String endpoints)
+        {
+            this.endpoints = endpoints;
         }
     }
 }

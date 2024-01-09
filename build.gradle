@@ -197,6 +197,8 @@ allprojects {
                     force "commons-io:commons-io:${commonsIoVersion}"
                     force "commons-logging:commons-logging:${commonsLoggingVersion}"
                     force "commons-pool:commons-pool:${commonsPoolVersion}"
+                    // force version for consistency with premium, OpenLdapSync
+                    force "org.apache.commons:commons-text:${commonsTextVersion}"
                     // force version for consistency with query, saml, LDK, api
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
                     // force version for ms2, saml, fileTransfer, harvest, api, accounts, docker
@@ -213,6 +215,8 @@ allprojects {
                     force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
+                    // force version for SequenceAnalysis, TargetedMS
+                    force "com.google.protobuf:protobuf-java:${googleProtocolBufVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
                     // force version for accounts, docker, api, workflow

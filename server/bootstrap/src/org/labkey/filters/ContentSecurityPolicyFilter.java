@@ -32,10 +32,11 @@ import java.util.stream.Collectors;
           <param-name>policy</param-name>
           <param-value>
             default-src 'self';
-            connect-src 'self' ;
+            connect-src 'self' ${LABKEY.ALLOWED.CONNECTIONS} ;
             object-src 'none' ;
             style-src 'self' 'unsafe-inline' ;
             img-src 'self' data: ;
+            font-src 'self' data: ;
             script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}';
             base-uri 'self' ;
             upgrade-insecure-requests ;
@@ -64,10 +65,11 @@ import java.util.stream.Collectors;
           <param-name>policy</param-name>
           <param-value>
             default-src 'self' https: ;
-            connect-src 'self' https: ;
+            connect-src 'self' https: ${LABKEY.ALLOWED.CONNECTIONS} ;
             object-src 'none' ;
             style-src 'self' https: 'unsafe-inline' ;
             img-src 'self' data: ;
+            font-src 'self' data: ;
             script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}';
             base-uri 'self' ;
             upgrade-insecure-requests ;

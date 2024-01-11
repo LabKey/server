@@ -200,6 +200,8 @@ allprojects {
                     force "commons-io:commons-io:${commonsIoVersion}"
                     force "commons-logging:commons-logging:${commonsLoggingVersion}"
                     force "commons-pool:commons-pool:${commonsPoolVersion}"
+                    // force version for consistency with premium, OpenLdapSync
+                    force "org.apache.commons:commons-text:${commonsTextVersion}"
                     // force version for consistency with query, saml, LDK, api
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
                     // force version for ms2, saml, fileTransfer, harvest, api, accounts, docker
@@ -216,6 +218,8 @@ allprojects {
                     force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
+                    // force version for SequenceAnalysis, TargetedMS
+                    force "com.google.protobuf:protobuf-java:${googleProtocolBufVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
                     // force version for accounts, docker, api, workflow
@@ -280,8 +284,7 @@ allprojects {
                     force "org.ow2.asm:asm:${asmVersion}"
                     // force junit and hamcrest versions to be consistent with what comes from labkey-client-api.
                     // The hamcrest dependencies come through transitively from jackson, junit, jmock
-                    force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
-                    force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
+                    force "org.hamcrest:hamcrest:${hamcrestVersion}"
                     force "junit:junit:${junitVersion}"
                     // force consistency in nlp and saml that bring these in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
@@ -349,6 +352,9 @@ allprojects {
                         substitute module('eigenbase:eigenbase-properties') using module("net.hydromatic:eigenbase-properties:${eigenbasePropertiesVersion}")
                         substitute module('eigenbase:eigenbase-resgen') using module("net.hydromatic:eigenbase-resgen:${eigenbaseResgenVersion}")
                         substitute module('eigenbase:eigenbase-xom') using module("net.hydromatic:eigenbase-xom:${eigenbaseXomVersion}")
+
+                        substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
+                        substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                     }
                 }
             }

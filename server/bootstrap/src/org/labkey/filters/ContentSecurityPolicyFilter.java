@@ -19,7 +19,9 @@ import java.util.stream.Collectors;
 
 /** example usage,
 
- very strict, disallows 'external' websites, disallows unsafe-inline, but only reports violations (does not enforce)
+ NOTE: LabKey does not yet support setting the "Report-To" header, so we do not support the report-to CSP directive.
+
+ Example 1 : very strict, disallows 'external' websites, disallows unsafe-inline, but only reports violations (does not enforce)
  good for test automation!
 
   <pre>
@@ -30,15 +32,15 @@ import java.util.stream.Collectors;
           <param-name>policy</param-name>
           <param-value>
             default-src 'self';
-            connect-src 'self' ;
+            connect-src 'self' ${LABKEY.ALLOWED.CONNECTIONS} ;
             object-src 'none' ;
             style-src 'self' 'unsafe-inline' ;
             img-src 'self' data: ;
+            font-src 'self' data: ;
             script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}';
             base-uri 'self' ;
             upgrade-insecure-requests ;
             frame-ancestors 'self' ;
-            report-to /labkey/admin-contentsecuritypolicyreport.api ;
             report-uri /labkey/admin-contentsecuritypolicyreport.api ;
           </param-value>
         </init-param>
@@ -53,7 +55,7 @@ import java.util.stream.Collectors;
       </filter-mapping>
   </pre>
 
-  less strict but enforces directives, (NOTE: unsafe-inline is still required for many modules)
+ Example 2 : less strict but enforces directives, (NOTE: unsafe-inline is still required for many modules)
 
   <pre>
       <filter>
@@ -63,15 +65,15 @@ import java.util.stream.Collectors;
           <param-name>policy</param-name>
           <param-value>
             default-src 'self' https: ;
-            connect-src 'self' https: ;
+            connect-src 'self' https: ${LABKEY.ALLOWED.CONNECTIONS} ;
             object-src 'none' ;
             style-src 'self' https: 'unsafe-inline' ;
             img-src 'self' data: ;
+            font-src 'self' data: ;
             script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}';
             base-uri 'self' ;
             upgrade-insecure-requests ;
             frame-ancestors 'self' ;
-            report-to /labkey/admin-contentsecuritypolicyreport.api ;
             report-uri /labkey/admin-contentsecuritypolicyreport.api ;
           </param-value>
         </init-param>

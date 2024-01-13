@@ -139,10 +139,6 @@ allprojects {
                                 basic(BasicAuthentication)
                             }
                         }
-                        maven {
-                            // TODO Jakarta - GWT support
-                            url "https://repo.vertispan.com/gwt-snapshot/"
-                        }
                         mavenContent {
                             snapshotsOnly()
                         }

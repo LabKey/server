@@ -9,6 +9,8 @@
       <name>common.Logger</name>
       <name>java.lang.System.Logger</name>
       <name>java.util.logging.Logger</name>
+      <name>javax.annotation.Nullable</name>
+      <name>javax.validation.constraints.NotNull</name>
       <name>org.apache.camel.processor.Logger</name>
       <name>org.apache.commons.codec.binary.StringUtils</name>
       <name>org.apache.commons.lang.StringUtils</name>
@@ -17,12 +19,14 @@
       <name>org.apache.tika.utils.StringUtils</name>
       <name>org.apache.tomcat.util.buf.StringUtils</name>
       <name>org.apache.tomcat.util.codec.binary.StringUtils</name>
+      <name>org.checkerframework.checker.nullness.qual.Nullable</name>
       <name>org.eclipse.jdt.internal.compiler.batch.Main.Logger</name>
       <name>org.jfree.util.StringUtils</name>
       <name>org.labkey.api.gwt.client.util.StringUtils</name>
       <name>org.mule.util.StringUtils</name>
       <name>org.safehaus.uuid.Logger</name>
       <name>org.slf4j.Logger</name>
+      <name>org.springframework.lang.Nullable</name>
       <name>org.springframework.util.StringUtils</name>
     </excluded-names>
   </component>

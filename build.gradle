@@ -281,8 +281,7 @@ allprojects {
                     force "org.ow2.asm:asm:${asmVersion}"
                     // force junit and hamcrest versions to be consistent with what comes from labkey-client-api.
                     // The hamcrest dependencies come through transitively from jackson, junit, jmock
-                    force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
-                    force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
+                    force "org.hamcrest:hamcrest:${hamcrestVersion}"
                     force "junit:junit:${junitVersion}"
                     // force consistency in nlp and saml that bring these in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
@@ -350,6 +349,9 @@ allprojects {
                         substitute module('eigenbase:eigenbase-properties') using module("net.hydromatic:eigenbase-properties:${eigenbasePropertiesVersion}")
                         substitute module('eigenbase:eigenbase-resgen') using module("net.hydromatic:eigenbase-resgen:${eigenbaseResgenVersion}")
                         substitute module('eigenbase:eigenbase-xom') using module("net.hydromatic:eigenbase-xom:${eigenbaseXomVersion}")
+
+                        substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
+                        substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                     }
                 }
             }

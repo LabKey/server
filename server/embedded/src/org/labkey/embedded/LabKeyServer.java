@@ -75,6 +75,18 @@ public class LabKeyServer
     }
 
     @Bean
+    public LdapProperties ldapSource()
+    {
+        return new LdapProperties();
+    }
+
+    @Bean
+    public JmsProperties jmsSource()
+    {
+        return new JmsProperties();
+    }
+
+    @Bean
     public CSPFilterProperties cspSource()
     {
         return new CSPFilterProperties();
@@ -147,10 +159,22 @@ public class LabKeyServer
                     context.setPath("");
 
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
-                    getDataSourceResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+                    getDataSourceResources(contextProperties, context).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
                     // Add the SMTP config
                     context.getNamingResources().addResource(getMailResource());
+
+                    ContextResource jmsResource = getJmsResource();
+                    if (jmsResource != null)
+                    {
+                        context.getNamingResources().addResource(jmsResource);
+                    }
+
+                    ContextResource ldapResource = getLdapResource();
+                    if (ldapResource != null)
+                    {
+                        context.getNamingResources().addResource(ldapResource);
+                    }
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -166,6 +190,13 @@ public class LabKeyServer
                     if (contextProperties.getPipelineConfig() != null)
                     {
                         context.addParameter("org.labkey.api.pipeline.config", contextProperties.getPipelineConfig());
+                    }
+                    if (contextProperties.isBypass2FA())
+                    {
+                        // Expand single config into two different options. Can collapse/rename when we're embedded-only,
+                        // but this provides an easy backwards compatible bridge while we still support standalone Tomcat
+                        context.addParameter("org.labkey.authentication.totp.Bypass", "true");
+                        context.addParameter("org.labkey.authentication.duo.Bypass", "true");
                     }
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
@@ -232,7 +263,7 @@ public class LabKeyServer
                 tomcat.getEngine().getPipeline().addValve(v);
             }
 
-            private List<ContextResource> getDataSourceResources(ContextProperties props) throws ConfigException
+            private List<ContextResource> getDataSourceResources(ContextProperties props, StandardContext context) throws ConfigException
             {
                 List<ContextResource> dataSourceResources = new ArrayList<>();
                 var numOfDataResources = props.getUrl().size();
@@ -262,10 +293,22 @@ public class LabKeyServer
                     dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", getPropValue(props.getAccessToUnderlyingConnectionAllowed(), i, ACCESS_TO_CONNECTION_ALLOWED_DEFAULT, "accessToUnderlyingConnectionAllowed"));
                     dataSourceResource.setProperty("validationQuery", getPropValue(props.getValidationQuery(), i, VALIDATION_QUERY_DEFAULT, "validationQuery"));
 
+                    // These two properties are handled different, as separate parameters
+                    String displayName = getPropValue(props.getDisplayName(), i, null, "displayName");
+                    if (displayName != null)
+                    {
+                        context.addParameter(dataSourceResource.getName() + ":DisplayName", displayName);
+                    }
+                    String logQueries = getPropValue(props.getLogQueries(), i, null, "logQueries");
+                    if (logQueries != null)
+                    {
+                        context.addParameter(dataSourceResource.getName() + ":LogQueries", logQueries);
+                    }
+
                     dataSourceResources.add(dataSourceResource);
                 }
 
-                return  dataSourceResources;
+                return dataSourceResources;
             }
 
             private String getPropValue(Map<Integer, String> propValues, Integer resourceKey, String defaultValue, String propName)
@@ -281,6 +324,61 @@ public class LabKeyServer
 
                 String val = propValues.getOrDefault(resourceKey, defaultValue);
                 return val != null && !val.isBlank() ? val.trim() : defaultValue;
+            }
+
+            private ContextResource getJmsResource()
+            {
+                JmsProperties jmsProps = jmsSource();
+                if (jmsProps.getBrokerURL() == null)
+                {
+                    return null;
+                }
+
+                ContextResource jmsResource = new ContextResource();
+                jmsResource.setName("jms/ConnectionFactory");
+                jmsResource.setAuth("Container");
+                jmsResource.setType(jmsProps.getType());
+                jmsResource.setProperty("factory", jmsProps.getFactory());
+                jmsResource.setProperty("description", jmsProps.getDescription());
+                jmsResource.setProperty("brokerURL", jmsProps.getBrokerURL());
+                jmsResource.setProperty("brokerName", jmsProps.getBrokerName());
+                return jmsResource;
+            }
+            private ContextResource getLdapResource()
+            {
+                LdapProperties ldapProps = ldapSource();
+                if (ldapProps.getHost() == null)
+                {
+                    return null;
+                }
+
+                ContextResource ldapResource = new ContextResource();
+                ldapResource.setName("ldap/ConfigFactory");
+                ldapResource.setAuth("Container");
+                ldapResource.setType(ldapProps.getType());
+                ldapResource.setProperty("host", ldapProps.getHost());
+                ldapResource.setProperty("port", Integer.toString(ldapProps.getPort()));
+                if (ldapProps.getPrincipal() != null)
+                {
+                    ldapResource.setProperty("principal", ldapProps.getPrincipal());
+                }
+                if (ldapProps.getCredentials() != null)
+                {
+                    ldapResource.setProperty("credentials", ldapProps.getCredentials());
+                }
+                if (ldapProps.isUseSsl())
+                {
+                    ldapResource.setProperty("useSsl", Boolean.toString(ldapProps.isUseSsl()));
+                }
+                if (ldapProps.isUseTls())
+                {
+                    ldapResource.setProperty("useTls", Boolean.toString(ldapProps.isUseTls()));
+                }
+                if (ldapProps.getSslProtocol() != null)
+                {
+                    ldapResource.setProperty("sslProtocol", ldapProps.getSslProtocol());
+                }
+                return ldapResource;
             }
 
             private ContextResource getMailResource()
@@ -500,12 +598,15 @@ public class LabKeyServer
         private String oldEncryptionKey;
         private String pipelineConfig;
         private String requiredModules;
+        private boolean bypass2FA = false;
         private String serverGUID;
         private Map<Integer, String> maxTotal;
         private Map<Integer, String> maxIdle;
         private Map<Integer, String> maxWaitMillis;
         private Map<Integer, String> accessToUnderlyingConnectionAllowed;
         private Map<Integer, String> validationQuery;
+        private Map<Integer, String> displayName;
+        private Map<Integer, String> logQueries;
 
         public List<String> getDataSourceName()
         {
@@ -617,6 +718,16 @@ public class LabKeyServer
             this.requiredModules = requiredModules;
         }
 
+        public boolean isBypass2FA()
+        {
+            return bypass2FA;
+        }
+
+        public void setBypass2FA(boolean bypass2FA)
+        {
+            this.bypass2FA = bypass2FA;
+        }
+
         public String getServerGUID()
         {
             return serverGUID;
@@ -676,6 +787,192 @@ public class LabKeyServer
         public void setValidationQuery(Map<Integer, String> validationQuery)
         {
             this.validationQuery = validationQuery;
+        }
+
+        public Map<Integer, String> getDisplayName()
+        {
+            return displayName;
+        }
+
+        public void setDisplayName(Map<Integer, String> displayName)
+        {
+            this.displayName = displayName;
+        }
+
+        public Map<Integer, String> getLogQueries()
+        {
+            return logQueries;
+        }
+
+        public void setLogQueries(Map<Integer, String> logQueries)
+        {
+            this.logQueries = logQueries;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("ldap")
+    public static class LdapProperties
+    {
+        private String type = "org.labkey.premium.ldap.LdapConnectionConfigFactory";
+        private String factory = "org.labkey.premium.ldap.LdapConnectionConfigFactory";
+        private String host = null;
+        private int port = 389;
+        private String principal = null;
+        private String credentials = null;
+        private boolean useTls = false;
+        private boolean useSsl = false;
+        private String sslProtocol;
+
+        public String getType()
+        {
+            return type;
+        }
+
+        public void setType(String type)
+        {
+            this.type = type;
+        }
+
+        public String getFactory()
+        {
+            return factory;
+        }
+
+        public void setFactory(String factory)
+        {
+            this.factory = factory;
+        }
+
+        public String getHost()
+        {
+            return host;
+        }
+
+        public void setHost(String host)
+        {
+            this.host = host;
+        }
+
+        public int getPort()
+        {
+            return port;
+        }
+
+        public void setPort(int port)
+        {
+            this.port = port;
+        }
+
+        public String getPrincipal()
+        {
+            return principal;
+        }
+
+        public void setPrincipal(String principal)
+        {
+            this.principal = principal;
+        }
+
+        public String getCredentials()
+        {
+            return credentials;
+        }
+
+        public void setCredentials(String credentials)
+        {
+            this.credentials = credentials;
+        }
+
+        public boolean isUseTls()
+        {
+            return useTls;
+        }
+
+        public void setUseTls(boolean useTls)
+        {
+            this.useTls = useTls;
+        }
+
+        public boolean isUseSsl()
+        {
+            return useSsl;
+        }
+
+        public void setUseSsl(boolean useSsl)
+        {
+            this.useSsl = useSsl;
+        }
+
+        public String getSslProtocol()
+        {
+            return sslProtocol;
+        }
+
+        public void setSslProtocol(String sslProtocol)
+        {
+            this.sslProtocol = sslProtocol;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("jms")
+    public static class JmsProperties
+    {
+        private String type = "org.apache.activemq.ActiveMQConnectionFactory";
+        private String factory = "org.apache.activemq.jndi.JNDIReferenceFactory";
+        private String description = "JMS Connection Factory";
+        private String brokerURL = null;
+        private String brokerName = "LocalActiveMQBroker";
+
+        public String getType()
+        {
+            return type;
+        }
+
+        public void setType(String type)
+        {
+            this.type = type;
+        }
+
+        public String getFactory()
+        {
+            return factory;
+        }
+
+        public void setFactory(String factory)
+        {
+            this.factory = factory;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        public void setDescription(String description)
+        {
+            this.description = description;
+        }
+
+        public String getBrokerURL()
+        {
+            return brokerURL;
+        }
+
+        public void setBrokerURL(String brokerURL)
+        {
+            this.brokerURL = brokerURL;
+        }
+
+        public String getBrokerName()
+        {
+            return brokerName;
+        }
+
+        public void setBrokerName(String brokerName)
+        {
+            this.brokerName = brokerName;
         }
     }
 

@@ -293,7 +293,7 @@ public class LabKeyServer
                     dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", getPropValue(props.getAccessToUnderlyingConnectionAllowed(), i, ACCESS_TO_CONNECTION_ALLOWED_DEFAULT, "accessToUnderlyingConnectionAllowed"));
                     dataSourceResource.setProperty("validationQuery", getPropValue(props.getValidationQuery(), i, VALIDATION_QUERY_DEFAULT, "validationQuery"));
 
-                    // These two properties are handled different, as separate parameters
+                    // These two properties are handled differently, as separate parameters
                     String displayName = getPropValue(props.getDisplayName(), i, null, "displayName");
                     if (displayName != null)
                     {
@@ -356,6 +356,7 @@ public class LabKeyServer
                 ldapResource.setName("ldap/ConfigFactory");
                 ldapResource.setAuth("Container");
                 ldapResource.setType(ldapProps.getType());
+                ldapResource.setProperty("factory", ldapProps.getFactory());
                 ldapResource.setProperty("host", ldapProps.getHost());
                 ldapResource.setProperty("port", Integer.toString(ldapProps.getPort()));
                 if (ldapProps.getPrincipal() != null)
@@ -366,14 +367,8 @@ public class LabKeyServer
                 {
                     ldapResource.setProperty("credentials", ldapProps.getCredentials());
                 }
-                if (ldapProps.isUseSsl())
-                {
-                    ldapResource.setProperty("useSsl", Boolean.toString(ldapProps.isUseSsl()));
-                }
-                if (ldapProps.isUseTls())
-                {
-                    ldapResource.setProperty("useTls", Boolean.toString(ldapProps.isUseTls()));
-                }
+                ldapResource.setProperty("useSsl", Boolean.toString(ldapProps.isUseSsl()));
+                ldapResource.setProperty("useTls", Boolean.toString(ldapProps.isUseTls()));
                 if (ldapProps.getSslProtocol() != null)
                 {
                     ldapResource.setProperty("sslProtocol", ldapProps.getSslProtocol());
@@ -459,11 +454,15 @@ public class LabKeyServer
         File currentDir = new File(currentPath);
         List<String> jarsPresent = new ArrayList<>();
 
-        for (File file: currentDir.listFiles())
+        File[] files = currentDir.listFiles();
+        if (files != null)
         {
-            if (file.getName().toLowerCase().endsWith(".jar"))
+            for (File file : files)
             {
-                jarsPresent.add(file.getName());
+                if (file.getName().toLowerCase().endsWith(".jar"))
+                {
+                    jarsPresent.add(file.getName());
+                }
             }
         }
 
@@ -478,15 +477,16 @@ public class LabKeyServer
             return jarsPresent.get(0);
         }
 
-        throw new ConfigException("Multiple jars found - " + jarsPresent.toString() + ". Must provide only one jar.");
+        throw new ConfigException("Multiple jars found - " + jarsPresent + ". Must provide only one jar.");
     }
 
     private static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
     {
         File destDir = new File(destDirectory);
-        if (!destDir.exists())
+        //noinspection SSBasedInspection
+        if (!destDir.exists() && !destDir.mkdirs())
         {
-            destDir.mkdir();
+            throw new IOException("Failed to create directory " + destDir + " - please check file system permissions");
         }
         try (ZipInputStream zipIn = new ZipInputStream(zipInputStream))
         {
@@ -504,7 +504,11 @@ public class LabKeyServer
                 {
                     // if the entry is a directory, make the directory
                     File dir = new File(filePath);
-                    dir.mkdirs();
+                    //noinspection SSBasedInspection
+                    if (!dir.exists() && !dir.mkdirs())
+                    {
+                        throw new IOException("Failed to create directory " + dir + " - please check file system permissions");
+                    }
                 }
                 zipIn.closeEntry();
                 entry = zipIn.getNextEntry();

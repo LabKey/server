@@ -4,6 +4,8 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
@@ -37,6 +39,8 @@ import java.util.zip.ZipInputStream;
 @SpringBootApplication
 public class LabKeyServer
 {
+    private static final Log LOG = LogFactory.getLog(LabKeyServer.class);
+
     private static final int BUFFER_SIZE = 4096;
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
@@ -315,12 +319,12 @@ public class LabKeyServer
             {
                 if (propValues == null)
                 {
-                    logger.debug(String.format("%1$s property was not provided, using default", propName));
+                    LOG.debug(String.format("%1$s property was not provided, using default", propName));
                     return defaultValue;
                 }
 
                 if (!propValues.containsKey(resourceKey))
-                    logger.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
+                    LOG.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
 
                 String val = propValues.getOrDefault(resourceKey, defaultValue);
                 return val != null && !val.isBlank() ? val.trim() : defaultValue;

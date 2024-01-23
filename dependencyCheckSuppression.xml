@@ -245,15 +245,6 @@
         <cve>CVE-2023-35887</cve>
     </suppress>
 
-    <!-- 23.0.1 includes the patch for this low severity CVE but it's still matching so manually suppress it -->
-    <suppress>
-        <notes><![CDATA[
-   file name: graal-sdk-23.0.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.graalvm\.sdk/graal\-sdk@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-22006</vulnerabilityName>
-    </suppress>
-
     <!-- The CVE is against Quartz Jobs, not the core Quartz library, so this is a false positive given our actual dependency.
      For additional info see: Issue #48405
     -->
@@ -312,6 +303,20 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.dom4j/dom4j@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-45960</vulnerabilityName>
+    </suppress>
+
+    <!--
+    GraalJS shaded and re-versioned icu4j without changing the file name, leading to many old CVEs getting tagged.
+    This should be fixed soon, but suppress all CVEs for now. https://github.com/oracle/graal/issues/8204
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: icu4j-23.1.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.graalvm\.shadowed/icu4j@.*$</packageUrl>
+        <cpe>cpe:/a:icu-project:international_components_for_unicode</cpe>
+        <cpe>cpe:/a:unicode:international_components_for_unicode</cpe>
+        <cpe>cpe:/a:unicode:unicode</cpe>
     </suppress>
 
 </suppressions>

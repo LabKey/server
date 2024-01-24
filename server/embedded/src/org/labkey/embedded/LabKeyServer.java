@@ -348,6 +348,7 @@ public class LabKeyServer
                 jmsResource.setProperty("brokerName", jmsProps.getBrokerName());
                 return jmsResource;
             }
+
             private ContextResource getLdapResource()
             {
                 LdapProperties ldapProps = ldapSource();

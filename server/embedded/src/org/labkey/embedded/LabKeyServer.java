@@ -107,11 +107,10 @@ public class LabKeyServer
                 {
                     if (!webAppLocationPresent)
                     {
-                        final var currentPath = new File("").getAbsolutePath();
-                        var destDirectory = currentPath + "/server";
+                        final var destDirectory = new File("").getAbsolutePath();
                         webAppLocation = destDirectory + "/labkeywebapp";
                         boolean extracted = new File(webAppLocation).exists();
-                        String jarFilePath = getExecutableJar(currentPath);
+                        String jarFilePath = getExecutableJar(destDirectory);
 
                         if (!extracted)
                         {

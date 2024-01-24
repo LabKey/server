@@ -193,7 +193,7 @@ public class LabKeyServer
                     {
                         if (contextProperties.getContextPath() != null && !contextProperties.getContextPath().isEmpty() && !contextProperties.getContextPath().equals("/"))
                         {
-                            throw new IllegalArgumentException("contextPath.legacyContextPath is only intended for use when deploying the LabKey application to the root context path. Please update application.properties");
+                            throw new IllegalArgumentException("contextPath.legacyContextPath is only intended for use when deploying the LabKey application to the root context path. Please update application.properties.");
                         }
                         context.addParameter("legacyContextPath", contextProperties.getLegacyContextPath());
                     }

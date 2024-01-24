@@ -87,6 +87,12 @@ public class LabKeyServer
     }
 
     @Bean
+    public WebappProperties additionalWebappSource()
+    {
+        return new WebappProperties();
+    }
+
+    @Bean
     public CSPFilterProperties cspSource()
     {
         return new CSPFilterProperties();
@@ -156,7 +162,7 @@ public class LabKeyServer
                     }
 
                     // set the root path to the context explicitly
-                    context.setPath("");
+                    context.setPath(contextProperties.getContextPath());
 
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
                     getDataSourceResources(contextProperties, context).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
@@ -183,6 +189,10 @@ public class LabKeyServer
                         context.addParameter("OldEncryptionKey", contextProperties.getOldEncryptionKey());
                     }
 
+                    if (contextProperties.getLegacyContextPath() != null)
+                    {
+                        context.addParameter("legacyContextPath", contextProperties.getLegacyContextPath());
+                    }
                     if (contextProperties.getRequiredModules() != null)
                     {
                         context.addParameter("requiredModules", contextProperties.getRequiredModules());
@@ -220,6 +230,18 @@ public class LabKeyServer
                 if (logConfig.isEnabled())
                 {
                    configureJsonAccessLogging(tomcat, logConfig);
+                }
+
+                WebappProperties additionalWebapps = additionalWebappSource();
+                if (additionalWebapps.getContextPath().size() != additionalWebapps.getDocBase().size())
+                {
+                    throw new IllegalArgumentException("Additional webapps must have paired contextPath and docBase properties");
+                }
+                for (int i = 0; i < additionalWebapps.getContextPath().size(); i++)
+                {
+                    String contextPath = additionalWebapps.getContextPath().get(i);
+                    String docBase = additionalWebapps.getDocBase().get(i);
+                    tomcat.addWebapp(contextPath, docBase);
                 }
 
                 return super.getTomcatWebServer(tomcat);
@@ -579,6 +601,35 @@ public class LabKeyServer
         }
     }
 
+    @Configuration
+    @ConfigurationProperties("webapps")
+    public static class WebappProperties
+    {
+        private List<String> contextPath = new ArrayList<>();
+
+        private List<String> docBase = new ArrayList<>();
+
+        public List<String> getContextPath()
+        {
+            return contextPath;
+        }
+
+        public void setContextPath(List<String> contextPath)
+        {
+            this.contextPath = contextPath;
+        }
+
+        public List<String> getDocBase()
+        {
+            return docBase;
+        }
+
+        public void setDocBase(List<String> docBase)
+        {
+            this.docBase = docBase;
+        }
+    }
+
     @Validated
     @Configuration
     @ConfigurationProperties("context")
@@ -600,6 +651,10 @@ public class LabKeyServer
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
         private String oldEncryptionKey;
+        private String legacyContextPath;
+
+        // Default to deploying to the root context path
+        private String contextPath = "";
         private String pipelineConfig;
         private String requiredModules;
         private boolean bypass2FA = false;
@@ -700,6 +755,26 @@ public class LabKeyServer
         public void setOldEncryptionKey(String oldEncryptionKey)
         {
             this.oldEncryptionKey = oldEncryptionKey;
+        }
+
+        public String getLegacyContextPath()
+        {
+            return legacyContextPath;
+        }
+
+        public void setLegacyContextPath(String legacyContextPath)
+        {
+            this.legacyContextPath = legacyContextPath;
+        }
+
+        public String getContextPath()
+        {
+            return contextPath;
+        }
+
+        public void setContextPath(String contextPath)
+        {
+            this.contextPath = contextPath;
         }
 
         public String getPipelineConfig()

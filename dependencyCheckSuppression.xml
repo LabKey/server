@@ -235,7 +235,7 @@
     -->
     <suppress>
         <notes><![CDATA[
-   file name: tomcat-jaspic-api-10.1.17.jar
+   file name: tomcat-jaspic-api-10.1.18.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jaspic\-api@.*$</packageUrl>
         <cpe>cpe:/a:apache:tomcat</cpe>

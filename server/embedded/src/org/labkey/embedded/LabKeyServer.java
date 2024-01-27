@@ -8,7 +8,6 @@ import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.labkey.bootstrap.ConfigException;
-import org.labkey.filters.ContentSecurityPolicyFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
@@ -130,10 +129,12 @@ public class LabKeyServer
 
                     if (cspFilterProperties.getEnforce() != null)
                     {
+                        context.addParameter("csp.enforce", cspFilterProperties.getEnforce());
                         addCSPFilter("enforce", cspFilterProperties.getEnforce(), ENFORCE_CSP_FILTER_NAME ,context);
                     }
                     if (cspFilterProperties.getReport() != null)
                     {
+                        context.addParameter("csp.report", cspFilterProperties.getReport());
                         addCSPFilter("report", cspFilterProperties.getReport(), REPORT_CSP_FILTER_NAME, context);
                     }
 
@@ -199,7 +200,7 @@ public class LabKeyServer
             {
                 FilterDef filterDef = new FilterDef();
                 filterDef.setFilterName(filterName);
-                filterDef.setFilter(new ContentSecurityPolicyFilter());
+//                filterDef.setFilter(new ContentSecurityPolicyFilter());
                 filterDef.addInitParameter("policy", policy);
                 filterDef.addInitParameter("disposition", disposition);
 

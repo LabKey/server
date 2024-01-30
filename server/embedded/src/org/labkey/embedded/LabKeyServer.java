@@ -1,5 +1,6 @@
 package org.labkey.embedded;
 
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
@@ -17,6 +18,7 @@ import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
@@ -111,7 +113,7 @@ public class LabKeyServer
     @Bean
     public TomcatServletWebServerFactory servletContainerFactory()
     {
-        return new TomcatServletWebServerFactory()
+        var result = new TomcatServletWebServerFactory()
         {
             @Override
             protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
@@ -145,9 +147,15 @@ public class LabKeyServer
                         webAppLocation = contextProperties.getWebAppLocation();
                     }
 
+                    tomcat.setAddDefaultWebXmlToWebapp(false);
+
                     // tomcat requires a unique context path other than root here
                     // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+
+                    // Propagate standard Spring Boot properties such as the session timeout
+                    configureContext(context, new ServletContextInitializer[0]);
+
                     CSPFilterProperties cspFilterProperties = cspSource();
 
                     if (cspFilterProperties.getEnforce() != null)
@@ -443,6 +451,18 @@ public class LabKeyServer
                 return mailResource;
             }
         };
+
+        var contextProperties = contextSource();
+
+        if (contextProperties.getHttpPort() != null)
+        {
+            Connector httpConnector = new Connector();
+            httpConnector.setScheme("http");
+            httpConnector.setPort(contextProperties.getHttpPort());
+            result.addAdditionalTomcatConnectors(httpConnector);
+        }
+
+        return result;
     }
 
     private static void extractExecutableJar(String destDirectory, String jarFilePath)
@@ -668,6 +688,7 @@ public class LabKeyServer
         private String requiredModules;
         private boolean bypass2FA = false;
         private String serverGUID;
+        private Integer httpRedirectorPort;
         private Map<Integer, String> maxTotal;
         private Map<Integer, String> maxIdle;
         private Map<Integer, String> maxWaitMillis;
@@ -814,6 +835,16 @@ public class LabKeyServer
         public void setBypass2FA(boolean bypass2FA)
         {
             this.bypass2FA = bypass2FA;
+        }
+
+        public Integer getHttpPort()
+        {
+            return httpRedirectorPort;
+        }
+
+        public void setHttpRedirectorPort(Integer httpRedirectorPort)
+        {
+            this.httpRedirectorPort = httpRedirectorPort;
         }
 
         public String getServerGUID()

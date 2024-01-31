@@ -263,16 +263,15 @@ public class LabKeyServer
                     resourceMap.putAll(entry.getValue());
                     if (!resourceMap.containsKey("name"))
                     {
-                        logger.error("Resource configuration error: Ignoring unnamed resource 'context.resources.%s'".formatted(entry.getKey()));
-                        continue;
+                        throw new ConfigException("Resource configuration error: Unnamed resource found 'context.resources.%s'".formatted(entry.getKey()));
                     }
                     if (!resourceMap.containsKey("type"))
                     {
-                        logger.error("Resource configuration error: type is not defined for resource '%s'".formatted(resourceMap.get("name")));
-                        continue;
+                        throw new ConfigException("Resource configuration error: 'type' is not defined for resource '%s'".formatted(resourceMap.get("name")));
                     }
 
                     ContextResource contextResource = new ContextResource();
+                    // Handle resource properties with explicit setters
                     contextResource.setName(resourceMap.remove("name"));
                     contextResource.setType(resourceMap.remove("type"));
                     contextResource.setDescription(resourceMap.remove("description"));
@@ -282,6 +281,8 @@ public class LabKeyServer
                         contextResource.setScope(resourceMap.remove("scope"));
                     }
                     contextResource.setAuth(Objects.requireNonNullElse(resourceMap.remove("auth"), "Container"));
+
+                    // Set remaining properties
                     for (Map.Entry<String, String> prop : resourceMap.entrySet())
                     {
                         contextResource.setProperty(prop.getKey(), prop.getValue());

@@ -10,6 +10,7 @@
       <name>java.lang.System.Logger</name>
       <name>java.util.logging.Logger</name>
       <name>javax.annotation.Nullable</name>
+      <name>javax.servlet</name>
       <name>javax.validation.constraints.NotNull</name>
       <name>org.apache.camel.processor.Logger</name>
       <name>org.apache.commons.codec.binary.StringUtils</name>

@@ -9,9 +9,10 @@ enlistment.properties
 server/config.properties
 #IntelliJ build output directory
 server/bootstrap/out/
+dist/
+external/
 
 # Ignore other common repository locations
-dist/
 distributions/
 labkey-api-*/
 labkey-ui-components/

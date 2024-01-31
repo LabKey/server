@@ -4,6 +4,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
+import org.apache.tomcat.util.collections.CaseInsensitiveKeyMap;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.SpringApplication;
@@ -25,8 +26,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -144,6 +147,9 @@ public class LabKeyServer
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
                     getDataSourceResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
+                    // Add extra resources to context (e.g. LDAP, JMS)
+                    getExtraContextResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+
                     // Add the SMTP config
                     context.getNamingResources().addResource(getMailResource());
 
@@ -244,6 +250,47 @@ public class LabKeyServer
                 }
 
                 return  dataSourceResources;
+            }
+
+            private List<ContextResource> getExtraContextResources(ContextProperties contextProperties) throws ConfigException
+            {
+                List<ContextResource> contextResources = new ArrayList<>();
+                Map<String, Map<String, String>> resourceMaps = Objects.requireNonNullElse(contextProperties.getResources(), Collections.emptyMap());
+
+                for (Map.Entry<String, Map<String, String>> entry : resourceMaps.entrySet())
+                {
+                    Map<String, String> resourceMap = new CaseInsensitiveKeyMap<>();
+                    resourceMap.putAll(entry.getValue());
+                    if (!resourceMap.containsKey("name"))
+                    {
+                        logger.error("Resource configuration error: Ignoring unnamed resource 'context.resources.%s'".formatted(entry.getKey()));
+                        continue;
+                    }
+                    if (!resourceMap.containsKey("type"))
+                    {
+                        logger.error("Resource configuration error: type is not defined for resource '%s'".formatted(resourceMap.get("name")));
+                        continue;
+                    }
+
+                    ContextResource contextResource = new ContextResource();
+                    contextResource.setName(resourceMap.remove("name"));
+                    contextResource.setType(resourceMap.remove("type"));
+                    contextResource.setDescription(resourceMap.remove("description"));
+                    contextResource.setLookupName(resourceMap.remove("lookupName"));
+                    if (resourceMap.containsKey("scope"))
+                    {
+                        contextResource.setScope(resourceMap.remove("scope"));
+                    }
+                    contextResource.setAuth(Objects.requireNonNullElse(resourceMap.remove("auth"), "Container"));
+                    for (Map.Entry<String, String> prop : resourceMap.entrySet())
+                    {
+                        contextResource.setProperty(prop.getKey(), prop.getValue());
+                    }
+
+                    contextResources.add(contextResource);
+                }
+
+                return  contextResources;
             }
 
             private String getPropValue(Map<Integer, String> propValues, Integer resourceKey, String defaultValue, String propName)
@@ -484,6 +531,7 @@ public class LabKeyServer
         private Map<Integer, String> maxWaitMillis;
         private Map<Integer, String> accessToUnderlyingConnectionAllowed;
         private Map<Integer, String> validationQuery;
+        private Map<String, Map<String, String>> resources;
 
         public List<String> getDataSourceName()
         {
@@ -654,6 +702,16 @@ public class LabKeyServer
         public void setValidationQuery(Map<Integer, String> validationQuery)
         {
             this.validationQuery = validationQuery;
+        }
+
+        public Map<String, Map<String, String>> getResources()
+        {
+            return resources;
+        }
+
+        public void setResources(Map<String, Map<String, String>> resources)
+        {
+            this.resources = resources;
         }
     }
 

@@ -157,7 +157,14 @@ allprojects {
                     maven {
                         // Mondrian dependencies are available via this repository. It's a direct dependency of the Query
                         // module but is declared here as many modules depend on Query and therefore need it as well.
-                    	url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        content {
+                            includeGroup "pentaho"
+                            includeGroup "org.pentaho"
+                            includeGroup "org.olap4j"
+                            includeGroup "javacup"
+                            includeGroup "eigenbase"
+                        }
                     }
                 }
 
@@ -290,6 +297,11 @@ allprojects {
 
                         // This library was renamed
                         substitute module('org.codehaus.woodstox:woodstox-core-asl') using module("com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}")
+
+                        // Avoid conflicts with declared dependencies on the newer versions from 'net.hydromatic'
+                        substitute module('eigenbase:eigenbase-properties') using module("net.hydromatic:eigenbase-properties:${eigenbasePropertiesVersion}")
+                        substitute module('eigenbase:eigenbase-resgen') using module("net.hydromatic:eigenbase-resgen:${eigenbaseResgenVersion}")
+                        substitute module('eigenbase:eigenbase-xom') using module("net.hydromatic:eigenbase-xom:${eigenbaseXomVersion}")
                     }
                 }
             }

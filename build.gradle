@@ -239,6 +239,7 @@ allprojects {
                     force "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
                     force "com.google.http-client:google-http-client-apache-v2:${googleHttpClientVersion}"
                     force "com.google.http-client:google-http-client-gson:${googleHttpClientVersion}"
+                    force "com.google.http-client:google-http-client-jackson2:${googleHttpClientVersion}"
 
                     // FileTransfer depends on this directly; WNPRC_EHR and GoogleDrive bring a different version in transitively.
                     force "com.google.oauth-client:google-oauth-client:${googleOauthClientVersion}"

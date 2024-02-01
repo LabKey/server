@@ -229,5 +229,25 @@
         <cpe>cpe:/a:unicode:unicode</cpe>
     </suppress>
 
+    <!--
+    The Tomcat jaspic-api and jsp-api jars are false positives, for some reason matching against Tomcat 3.0. See
+    https://github.com/jeremylong/DependencyCheck/issues/5659, which has been raised, but no response.
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-jaspic-api-10.1.18.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jaspic\-api@.*$</packageUrl>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-jsp-api-10.1.18.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jsp\-api@.*$</packageUrl>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+
 </suppressions>
 

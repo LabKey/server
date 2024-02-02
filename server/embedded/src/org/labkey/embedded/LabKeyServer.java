@@ -7,6 +7,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tomcat.util.collections.CaseInsensitiveKeyMap;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.SpringApplication;
@@ -29,8 +30,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -73,18 +76,6 @@ public class LabKeyServer
     public MailProperties smtpSource()
     {
         return new MailProperties();
-    }
-
-    @Bean
-    public LdapProperties ldapSource()
-    {
-        return new LdapProperties();
-    }
-
-    @Bean
-    public JmsProperties jmsSource()
-    {
-        return new JmsProperties();
     }
 
     @Bean
@@ -174,20 +165,11 @@ public class LabKeyServer
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
                     getDataSourceResources(contextProperties, context).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
+                    // Add extra resources to context (e.g. LDAP, JMS)
+                    getExtraContextResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+
                     // Add the SMTP config
                     context.getNamingResources().addResource(getMailResource());
-
-                    ContextResource jmsResource = getJmsResource();
-                    if (jmsResource != null)
-                    {
-                        context.getNamingResources().addResource(jmsResource);
-                    }
-
-                    ContextResource ldapResource = getLdapResource();
-                    if (ldapResource != null)
-                    {
-                        context.getNamingResources().addResource(ldapResource);
-                    }
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -327,6 +309,48 @@ public class LabKeyServer
                 return dataSourceResources;
             }
 
+            private List<ContextResource> getExtraContextResources(ContextProperties contextProperties) throws ConfigException
+            {
+                List<ContextResource> contextResources = new ArrayList<>();
+                Map<String, Map<String, String>> resourceMaps = Objects.requireNonNullElse(contextProperties.getResources(), Collections.emptyMap());
+
+                for (Map.Entry<String, Map<String, String>> entry : resourceMaps.entrySet())
+                {
+                    Map<String, String> resourceMap = new CaseInsensitiveKeyMap<>();
+                    resourceMap.putAll(entry.getValue());
+                    if (!resourceMap.containsKey("name"))
+                    {
+                        throw new ConfigException("Resource configuration error: Unnamed resource found 'context.resources.%s'".formatted(entry.getKey()));
+                    }
+                    if (!resourceMap.containsKey("type"))
+                    {
+                        throw new ConfigException("Resource configuration error: 'type' is not defined for resource '%s'".formatted(resourceMap.get("name")));
+                    }
+
+                    ContextResource contextResource = new ContextResource();
+                    // Handle resource properties with explicit setters
+                    contextResource.setName(resourceMap.remove("name"));
+                    contextResource.setType(resourceMap.remove("type"));
+                    contextResource.setDescription(resourceMap.remove("description"));
+                    contextResource.setLookupName(resourceMap.remove("lookupName"));
+                    if (resourceMap.containsKey("scope"))
+                    {
+                        contextResource.setScope(resourceMap.remove("scope"));
+                    }
+                    contextResource.setAuth(Objects.requireNonNullElse(resourceMap.remove("auth"), "Container"));
+
+                    // Set remaining properties
+                    for (Map.Entry<String, String> prop : resourceMap.entrySet())
+                    {
+                        contextResource.setProperty(prop.getKey(), prop.getValue());
+                    }
+
+                    contextResources.add(contextResource);
+                }
+
+                return  contextResources;
+            }
+
             private String getPropValue(Map<Integer, String> propValues, Integer resourceKey, String defaultValue, String propName)
             {
                 if (propValues == null)
@@ -340,57 +364,6 @@ public class LabKeyServer
 
                 String val = propValues.getOrDefault(resourceKey, defaultValue);
                 return val != null && !val.isBlank() ? val.trim() : defaultValue;
-            }
-
-            private ContextResource getJmsResource()
-            {
-                JmsProperties jmsProps = jmsSource();
-                if (jmsProps.getBrokerURL() == null)
-                {
-                    return null;
-                }
-
-                ContextResource jmsResource = new ContextResource();
-                jmsResource.setName("jms/ConnectionFactory");
-                jmsResource.setAuth("Container");
-                jmsResource.setType(jmsProps.getType());
-                jmsResource.setProperty("factory", jmsProps.getFactory());
-                jmsResource.setProperty("description", jmsProps.getDescription());
-                jmsResource.setProperty("brokerURL", jmsProps.getBrokerURL());
-                jmsResource.setProperty("brokerName", jmsProps.getBrokerName());
-                return jmsResource;
-            }
-
-            private ContextResource getLdapResource()
-            {
-                LdapProperties ldapProps = ldapSource();
-                if (ldapProps.getHost() == null)
-                {
-                    return null;
-                }
-
-                ContextResource ldapResource = new ContextResource();
-                ldapResource.setName("ldap/ConfigFactory");
-                ldapResource.setAuth("Container");
-                ldapResource.setType(ldapProps.getType());
-                ldapResource.setProperty("factory", ldapProps.getFactory());
-                ldapResource.setProperty("host", ldapProps.getHost());
-                ldapResource.setProperty("port", Integer.toString(ldapProps.getPort()));
-                if (ldapProps.getPrincipal() != null)
-                {
-                    ldapResource.setProperty("principal", ldapProps.getPrincipal());
-                }
-                if (ldapProps.getCredentials() != null)
-                {
-                    ldapResource.setProperty("credentials", ldapProps.getCredentials());
-                }
-                ldapResource.setProperty("useSsl", Boolean.toString(ldapProps.isUseSsl()));
-                ldapResource.setProperty("useTls", Boolean.toString(ldapProps.isUseTls()));
-                if (ldapProps.getSslProtocol() != null)
-                {
-                    ldapResource.setProperty("sslProtocol", ldapProps.getSslProtocol());
-                }
-                return ldapResource;
             }
 
             private ContextResource getMailResource()
@@ -674,6 +647,7 @@ public class LabKeyServer
         private Map<Integer, String> validationQuery;
         private Map<Integer, String> displayName;
         private Map<Integer, String> logQueries;
+        private Map<String, Map<String, String>> resources;
 
         public List<String> getDataSourceName()
         {
@@ -905,171 +879,15 @@ public class LabKeyServer
         {
             this.logQueries = logQueries;
         }
-    }
 
-    @Configuration
-    @ConfigurationProperties("ldap")
-    public static class LdapProperties
-    {
-        private String type = "org.labkey.premium.ldap.LdapConnectionConfigFactory";
-        private String factory = "org.labkey.premium.ldap.LdapConnectionConfigFactory";
-        private String host = null;
-        private int port = 389;
-        private String principal = null;
-        private String credentials = null;
-        private boolean useTls = false;
-        private boolean useSsl = false;
-        private String sslProtocol;
-
-        public String getType()
+        public Map<String, Map<String, String>> getResources()
         {
-            return type;
+            return resources;
         }
 
-        public void setType(String type)
+        public void setResources(Map<String, Map<String, String>> resources)
         {
-            this.type = type;
-        }
-
-        public String getFactory()
-        {
-            return factory;
-        }
-
-        public void setFactory(String factory)
-        {
-            this.factory = factory;
-        }
-
-        public String getHost()
-        {
-            return host;
-        }
-
-        public void setHost(String host)
-        {
-            this.host = host;
-        }
-
-        public int getPort()
-        {
-            return port;
-        }
-
-        public void setPort(int port)
-        {
-            this.port = port;
-        }
-
-        public String getPrincipal()
-        {
-            return principal;
-        }
-
-        public void setPrincipal(String principal)
-        {
-            this.principal = principal;
-        }
-
-        public String getCredentials()
-        {
-            return credentials;
-        }
-
-        public void setCredentials(String credentials)
-        {
-            this.credentials = credentials;
-        }
-
-        public boolean isUseTls()
-        {
-            return useTls;
-        }
-
-        public void setUseTls(boolean useTls)
-        {
-            this.useTls = useTls;
-        }
-
-        public boolean isUseSsl()
-        {
-            return useSsl;
-        }
-
-        public void setUseSsl(boolean useSsl)
-        {
-            this.useSsl = useSsl;
-        }
-
-        public String getSslProtocol()
-        {
-            return sslProtocol;
-        }
-
-        public void setSslProtocol(String sslProtocol)
-        {
-            this.sslProtocol = sslProtocol;
-        }
-    }
-
-    @Configuration
-    @ConfigurationProperties("jms")
-    public static class JmsProperties
-    {
-        private String type = "org.apache.activemq.ActiveMQConnectionFactory";
-        private String factory = "org.apache.activemq.jndi.JNDIReferenceFactory";
-        private String description = "JMS Connection Factory";
-        private String brokerURL = null;
-        private String brokerName = "LocalActiveMQBroker";
-
-        public String getType()
-        {
-            return type;
-        }
-
-        public void setType(String type)
-        {
-            this.type = type;
-        }
-
-        public String getFactory()
-        {
-            return factory;
-        }
-
-        public void setFactory(String factory)
-        {
-            this.factory = factory;
-        }
-
-        public String getDescription()
-        {
-            return description;
-        }
-
-        public void setDescription(String description)
-        {
-            this.description = description;
-        }
-
-        public String getBrokerURL()
-        {
-            return brokerURL;
-        }
-
-        public void setBrokerURL(String brokerURL)
-        {
-            this.brokerURL = brokerURL;
-        }
-
-        public String getBrokerName()
-        {
-            return brokerName;
-        }
-
-        public void setBrokerName(String brokerName)
-        {
-            this.brokerName = brokerName;
+            this.resources = resources;
         }
     }
 

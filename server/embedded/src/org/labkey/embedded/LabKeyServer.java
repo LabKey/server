@@ -1,9 +1,12 @@
 package org.labkey.embedded;
 
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.collections.CaseInsensitiveKeyMap;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
@@ -13,13 +16,14 @@ import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +41,8 @@ import java.util.zip.ZipInputStream;
 @SpringBootApplication
 public class LabKeyServer
 {
+    private static final Log LOG = LogFactory.getLog(LabKeyServer.class);
+
     private static final int BUFFER_SIZE = 4096;
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
@@ -73,6 +79,24 @@ public class LabKeyServer
     }
 
     @Bean
+    public LdapProperties ldapSource()
+    {
+        return new LdapProperties();
+    }
+
+    @Bean
+    public JmsProperties jmsSource()
+    {
+        return new JmsProperties();
+    }
+
+    @Bean
+    public WebappProperties additionalWebappSource()
+    {
+        return new WebappProperties();
+    }
+
+    @Bean
     public CSPFilterProperties cspSource()
     {
         return new CSPFilterProperties();
@@ -87,7 +111,7 @@ public class LabKeyServer
     @Bean
     public TomcatServletWebServerFactory servletContainerFactory()
     {
-        return new TomcatServletWebServerFactory()
+        var result = new TomcatServletWebServerFactory()
         {
             @Override
             protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
@@ -121,9 +145,15 @@ public class LabKeyServer
                         webAppLocation = contextProperties.getWebAppLocation();
                     }
 
+                    tomcat.setAddDefaultWebXmlToWebapp(false);
+
                     // tomcat requires a unique context path other than root here
                     // can not set context path as "" because em tomcat complains "Child name [] is not unique"
                     StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+
+                    // Propagate standard Spring Boot properties such as the session timeout
+                    configureContext(context, new ServletContextInitializer[0]);
+
                     CSPFilterProperties cspFilterProperties = cspSource();
 
                     if (cspFilterProperties.getEnforce() != null)
@@ -142,16 +172,28 @@ public class LabKeyServer
                     }
 
                     // set the root path to the context explicitly
-                    context.setPath("");
+                    context.setPath(contextProperties.getContextPath());
 
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
-                    getDataSourceResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+                    getDataSourceResources(contextProperties, context).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
                     // Add extra resources to context (e.g. LDAP, JMS)
                     getExtraContextResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
                     // Add the SMTP config
                     context.getNamingResources().addResource(getMailResource());
+
+                    ContextResource jmsResource = getJmsResource();
+                    if (jmsResource != null)
+                    {
+                        context.getNamingResources().addResource(jmsResource);
+                    }
+
+                    ContextResource ldapResource = getLdapResource();
+                    if (ldapResource != null)
+                    {
+                        context.getNamingResources().addResource(ldapResource);
+                    }
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -160,6 +202,14 @@ public class LabKeyServer
                         context.addParameter("OldEncryptionKey", contextProperties.getOldEncryptionKey());
                     }
 
+                    if (contextProperties.getLegacyContextPath() != null)
+                    {
+                        if (contextProperties.getContextPath() != null && !contextProperties.getContextPath().isEmpty() && !contextProperties.getContextPath().equals("/"))
+                        {
+                            throw new IllegalArgumentException("contextPath.legacyContextPath is only intended for use when deploying the LabKey application to the root context path. Please update application.properties.");
+                        }
+                        context.addParameter("legacyContextPath", contextProperties.getLegacyContextPath());
+                    }
                     if (contextProperties.getRequiredModules() != null)
                     {
                         context.addParameter("requiredModules", contextProperties.getRequiredModules());
@@ -167,6 +217,13 @@ public class LabKeyServer
                     if (contextProperties.getPipelineConfig() != null)
                     {
                         context.addParameter("org.labkey.api.pipeline.config", contextProperties.getPipelineConfig());
+                    }
+                    if (contextProperties.isBypass2FA())
+                    {
+                        // Expand single config into two different options. Can collapse/rename when we're embedded-only,
+                        // but this provides an easy backwards compatible bridge while we still support standalone Tomcat
+                        context.addParameter("org.labkey.authentication.totp.Bypass", "true");
+                        context.addParameter("org.labkey.authentication.duo.Bypass", "true");
                     }
 
                     // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
@@ -190,6 +247,18 @@ public class LabKeyServer
                 if (logConfig.isEnabled())
                 {
                    configureJsonAccessLogging(tomcat, logConfig);
+                }
+
+                WebappProperties additionalWebapps = additionalWebappSource();
+                if (additionalWebapps.getContextPath().size() != additionalWebapps.getDocBase().size())
+                {
+                    throw new IllegalArgumentException("Additional webapps must have paired contextPath and docBase properties");
+                }
+                for (int i = 0; i < additionalWebapps.getContextPath().size(); i++)
+                {
+                    String contextPath = additionalWebapps.getContextPath().get(i);
+                    String docBase = additionalWebapps.getDocBase().get(i);
+                    tomcat.addWebapp(contextPath, docBase);
                 }
 
                 return super.getTomcatWebServer(tomcat);
@@ -216,7 +285,7 @@ public class LabKeyServer
                 tomcat.getEngine().getPipeline().addValve(v);
             }
 
-            private List<ContextResource> getDataSourceResources(ContextProperties props) throws ConfigException
+            private List<ContextResource> getDataSourceResources(ContextProperties props, StandardContext context) throws ConfigException
             {
                 List<ContextResource> dataSourceResources = new ArrayList<>();
                 var numOfDataResources = props.getUrl().size();
@@ -246,10 +315,22 @@ public class LabKeyServer
                     dataSourceResource.setProperty("accessToUnderlyingConnectionAllowed", getPropValue(props.getAccessToUnderlyingConnectionAllowed(), i, ACCESS_TO_CONNECTION_ALLOWED_DEFAULT, "accessToUnderlyingConnectionAllowed"));
                     dataSourceResource.setProperty("validationQuery", getPropValue(props.getValidationQuery(), i, VALIDATION_QUERY_DEFAULT, "validationQuery"));
 
+                    // These two properties are handled differently, as separate parameters
+                    String displayName = getPropValue(props.getDisplayName(), i, null, "displayName");
+                    if (displayName != null)
+                    {
+                        context.addParameter(dataSourceResource.getName() + ":DisplayName", displayName);
+                    }
+                    String logQueries = getPropValue(props.getLogQueries(), i, null, "logQueries");
+                    if (logQueries != null)
+                    {
+                        context.addParameter(dataSourceResource.getName() + ":LogQueries", logQueries);
+                    }
+
                     dataSourceResources.add(dataSourceResource);
                 }
 
-                return  dataSourceResources;
+                return dataSourceResources;
             }
 
             private List<ContextResource> getExtraContextResources(ContextProperties contextProperties) throws ConfigException
@@ -298,15 +379,66 @@ public class LabKeyServer
             {
                 if (propValues == null)
                 {
-                    logger.debug(String.format("%1$s property was not provided, using default", propName));
+                    LOG.debug(String.format("%1$s property was not provided, using default", propName));
                     return defaultValue;
                 }
 
                 if (!propValues.containsKey(resourceKey))
-                    logger.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
+                    LOG.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
 
                 String val = propValues.getOrDefault(resourceKey, defaultValue);
                 return val != null && !val.isBlank() ? val.trim() : defaultValue;
+            }
+
+            private ContextResource getJmsResource()
+            {
+                JmsProperties jmsProps = jmsSource();
+                if (jmsProps.getBrokerURL() == null)
+                {
+                    return null;
+                }
+
+                ContextResource jmsResource = new ContextResource();
+                jmsResource.setName("jms/ConnectionFactory");
+                jmsResource.setAuth("Container");
+                jmsResource.setType(jmsProps.getType());
+                jmsResource.setProperty("factory", jmsProps.getFactory());
+                jmsResource.setProperty("description", jmsProps.getDescription());
+                jmsResource.setProperty("brokerURL", jmsProps.getBrokerURL());
+                jmsResource.setProperty("brokerName", jmsProps.getBrokerName());
+                return jmsResource;
+            }
+
+            private ContextResource getLdapResource()
+            {
+                LdapProperties ldapProps = ldapSource();
+                if (ldapProps.getHost() == null)
+                {
+                    return null;
+                }
+
+                ContextResource ldapResource = new ContextResource();
+                ldapResource.setName("ldap/ConfigFactory");
+                ldapResource.setAuth("Container");
+                ldapResource.setType(ldapProps.getType());
+                ldapResource.setProperty("factory", ldapProps.getFactory());
+                ldapResource.setProperty("host", ldapProps.getHost());
+                ldapResource.setProperty("port", Integer.toString(ldapProps.getPort()));
+                if (ldapProps.getPrincipal() != null)
+                {
+                    ldapResource.setProperty("principal", ldapProps.getPrincipal());
+                }
+                if (ldapProps.getCredentials() != null)
+                {
+                    ldapResource.setProperty("credentials", ldapProps.getCredentials());
+                }
+                ldapResource.setProperty("useSsl", Boolean.toString(ldapProps.isUseSsl()));
+                ldapResource.setProperty("useTls", Boolean.toString(ldapProps.isUseTls()));
+                if (ldapProps.getSslProtocol() != null)
+                {
+                    ldapResource.setProperty("sslProtocol", ldapProps.getSslProtocol());
+                }
+                return ldapResource;
             }
 
             private ContextResource getMailResource()
@@ -316,7 +448,7 @@ public class LabKeyServer
                 ContextResource mailResource = new ContextResource();
                 mailResource.setName("mail/Session");
                 mailResource.setAuth("Container");
-                mailResource.setType("javax.mail.Session");
+                mailResource.setType("jakarta.mail.Session");
                 mailResource.setProperty("mail.smtp.host", mailProps.getSmtpHost());
                 mailResource.setProperty("mail.smtp.user", mailProps.getSmtpUser());
                 mailResource.setProperty("mail.smtp.port", mailProps.getSmtpPort());
@@ -345,6 +477,18 @@ public class LabKeyServer
                 return mailResource;
             }
         };
+
+        var contextProperties = contextSource();
+
+        if (contextProperties.getHttpPort() != null)
+        {
+            Connector httpConnector = new Connector();
+            httpConnector.setScheme("http");
+            httpConnector.setPort(contextProperties.getHttpPort());
+            result.addAdditionalTomcatConnectors(httpConnector);
+        }
+
+        return result;
     }
 
     private static void extractExecutableJar(String destDirectory, String jarFilePath)
@@ -387,15 +531,19 @@ public class LabKeyServer
         File currentDir = new File(currentPath);
         List<String> jarsPresent = new ArrayList<>();
 
-        for (File file: currentDir.listFiles())
+        File[] files = currentDir.listFiles();
+        if (files != null)
         {
-            if (file.getName().toLowerCase().endsWith(".jar"))
+            for (File file : files)
             {
-                jarsPresent.add(file.getName());
+                if (file.getName().toLowerCase().endsWith(".jar"))
+                {
+                    jarsPresent.add(file.getName());
+                }
             }
         }
 
-        if (jarsPresent.size() == 0)
+        if (jarsPresent.isEmpty())
         {
             throw new ConfigException("Executable jar not found.");
         }
@@ -406,15 +554,16 @@ public class LabKeyServer
             return jarsPresent.get(0);
         }
 
-        throw new ConfigException("Multiple jars found - " + jarsPresent.toString() + ". Must provide only one jar.");
+        throw new ConfigException("Multiple jars found - " + jarsPresent + ". Must provide only one jar.");
     }
 
     private static void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
     {
         File destDir = new File(destDirectory);
-        if (!destDir.exists())
+        //noinspection SSBasedInspection
+        if (!destDir.exists() && !destDir.mkdirs())
         {
-            destDir.mkdir();
+            throw new IOException("Failed to create directory " + destDir + " - please check file system permissions");
         }
         try (ZipInputStream zipIn = new ZipInputStream(zipInputStream))
         {
@@ -432,7 +581,11 @@ public class LabKeyServer
                 {
                     // if the entry is a directory, make the directory
                     File dir = new File(filePath);
-                    dir.mkdirs();
+                    //noinspection SSBasedInspection
+                    if (!dir.exists() && !dir.mkdirs())
+                    {
+                        throw new IOException("Failed to create directory " + dir + " - please check file system permissions");
+                    }
                 }
                 zipIn.closeEntry();
                 entry = zipIn.getNextEntry();
@@ -503,6 +656,35 @@ public class LabKeyServer
         }
     }
 
+    @Configuration
+    @ConfigurationProperties("webapps")
+    public static class WebappProperties
+    {
+        private List<String> contextPath = new ArrayList<>();
+
+        private List<String> docBase = new ArrayList<>();
+
+        public List<String> getContextPath()
+        {
+            return contextPath;
+        }
+
+        public void setContextPath(List<String> contextPath)
+        {
+            this.contextPath = contextPath;
+        }
+
+        public List<String> getDocBase()
+        {
+            return docBase;
+        }
+
+        public void setDocBase(List<String> docBase)
+        {
+            this.docBase = docBase;
+        }
+    }
+
     @Validated
     @Configuration
     @ConfigurationProperties("context")
@@ -524,14 +706,22 @@ public class LabKeyServer
         @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
         private String oldEncryptionKey;
+        private String legacyContextPath;
+
+        // Default to deploying to the root context path
+        private String contextPath = "";
         private String pipelineConfig;
         private String requiredModules;
+        private boolean bypass2FA = false;
         private String serverGUID;
+        private Integer httpRedirectorPort;
         private Map<Integer, String> maxTotal;
         private Map<Integer, String> maxIdle;
         private Map<Integer, String> maxWaitMillis;
         private Map<Integer, String> accessToUnderlyingConnectionAllowed;
         private Map<Integer, String> validationQuery;
+        private Map<Integer, String> displayName;
+        private Map<Integer, String> logQueries;
         private Map<String, Map<String, String>> resources;
 
         public List<String> getDataSourceName()
@@ -624,6 +814,26 @@ public class LabKeyServer
             this.oldEncryptionKey = oldEncryptionKey;
         }
 
+        public String getLegacyContextPath()
+        {
+            return legacyContextPath;
+        }
+
+        public void setLegacyContextPath(String legacyContextPath)
+        {
+            this.legacyContextPath = legacyContextPath;
+        }
+
+        public String getContextPath()
+        {
+            return contextPath;
+        }
+
+        public void setContextPath(String contextPath)
+        {
+            this.contextPath = contextPath;
+        }
+
         public String getPipelineConfig()
         {
             return pipelineConfig;
@@ -642,6 +852,26 @@ public class LabKeyServer
         public void setRequiredModules(String requiredModules)
         {
             this.requiredModules = requiredModules;
+        }
+
+        public boolean isBypass2FA()
+        {
+            return bypass2FA;
+        }
+
+        public void setBypass2FA(boolean bypass2FA)
+        {
+            this.bypass2FA = bypass2FA;
+        }
+
+        public Integer getHttpPort()
+        {
+            return httpRedirectorPort;
+        }
+
+        public void setHttpRedirectorPort(Integer httpRedirectorPort)
+        {
+            this.httpRedirectorPort = httpRedirectorPort;
         }
 
         public String getServerGUID()
@@ -713,6 +943,192 @@ public class LabKeyServer
         public void setResources(Map<String, Map<String, String>> resources)
         {
             this.resources = resources;
+        }
+
+        public Map<Integer, String> getDisplayName()
+        {
+            return displayName;
+        }
+
+        public void setDisplayName(Map<Integer, String> displayName)
+        {
+            this.displayName = displayName;
+        }
+
+        public Map<Integer, String> getLogQueries()
+        {
+            return logQueries;
+        }
+
+        public void setLogQueries(Map<Integer, String> logQueries)
+        {
+            this.logQueries = logQueries;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("ldap")
+    public static class LdapProperties
+    {
+        private String type = "org.labkey.premium.ldap.LdapConnectionConfigFactory";
+        private String factory = "org.labkey.premium.ldap.LdapConnectionConfigFactory";
+        private String host = null;
+        private int port = 389;
+        private String principal = null;
+        private String credentials = null;
+        private boolean useTls = false;
+        private boolean useSsl = false;
+        private String sslProtocol;
+
+        public String getType()
+        {
+            return type;
+        }
+
+        public void setType(String type)
+        {
+            this.type = type;
+        }
+
+        public String getFactory()
+        {
+            return factory;
+        }
+
+        public void setFactory(String factory)
+        {
+            this.factory = factory;
+        }
+
+        public String getHost()
+        {
+            return host;
+        }
+
+        public void setHost(String host)
+        {
+            this.host = host;
+        }
+
+        public int getPort()
+        {
+            return port;
+        }
+
+        public void setPort(int port)
+        {
+            this.port = port;
+        }
+
+        public String getPrincipal()
+        {
+            return principal;
+        }
+
+        public void setPrincipal(String principal)
+        {
+            this.principal = principal;
+        }
+
+        public String getCredentials()
+        {
+            return credentials;
+        }
+
+        public void setCredentials(String credentials)
+        {
+            this.credentials = credentials;
+        }
+
+        public boolean isUseTls()
+        {
+            return useTls;
+        }
+
+        public void setUseTls(boolean useTls)
+        {
+            this.useTls = useTls;
+        }
+
+        public boolean isUseSsl()
+        {
+            return useSsl;
+        }
+
+        public void setUseSsl(boolean useSsl)
+        {
+            this.useSsl = useSsl;
+        }
+
+        public String getSslProtocol()
+        {
+            return sslProtocol;
+        }
+
+        public void setSslProtocol(String sslProtocol)
+        {
+            this.sslProtocol = sslProtocol;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("jms")
+    public static class JmsProperties
+    {
+        private String type = "org.apache.activemq.ActiveMQConnectionFactory";
+        private String factory = "org.apache.activemq.jndi.JNDIReferenceFactory";
+        private String description = "JMS Connection Factory";
+        private String brokerURL = null;
+        private String brokerName = "LocalActiveMQBroker";
+
+        public String getType()
+        {
+            return type;
+        }
+
+        public void setType(String type)
+        {
+            this.type = type;
+        }
+
+        public String getFactory()
+        {
+            return factory;
+        }
+
+        public void setFactory(String factory)
+        {
+            this.factory = factory;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        public void setDescription(String description)
+        {
+            this.description = description;
+        }
+
+        public String getBrokerURL()
+        {
+            return brokerURL;
+        }
+
+        public void setBrokerURL(String brokerURL)
+        {
+            this.brokerURL = brokerURL;
+        }
+
+        public String getBrokerName()
+        {
+            return brokerName;
+        }
+
+        public void setBrokerName(String brokerName)
+        {
+            this.brokerName = brokerName;
         }
     }
 

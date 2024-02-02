@@ -44,6 +44,7 @@ tools/
 .idea/runConfigurations/LabKey_Dev.xml
 .idea/runConfigurations/LabKey_Production.xml
 .idea/runConfigurations/LabKeyEmbedded_Dev.xml
+.idea/runConfigurations/Spring_Boot_LabKey_Embedded_Tomcat_Dev.xml
 .idea/gradle.xml
 .idea/compiler.xml
 .idea/misc.xml

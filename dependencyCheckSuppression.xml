@@ -112,19 +112,6 @@
         <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
     </suppress>
 
-    <!--
-    This is a transitive dependency from spring-boot-starter that we're forcing to get CVE hotfixes. We're not
-    vulnerable since we're not accepting untrusted Spring Boot config files. See more details at
-    https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE-2022-1471
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: snakeyaml-1.33.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-        <cve>CVE-2022-1471</cve>
-    </suppress>
-
     <suppress>
         <notes><![CDATA[
    file name: jackson-databind-2.15.2.jar

@@ -102,7 +102,7 @@ public enum ResourceType
         {
             contextResource.setScope(props.remove("scope"));
         }
-        contextResource.setAuth(Objects.requireNonNullElse(props.remove("auth"), "Container"));
+        contextResource.setAuth(props.remove("auth"));
 
         // Set remaining properties
         for (Map.Entry<String, String> prop : props.entrySet())

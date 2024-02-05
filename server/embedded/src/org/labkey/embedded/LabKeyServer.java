@@ -330,19 +330,19 @@ public class LabKeyServer
                     {
                         String resourceTypeString = parentEntry.getKey();
 
-                        ResourceType type;
+                        ResourceType resourceType;
                         try
                         {
-                            type = ResourceType.valueOf(resourceTypeString);
+                            resourceType = ResourceType.valueOf(resourceTypeString);
                         }
                         catch (IllegalArgumentException e)
                         {
-                            type = ResourceType.generic;
+                            resourceType = ResourceType.generic;
                         }
 
                         String name = parentEntry.getKey() + "/" + entry.getKey();
 
-                        type.addResource(name, entry.getValue(), context);
+                        resourceType.addResource(name, entry.getValue(), context);
                     }
                 }
             }

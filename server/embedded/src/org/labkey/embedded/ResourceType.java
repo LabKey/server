@@ -7,7 +7,6 @@ import org.labkey.bootstrap.ConfigException;
 
 import javax.sql.DataSource;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.labkey.embedded.LabKeyServer.ACCESS_TO_CONNECTION_ALLOWED_DEFAULT;
 import static org.labkey.embedded.LabKeyServer.MAX_IDLE_DEFAULT;
@@ -59,17 +58,6 @@ public enum ResourceType
                     result.putIfAbsent("factory", "org.apache.activemq.jndi.JNDIReferenceFactory");
                     result.putIfAbsent("description", "JMS Connection Factory");
                     result.putIfAbsent("brokerName", "LocalActiveMQBroker");
-                    return result;
-                }
-            },
-    ldap
-            {
-                @Override
-                protected Map<String, String> mergeWithDefaults(Map<String, String> props)
-                {
-                    Map<String, String> result = super.mergeWithDefaults(props);
-                    result.putIfAbsent("type", "org.labkey.premium.ldap.LdapConnectionConfigFactory");
-                    result.putIfAbsent("factory", "org.labkey.premium.ldap.LdapConnectionConfigFactory");
                     return result;
                 }
             },

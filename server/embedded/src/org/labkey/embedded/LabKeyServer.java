@@ -16,13 +16,13 @@ import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import javax.sql.DataSource;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -47,11 +47,11 @@ public class LabKeyServer
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String SERVER_GUID = "serverGUID";
     private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
-    private static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
-    private static final String MAX_IDLE_DEFAULT = "10";
-    private static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
-    private static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
-    private static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
+    static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
+    static final String MAX_IDLE_DEFAULT = "10";
+    static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
+    static final String ACCESS_TO_CONNECTION_ALLOWED_DEFAULT = "true";
+    static final String VALIDATION_QUERY_DEFAULT = "SELECT 1";
 
     public static void main(String[] args)
     {
@@ -79,12 +79,6 @@ public class LabKeyServer
     }
 
     @Bean
-    public WebappProperties additionalWebappSource()
-    {
-        return new WebappProperties();
-    }
-
-    @Bean
     public CSPFilterProperties cspSource()
     {
         return new CSPFilterProperties();
@@ -94,6 +88,13 @@ public class LabKeyServer
     public JsonAccessLog jsonAccessLog()
     {
         return new JsonAccessLog();
+    }
+
+    @Bean
+    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> customizer()
+    {
+        // Needed to expose JMX for Tomcat/Catalina internals
+        return customizer -> customizer.setDisableMBeanRegistry(false);
     }
 
     @Bean
@@ -166,10 +167,13 @@ public class LabKeyServer
                     getDataSourceResources(contextProperties, context).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
 
                     // Add extra resources to context (e.g. LDAP, JMS)
-                    getExtraContextResources(contextProperties).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+                    addExtraContextResources(contextProperties, context);
 
                     // Add the SMTP config
                     context.getNamingResources().addResource(getMailResource());
+
+                    // Signal that we started up via Embedded Tomcat for reporting purposes
+                    context.addParameter("embeddedTomcat", "true");
 
                     // And the master encryption key
                     context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -182,7 +186,7 @@ public class LabKeyServer
                     {
                         if (contextProperties.getContextPath() != null && !contextProperties.getContextPath().isEmpty() && !contextProperties.getContextPath().equals("/"))
                         {
-                            throw new IllegalArgumentException("contextPath.legacyContextPath is only intended for use when deploying the LabKey application to the root context path. Please update application.properties.");
+                            throw new ConfigException("contextPath.legacyContextPath is only intended for use when deploying the LabKey application to the root context path. Please update application.properties.");
                         }
                         context.addParameter("legacyContextPath", contextProperties.getLegacyContextPath());
                     }
@@ -225,16 +229,23 @@ public class LabKeyServer
                    configureJsonAccessLogging(tomcat, logConfig);
                 }
 
-                WebappProperties additionalWebapps = additionalWebappSource();
-                if (additionalWebapps.getContextPath().size() != additionalWebapps.getDocBase().size())
+                Map<String, String> additionalWebapps = contextProperties.getAdditionalWebapps();
+                if (additionalWebapps != null)
                 {
-                    throw new IllegalArgumentException("Additional webapps must have paired contextPath and docBase properties");
-                }
-                for (int i = 0; i < additionalWebapps.getContextPath().size(); i++)
-                {
-                    String contextPath = additionalWebapps.getContextPath().get(i);
-                    String docBase = additionalWebapps.getDocBase().get(i);
-                    tomcat.addWebapp(contextPath, docBase);
+                    for (Map.Entry<String, String> entry : additionalWebapps.entrySet())
+                    {
+                        String contextPath = entry.getKey();
+                        if (!contextPath.startsWith("/"))
+                        {
+                            contextPath = "/" + contextPath;
+                        }
+                        String docBase = entry.getValue();
+                        if (docBase == null || docBase.isEmpty())
+                        {
+                            throw new IllegalArgumentException("No docBase supplied additional webapp at context path " + contextPath);
+                        }
+                        StandardContext additionalContext = (StandardContext) tomcat.addWebapp(contextPath, docBase);
+                    }
                 }
 
                 return super.getTomcatWebServer(tomcat);
@@ -309,46 +320,33 @@ public class LabKeyServer
                 return dataSourceResources;
             }
 
-            private List<ContextResource> getExtraContextResources(ContextProperties contextProperties) throws ConfigException
+            private void addExtraContextResources(ContextProperties contextProperties, StandardContext context) throws ConfigException
             {
-                List<ContextResource> contextResources = new ArrayList<>();
-                Map<String, Map<String, String>> resourceMaps = Objects.requireNonNullElse(contextProperties.getResources(), Collections.emptyMap());
+                Map<String, Map<String, Map<String, String>>> resourceMaps = Objects.requireNonNullElse(contextProperties.getResources(), Collections.emptyMap());
 
-                for (Map.Entry<String, Map<String, String>> entry : resourceMaps.entrySet())
+                for (Map.Entry<String, Map<String, Map<String, String>>> parentEntry : resourceMaps.entrySet())
                 {
-                    Map<String, String> resourceMap = new CaseInsensitiveKeyMap<>();
-                    resourceMap.putAll(entry.getValue());
-                    if (!resourceMap.containsKey("name"))
+                    for (Map.Entry<String, Map<String, String>> entry : parentEntry.getValue().entrySet())
                     {
-                        throw new ConfigException("Resource configuration error: Unnamed resource found 'context.resources.%s'".formatted(entry.getKey()));
-                    }
-                    if (!resourceMap.containsKey("type"))
-                    {
-                        throw new ConfigException("Resource configuration error: 'type' is not defined for resource '%s'".formatted(resourceMap.get("name")));
-                    }
+                        Map<String, String> resourceMap = new CaseInsensitiveKeyMap<>();
+                        resourceMap.putAll(entry.getValue());
+                        String resourceTypeString = parentEntry.getKey();
 
-                    ContextResource contextResource = new ContextResource();
-                    // Handle resource properties with explicit setters
-                    contextResource.setName(resourceMap.remove("name"));
-                    contextResource.setType(resourceMap.remove("type"));
-                    contextResource.setDescription(resourceMap.remove("description"));
-                    contextResource.setLookupName(resourceMap.remove("lookupName"));
-                    if (resourceMap.containsKey("scope"))
-                    {
-                        contextResource.setScope(resourceMap.remove("scope"));
-                    }
-                    contextResource.setAuth(Objects.requireNonNullElse(resourceMap.remove("auth"), "Container"));
+                        ResourceType type;
+                        try
+                        {
+                            type = ResourceType.valueOf(resourceTypeString);
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                            type = ResourceType.generic;
+                        }
 
-                    // Set remaining properties
-                    for (Map.Entry<String, String> prop : resourceMap.entrySet())
-                    {
-                        contextResource.setProperty(prop.getKey(), prop.getValue());
-                    }
+                        String name = parentEntry.getKey() + "/" + entry.getKey();
 
-                    contextResources.add(contextResource);
+                        type.addResource(name, entry.getValue(), context);
+                    }
                 }
-
-                return  contextResources;
             }
 
             private String getPropValue(Map<Integer, String> propValues, Integer resourceKey, String defaultValue, String propName)
@@ -581,50 +579,16 @@ public class LabKeyServer
         }
     }
 
-    @Configuration
-    @ConfigurationProperties("webapps")
-    public static class WebappProperties
-    {
-        private List<String> contextPath = new ArrayList<>();
-
-        private List<String> docBase = new ArrayList<>();
-
-        public List<String> getContextPath()
-        {
-            return contextPath;
-        }
-
-        public void setContextPath(List<String> contextPath)
-        {
-            this.contextPath = contextPath;
-        }
-
-        public List<String> getDocBase()
-        {
-            return docBase;
-        }
-
-        public void setDocBase(List<String> docBase)
-        {
-            this.docBase = docBase;
-        }
-    }
-
     @Validated
     @Configuration
     @ConfigurationProperties("context")
     public static class ContextProperties
     {
-        @NotEmpty (message = "Must provide dataSourceName")
-        private List<String> dataSourceName;
-        @NotEmpty (message = "Must provide database url")
-        private List<String> url;
-        @NotEmpty (message = "Must provide database username")
-        private List<String> username;
-        @NotEmpty (message = "Must provide database password")
-        private List<String> password;
-        @NotEmpty (message = "Must provide database driverClassName")
-        private List<String> driverClassName;
+        private List<String> dataSourceName = new ArrayList<>();
+        private List<String> url = new ArrayList<>();
+        private List<String> username = new ArrayList<>();
+        private List<String> password = new ArrayList<>();
+        private List<String> driverClassName = new ArrayList<>();
 
         private String webAppLocation;
         private String workDirLocation;
@@ -639,7 +603,7 @@ public class LabKeyServer
         private String requiredModules;
         private boolean bypass2FA = false;
         private String serverGUID;
-        private Integer httpRedirectorPort;
+        private Integer httpPort;
         private Map<Integer, String> maxTotal;
         private Map<Integer, String> maxIdle;
         private Map<Integer, String> maxWaitMillis;
@@ -647,7 +611,8 @@ public class LabKeyServer
         private Map<Integer, String> validationQuery;
         private Map<Integer, String> displayName;
         private Map<Integer, String> logQueries;
-        private Map<String, Map<String, String>> resources;
+        private Map<String, Map<String, Map<String, String>>> resources;
+        private Map<String, String> additionalWebapps;
 
         public List<String> getDataSourceName()
         {
@@ -791,12 +756,12 @@ public class LabKeyServer
 
         public Integer getHttpPort()
         {
-            return httpRedirectorPort;
+            return httpPort;
         }
 
-        public void setHttpRedirectorPort(Integer httpRedirectorPort)
+        public void setHttpPort(Integer httpPort)
         {
-            this.httpRedirectorPort = httpRedirectorPort;
+            this.httpPort = httpPort;
         }
 
         public String getServerGUID()
@@ -880,14 +845,24 @@ public class LabKeyServer
             this.logQueries = logQueries;
         }
 
-        public Map<String, Map<String, String>> getResources()
+        public Map<String, Map<String, Map<String, String>>> getResources()
         {
             return resources;
         }
 
-        public void setResources(Map<String, Map<String, String>> resources)
+        public void setResources(Map<String, Map<String, Map<String, String>>> resources)
         {
             this.resources = resources;
+        }
+
+        public Map<String, String> getAdditionalWebapps()
+        {
+            return additionalWebapps;
+        }
+
+        public void setAdditionalWebapps(Map<String, String> additionalWebapps)
+        {
+            this.additionalWebapps = additionalWebapps;
         }
     }
 

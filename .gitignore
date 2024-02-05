@@ -9,9 +9,10 @@ enlistment.properties
 server/config.properties
 #IntelliJ build output directory
 server/bootstrap/out/
+dist/
+external/
 
 # Ignore other common repository locations
-dist/
 distributions/
 labkey-api-*/
 labkey-ui-components/
@@ -43,6 +44,7 @@ tools/
 .idea/runConfigurations/LabKey_Dev.xml
 .idea/runConfigurations/LabKey_Production.xml
 .idea/runConfigurations/LabKeyEmbedded_Dev.xml
+.idea/runConfigurations/Spring_Boot_LabKey_Embedded_Tomcat_Dev.xml
 .idea/gradle.xml
 .idea/compiler.xml
 .idea/misc.xml

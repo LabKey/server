@@ -109,7 +109,7 @@ public class LabKeyServer
                 // Get the context properties from Spring injection
                 ContextProperties contextProperties = contextSource();
 
-                // for development, point to the local deploy/labkeyWebapp directory in configs/application.properties
+                // for development, point to the local deploy/labkeywebapp directory in configs/application.properties
                 boolean webAppLocationPresent = contextProperties.getWebAppLocation() != null;
                 var webAppLocation = "";
 

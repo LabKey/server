@@ -79,6 +79,7 @@ public enum ResourceType
     {
         Map<String, String> result = new CaseInsensitiveKeyMap<>();
         result.putAll(props);
+        result.putIfAbsent("auth", "Container");
         return result;
     }
 

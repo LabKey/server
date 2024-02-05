@@ -328,8 +328,6 @@ public class LabKeyServer
                 {
                     for (Map.Entry<String, Map<String, String>> entry : parentEntry.getValue().entrySet())
                     {
-                        Map<String, String> resourceMap = new CaseInsensitiveKeyMap<>();
-                        resourceMap.putAll(entry.getValue());
                         String resourceTypeString = parentEntry.getKey();
 
                         ResourceType type;

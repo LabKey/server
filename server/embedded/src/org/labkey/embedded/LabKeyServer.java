@@ -7,7 +7,6 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tomcat.util.collections.CaseInsensitiveKeyMap;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.SpringApplication;
@@ -164,7 +163,7 @@ public class LabKeyServer
                     context.setPath(contextProperties.getContextPath());
 
                     // Push the JDBC connection for the primary DB into the context so that the LabKey webapp finds them
-                    getDataSourceResources(contextProperties, context).forEach(contextResource -> context.getNamingResources().addResource(contextResource));
+                    addDataSourceResources(contextProperties, context);
 
                     // Add extra resources to context (e.g. LDAP, JMS)
                     addExtraContextResources(contextProperties, context);
@@ -242,9 +241,9 @@ public class LabKeyServer
                         String docBase = entry.getValue();
                         if (docBase == null || docBase.isEmpty())
                         {
-                            throw new IllegalArgumentException("No docBase supplied additional webapp at context path " + contextPath);
+                            throw new ConfigException("No docBase supplied additional webapp at context path " + contextPath);
                         }
-                        StandardContext additionalContext = (StandardContext) tomcat.addWebapp(contextPath, docBase);
+                        tomcat.addWebapp(contextPath, docBase);
                     }
                 }
 
@@ -272,9 +271,13 @@ public class LabKeyServer
                 tomcat.getEngine().getPipeline().addValve(v);
             }
 
-            private List<ContextResource> getDataSourceResources(ContextProperties props, StandardContext context) throws ConfigException
+            /**
+             * Wires up data sources from the older indexed config approach, like:
+             * context.dataSourceName[0]=jdbc/labkeyDataSource
+             * context.driverClassName[0]=org.postgresql.Driver
+             */
+            private void addDataSourceResources(ContextProperties props, StandardContext context) throws ConfigException
             {
-                List<ContextResource> dataSourceResources = new ArrayList<>();
                 var numOfDataResources = props.getUrl().size();
 
                 if (numOfDataResources != props.getDataSourceName().size() ||
@@ -314,10 +317,8 @@ public class LabKeyServer
                         context.addParameter(dataSourceResource.getName() + ":LogQueries", logQueries);
                     }
 
-                    dataSourceResources.add(dataSourceResource);
+                    context.getNamingResources().addResource(dataSourceResource);
                 }
-
-                return dataSourceResources;
             }
 
             private void addExtraContextResources(ContextProperties contextProperties, StandardContext context) throws ConfigException

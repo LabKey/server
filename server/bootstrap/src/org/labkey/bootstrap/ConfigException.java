@@ -15,11 +15,10 @@
  */
 package org.labkey.bootstrap;
 
-/*
-* User: jeckels
-* Date: Jun 26, 2008
-*/
-public class ConfigException extends Exception
+/**
+ * Thrown to signal a fatal configuration problem with a deployment.
+ */
+public class ConfigException extends RuntimeException
 {
     public ConfigException(String message)
     {

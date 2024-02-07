@@ -133,6 +133,8 @@ public class LabKeyServer
                         webAppLocation = contextProperties.getWebAppLocation();
                     }
 
+                    // Turn off the default web.xml behavior so that we don't stomp over customized values
+                    // from application.properties, such as session timeouts
                     tomcat.setAddDefaultWebXmlToWebapp(false);
 
                     // tomcat requires a unique context path other than root here
@@ -231,6 +233,9 @@ public class LabKeyServer
                 Map<String, String> additionalWebapps = contextProperties.getAdditionalWebapps();
                 if (additionalWebapps != null)
                 {
+                    // Turn the default web.xml behavior back on so that Tomcat serves up static files as normal
+                    tomcat.setAddDefaultWebXmlToWebapp(true);
+
                     for (Map.Entry<String, String> entry : additionalWebapps.entrySet())
                     {
                         String contextPath = entry.getKey();

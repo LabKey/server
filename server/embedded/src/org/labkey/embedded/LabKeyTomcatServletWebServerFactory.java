@@ -45,6 +45,10 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     {
         // Prevent the Spring Boot webapp from trying to deserialize the LabKey sessions
         getSession().setPersistent(false);
+
+        // Don't use Spring Boot's error pages, as we want to render our own
+        setErrorPages(Collections.emptySet());
+
         super.prepareContext(host, initializers);
     }
 

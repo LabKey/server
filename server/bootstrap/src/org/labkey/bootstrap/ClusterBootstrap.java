@@ -25,6 +25,7 @@ import java.util.List;
  * User: jeckels
  * Date: Apr 10, 2008
  */
+@SuppressWarnings("ALL")
 public class ClusterBootstrap
 {
     public static void main(String... rawArgs) throws Throwable
@@ -46,8 +47,8 @@ public class ClusterBootstrap
 
         try
         {
-            Class runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterStartup");
-            Object runner = runnerClass.newInstance();
+            Class<?> runnerClass = classLoader.loadClass("org.labkey.pipeline.cluster.ClusterStartup");
+            Object runner = runnerClass.getDeclaredConstructor().newInstance();
             Method runMethod = runnerClass.getMethod("run", List.class, List.class, List.class, File.class, String[].class);
 
             runMethod.invoke(runner, config.getModuleFiles(), config.getModuleSpringConfigFiles(), config.getCustomSpringConfigFiles(), config.getWebappDir(), config.getProgramArgs());
@@ -78,7 +79,7 @@ public class ClusterBootstrap
             System.err.println();
         }
 
-        System.err.println("java " + ClusterBootstrap.class + " [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] [-" + PipelineBootstrapConfig.PIPELINE_LIB_DIR + "=<PIPELINE_LIB_DIR>] <JOB_XML_FILE>");
+        System.err.println("java " + ClusterBootstrap.class.getName() + " [-" + PipelineBootstrapConfig.WEBAPP_DIR + "=<WEBAPP_DIR>] [-" + PipelineBootstrapConfig.CONFIG_DIR + "=<CONFIG_DIR>] [-" + PipelineBootstrapConfig.PIPELINE_LIB_DIR + "=<PIPELINE_LIB_DIR>] <JOB_XML_FILE>");
 
         System.exit(1);
     }

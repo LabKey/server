@@ -35,6 +35,8 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     private static final Log LOG = LogFactory.getLog(LabKeyTomcatServletWebServerFactory.class);
     private final LabKeyServer _server;
 
+    private static final int BUFFER_SIZE = 4096;
+
     public LabKeyTomcatServletWebServerFactory(LabKeyServer server)
     {
         _server = server;
@@ -51,41 +53,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 
         super.prepareContext(host, initializers);
     }
-
-//    @Override
-//    public WebServer getWebServer(ServletContextInitializer... initializers)
-//    {
-//        LabKeyServer.ManagementProperties props = _server.managementSource();
-//        if (props == null || props.getServer() == null || props.getServer().getPort() != getPort())
-//        {
-//            // Get the context properties from Spring injection
-//            LabKeyServer.ContextProperties contextProperties = _server.contextSource();
-//
-//            // for development, point to the local deploy/labkeyWebapp directory in configs/application.properties
-//            boolean webAppLocationPresent = contextProperties.getWebAppLocation() != null;
-//            var webAppLocation = "";
-//
-//            if (!webAppLocationPresent)
-//            {
-//                final var currentPath = new File("").getAbsolutePath();
-//                var destDirectory = currentPath + "/server";
-//                webAppLocation = destDirectory + "/labkeywebapp";
-//                boolean extracted = new File(webAppLocation).exists();
-//                String jarFilePath = getExecutableJar(currentPath);
-//
-//                if (!extracted)
-//                {
-//                    extractExecutableJar(destDirectory, jarFilePath);
-//                }
-//            }
-//            else
-//            {
-//                webAppLocation = contextProperties.getWebAppLocation();
-//            }
-//        }
-//
-//        return super.getWebServer(initializers);
-//    }
 
     @Override
     protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
@@ -503,8 +470,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
             }
         }
     }
-
-    private static final int BUFFER_SIZE = 4096;
 
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException
     {

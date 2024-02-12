@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,13 @@ public class LabKeyServer
 
     public static void main(String[] args)
     {
+        if (args.length > 0 && args[0].equalsIgnoreCase("pipeline"))
+        {
+            File currentDir = new File("").getAbsoluteFile();
+            new EmbeddedExtractor().extractExecutableJarFromDir(currentDir, currentDir, true);
+            return;
+        }
+
         // Issue 40038: Ride-or-die Mode - default to shutting down by default in embedded deployment scenario
         if (System.getProperty(TERMINATE_ON_STARTUP_FAILURE) == null)
         {

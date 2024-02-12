@@ -16,8 +16,6 @@
 package org.labkey.bootstrap;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.FileFilter;
 import java.util.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -37,10 +35,10 @@ public class PipelineBootstrapConfig
     private final static String LOG_HOME_PROPERTY_NAME = "labkey.log.home";
 
     private File _webappDir;
-    private File _logDir;
-    private List<File> _pipelineLibDirs = new ArrayList<>();
+    private final File _logDir;
+    private final List<File> _pipelineLibDirs = new ArrayList<>();
     private File _configDir;
-    private String[] _args;
+    private final String[] _args;
     private URLClassLoader _classLoader;
     private List<File> _moduleSpringContextFiles;
     private List<File> _customSpringConfigFiles;
@@ -120,7 +118,10 @@ public class PipelineBootstrapConfig
                 // Check relative to the webapp directory
                 libDir = new File(_webappDir.getParentFile(), "pipeline-lib").getAbsoluteFile();
             }
-            _pipelineLibDirs.add(libDir);
+            if (libDir.exists())
+            {
+                _pipelineLibDirs.add(libDir);
+            }
         }
         for (File pipelineLibDir : _pipelineLibDirs)
         {
@@ -139,7 +140,7 @@ public class PipelineBootstrapConfig
             }
         }
 
-        _args = args.getParameters().toArray(new String[args.getParameters().size()]);
+        _args = args.getParameters().toArray(new String[0]);
     }
 
     public String[] getProgramArgs()
@@ -189,14 +190,7 @@ public class PipelineBootstrapConfig
 
                 for (File libDir : _pipelineLibDirs)
                 {
-                    for (File file : libDir.listFiles(new FilenameFilter()
-                    {
-                        @Override
-                        public boolean accept(File dir, String name)
-                        {
-                            return name.toLowerCase().endsWith(".jar");
-                        }
-                    }))
+                    for (File file : libDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jar")))
                     {
                         jarUrls.add(file.toURI().toURL());
                     }
@@ -219,7 +213,7 @@ public class PipelineBootstrapConfig
                 addConfigFiles(_configDir);
             }
 
-            _classLoader = new URLClassLoader(jarUrls.toArray(new URL[jarUrls.size()]), ClusterBootstrap.class.getClassLoader());
+            _classLoader = new URLClassLoader(jarUrls.toArray(new URL[0]), ClusterBootstrap.class.getClassLoader());
         }
     }
 
@@ -236,27 +230,13 @@ public class PipelineBootstrapConfig
     // Traverse the directory structure looking for files that match **/*.xml
     private void addConfigFiles(File configDir)
     {
-        File[] subDirs = configDir.listFiles(new FileFilter()
-        {
-            @Override
-            public boolean accept(File pathname)
-            {
-                return pathname.isDirectory();
-            }
-        });
+        File[] subDirs = configDir.listFiles(File::isDirectory);
         for (File subDir : subDirs)
         {
             addConfigFiles(subDir);
         }
 
-        File[] xmlFiles = configDir.listFiles(new FileFilter()
-        {
-            @Override
-            public boolean accept(File pathname)
-            {
-                return pathname.getName().toLowerCase().endsWith(".xml");
-            }
-        });
+        File[] xmlFiles = configDir.listFiles(pathname -> pathname.getName().toLowerCase().endsWith(".xml"));
         _customSpringConfigFiles.addAll(Arrays.asList(xmlFiles));
     }
 

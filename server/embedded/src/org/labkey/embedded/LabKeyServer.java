@@ -35,7 +35,7 @@ public class LabKeyServer
 
     public static void main(String[] args)
     {
-        if (args.length > 0 && args[0].equalsIgnoreCase("pipeline"))
+        if (args.length > 0 && args[0].equalsIgnoreCase("-extract"))
         {
             File currentDir = new File("").getAbsoluteFile();
             new EmbeddedExtractor().extractExecutableJarFromDir(currentDir, currentDir, true);

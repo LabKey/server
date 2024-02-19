@@ -64,10 +64,10 @@ public class EmbeddedExtractor
                     }
                 }
 
-//                if (!foundDistributionZip)
-//                {
-//                    throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
-//                }
+                if (!foundDistributionZip)
+                {
+                    throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
+                }
             }
         }
         catch (IOException | ConfigException e)

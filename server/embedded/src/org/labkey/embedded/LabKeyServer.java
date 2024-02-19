@@ -25,6 +25,8 @@ public class LabKeyServer
     private static final Log LOG = LogFactory.getLog(LabKeyServer.class);
 
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
+    private static final String JARS_TO_SKIP = "tomcat.util.scan.StandardJarScanFilter.jarsToSkip";
+    private static final String JARS_TO_SCAN = "tomcat.util.scan.StandardJarScanFilter.jarsToScan";
     private static final String SERVER_GUID = "serverGUID";
     public static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
     static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
@@ -46,6 +48,17 @@ public class LabKeyServer
         if (System.getProperty(TERMINATE_ON_STARTUP_FAILURE) == null)
         {
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
+        }
+
+        // Restrict Tomcat's jar scanning to the absolute minimum to speed up server startup. Downside is we need to
+        // update the jarsToScan list any time we add a new @WebListener annotation... but this happens very rarely.
+        // More elegant approaches (e.g., constructing, configuring, and setting a JarScanner/JarScanFilter pair in
+        // LabKeyTomcatServletWebServerFactory.postProcessContext()) don't seem to work. There's evidence that Spring
+        // Boot overwrites settings and also that Tomcat's property vs. code behavior differs.
+        if (System.getProperty(JARS_TO_SKIP) == null && System.getProperty(JARS_TO_SCAN) == null)
+        {
+            System.setProperty(JARS_TO_SKIP, "*");
+            System.setProperty(JARS_TO_SCAN, "rstudio-??.?*.jar,cas-??.?*.jar,core-??.?*.jar,connectors-??.?*.jar,devtools-??.?*.jar");
         }
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);

@@ -29,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static org.labkey.embedded.LabKeyServer.SERVER_GUID_PARAMETER_NAME;
+import static org.labkey.embedded.LabKeyServer.SERVER_SSL_KEYSTORE;
 
 class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 {
@@ -174,6 +175,12 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 if (null != contextProperties.getServerGUID())
                 {
                     context.addParameter(SERVER_GUID_PARAMETER_NAME, contextProperties.getServerGUID());
+                }
+
+                LabKeyServer.ServerSslProperties sslProps = _server.serverSslSource();
+                if (null != sslProps)
+                {
+                    context.addParameter(SERVER_SSL_KEYSTORE, sslProps.getKeyStore());
                 }
 
                 // Point at the special classloader with the hack for SLF4J

@@ -29,6 +29,7 @@ public class LabKeyServer
     private static final String JARS_TO_SCAN = "tomcat.util.scan.StandardJarScanFilter.jarsToScan";
     private static final String SERVER_GUID = "serverGUID";
     public static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
+    public static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
     static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
     static final String MAX_IDLE_DEFAULT = "10";
     static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
@@ -82,6 +83,12 @@ public class LabKeyServer
     public CSPFilterProperties cspSource()
     {
         return new CSPFilterProperties();
+    }
+
+    @Bean
+    public ServerSslProperties serverSslSource()
+    {
+        return new ServerSslProperties();
     }
 
     @Bean
@@ -615,6 +622,27 @@ public class LabKeyServer
         public void setReport(String report)
         {
             this.report = report;
+        }
+    }
+
+    /**
+     * Spring Boot doesn't propagate the keystore path into Tomcat's SSL config so we need to grab it and stash
+     * it for potential use via the Connectors module.
+     */
+    @Configuration
+    @ConfigurationProperties("server.ssl")
+    public static class ServerSslProperties
+    {
+        private String keyStore;
+
+        public String getKeyStore()
+        {
+            return keyStore;
+        }
+
+        public void setKeyStore(String keyStore)
+        {
+            this.keyStore = keyStore;
         }
     }
 

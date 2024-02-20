@@ -166,7 +166,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 }
 
                 LabKeyServer.ServerSslProperties sslProps = _server.serverSslSource();
-                if (null != sslProps)
+                if (null != sslProps && sslProps.getKeyStore() != null)
                 {
                     context.addParameter(SERVER_SSL_KEYSTORE, sslProps.getKeyStore());
                 }

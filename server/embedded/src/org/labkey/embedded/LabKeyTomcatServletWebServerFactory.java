@@ -65,7 +65,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
             {
                 if (!webAppLocationPresent)
                 {
-                    final var currentPath = new File("");
+                    final var currentPath = new File("").getAbsoluteFile();
                     var destDirectory = new File(currentPath, "server");
                     webAppLocation = new File(destDirectory, "labkeywebapp");
 

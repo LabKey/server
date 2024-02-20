@@ -85,7 +85,7 @@ public class EmbeddedExtractor
 
         if (files == null)
         {
-            throw new ConfigException("Executable jar not found.");
+            throw new ConfigException("Executable jar not found in " + currentDir);
         }
 
         // only 1 jar should be there

@@ -14,19 +14,10 @@ import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 
 import javax.sql.DataSource;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static org.labkey.embedded.LabKeyServer.SERVER_GUID_PARAMETER_NAME;
 import static org.labkey.embedded.LabKeyServer.SERVER_SSL_KEYSTORE;
@@ -35,8 +26,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 {
     private static final Log LOG = LogFactory.getLog(LabKeyTomcatServletWebServerFactory.class);
     private final LabKeyServer _server;
-
-    private static final int BUFFER_SIZE = 4096;
 
     public LabKeyTomcatServletWebServerFactory(LabKeyServer server)
     {
@@ -70,26 +59,25 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 
             // for development, point to the local deploy/labkeyWebapp directory in configs/application.properties
             boolean webAppLocationPresent = contextProperties.getWebAppLocation() != null;
-            var webAppLocation = "";
+            File webAppLocation;
 
             try
             {
                 if (!webAppLocationPresent)
                 {
-                    final var currentPath = new File("").getAbsolutePath();
-                    var destDirectory = currentPath + "/server";
-                    webAppLocation = destDirectory + "/labkeywebapp";
-                    boolean extracted = new File(webAppLocation).exists();
-                    String jarFilePath = getExecutableJar(currentPath);
+                    final var currentPath = new File("");
+                    var destDirectory = new File(currentPath, "server");
+                    webAppLocation = new File(destDirectory, "labkeywebapp");
 
-                    if (!extracted)
+                    if (!webAppLocation.exists())
                     {
-                        extractExecutableJar(destDirectory, jarFilePath);
+                        EmbeddedExtractor extractor = new EmbeddedExtractor();
+                        extractor.extractExecutableJarFromDir(currentPath, destDirectory, false);
                     }
                 }
                 else
                 {
-                    webAppLocation = contextProperties.getWebAppLocation();
+                    webAppLocation = new File(contextProperties.getWebAppLocation());
                 }
 
                 // Turn off the default web.xml behavior so that we don't stomp over customized values
@@ -104,7 +92,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 
                 // Spring Boot's webapp is being deployed to the root. We have to deploy elsewhere in this initial
                 // call, but can immediately swap it with the desired place
-                StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation);
+                StandardContext context = (StandardContext) tomcat.addWebapp("/labkey", webAppLocation.getAbsolutePath());
                 // set the root path to the context explicitly
                 context.setPath(contextProperties.getContextPath());
 
@@ -374,120 +362,5 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         }
 
         return mailResource;
-    }
-
-    private void extractExecutableJar(String destDirectory, String jarFilePath)
-    {
-        try
-        {
-            try (JarFile jar = new JarFile(jarFilePath))
-            {
-                boolean foundDistributionZip = false;
-                var entries = jar.entries();
-                while (entries.hasMoreElements())
-                {
-                    var entry = entries.nextElement();
-                    var entryName = entry.getName();
-
-                    if ("labkey/distribution.zip".equals(entryName))
-                    {
-                        foundDistributionZip = true;
-                        try (var distInputStream = jar.getInputStream(entry))
-                        {
-                            extractZip(distInputStream, destDirectory);
-                        }
-                    }
-                }
-
-                if (!foundDistributionZip)
-                {
-                    throw new ConfigException("Unable to find distribution zip required to run LabKey server.");
-                }
-            }
-        }
-        catch (IOException | ConfigException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String getExecutableJar(String currentPath) throws ConfigException
-    {
-        File currentDir = new File(currentPath);
-        List<String> jarsPresent = new ArrayList<>();
-
-        File[] files = currentDir.listFiles();
-        if (files != null)
-        {
-            for (File file : files)
-            {
-                if (file.getName().toLowerCase().endsWith(".jar"))
-                {
-                    jarsPresent.add(file.getName());
-                }
-            }
-        }
-
-        if (jarsPresent.isEmpty())
-        {
-            throw new ConfigException("Executable jar not found.");
-        }
-
-        // only 1 jar should be there
-        if (jarsPresent.size() == 1)
-        {
-            return jarsPresent.get(0);
-        }
-
-        throw new ConfigException("Multiple jars found - " + jarsPresent + ". Must provide only one jar.");
-    }
-
-    private void extractZip(InputStream zipInputStream, String destDirectory) throws IOException
-    {
-        File destDir = new File(destDirectory);
-        //noinspection SSBasedInspection
-        if (!destDir.exists() && !destDir.mkdirs())
-        {
-            throw new IOException("Failed to create directory " + destDir + " - please check file system permissions");
-        }
-        try (ZipInputStream zipIn = new ZipInputStream(zipInputStream))
-        {
-            ZipEntry entry = zipIn.getNextEntry();
-            // iterates over entries in the zip file
-            while (entry != null)
-            {
-                String filePath = destDirectory + File.separator + entry.getName();
-                if (!entry.isDirectory())
-                {
-                    // if the entry is a file, extracts it
-                    extractFile(zipIn, filePath);
-                }
-                else
-                {
-                    // if the entry is a directory, make the directory
-                    File dir = new File(filePath);
-                    //noinspection SSBasedInspection
-                    if (!dir.exists() && !dir.mkdirs())
-                    {
-                        throw new IOException("Failed to create directory " + dir + " - please check file system permissions");
-                    }
-                }
-                zipIn.closeEntry();
-                entry = zipIn.getNextEntry();
-            }
-        }
-    }
-
-    private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException
-    {
-        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath)))
-        {
-            byte[] bytesIn = new byte[BUFFER_SIZE];
-            int read;
-            while ((read = zipIn.read(bytesIn)) != -1)
-            {
-                bos.write(bytesIn, 0, read);
-            }
-        }
     }
 }

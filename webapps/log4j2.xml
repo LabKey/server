@@ -156,6 +156,15 @@
     </Appenders>
 
     <Loggers>
+        <!--
+            Set all packages to INFO level (org.labkey, org.fhcrc, third-party dependencies) by default
+            and send errors to the labkey-errors.log as well.
+        -->
+        <Root level="info">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="LABKEY"/>
+            <AppenderRef ref="ERRORS"/>
+        </Root>
 
         <!-- category for server side script messages -->
         <Logger name="org.labkey.api.script.ScriptService.Console" level="info">
@@ -167,16 +176,10 @@
 
         <!--
             <Logger name="org.labkey.pipeline.mule.transformers" level="debug"/>
-         -->
+        -->
 
         <!-- category for jasper messages -->
         <Logger name="org.apache.jasper" level="warn"/>
-
-        <!-- Set all packages to INFO level (org.labkey, org.fhcrc, third-party dependencies) by default -->
-        <Root level="info">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="LABKEY"/>
-        </Root>
 
         <Logger name="org.labkey" />
 

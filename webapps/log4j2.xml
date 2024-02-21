@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Configuration packages="org.labkey.api.util">
+<Configuration packages="org.labkey.api.util,org.labkey.embedded">
 
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout pattern="%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n" />
-
         </Console>
 
         <RollingFile name="ERRORS"
@@ -24,20 +23,9 @@
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
             <DefaultRolloverStrategy fileIndex="min">
-                <Delete basePath="${sys:labkey.log.home}">
-                    <ScriptCondition>
-                        <!-- Use custom Java code to retain the first log file from the current session if it's about
-                        to be rotated out. It may have root cause information about problems that would otherwise be lost -->
-                        <Script name="retainFirst" language="rhino"><![CDATA[
-                                var ErrorLogRotator = org.labkey.api.util.logging.ErrorLogRotator;
-                                var rotator = new ErrorLogRotator();
-                                rotator.filter(pathList);
-                            ]]>
-                        </Script>
-                    </ScriptCondition>
-                </Delete>
+                <LabKeyDelete basePath="${sys:labkey.log.home}">
+                </LabKeyDelete>
             </DefaultRolloverStrategy>
-
         </RollingFile>
 
         <RollingFile name="ACTION_STATS"
@@ -174,7 +162,6 @@
             <AppenderRef ref="SessionAppender"/>
         </Logger>
 
-
         <!-- category for Mule messages -->
         <Logger name="org.mule.MuleManager" level="info"/>
 
@@ -185,14 +172,13 @@
         <!-- category for jasper messages -->
         <Logger name="org.apache.jasper" level="warn"/>
 
-        <!-- application classes -->
-        <Logger name="org.fhcrc" level="info"/>
-
-
-        <Logger name="org.labkey" level="info">
+        <!-- Set all packages to INFO level (org.labkey, org.fhcrc, third-party dependencies) by default -->
+        <Root level="info">
             <AppenderRef ref="CONSOLE"/>
             <AppenderRef ref="LABKEY"/>
-        </Logger>
+        </Root>
+
+        <Logger name="org.labkey" />
 
         <!-- uncomment to enable 'DEBUG' level on external SAML libraries to troubleshoot.
         Note: you will also have to set dependency on slf4j lib in saml/build.gradle - uncomment 'slf4j' external libraries and build
@@ -222,6 +208,9 @@
         <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
         <Logger name="org.apache.pdfbox" level="fatal"/>
 
+        <!-- Suppress EHCache "maxElementsInMemory of 0" warnings, Issue 49593 -->
+        <Logger name="net.sf.ehcache.config.CacheConfiguration" level="error"/>
+
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--
             <Logger name="org.labkey.api.security.SecurityManager" level="debug"/>
@@ -243,7 +232,6 @@
         </Logger>
 
         <Logger name="org.labkey.rstudio" level="info"/>
-
 
         <!--
             <Logger name="org.labkey.api.cache" level="debug"/>
@@ -333,7 +321,7 @@
             SearchAuditEvent
             SelectQuery
          To enable logging of all events, set the level for the org.labkey.audit.event to
-         something other than "OFF".  To enable individual audit event logging, configure the
+         something other than "OFF". To enable individual audit event logging, configure the
          individual stanza like the one shown below, where you prefix the audit event type
          with 'org.labkey.audit.event'. Then set the level to INFO and specify the appenders.
         -->
@@ -343,9 +331,5 @@
         </Logger>
 
         <Logger name="NoOpLogger" level="OFF" additivity="false"/>
-
-        <Root level="error">
-            <AppenderRef ref="ERRORS"/>
-        </Root>
     </Loggers>
 </Configuration>

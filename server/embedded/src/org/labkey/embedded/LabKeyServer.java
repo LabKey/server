@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import org.apache.catalina.connector.Connector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.labkey.bootstrap.PipelineBootstrapConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
@@ -50,6 +51,12 @@ public class LabKeyServer
         {
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
         }
+
+        // On most installs, catalina.home and catalina.base point to the same directory. However, it's possible
+        // to have multiple instances share the Tomcat binaries but have their own ./logs, ./conf, etc. directories
+        // Thus, we want to use catalina.base for our place to find log files. http://www.jguru.com/faq/view.jsp?EID=1121565
+        String catalinaBase = System.getProperty("catalina.base");
+        PipelineBootstrapConfig.ensureLogHomeSet((null != catalinaBase ? catalinaBase + "/" : "") + "logs");
 
         // Restrict Tomcat's jar scanning to the absolute minimum to speed up server startup. Downside is we need to
         // update the jarsToScan list any time we add a new @WebListener annotation... but this happens very rarely.

@@ -27,6 +27,11 @@ configurations {
     embedded
 }
 
+configurations.configureEach {
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+}
+
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
@@ -63,6 +68,8 @@ dependencies {
     runtimeOnly group: "com.sun.mail", name: "jakarta.mail", version: "${javaMailVersion}"
     runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${springBootTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
+    runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }

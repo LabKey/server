@@ -6,6 +6,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.io.IOException;
 
 /**
  * A no-op CSP filter that gets applied (for now) to extra webapps
@@ -18,7 +19,8 @@ public class ContentSecurityPolicyFilter implements Filter
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException
     {
+        chain.doFilter(request, response);
     }
 }

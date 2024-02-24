@@ -23,8 +23,6 @@ import java.util.Map;
 @SpringBootApplication
 public class LabKeyServer
 {
-    private static final Log LOG = LogFactory.getLog(LabKeyServer.class);
-
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String JARS_TO_SKIP = "tomcat.util.scan.StandardJarScanFilter.jarsToSkip";
     private static final String JARS_TO_SCAN = "tomcat.util.scan.StandardJarScanFilter.jarsToScan";

@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 /**
  * User: jeckels
@@ -56,10 +55,6 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         String headless = "java.awt.headless";
         if (System.getProperty(headless) == null)
             System.setProperty(headless, "true");
-        // On most installs, catalina.home and catalina.base point to the same directory. However, it's possible
-        // to have multiple instances share the Tomcat binaries but have their own ./logs, ./conf, etc directories
-        // Thus, we want to use catalina.base for our place to find log files. http://www.jguru.com/faq/view.jsp?EID=1121565
-        PipelineBootstrapConfig.ensureLogHomeSet(System.getProperty("catalina.base") + "/logs");
     }
 
     private ModuleExtractor _moduleExtractor;

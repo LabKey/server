@@ -76,11 +76,11 @@ public class EmbeddedExtractor
         }
     }
 
-    public void extractExecutableJarFromDir(File currentDir, File destDir, boolean remotePipeline) throws ConfigException
+    public void extractExecutableJarFromDir(File currentDir, boolean remotePipeline) throws ConfigException
     {
         File[] files = currentDir.listFiles(file -> {
             String name = file.getName().toLowerCase();
-            return name.endsWith(".jar") && !name.contains("labkeybootstrap");
+            return name.endsWith(".jar") && name.contains("labkeyserver");
         });
 
         if (files == null)
@@ -91,7 +91,7 @@ public class EmbeddedExtractor
         // only 1 jar should be there
         if (files.length == 1)
         {
-            extractExecutableJar(files[0], destDir, remotePipeline);
+            extractExecutableJar(files[0], currentDir, remotePipeline);
         }
         else
         {

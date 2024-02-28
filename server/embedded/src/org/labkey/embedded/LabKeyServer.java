@@ -40,7 +40,7 @@ public class LabKeyServer
         if (args.length > 0 && args[0].equalsIgnoreCase("-extract"))
         {
             File currentDir = new File("").getAbsoluteFile();
-            new EmbeddedExtractor().extractExecutableJarFromDir(currentDir, currentDir, true);
+            new EmbeddedExtractor().extractExecutableJarFromDir(currentDir, true);
             return;
         }
 

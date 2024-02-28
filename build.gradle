@@ -72,8 +72,6 @@ allprojects {
         exclude group: "log4j", module:"log4j"
         // exclude old jaxb, which may come in transitively
         exclude group: "javax.xml.bind", module: "jaxb-api"
-        // exclude jakarta activation in favor of angus activation
-        exclude group: "jakarta.activation", module: "jakarta.activation-api"
     }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")

@@ -1,5 +1,7 @@
 package org.labkey.embedded;
 
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.util.VersionUtil;
 import org.labkey.bootstrap.ConfigException;
 
 import java.io.BufferedOutputStream;
@@ -7,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -16,11 +19,67 @@ public class EmbeddedExtractor
 {
     private static final int BUFFER_SIZE = 1024 * 64;
 
-    private void extractExecutableJar(File jarFilePath, File destDirectory, boolean remotePipeline)
+    private final File currentDir = new File("").getAbsoluteFile();
+    private final File labkeyServerJar;
+
+    public EmbeddedExtractor()
     {
+        File[] files = currentDir.listFiles(file -> {
+            String name = file.getName().toLowerCase();
+            return name.endsWith(".jar") && name.contains("labkeyserver");
+        });
+
+        if (files == null || files.length == 0)
+        {
+            labkeyServerJar = null;
+        }
+        else if (files.length > 1)
+        {
+            throw new ConfigException("Multiple jars found - " + Arrays.asList(files) + ". Must provide only one jar.");
+        }
+        else
+        {
+            labkeyServerJar = files[0];
+        }
+    }
+
+    public File getLabkeyServerJar()
+    {
+        return labkeyServerJar;
+    }
+
+    public boolean shouldUpgrade(File webAppLocation) throws IOException
+    {
+        File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
+
+        // Upgrade from standalone Tomcat installation
+        if (!existingVersionFile.exists())
+            return true;
+
+        String existingVersion = Files.readString(existingVersionFile.toPath()).trim();
+        String newVersion = getNewVersion();
+
+        Version v1 = getLabKeyVersion(existingVersion);
+        Version v2 = getLabKeyVersion(newVersion);
+
+        return v1.compareTo(v2) > 0;
+    }
+
+    private String getNewVersion()
+    {
+        return "";
+    }
+
+    public void extractExecutableJar(File destDirectory, boolean remotePipeline)
+    {
+        if (labkeyServerJar == null)
+        {
+            throw new ConfigException("Executable jar not found in " + currentDir);
+        }
+
         try
         {
-            try (JarFile jar = new JarFile(jarFilePath))
+            try (JarFile jar = new JarFile(labkeyServerJar))
             {
                 boolean foundDistributionZip = false;
                 var entries = jar.entries();
@@ -76,29 +135,6 @@ public class EmbeddedExtractor
         }
     }
 
-    public void extractExecutableJarFromDir(File currentDir, boolean remotePipeline) throws ConfigException
-    {
-        File[] files = currentDir.listFiles(file -> {
-            String name = file.getName().toLowerCase();
-            return name.endsWith(".jar") && name.contains("labkeyserver");
-        });
-
-        if (files == null)
-        {
-            throw new ConfigException("Executable jar not found in " + currentDir);
-        }
-
-        // only 1 jar should be there
-        if (files.length == 1)
-        {
-            extractExecutableJar(files[0], currentDir, remotePipeline);
-        }
-        else
-        {
-            throw new ConfigException("Multiple jars found - " + Arrays.asList(files) + ". Must provide only one jar.");
-        }
-    }
-
     private void extractZip(InputStream zipInputStream, File destDir) throws IOException
     {
         //noinspection SSBasedInspection
@@ -146,4 +182,14 @@ public class EmbeddedExtractor
         }
     }
 
+    private Version getLabKeyVersion(String versionString)
+    {
+        Version v = VersionUtil.parseVersion(versionString, null, null);
+        if (v.isSnapshot())
+        {
+            // SNAPSHOTs should be assumed to be newer than non-SNAPSHOTs of the same version
+            v = new Version(v.getMajorVersion(), v.getMinorVersion(), Integer.MAX_VALUE, "SNAPSHOT", null, null);
+        }
+        return v;
+    }
 }

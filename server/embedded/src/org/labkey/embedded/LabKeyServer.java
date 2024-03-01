@@ -2,8 +2,6 @@ package org.labkey.embedded;
 
 import jakarta.validation.constraints.NotNull;
 import org.apache.catalina.connector.Connector;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.labkey.bootstrap.PipelineBootstrapConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +38,8 @@ public class LabKeyServer
         if (args.length > 0 && args[0].equalsIgnoreCase("-extract"))
         {
             File currentDir = new File("").getAbsoluteFile();
-            new EmbeddedExtractor().extractExecutableJarFromDir(currentDir, true);
+            EmbeddedExtractor embeddedExtractor = new EmbeddedExtractor();
+            embeddedExtractor.extractExecutableJar(currentDir, true);
             return;
         }
 

@@ -3,12 +3,14 @@ package org.labkey.embedded;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.util.VersionUtil;
 import org.labkey.bootstrap.ConfigException;
+import org.springframework.util.StreamUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.jar.JarFile;
@@ -48,7 +50,7 @@ public class EmbeddedExtractor
         return labkeyServerJar;
     }
 
-    public boolean shouldUpgrade(File webAppLocation) throws IOException
+    public boolean shouldUpgrade(File webAppLocation)
     {
         File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
 
@@ -56,7 +58,16 @@ public class EmbeddedExtractor
         if (!existingVersionFile.exists())
             return true;
 
-        String existingVersion = Files.readString(existingVersionFile.toPath()).trim();
+        String existingVersion;
+        try
+        {
+            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+
         String newVersion = getNewVersion();
 
         Version v1 = getLabKeyVersion(existingVersion);
@@ -67,15 +78,60 @@ public class EmbeddedExtractor
 
     private String getNewVersion()
     {
-        return "";
+        verifyJar();
+
+        try
+        {
+            try (JarFile jar = new JarFile(labkeyServerJar))
+            {
+                var entries = jar.entries();
+                while (entries.hasMoreElements())
+                {
+                    var entry = entries.nextElement();
+                    var entryName = entry.getName();
+
+                    if ("labkey/distribution.zip".equals(entryName))
+                    {
+                        try (ZipInputStream zipIn = new ZipInputStream(jar.getInputStream(entry)))
+                        {
+                            ZipEntry zipEntry = zipIn.getNextEntry();
+                            // iterates over entries in the zip file
+                            while (zipEntry != null)
+                            {
+                                if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/VERSION"))
+                                {
+                                    return StreamUtils.copyToString(zipIn, Charset.defaultCharset());
+                                }
+                                zipIn.closeEntry();
+                                zipEntry = zipIn.getNextEntry();
+                            }
+                        }
+                        throw new ConfigException("Unable to determine version of distribution.");
+                    }
+                }
+
+                throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
+            }
+        }
+        catch (IOException | ConfigException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void extractExecutableJar(File destDirectory, boolean remotePipeline)
+    private void verifyJar()
     {
         if (labkeyServerJar == null)
         {
             throw new ConfigException("Executable jar not found in " + currentDir);
         }
+    }
+
+    public void extractExecutableJar(File destDirectory, boolean remotePipeline)
+    {
+        verifyJar();
+
+        backupExistingDeployment(destDirectory);
 
         try
         {
@@ -182,10 +238,16 @@ public class EmbeddedExtractor
         }
     }
 
+    //TODO: backup or delete existing files
+    private void backupExistingDeployment(File deployDir)
+    {
+        File webappDir = new File(deployDir, "labkeywebapp");
+    }
+
     private Version getLabKeyVersion(String versionString)
     {
         Version v = VersionUtil.parseVersion(versionString, null, null);
-        if (v.isSnapshot())
+        if (versionString.endsWith("-SNAPSHOT")) // `v.isSnapshot()` doesn't work
         {
             // SNAPSHOTs should be assumed to be newer than non-SNAPSHOTs of the same version
             v = new Version(v.getMajorVersion(), v.getMinorVersion(), Integer.MAX_VALUE, "SNAPSHOT", null, null);

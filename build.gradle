@@ -64,8 +64,6 @@ allprojects {
     configurations.configureEach {
         // exclude log4j, which may come in transitively, from all configurations to avoid potential vulnerabilities
         exclude group: "log4j", module:"log4j"
-        // exclude old jaxb, which may come in transitively
-        exclude group: "javax.xml.bind", module: "jaxb-api"
     }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")
@@ -315,6 +313,7 @@ allprojects {
                     // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
                     // Force consistency across pipeline, SequenceAnalysis, and query
+                    force "javax.xml.bind:jaxb-api:2.3.1"
                     force "jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiVersion}"
                     force "org.glassfish.jaxb:jaxb-runtime:${jaxbVersion}"
 

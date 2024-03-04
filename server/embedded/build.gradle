@@ -59,7 +59,7 @@ dependencies {
         }
     }
 
-    // TODO these shouldn't be merged forward
+    // TODO these shouldn't be merged forward, the Spring-Boot version currently used in develop doesn't require these
     implementation('org.springframework:spring-web') {
         version {
             strictly "${springVersion}"

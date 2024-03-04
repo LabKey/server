@@ -71,6 +71,7 @@ dependencies {
     runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${springBootTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
     runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")

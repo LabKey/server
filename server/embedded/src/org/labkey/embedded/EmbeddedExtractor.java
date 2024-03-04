@@ -2,6 +2,7 @@ package org.labkey.embedded;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.util.VersionUtil;
+import org.apache.commons.io.FileUtils;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.util.StreamUtils;
 
@@ -24,6 +25,8 @@ public class EmbeddedExtractor
     private final File currentDir = new File("").getAbsoluteFile();
     private final File labkeyServerJar;
 
+    private String labkeyWebappDirName = null;
+
     public EmbeddedExtractor()
     {
         File[] files = currentDir.listFiles(file -> {
@@ -45,8 +48,18 @@ public class EmbeddedExtractor
         }
     }
 
-    public File getLabkeyServerJar()
+    public boolean foundLabkeyServerJar()
     {
+        return labkeyServerJar != null;
+    }
+
+    private File verifyJar()
+    {
+        if (labkeyServerJar == null)
+        {
+            throw new ConfigException("Executable jar not found in " + currentDir);
+        }
+
         return labkeyServerJar;
     }
 
@@ -78,11 +91,9 @@ public class EmbeddedExtractor
 
     private String getNewVersion()
     {
-        verifyJar();
-
         try
         {
-            try (JarFile jar = new JarFile(labkeyServerJar))
+            try (JarFile jar = new JarFile(verifyJar()))
             {
                 var entries = jar.entries();
                 while (entries.hasMoreElements())
@@ -119,23 +130,18 @@ public class EmbeddedExtractor
         }
     }
 
-    private void verifyJar()
+    public void extractDistribution(File webAppLocation)
     {
-        if (labkeyServerJar == null)
-        {
-            throw new ConfigException("Executable jar not found in " + currentDir);
-        }
+        labkeyWebappDirName = webAppLocation.getName();
+        backupExistingDistribution(webAppLocation);
+        extractExecutableJar(webAppLocation.getParentFile(), false);
     }
 
     public void extractExecutableJar(File destDirectory, boolean remotePipeline)
     {
-        verifyJar();
-
-        backupExistingDeployment(destDirectory);
-
         try
         {
-            try (JarFile jar = new JarFile(labkeyServerJar))
+            try (JarFile jar = new JarFile(verifyJar()))
             {
                 boolean foundDistributionZip = false;
                 var entries = jar.entries();
@@ -149,7 +155,7 @@ public class EmbeddedExtractor
                         foundDistributionZip = true;
                         try (var distInputStream = jar.getInputStream(entry))
                         {
-                            extractZip(distInputStream, destDirectory);
+                            extractDistributionZip(distInputStream, destDirectory);
                         }
                     }
                     if (remotePipeline)
@@ -191,7 +197,7 @@ public class EmbeddedExtractor
         }
     }
 
-    private void extractZip(InputStream zipInputStream, File destDir) throws IOException
+    private void extractDistributionZip(InputStream zipInputStream, File destDir) throws IOException
     {
         //noinspection SSBasedInspection
         if (!destDir.exists() && !destDir.mkdirs())
@@ -204,7 +210,10 @@ public class EmbeddedExtractor
             // iterates over entries in the zip file
             while (entry != null)
             {
-                File filePath = new File(destDir, entry.getName());
+                String entryName = labkeyWebappDirName == null
+                        ? entry.getName()
+                        : entry.getName().replaceFirst("^labkeywebapp", labkeyWebappDirName);
+                File filePath = new File(destDir, entryName);
                 if (!entry.isDirectory())
                 {
                     // if the entry is a file, extracts it
@@ -212,6 +221,10 @@ public class EmbeddedExtractor
                 }
                 else
                 {
+                    if (filePath.exists() && filePath.getParentFile().equals(destDir))
+                    {
+                        throw new ConfigException("Delete or backup existing LabKey deployment at: " + filePath.getAbsolutePath());
+                    }
                     // if the entry is a directory, make the directory
                     //noinspection SSBasedInspection
                     if (!filePath.exists() && !filePath.mkdirs())
@@ -238,18 +251,35 @@ public class EmbeddedExtractor
         }
     }
 
-    //TODO: backup or delete existing files
-    private void backupExistingDeployment(File deployDir)
+    private void backupExistingDistribution(File webAppLocation)
     {
-        File webappDir = new File(deployDir, "labkeywebapp");
+        try
+        {
+            if (webAppLocation.exists())
+            {
+                File backupDir = new File(verifyJar().getParentFile(), "backup");
+                FileUtils.forceDelete(backupDir); // Delete existing backup
+
+                FileUtils.moveToDirectory(webAppLocation, backupDir, true);
+                File modulesDir = new File(webAppLocation.getParentFile(), "modules");
+                if (modulesDir.exists())
+                {
+                    FileUtils.moveToDirectory(modulesDir, backupDir, false);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to backup existing LabKey installation", e);
+        }
     }
 
     private Version getLabKeyVersion(String versionString)
     {
         Version v = VersionUtil.parseVersion(versionString, null, null);
-        if (versionString.endsWith("-SNAPSHOT")) // `v.isSnapshot()` doesn't work
+        if (versionString.endsWith("-SNAPSHOT")) // `VersionUtil.parseVersion` doesn't recognize our 'SNAPSHOT' pattern
         {
-            // SNAPSHOTs should be assumed to be newer than non-SNAPSHOTs of the same version
+            // SNAPSHOTs should be assumed to be newer than non-SNAPSHOTs of the same version. `Version.compareTo` does the opposite
             v = new Version(v.getMajorVersion(), v.getMinorVersion(), Integer.MAX_VALUE, "SNAPSHOT", null, null);
         }
         return v;

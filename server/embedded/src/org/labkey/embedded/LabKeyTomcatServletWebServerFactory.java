@@ -72,10 +72,12 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 }
 
                 EmbeddedExtractor extractor = new EmbeddedExtractor();
-                if (contextProperties.getWebAppLocation() == null || extractor.getLabkeyServerJar() != null)
+                if (contextProperties.getWebAppLocation() == null || extractor.foundLabkeyServerJar())
                 {
                     if (extractor.shouldUpgrade(webAppLocation))
-                        extractor.extractExecutableJar(webAppLocation.getParentFile(), false);
+                    {
+                        extractor.extractDistribution(webAppLocation);
+                    }
                 } // else, probably a local build deployment
 
                 // Turn off the default web.xml behavior so that we don't stomp over customized values

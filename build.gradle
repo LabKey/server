@@ -35,6 +35,12 @@ allprojects {
             formats = ['HTML', 'JUNIT']
             skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
+            if (project.hasProperty('nvdApiKey'))
+            {
+                nvd {
+                    apiKey = "${project.property('nvdApiKey')}"
+                }
+            }
         }
     }
     if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))

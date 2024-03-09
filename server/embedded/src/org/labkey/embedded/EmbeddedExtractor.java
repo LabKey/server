@@ -1,7 +1,5 @@
 package org.labkey.embedded;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.util.VersionUtil;
 import org.apache.commons.io.FileUtils;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.util.StreamUtils;
@@ -11,9 +9,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -63,12 +63,13 @@ public class EmbeddedExtractor
         return labkeyServerJar;
     }
 
-    public boolean shouldUpgrade(File webAppLocation)
+    private boolean shouldExtract(File webAppLocation)
     {
         File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
+        File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution");
 
-        // Upgrade from standalone Tomcat installation
-        if (!existingVersionFile.exists())
+        // Likely upgrading from standalone Tomcat installation or webAppLocation doesn't exist.
+        if (!existingVersionFile.exists() || !existingDistributionFile.exists())
             return true;
 
         String existingVersion;
@@ -81,16 +82,32 @@ public class EmbeddedExtractor
             throw new RuntimeException(e);
         }
 
-        String newVersion = getNewVersion();
+        String existingDistributionName;
+        try
+        {
+            existingDistributionName = Files.readString(existingDistributionFile.toPath()).trim();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
 
-        Version v1 = getLabKeyVersion(existingVersion);
-        Version v2 = getLabKeyVersion(newVersion);
+        LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingDistributionName);
+        LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        return v1.compareTo(v2) > 0;
+        return !existingDistribution.equals(incomingDistribution) ||
+                incomingDistribution.buildUrl == null; // Always redeploy distributions that aren't from TeamCity
     }
 
-    private String getNewVersion()
+    /**
+     * Extract distribution info from bundled distribution.zip
+     * @return A list containing the version string
+     */
+    private LabKeyDistributionInfo getDistributionInfo()
     {
+        String version = null;
+        String distributionName = null;
+
         try
         {
             try (JarFile jar = new JarFile(verifyJar()))
@@ -111,13 +128,25 @@ public class EmbeddedExtractor
                             {
                                 if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/VERSION"))
                                 {
-                                    return StreamUtils.copyToString(zipIn, Charset.defaultCharset());
+                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
+                                }
+                                if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/distribution"))
+                                {
+                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
                                 }
                                 zipIn.closeEntry();
                                 zipEntry = zipIn.getNextEntry();
                             }
                         }
-                        throw new ConfigException("Unable to determine version of distribution.");
+                        if (version == null)
+                        {
+                            throw new ConfigException("Unable to determine version of distribution.");
+                        }
+                        if (distributionName == null)
+                        {
+                            throw new ConfigException("Unable to determine name of distribution.");
+                        }
+                        return new LabKeyDistributionInfo(version, distributionName);
                     }
                 }
 
@@ -132,9 +161,12 @@ public class EmbeddedExtractor
 
     public void extractDistribution(File webAppLocation)
     {
-        labkeyWebappDirName = webAppLocation.getName();
-        backupExistingDistribution(webAppLocation);
-        extractExecutableJar(webAppLocation.getParentFile(), false);
+        if (shouldExtract(webAppLocation))
+        {
+            labkeyWebappDirName = webAppLocation.getName();
+            backupExistingDistribution(webAppLocation);
+            extractExecutableJar(webAppLocation.getParentFile(), false);
+        }
     }
 
     public void extractExecutableJar(File destDirectory, boolean remotePipeline)
@@ -255,16 +287,19 @@ public class EmbeddedExtractor
     {
         try
         {
-            if (webAppLocation.exists())
+            List<File> toBackup = List.of(
+                    webAppLocation,
+                    new File(webAppLocation.getParentFile(), "modules")
+            );
+
+            if (toBackup.stream().anyMatch(File::exists))
             {
                 File backupDir = new File(verifyJar().getParentFile(), "backup");
                 FileUtils.forceDelete(backupDir); // Delete existing backup
 
-                FileUtils.moveToDirectory(webAppLocation, backupDir, true);
-                File modulesDir = new File(webAppLocation.getParentFile(), "modules");
-                if (modulesDir.exists())
+                for (File f : toBackup)
                 {
-                    FileUtils.moveToDirectory(modulesDir, backupDir, false);
+                    FileUtils.moveToDirectory(f, backupDir, true);
                 }
             }
         }
@@ -274,14 +309,55 @@ public class EmbeddedExtractor
         }
     }
 
-    private Version getLabKeyVersion(String versionString)
+}
+
+class LabKeyDistributionInfo
+{
+    final String version;
+    final String buildUrl;
+    final String distributionName;
+
+    /**
+     * 'VERSION' file is expected to contain one or two lines. The LabKey version (e.g. 24.3-SNAPSHOT) is the first line.
+     * The TeamCity BUILD_URL is the second line if the distribution was produced by TeamCity
+     * 'distribution' file is expected to contain the name of the deployed distribution
+     * @param versionFileContents contents of 'labkeywebapp/WEB-INF/classes/VERSION'
+     * @param distributionFileContents contents of 'labkeywebapp/WEB-INF/classes/distribution'
+     */
+    public LabKeyDistributionInfo(String versionFileContents, String distributionFileContents)
     {
-        Version v = VersionUtil.parseVersion(versionString, null, null);
-        if (versionString.endsWith("-SNAPSHOT")) // `VersionUtil.parseVersion` doesn't recognize our 'SNAPSHOT' pattern
+        String[] splitVersion = versionFileContents.trim().split("\\n");
+        version = splitVersion[0];
+        if (splitVersion.length > 1)
         {
-            // SNAPSHOTs should be assumed to be newer than non-SNAPSHOTs of the same version. `Version.compareTo` does the opposite
-            v = new Version(v.getMajorVersion(), v.getMinorVersion(), Integer.MAX_VALUE, "SNAPSHOT", null, null);
+            buildUrl = splitVersion[1];
         }
-        return v;
+        else
+        {
+            buildUrl = null;
+        }
+        distributionName = distributionFileContents;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LabKeyDistributionInfo that = (LabKeyDistributionInfo) o;
+
+        if (!version.equals(that.version)) return false;
+        if (!Objects.equals(buildUrl, that.buildUrl)) return false;
+        return distributionName.equals(that.distributionName);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = version.hashCode();
+        result = 31 * result + (buildUrl != null ? buildUrl.hashCode() : 0);
+        result = 31 * result + distributionName.hashCode();
+        return result;
     }
 }

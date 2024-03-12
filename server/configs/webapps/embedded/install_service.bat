@@ -1,6 +1,6 @@
 set LABKEY_HOME=C:\labkey\labkey
 set LABKEY_APPS=C:\labkey\apps
-set JAVA_HOME=%LABKEY_HOME%\java\jdk-17.0.9+9
+set JAVA_HOME=%LABKEY_APPS%\java\jdk-17.0.9+9
 
 prunsrv.exe //IS//labkeyServer ^
     --DisplayName "LabKey Server - labkeyServer" ^

@@ -3,6 +3,7 @@ package org.labkey.embedded;
 import jakarta.validation.constraints.NotNull;
 import org.apache.catalina.connector.Connector;
 import org.labkey.bootstrap.PipelineBootstrapConfig;
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
@@ -68,6 +69,7 @@ public class LabKeyServer
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
+        application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
     }
 

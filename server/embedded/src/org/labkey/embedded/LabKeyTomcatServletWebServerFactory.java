@@ -57,28 +57,25 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
             // Get the context properties from Spring injection
             LabKeyServer.ContextProperties contextProperties = _server.contextSource();
 
-            // for development, point to the local deploy/labkeyWebapp directory in configs/application.properties
-            boolean webAppLocationPresent = contextProperties.getWebAppLocation() != null;
-            File webAppLocation;
-
             try
             {
-                if (!webAppLocationPresent)
-                {
-                    final var currentPath = new File("").getAbsoluteFile();
-                    var destDirectory = new File(currentPath, "server");
-                    webAppLocation = new File(destDirectory, "labkeywebapp");
+                final File currentDir = new File("").getAbsoluteFile();
+                final File webAppLocation;
 
-                    if (!webAppLocation.exists())
-                    {
-                        EmbeddedExtractor extractor = new EmbeddedExtractor();
-                        extractor.extractExecutableJarFromDir(currentPath, destDirectory, false);
-                    }
+                if (contextProperties.getWebAppLocation() == null)
+                {
+                    webAppLocation = new File(currentDir, "labkeywebapp");
                 }
                 else
                 {
                     webAppLocation = new File(contextProperties.getWebAppLocation());
                 }
+
+                EmbeddedExtractor extractor = new EmbeddedExtractor();
+                if (contextProperties.getWebAppLocation() == null || extractor.foundLabkeyServerJar())
+                {
+                    extractor.extractDistribution(webAppLocation);
+                } // else, probably a local build deployment
 
                 // Turn off the default web.xml behavior so that we don't stomp over customized values
                 // from application.properties, such as session timeouts

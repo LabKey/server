@@ -295,7 +295,10 @@ public class EmbeddedExtractor
             if (toBackup.stream().anyMatch(File::exists))
             {
                 File backupDir = new File(verifyJar().getParentFile(), "backup");
-                FileUtils.forceDelete(backupDir); // Delete existing backup
+                if (backupDir.exists())
+                {
+                    FileUtils.forceDelete(backupDir); // Delete existing backup
+                }
 
                 for (File f : toBackup)
                 {

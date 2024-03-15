@@ -31,7 +31,7 @@ public class EmbeddedExtractor
     {
         File[] files = currentDir.listFiles(file -> {
             String name = file.getName().toLowerCase();
-            return name.endsWith(".jar") && name.contains("labkeyserver");
+            return name.endsWith(".jar") && !name.contains("embedded");
         });
 
         if (files == null || files.length == 0)

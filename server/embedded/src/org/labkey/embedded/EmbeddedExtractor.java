@@ -31,7 +31,7 @@ public class EmbeddedExtractor
     {
         File[] files = currentDir.listFiles(file -> {
             String name = file.getName().toLowerCase();
-            return name.endsWith(".jar") && name.contains("labkeyserver");
+            return name.endsWith(".jar") && !name.contains("embedded") && !name.contains("labkeybootstrap");
         });
 
         if (files == null || files.length == 0)
@@ -295,7 +295,10 @@ public class EmbeddedExtractor
             if (toBackup.stream().anyMatch(File::exists))
             {
                 File backupDir = new File(verifyJar().getParentFile(), "backup");
-                FileUtils.forceDelete(backupDir); // Delete existing backup
+                if (backupDir.exists())
+                {
+                    FileUtils.forceDelete(backupDir); // Delete existing backup
+                }
 
                 for (File f : toBackup)
                 {

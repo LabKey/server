@@ -1,6 +1,5 @@
 package org.labkey.embedded;
 
-import org.apache.commons.io.FileUtils;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.util.StreamUtils;
 
@@ -12,7 +11,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -164,7 +162,6 @@ public class EmbeddedExtractor
         if (shouldExtract(webAppLocation))
         {
             labkeyWebappDirName = webAppLocation.getName();
-            backupExistingDistribution(webAppLocation);
             extractExecutableJar(webAppLocation.getParentFile(), false);
         }
     }
@@ -280,35 +277,6 @@ public class EmbeddedExtractor
             {
                 bos.write(bytesIn, 0, read);
             }
-        }
-    }
-
-    private void backupExistingDistribution(File webAppLocation)
-    {
-        try
-        {
-            List<File> toBackup = List.of(
-                    webAppLocation,
-                    new File(webAppLocation.getParentFile(), "modules")
-            );
-
-            if (toBackup.stream().anyMatch(File::exists))
-            {
-                File backupDir = new File(verifyJar().getParentFile(), "backup");
-                if (backupDir.exists())
-                {
-                    FileUtils.forceDelete(backupDir); // Delete existing backup
-                }
-
-                for (File f : toBackup)
-                {
-                    FileUtils.moveToDirectory(f, backupDir, true);
-                }
-            }
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Failed to backup existing LabKey installation", e);
         }
     }
 

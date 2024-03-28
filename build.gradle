@@ -35,6 +35,12 @@ allprojects {
             formats = ['HTML', 'JUNIT']
             skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
+            if (project.hasProperty('nvdApiKey'))
+            {
+                nvd {
+                    apiKey = "${project.property('nvdApiKey')}"
+                }
+            }
         }
     }
     if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(project))
@@ -193,16 +199,18 @@ allprojects {
                     // force version for consistency with workflow, api, SequenceAnalysis
                     force "org.apache.commons:commons-lang3:${commonsLang3Version}"
                     force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
-                    force "commons-fileupload:commons-fileupload:${commonsFileuploadVersion}"
                     force "commons-io:commons-io:${commonsIoVersion}"
                     force "commons-logging:commons-logging:${commonsLoggingVersion}"
                     force "commons-pool:commons-pool:${commonsPoolVersion}"
+                    // force version for consistency with premium, OpenLdapSync
+                    force "org.apache.commons:commons-text:${commonsTextVersion}"
                     // force version for consistency with query, saml, LDK, api
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
                     // force version for ms2, saml, fileTransfer, harvest, api, accounts, docker
                     force "commons-codec:commons-codec:${commonsCodecVersion}"
                     // force version consistency in TCRdb, SequenceAnalysis, API
                     force "org.apache.commons:commons-math3:${commonsMath3Version}"
+                    force "org.reflections:reflections:${reflectionsVersion}"
                     // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpcore:${httpcoreVersion}"
                     force "org.apache.httpcomponents.core5:httpcore5:${httpcore5Version}"
@@ -213,6 +221,8 @@ allprojects {
                     force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
+                    // force version for SequenceAnalysis, TargetedMS
+                    force "com.google.protobuf:protobuf-java:${googleProtocolBufVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
                     // force version for accounts, docker, api, workflow
@@ -236,6 +246,10 @@ allprojects {
                     force "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
                     force "com.google.http-client:google-http-client-apache-v2:${googleHttpClientVersion}"
                     force "com.google.http-client:google-http-client-gson:${googleHttpClientVersion}"
+                    force "com.google.http-client:google-http-client-jackson2:${googleHttpClientVersion}"
+
+                    // FileTransfer depends on this directly; WNPRC_EHR and GoogleDrive bring a different version in transitively.
+                    force "com.google.oauth-client:google-oauth-client:${googleOauthClientVersion}"
 
                     // Google HTTP Client Library and Guava bring in different versions; force the latest
                     force "com.google.errorprone:error_prone_annotations:${googleErrorProneAnnotationsVersion}"
@@ -272,13 +286,13 @@ allprojects {
                     force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
+                    force "org.jetbrains:annotations:${annotationsVersion}"
                     // force consistency between API and Java remote API
                     force "org.json:json:${orgJsonVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"
                     // force junit and hamcrest versions to be consistent with what comes from labkey-client-api.
                     // The hamcrest dependencies come through transitively from jackson, junit, jmock
-                    force "org.hamcrest:hamcrest-core:${hamcrestVersion}"
-                    force "org.hamcrest:hamcrest-library:${hamcrestVersion}"
+                    force "org.hamcrest:hamcrest:${hamcrestVersion}"
                     force "junit:junit:${junitVersion}"
                     // force consistency in nlp and saml that bring these in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
@@ -346,6 +360,9 @@ allprojects {
                         substitute module('eigenbase:eigenbase-properties') using module("net.hydromatic:eigenbase-properties:${eigenbasePropertiesVersion}")
                         substitute module('eigenbase:eigenbase-resgen') using module("net.hydromatic:eigenbase-resgen:${eigenbaseResgenVersion}")
                         substitute module('eigenbase:eigenbase-xom') using module("net.hydromatic:eigenbase-xom:${eigenbaseXomVersion}")
+
+                        substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
+                        substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                     }
                 }
             }

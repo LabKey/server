@@ -27,10 +27,17 @@ configurations {
     embedded
 }
 
+configurations.configureEach {
+//    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+}
+
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+//    implementation "org.springframework.boot:spring-boot-starter-log4j2:${springBootVersion}"
 
     // Force to the latest Tomcat version until Spring Boot 2.7.17 is released and we can adopt it
     implementation('org.apache.tomcat.embed:tomcat-embed-core') {
@@ -59,20 +66,13 @@ dependencies {
         }
     }
 
-    // This is a transitive dependency from spring-boot-starter that we're forcing to pick up CVE hotfixes. We're not
-    // vulnerable since we're not accepting untrusted Spring Boot config files, but this cleans up the reporting.
-    // At some point Spring Boot should update its preferred version and we can yank this
-    implementation('org.yaml:snakeyaml') {
-        version {
-            strictly '1.33'
-        }
-    }
-
     runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${springBootTomcatVersion}"
-    runtimeOnly "javax.mail:javax.mail-api:1.6.2"
-    runtimeOnly group: "com.sun.mail", name: "javax.mail", version: "1.6.0"
+    runtimeOnly group: "com.sun.mail", name: "jakarta.mail", version: "${javaMailVersion}"
     runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${springBootTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
+    runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }

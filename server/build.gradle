@@ -16,14 +16,22 @@ plugins {
     id 'org.labkey.build.database'
 }
 
+configurations {
+    recompilingJsp {
+        canBeConsumed = true
+        canBeResolved = true
+    }
+}
+configurations.recompilingJsp.setDescription("Dependencies used by RecompileJspClassLoader")
+BuildUtils.addTomcatBuildDependencies(project, 'recompilingJsp')
 
 BuildUtils.addLabKeyDependency(project: project, config: 'tomcatJars', depProjectPath: BuildUtils.getBootstrapProjectPath(gradle)/*, depProjectConfig: 'runTimeElements'*/)
 
 dependencies
         {
             tomcatJars  "com.sun.mail:jakarta.mail:${javaMailVersion}"
-            tomcatJars  "com.sun.activation:jakarta.activation:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
-            remotePipelineJars "javax.servlet:javax.servlet-api:${servletApiVersion}"
+            tomcatJars  "jakarta.activation:jakarta.activation-api:${activationVersion}" // JavaMail dependency (starting with Java 10), so it must be copied to <tomcat>/lib
+            remotePipelineJars "jakarta.servlet:jakarta.servlet-api:${servletApiVersion}"
         }
 
 dependencies
@@ -219,7 +227,35 @@ if (project.hasProperty("teamcity"))
 {
     project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }
 }
+else
+{
+    var cleanJspRecompileSetup = project.tasks.register("cleanJspRecompileSetup", Delete) {
+        DeleteSpec task ->
+            task.group = GroupNames.BUILD
+            task.delete project.rootProject.layout.buildDirectory.dir("jspRecompiling").get()
+            task.description = "Remove build/jspRecompiling directory"
+    }
 
+    var jspRecompileSetup = project.tasks.register("jspRecompileSetup", Copy) {
+        CopySpec task ->
+            task.group = GroupNames.BUILD
+            task.description = "Copy dependencies required for JSP dynamic compiling"
+            task.into project.rootProject.layout.buildDirectory.dir("jspRecompiling")
+            task.from project.configurations.recompilingJsp
+            task.mustRunAfter(cleanJspRecompileSetup)
+            if (project.hasProperty('apacheTomcatVersion'))
+                task.inputs.property 'apacheTomcatVersion', project.property('apacheTomcatVersion')
+            else
+                task.outputs.cacheIf { false } // Just don't cache if we can't be sure of the Jasper version
+            task.doFirst {
+                project.delete project.rootProject.layout.buildDirectory.dir("jspRecompiling")
+            }
+    }
+
+    project.tasks.named('deployApp').configure {
+        dependsOn(jspRecompileSetup)
+    }
+}
 
 // We add this configuration here so we have a single location to link to for the npm and node executables.
 // Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode

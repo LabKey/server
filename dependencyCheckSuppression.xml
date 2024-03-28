@@ -1,36 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 
-    <!-- We do not include logback with our embedded tomcat distributions -->
-    <suppress>
-       <notes><![CDATA[
-       file name: logback-classic-1.2.12.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
-       <vulnerabilityName>CVE-2023-6378</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        file name: logback-core-1.2.12.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-6378</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-       file name: logback-classic-1.2.12.jar
-       ]]></notes>
-        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-classic@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-6481</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        file name: logback-core-1.2.12.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback\-core@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-6481</vulnerabilityName>
-    </suppress>
-
     <!-- Prevent match against unrelated "rengine" at https://github.com/yogeshojha/rengine -->
     <suppress>
         <notes><![CDATA[
@@ -49,15 +19,6 @@
         <cve>CVE-2021-39491</cve>
     </suppress>
 
-    <!-- Prevent match against unrelated JSON library -->
-    <suppress>
-        <notes><![CDATA[
-   file name: json-20230227.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
-        <cve>CVE-2022-45688</cve>
-    </suppress>
-
     <!--
     GWT uses Protobuf internally but doesn't expose it, meaning the handful of CVEs in 2.5.0 are not a concern.
     https://github.com/gwtproject/gwt/issues/9778
@@ -72,28 +33,6 @@
         <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
     </suppress>
 
-    <!-- Guava has deprecated the problematic com.google.common.io.Files.createTempDir(), the topic of this CVE,
-     and we don't call it. https://github.com/google/guava/issues/4011 -->
-    <suppress>
-        <notes><![CDATA[
-   file name: guava-31.1-jre.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
-        <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
-    </suppress>
-
-    <!--
-    Actually packages MINA 2.2.1 but dependency check confuses the version number.
-    https://search.maven.org/artifact/org.apache.directory.api/api-parent/2.1.3/jar?eh=
-     -->
-    <suppress>
-        <notes><![CDATA[
-   file name: api-all-2.1.3.jar (shaded: org.apache.directory.api:api-ldap-net-mina:2.1.3)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.directory\.api/api\-ldap\-net\-mina@.*$</packageUrl>
-        <cve>CVE-2021-41973</cve>
-    </suppress>
-
     <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
     <suppress>
         <notes><![CDATA[
@@ -102,21 +41,6 @@
         <packageUrl regex="true">^pkg:maven/xerces/xercesImpl@.*$</packageUrl>
         <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
     </suppress>
-
-
-    <!--
-     We don't use any classes from org.springframework.remoting.httpinvoker like HttpInvokerServiceExporter
-     https://github.com/spring-projects/spring-framework/issues/24434
-     The unsafe classes are slated for complete removal in Spring 6.x
-     -->
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-web-5.3.26.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
-        <vulnerabilityName>CVE-2016-1000027</vulnerabilityName>
-    </suppress>
-
 
     <!--
     For our purposes, Random is good enough, and not worth publishing our own version of the artifact that uses
@@ -138,7 +62,6 @@
         <packageUrl regex="true">^pkg:maven/org\.mule\.modules/mule\-module\-ognl@.*$</packageUrl>
         <cve>CVE-2016-3093</cve>
     </suppress>
-
 
     <!-- False positive - we're not bundling Windows PGP -->
     <suppress>
@@ -176,23 +99,6 @@
         <cve>CVE-2006-5391</cve>
     </suppress>
 
-    <!-- Checker is confusing this library and the WNPRC GoogleDrive module with the OSX Desktop Google Drive application -->
-    <suppress>
-        <notes><![CDATA[
-   file name: google-api-services-drive-v3-rev197-1.25.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.apis/google\-api\-services\-drive@.*$</packageUrl>
-        <cve>CVE-2022-3421</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: GoogleDrive_api-23.5-SNAPSHOT.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.labkey/GoogleDrive@.*$</packageUrl>
-        <cve>CVE-2022-3421</cve>
-    </suppress>
-
-
     <!--
     This is a dependency of Java-FPDF, used by the WNPRC billing module for PDF generation, which hasn't been updated
     to reference the now-renamed Commons Imaging library instead of the old Sanselan incubator. The CVE is related
@@ -206,52 +112,12 @@
         <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
     </suppress>
 
-    <!--
-    This is a transitive dependency from spring-boot-starter that we're forcing to get CVE hotfixes. We're not
-    vulnerable since we're not accepting untrusted Spring Boot config files. See more details at
-    https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE-2022-1471
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: snakeyaml-1.33.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-        <cve>CVE-2022-1471</cve>
-    </suppress>
-
-    <!-- Jackson stack overflow when serializing a cyclic object tree. We don't deploy untrusted modules, so not a
-    concern as there is no deserialization risk. They may mitigate in 2.16.0 which is months away. -->
-    <suppress>
-        <notes><![CDATA[
-   file name: jackson-databind-2.13.5.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-35116</vulnerabilityName>
-    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: jackson-databind-2.15.2.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-35116</vulnerabilityName>
-    </suppress>
-
-    <!-- False positive. We're using MINA Core. The vulnerability is in MINA's SSHD-Core, which we don't use. -->
-    <suppress>
-        <notes><![CDATA[
-   file name: mina-core-2.2.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.mina/mina\-core@.*$</packageUrl>
-        <cve>CVE-2023-35887</cve>
-    </suppress>
-
-    <!-- 23.0.1 includes the patch for this low severity CVE but it's still matching so manually suppress it -->
-    <suppress>
-        <notes><![CDATA[
-   file name: graal-sdk-23.0.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.graalvm\.sdk/graal\-sdk@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-22006</vulnerabilityName>
     </suppress>
 
     <!-- The CVE is against Quartz Jobs, not the core Quartz library, so this is a false positive given our actual dependency.
@@ -269,49 +135,37 @@
     </suppress>
 
     <!--
-    The CVE has a low impact (DDOS) and targets older versions of Postgres (<= v12.2), not the JDBC driver itself.
+    GraalJS shaded and re-versioned icu4j without changing the file name, leading to many old CVEs getting tagged.
+    This should be fixed soon, but suppress all CVEs for now. https://github.com/oracle/graal/issues/8204
     -->
     <suppress>
         <notes><![CDATA[
-   file name: postgresql-42.6.0.jar
+   file name: icu4j-23.1.2.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.postgresql/postgresql@.*$</packageUrl>
-        <vulnerabilityName>CVE-2020-21469</vulnerabilityName>
+        <packageUrl regex="true">^pkg:maven/org\.graalvm\.shadowed/icu4j@.*$</packageUrl>
+        <cpe>cpe:/a:icu-project:international_components_for_unicode</cpe>
+        <cpe>cpe:/a:unicode:international_components_for_unicode</cpe>
+        <cpe>cpe:/a:unicode:unicode</cpe>
     </suppress>
 
     <!--
-    Netty doesn't turn on cert checking by default, so this gets flagged periodically. per the linked discussion
-    this should be handled/enabled when configuring the client to use https.
-     For more info see: https://github.com/jeremylong/DependencyCheck/issues/5912#issuecomment-1699363391 and the subsequent rabbit-hole.
+    The Tomcat jaspic-api and jsp-api jars are false positives, for some reason matching against Tomcat 3.0. See
+    https://github.com/jeremylong/DependencyCheck/issues/5659, which has been raised, but no response.
     -->
     <suppress>
         <notes><![CDATA[
-   file name: netty-handler-4.1.100.Final.jar
+   file name: tomcat-jaspic-api-10.1.18.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.netty/netty.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-4586</vulnerabilityName>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jaspic\-api@.*$</packageUrl>
+        <cpe>cpe:/a:apache:tomcat</cpe>
     </suppress>
 
-    <!--
-    json-java versioning does not work with cpe; suppressing specifically for CVE-2023-5072
-    -->
     <suppress>
         <notes><![CDATA[
-   file name: json-20231013.jar
+   file name: tomcat-jsp-api-10.1.18.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
-        <cve>CVE-2023-5072</cve>
-    </suppress>
-
-    <!--
-    false-positive CVE as per https://github.com/dom4j/dom4j/issues/171
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: dom4j-2.1.4.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.dom4j/dom4j@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-45960</vulnerabilityName>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jsp\-api@.*$</packageUrl>
+        <cpe>cpe:/a:apache:tomcat</cpe>
     </suppress>
 
 </suppressions>

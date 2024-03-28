@@ -97,7 +97,7 @@ import org.labkey.gradle.util.BuildUtils
   node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
   ":server:modules" and ":server:modules:core").
  */
-if (hasProperty("useEmbeddedTomcat"))
+if (BuildUtils.useEmbeddedTomcat(this.settings))
 {
     include ":server:embedded"
 }

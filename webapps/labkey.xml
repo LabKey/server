@@ -19,7 +19,7 @@
         />
 
     <Resource name="mail/Session" auth="Container"
-        type="javax.mail.Session"
+        type="jakarta.mail.Session"
         mail.smtp.host="@@smtpHost@@"
         mail.smtp.user="@@smtpUser@@"
         mail.smtp.port="@@smtpPort@@"/>

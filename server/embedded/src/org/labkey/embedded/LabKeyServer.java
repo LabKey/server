@@ -67,7 +67,11 @@ public class LabKeyServer
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
         application.setDefaultProperties(Map.of(
                 "server.tomcat.basedir", ".",
-                "server.tomcat.accesslog.directory", logHome));
+                "server.tomcat.accesslog.directory", logHome,
+
+                // Enable HTTP compression for response content
+                "server.compression.enabled", "true"
+                ));
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
     }

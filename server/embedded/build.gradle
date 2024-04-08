@@ -59,6 +59,48 @@ dependencies {
         }
     }
 
+    // TODO these shouldn't be merged forward, the Spring-Boot version currently used in develop doesn't require these
+    implementation('org.springframework:spring-web') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-core') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-jcl') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-context') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-aop') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-beans') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-expression') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+    implementation('org.springframework:spring-webmvc') {
+        version {
+            strictly "${springVersion}"
+        }
+    }
+
     // This is a transitive dependency from spring-boot-starter that we're forcing to pick up CVE hotfixes. We're not
     // vulnerable since we're not accepting untrusted Spring Boot config files, but this cleans up the reporting.
     // At some point Spring Boot should update its preferred version and we can yank this

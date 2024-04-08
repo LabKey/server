@@ -146,6 +146,7 @@ allprojects {
                             includeGroup "org.labkey"
                             includeGroup "org.labkey.api"
                             includeGroup "org.labkey.module"
+                            includeGroup "org.labkey.build"
                         }
                     }
 

@@ -16,10 +16,14 @@
 package org.labkey.bootstrap;
 
 import java.io.File;
-import java.util.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /*
 * User: jeckels
@@ -245,9 +249,10 @@ public class PipelineBootstrapConfig
         return _moduleFiles;
     }
 
-    public static void ensureLogHomeSet(String location)
+    public static String ensureLogHomeSet(String location)
     {
         if (System.getProperty(LOG_HOME_PROPERTY_NAME) == null)
             System.setProperty(LOG_HOME_PROPERTY_NAME, location);
+        return System.getProperty(LOG_HOME_PROPERTY_NAME);
     }
 }

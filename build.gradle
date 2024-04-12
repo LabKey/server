@@ -67,8 +67,8 @@ allprojects {
                 driver
                 utilities
             }
-    // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
     configurations.configureEach {
+        // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
         exclude group: "log4j", module:"log4j"
     }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
@@ -320,9 +320,11 @@ allprojects {
                     // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
                     // Force consistency across pipeline, SequenceAnalysis, and query
-                    force "javax.xml.bind:jaxb-api:${jaxbApiVersion}"
+                    force "javax.xml.bind:jaxb-api:2.3.1"
+                    force "jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiVersion}"
+                    force "org.glassfish.jaxb:jaxb-runtime:${jaxbVersion}"
 
-                    // Force consistency between pipeline's ActiveMQ  and cloud's jClouds dependencies
+                    // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 
                     // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.

@@ -326,6 +326,8 @@ allprojects {
                     // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.
                     force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
 
+                    force "javax.xml.bind:jaxb-api:${jaxbApiOldVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
@@ -363,7 +365,9 @@ allprojects {
                         substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                         substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
 
-                        substitute module('javax.xml.bind:jaxb-api') using module("jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiOldVersion}")
+                        // Eliminate discrepancies from SequenceAnalysis dependencies
+                        substitute module('jakarta.xml.bind:jakarta.xml.bind-api:2.3.3') using module("javax.xml.bind:jaxb-api:${jaxbApiOldVersion}")
+                        substitute module('org.glassfish.jaxb:jaxb-runtime:2.3.5') using module("com.sun.xml.bind:jaxb-ri:${jaxbOldVersion}")
                     }
                 }
             }

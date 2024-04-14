@@ -314,5 +314,16 @@
         <vulnerabilityName>CVE-2023-45960</vulnerabilityName>
     </suppress>
 
+    <!--
+    suppress CVE-2024-23080 after jodaTime upgrade to 2.12.7, as still detected as 2.12.5
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: joda-time-2.12.7.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/joda\-time/joda\-time@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-23080</vulnerabilityName>
+    </suppress>
+
 </suppressions>
 

@@ -319,10 +319,6 @@ allprojects {
 
                     // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
-                    // Force consistency across pipeline, SequenceAnalysis, and query
-                    force "javax.xml.bind:jaxb-api:2.3.1"
-                    force "jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiVersion}"
-                    force "org.glassfish.jaxb:jaxb-runtime:${jaxbVersion}"
 
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
@@ -366,6 +362,8 @@ allprojects {
 
                         substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                         substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
+
+                        substitute module('javax.xml.bind:jaxb-api') using module("jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiOldVersion}")
                     }
                 }
             }

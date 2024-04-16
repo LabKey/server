@@ -322,6 +322,9 @@ allprojects {
                     // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.
                     force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
 
+                    // Force consistency for dependencies from cloud
+                    force "joda-time:joda-time:${jodaTimeVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

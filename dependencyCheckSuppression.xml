@@ -336,5 +336,27 @@
         <vulnerabilityName>CVE-2024-22949</vulnerabilityName>
     </suppress>
 
+    <!--
+    suppress CVE-2023-52070 for jfreechart, may become moot after subsequent upgrades
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jfreechart-1.0.19.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jfree/jfreechart@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-52070</vulnerabilityName>
+    </suppress>
+
+    <!--
+    suppress CVE-2024-23076 for jfreechart, may become moot after subsequent upgrades
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jfreechart-1.0.19.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jfree/jfreechart@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-23076</vulnerabilityName>
+    </suppress>
+
 </suppressions>
 

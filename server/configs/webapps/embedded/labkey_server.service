@@ -1,4 +1,8 @@
-# Systemd unit file for labkey_server
+# Systemd unit file for labkey_server.
+# This default will require customization. Confirm or edit the LABKEY_HOME path.
+# You must always edit the ExecStart line to start with the full path to java.
+# <JAVA_HOME> is shown for clarity, but will not be substituted.
+# Learn more here: https://www.labkey.org/Documentation/wiki-page.view?name=serviceFile
 
 [Unit]
 Description=LabKey Server Application
@@ -7,16 +11,23 @@ After=syslog.target network.target
 [Service]
 Type=simple
 Environment="JAVA_HOME=/usr/lib/jvm/jdk-17.0.10+7"
-Environment="JAVA_PRE_JAR_OPS=-Duser.timezone=America/Los_Angeles -Djava.library.path=/usr/lib/x86_64-linux-gnu -Djava.awt.headless=true -Xms1932M -Xmx1932M -Djava.security.egd=file:/dev/./urandom"
-Environment="JAVA_MID_JAR_OPS=-XX:+HeapDumpOnOutOfMemoryError -XX:+UseContainerSupport -XX:HeapDumpPath=/labkey/labkey/labkey-tmp -Djava.net.preferIPv4Stack=true"
-Environment="LABKEY_JAR_OPS=-Dlabkey.home=/labkey/labkey -Dlabkey.log.home=/labkey/labkey/logs -Djava.io.tmpdir=/labkey/labkey/labkey-tmp"
-Environment="JAVA_LOG_JAR_OPS=-XX:ErrorFile=/labkey/labkey/logs/error_%p.log -Dlog4j.configurationFile=log4j2.xml"
-Environment="JAVA_FLAGS_JAR_OPS=-Dorg.apache.catalina.startup.EXIT_ON_INIT_FAILURE=true -DsynchronousStartup=true -DterminateOnStartupFailure=true"
+Environment="LABKEY_HOME=/labkey/labkey"
+Environment="JAVA_FLAGS_JAR_OPS=-Dorg.apache.catalina.startup.EXIT_ON_INIT_FAILURE=true -DterminateOnStartupFailure=true -Djava.awt.headless=true"
 Environment="JAVA_REFLECTION_JAR_OPS=--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED"
-WorkingDirectory=/labkey/labkey
+WorkingDirectory=$LABKEY_HOME
 OOMScoreAdjust=-500
 
-ExecStart=$JAVA_HOME/bin/java $JAVA_PRE_JAR_OPS $JAVA_MID_JAR_OPS $LABKEY_JAR_OPS $JAVA_LOG_JAR_OPS $JAVA_FLAGS_JAR_OPS $JAVA_REFLECTION_JAR_OPS -jar /labkey/labkey/labkeyServer.jar
+ExecStart=<JAVA_HOME>/bin/java \
+    -Xms2G \
+    -Xmx2G \
+    -XX:+HeapDumpOnOutOfMemoryError \
+    -XX:HeapDumpPath=$LABKEY_HOME/labkey-tmp \
+    -XX:ErrorFile=/labkey/labkey/logs/error_%p.log \
+    -Djava.io.tmpdir=$LABKEY_HOME/labkey-tmp \
+    $JAVA_FLAGS_JAR_OPS \
+    $JAVA_REFLECTION_JAR_OPS \
+    -jar labkeyServer.jar
+
 SuccessExitStatus=0 143
 Restart=on-failure
 RestartSec=15

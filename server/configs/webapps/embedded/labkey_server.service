@@ -21,7 +21,6 @@ ExecStart=<JAVA_HOME>/bin/java \
     -Xms2G \
     -Xmx2G \
     -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath=$LABKEY_HOME/labkey-tmp \
     -XX:ErrorFile=/labkey/labkey/logs/error_%p.log \
     -Djava.io.tmpdir=$LABKEY_HOME/labkey-tmp \
     $JAVA_FLAGS_JAR_OPS \

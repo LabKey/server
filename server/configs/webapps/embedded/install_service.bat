@@ -5,7 +5,7 @@ set JAVA_HOME=%LABKEY_APPS%\java\jdk-17.0.9+9
 prunsrv.exe //IS//labkeyServer ^
     --DisplayName "LabKey Server - labkeyServer" ^
     --Description "LabKey Server Scientific Data Management System" ^
-    --Install "%LABKEY_APPS%\prunsrv.exe" ^
+    --Install "%LABKEY_HOME%\prunsrv.exe" ^
     --LogPath "%LABKEY_HOME%\logs" ^
     --StdOutput auto ^
     --StdError auto ^

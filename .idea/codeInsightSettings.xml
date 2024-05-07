@@ -7,6 +7,8 @@
       <name>com.mchange.lang.StringUtils</name>
       <name>com.mchange.v2.lang.StringUtils</name>
       <name>common.Logger</name>
+      <name>jakarta.annotation.Nullable</name>
+      <name>jakarta.validation.constraints.NotNull</name>
       <name>java.lang.System.Logger</name>
       <name>java.util.logging.Logger</name>
       <name>javax.annotation.Nullable</name>

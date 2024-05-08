@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!--
-When making edits to this file, please communicate with systems engineering and
+When making edits to this file, please be sure to make corresponding updates to the copy in gradlePlugins.
+Additionally, please communicate with systems engineering and
 account managers so that we can coordinate edits with other customized copies of the file
 -->
 

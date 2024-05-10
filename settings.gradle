@@ -96,11 +96,8 @@ import org.labkey.gradle.util.BuildUtils
   node in the tree with these leaves (e.g., 'server:modules:core' will create projects for ":server"
   ":server:modules" and ":server:modules:core").
  */
-if (BuildUtils.useEmbeddedTomcat(this.settings))
-{
-    include ":server:embedded"
-}
 
+include BuildUtils.getEmbeddedProjectPath(gradle)
 include BuildUtils.getMinificationProjectPath(gradle)
 
 // A list of directory names or fully qualified module paths that correspond to modules to be excluded from configuration.

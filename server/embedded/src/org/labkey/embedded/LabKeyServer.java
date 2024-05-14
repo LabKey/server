@@ -28,6 +28,7 @@ public class LabKeyServer
     private static final String SERVER_GUID = "serverGUID";
     public static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
     public static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
+    public static final String CUSTOM_LOG4J_CONFIG = "org.labkey.customLog4JConfig";
     static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
     static final String MAX_IDLE_DEFAULT = "10";
     static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
@@ -187,6 +188,12 @@ public class LabKeyServer
         return new ManagementProperties();
     }
 
+    @Bean
+    public LoggingProperties loggingSource()
+    {
+        return new LoggingProperties();
+    }
+
 
     /**
      * This lets us snoop on the Spring Boot config for deploying the management endpoint on a different port, as
@@ -221,6 +228,26 @@ public class LabKeyServer
         public void setPort(int port)
         {
             _port = port;
+        }
+    }
+
+    /**
+     * This lets us snoop on the Spring Boot config for log4j so we can report it via a mothership metric
+     */
+    @Configuration
+    @ConfigurationProperties("logging")
+    public static class LoggingProperties
+    {
+        private String _config;
+
+        public String getConfig()
+        {
+            return _config;
+        }
+
+        public void setConfig(String config)
+        {
+            _config = config;
         }
     }
 

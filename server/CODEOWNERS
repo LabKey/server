@@ -1,0 +1,2 @@
+# Alert people who will likely need to propagate Log4J config changes to other systems
+/embedded/src/resources/log4j2.xml @LabKey/SystemsEngineering @labkey-mohara @keith-labkey

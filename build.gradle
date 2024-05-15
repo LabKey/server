@@ -67,8 +67,8 @@ allprojects {
                 driver
                 utilities
             }
-    // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
     configurations.configureEach {
+        // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
         exclude group: "log4j", module:"log4j"
     }
     configurations.driver.setDescription("Dependencies used for SqlUtils")
@@ -152,6 +152,7 @@ allprojects {
                             includeGroup "org.labkey"
                             includeGroup "org.labkey.api"
                             includeGroup "org.labkey.module"
+                            includeGroup "org.labkey.build"
                         }
                     }
 
@@ -318,14 +319,18 @@ allprojects {
 
                     // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
-                    // Force consistency across pipeline, SequenceAnalysis, and query
-                    force "javax.xml.bind:jaxb-api:${jaxbApiVersion}"
 
-                    // Force consistency between pipeline's ActiveMQ  and cloud's jClouds dependencies
+                    // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 
                     // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.
                     force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
+
+                    // Consistency between cloud, pipeline, and query
+                    force "javax.xml.bind:jaxb-api:${jaxbApiOldVersion}"
+
+                    // Force consistency for dependencies from cloud
+                    force "joda-time:joda-time:${jodaTimeVersion}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

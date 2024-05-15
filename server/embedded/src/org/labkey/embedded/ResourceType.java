@@ -1,11 +1,9 @@
 package org.labkey.embedded;
 
 import org.apache.catalina.core.StandardContext;
-import org.apache.logging.log4j.LogManager;
 import org.apache.tomcat.util.collections.CaseInsensitiveKeyMap;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
-import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -44,7 +42,7 @@ public enum ResourceType
                     String logQueries = props.remove("logQueries");
                     if (logQueries != null)
                     {
-                        context.addParameter(name + ":LogQueries", displayName);
+                        context.addParameter(name + ":LogQueries", logQueries);
                     }
 
                     super.addResource(name, props, context);

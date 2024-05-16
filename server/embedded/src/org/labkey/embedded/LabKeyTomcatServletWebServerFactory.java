@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.labkey.embedded.LabKeyServer.CUSTOM_LOG4J_CONFIG;
 import static org.labkey.embedded.LabKeyServer.SERVER_GUID_PARAMETER_NAME;
 import static org.labkey.embedded.LabKeyServer.SERVER_SSL_KEYSTORE;
 
@@ -155,6 +156,13 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                     context.addParameter("org.labkey.authentication.totp.Bypass", "true");
                     context.addParameter("org.labkey.authentication.duo.Bypass", "true");
                 }
+
+                boolean customLog4J = System.getProperty("log4j.configurationFile") != null;
+                if (!customLog4J)
+                {
+                    customLog4J = _server.loggingSource().getConfig() != null;
+                }
+                context.addParameter(CUSTOM_LOG4J_CONFIG, Boolean.toString(customLog4J));
 
                 // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
                 if (null != contextProperties.getServerGUID())

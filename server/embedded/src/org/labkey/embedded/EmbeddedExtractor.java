@@ -44,6 +44,7 @@ public class EmbeddedExtractor
         if (files == null || files.length == 0)
         {
             labkeyServerJar = null;
+            LOG.debug("Executable jar not found in " + currentDir);
         }
         else if (files.length > 1)
         {
@@ -52,6 +53,7 @@ public class EmbeddedExtractor
         else
         {
             labkeyServerJar = files[0];
+            LOG.debug("Executable jar found: " + labkeyServerJar.getAbsolutePath());
         }
     }
 
@@ -102,8 +104,13 @@ public class EmbeddedExtractor
         LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingDistributionName);
         LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        return !existingDistribution.equals(incomingDistribution) ||
+        boolean shouldExtract = !existingDistribution.equals(incomingDistribution) ||
                 incomingDistribution.buildUrl == null; // Always redeploy distributions that aren't from TeamCity
+        if (shouldExtract)
+        {
+            LOG.info("Extracting new LabKey distribution (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+        }
+        return shouldExtract;
     }
 
     /**
@@ -320,10 +327,16 @@ public class EmbeddedExtractor
         try
         {
             Set<File> toBackup = new HashSet<>(1 + EXPECTED_DIST_DIRS.size());
-            toBackup.add(webAppLocation);
-            EXPECTED_DIST_DIRS.forEach(dir -> toBackup.add(new File(webAppLocation.getParentFile(), dir)));
+            if (webAppLocation.exists())
+            {
+                toBackup.add(webAppLocation);
+            }
+            EXPECTED_DIST_DIRS.stream()
+                    .map(dir -> new File(webAppLocation.getParentFile(), dir))
+                    .filter(File::exists)
+                    .forEach(toBackup::add);
 
-            if (toBackup.stream().anyMatch(File::exists))
+            if (!toBackup.isEmpty())
             {
                 File backupDir = Files.createTempDirectory("labkeyBackup").toFile();
 
@@ -409,5 +422,11 @@ class LabKeyDistributionInfo
         result = 31 * result + (buildUrl != null ? buildUrl.hashCode() : 0);
         result = 31 * result + distributionName.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return version + "(" + distributionName + ")";
     }
 }

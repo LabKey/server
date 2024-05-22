@@ -1,5 +1,9 @@
 package org.labkey.embedded;
 
+import io.micrometer.common.util.StringUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.util.StreamUtils;
 
@@ -11,14 +15,19 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class EmbeddedExtractor
 {
+    private static final Log LOG = LogFactory.getLog(EmbeddedExtractor.class);
     private static final int BUFFER_SIZE = 1024 * 64;
+    private static final Set<String> EXPECTED_DIST_DIRS = Set.of("labkeywebapp", "modules");
 
     private final File currentDir = new File("").getAbsoluteFile();
     private final File labkeyServerJar;
@@ -118,17 +127,19 @@ public class EmbeddedExtractor
 
                     if ("labkey/distribution.zip".equals(entryName))
                     {
+                        Set<String> distributionDirs = new HashSet<>();
                         try (ZipInputStream zipIn = new ZipInputStream(jar.getInputStream(entry)))
                         {
                             ZipEntry zipEntry = zipIn.getNextEntry();
                             // iterates over entries in the zip file
                             while (zipEntry != null)
                             {
+                                distributionDirs.add(zipEntry.getName().split("/", 2)[0]);
                                 if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/VERSION"))
                                 {
                                     version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
                                 }
-                                if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/distribution"))
+                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/distribution"))
                                 {
                                     distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
                                 }
@@ -136,13 +147,35 @@ public class EmbeddedExtractor
                                 zipEntry = zipIn.getNextEntry();
                             }
                         }
-                        if (version == null)
+                        if (StringUtils.isBlank(version))
                         {
                             throw new ConfigException("Unable to determine version of distribution.");
                         }
-                        if (distributionName == null)
+                        if (StringUtils.isBlank(distributionName))
                         {
                             throw new ConfigException("Unable to determine name of distribution.");
+                        }
+                        if (!distributionDirs.equals(EXPECTED_DIST_DIRS))
+                        {
+                            StringBuilder msg = new StringBuilder("Corrupted distribution; contents are not as expected.");
+
+                            Set<String> missingDirs = EXPECTED_DIST_DIRS.stream().filter(d -> !distributionDirs.contains(d)).collect(Collectors.toSet());
+                            if (!missingDirs.isEmpty())
+                            {
+                                msg.append(" Missing directories: ");
+                                msg.append(missingDirs);
+                                msg.append(".");
+                            }
+
+                            Set<String> extraDirs = distributionDirs.stream().filter(d -> !EXPECTED_DIST_DIRS.contains(d)).collect(Collectors.toSet());
+                            if (!extraDirs.isEmpty())
+                            {
+                                msg.append(" Unexpected directories: ");
+                                msg.append(extraDirs);
+                                msg.append(".");
+                            }
+
+                            throw new IllegalStateException(msg.toString());
                         }
                         return new LabKeyDistributionInfo(version, distributionName);
                     }
@@ -162,7 +195,9 @@ public class EmbeddedExtractor
         if (shouldExtract(webAppLocation))
         {
             labkeyWebappDirName = webAppLocation.getName();
+            File backupDir = createTempBackup(webAppLocation);
             extractExecutableJar(webAppLocation.getParentFile(), false);
+            deleteTempBackup(backupDir);
         }
     }
 
@@ -280,6 +315,50 @@ public class EmbeddedExtractor
         }
     }
 
+    private File createTempBackup(File webAppLocation)
+    {
+        try
+        {
+            Set<File> toBackup = new HashSet<>(1 + EXPECTED_DIST_DIRS.size());
+            toBackup.add(webAppLocation);
+            EXPECTED_DIST_DIRS.forEach(dir -> toBackup.add(new File(webAppLocation.getParentFile(), dir)));
+
+            if (toBackup.stream().anyMatch(File::exists))
+            {
+                File backupDir = Files.createTempDirectory("labkeyBackup").toFile();
+
+                for (File f : toBackup)
+                {
+                    FileUtils.moveToDirectory(f, backupDir, true);
+                }
+                return backupDir;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to backup existing LabKey installation", e);
+        }
+    }
+
+    private void deleteTempBackup(File backupDir)
+    {
+        if (backupDir != null)
+        {
+            try
+            {
+                FileUtils.forceDelete(backupDir); // Delete temp backup
+                LOG.debug("Deleted temporary backup: " + backupDir.getAbsolutePath());
+            }
+            catch (IOException e)
+            {
+                LOG.warn("Failed to delete temporary backup: " + backupDir.getAbsolutePath(), e);
+            }
+        }
+    }
 }
 
 class LabKeyDistributionInfo

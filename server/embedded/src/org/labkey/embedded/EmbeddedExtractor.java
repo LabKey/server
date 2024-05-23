@@ -1,6 +1,5 @@
 package org.labkey.embedded;
 
-import io.micrometer.common.util.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,8 +118,8 @@ public class EmbeddedExtractor
      */
     private LabKeyDistributionInfo getDistributionInfo()
     {
-        String version = null;
-        String distributionName = null;
+        String version = "";
+        String distributionName = "";
 
         try
         {
@@ -144,21 +143,21 @@ public class EmbeddedExtractor
                                 distributionDirs.add(zipEntry.getName().split("/", 2)[0]);
                                 if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/VERSION"))
                                 {
-                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
+                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
                                 else if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/distribution"))
                                 {
-                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
+                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
                                 zipIn.closeEntry();
                                 zipEntry = zipIn.getNextEntry();
                             }
                         }
-                        if (StringUtils.isBlank(version))
+                        if (version.isEmpty())
                         {
                             throw new ConfigException("Unable to determine version of distribution.");
                         }
-                        if (StringUtils.isBlank(distributionName))
+                        if (distributionName.isEmpty())
                         {
                             throw new ConfigException("Unable to determine name of distribution.");
                         }

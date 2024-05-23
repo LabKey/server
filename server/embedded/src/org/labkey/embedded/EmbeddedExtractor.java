@@ -26,7 +26,8 @@ public class EmbeddedExtractor
 {
     private static final Log LOG = LogFactory.getLog(EmbeddedExtractor.class);
     private static final int BUFFER_SIZE = 1024 * 64;
-    private static final Set<String> EXPECTED_DIST_DIRS = Set.of("labkeywebapp", "modules");
+    public static final String LABKEYWEBAPP = "labkeywebapp";
+    private static final Set<String> EXPECTED_DIST_DIRS = Set.of(LABKEYWEBAPP, "modules");
 
     private final File currentDir = new File("").getAbsoluteFile();
     private final File labkeyServerJar;
@@ -76,23 +77,20 @@ public class EmbeddedExtractor
         File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
         File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution");
 
+        LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
+
         // Likely upgrading from standalone Tomcat installation or webAppLocation doesn't exist.
         if (!existingVersionFile.exists() || !existingDistributionFile.exists())
+        {
+            LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));
             return true;
+        }
 
         String existingVersion;
-        try
-        {
-            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
         String existingDistributionName;
         try
         {
+            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
             existingDistributionName = Files.readString(existingDistributionFile.toPath()).trim();
         }
         catch (IOException e)
@@ -101,20 +99,24 @@ public class EmbeddedExtractor
         }
 
         LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingDistributionName);
-        LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        boolean shouldExtract = !existingDistribution.equals(incomingDistribution) ||
-                incomingDistribution.buildUrl == null; // Always redeploy distributions that aren't from TeamCity
-        if (shouldExtract)
+        if (!existingDistribution.equals(incomingDistribution))
         {
-            LOG.info("Extracting new LabKey distribution (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            LOG.info("Updating LabKey deployment (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            return true;
         }
-        return shouldExtract;
+        else if (incomingDistribution.buildUrl == null)
+        {
+            LOG.info("Updating LabKey deployment (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Extract distribution info from bundled distribution.zip
-     * @return A list containing the version string
+     * Extract distribution info from bundled distribution.zip.
+     * Also verifies that distribution.zip contains expected files
+     * @return An object describing the distribution
      */
     private LabKeyDistributionInfo getDistributionInfo()
     {
@@ -141,11 +143,11 @@ public class EmbeddedExtractor
                             while (zipEntry != null)
                             {
                                 distributionDirs.add(zipEntry.getName().split("/", 2)[0]);
-                                if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/VERSION"))
+                                if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/VERSION"))
                                 {
                                     version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
-                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/distribution"))
+                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution"))
                                 {
                                     distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
@@ -282,7 +284,7 @@ public class EmbeddedExtractor
             {
                 String entryName = labkeyWebappDirName == null
                         ? entry.getName()
-                        : entry.getName().replaceFirst("^labkeywebapp", labkeyWebappDirName);
+                        : entry.getName().replaceFirst("^" + LABKEYWEBAPP, labkeyWebappDirName);
                 File filePath = new File(destDir, entryName);
                 if (!entry.isDirectory())
                 {
@@ -426,6 +428,6 @@ class LabKeyDistributionInfo
     @Override
     public String toString()
     {
-        return version + "(" + distributionName + ")";
+        return distributionName + ":" + version;
     }
 }

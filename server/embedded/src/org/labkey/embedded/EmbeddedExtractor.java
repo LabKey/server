@@ -1,5 +1,8 @@
 package org.labkey.embedded;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.util.StreamUtils;
 
@@ -11,14 +14,23 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class EmbeddedExtractor
 {
+    private static final Log LOG = LogFactory.getLog(EmbeddedExtractor.class);
     private static final int BUFFER_SIZE = 1024 * 64;
+    public static final String LABKEYWEBAPP = "labkeywebapp";
+    /**
+     * Directories that are expected to exist in 'distribution.zip'.
+     */
+    private static final Set<String> EXPECTED_DIST_DIRS = Set.of(LABKEYWEBAPP, "modules");
 
     private final File currentDir = new File("").getAbsoluteFile();
     private final File labkeyServerJar;
@@ -35,6 +47,7 @@ public class EmbeddedExtractor
         if (files == null || files.length == 0)
         {
             labkeyServerJar = null;
+            LOG.debug("Executable jar not found in " + currentDir);
         }
         else if (files.length > 1)
         {
@@ -43,6 +56,7 @@ public class EmbeddedExtractor
         else
         {
             labkeyServerJar = files[0];
+            LOG.debug("Executable jar found: " + labkeyServerJar.getAbsolutePath());
         }
     }
 
@@ -66,23 +80,20 @@ public class EmbeddedExtractor
         File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
         File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution");
 
-        // Likely upgrading from standalone Tomcat installation or webAppLocation doesn't exist.
+        LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
+
+        // Fresh installation or upgrading from non-embedded Tomcat
         if (!existingVersionFile.exists() || !existingDistributionFile.exists())
+        {
+            LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));
             return true;
+        }
 
         String existingVersion;
-        try
-        {
-            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
         String existingDistributionName;
         try
         {
+            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
             existingDistributionName = Files.readString(existingDistributionFile.toPath()).trim();
         }
         catch (IOException e)
@@ -91,20 +102,32 @@ public class EmbeddedExtractor
         }
 
         LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingDistributionName);
-        LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        return !existingDistribution.equals(incomingDistribution) ||
-                incomingDistribution.buildUrl == null; // Always redeploy distributions that aren't from TeamCity
+        if (!existingDistribution.equals(incomingDistribution))
+        {
+            LOG.info("Updating LabKey (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            return true;
+        }
+        else if (incomingDistribution.buildUrl == null)
+        {
+            LOG.info("Extracting custom-build LabKey distribution (%s)".formatted(existingDistribution));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /**
-     * Extract distribution info from bundled distribution.zip
-     * @return A list containing the version string
+     * Extract distribution info from bundled distribution.zip.
+     * Also verifies that distribution.zip contains expected files
+     * @return An object describing the distribution
      */
     private LabKeyDistributionInfo getDistributionInfo()
     {
-        String version = null;
-        String distributionName = null;
+        String version = "";
+        String distributionName = "";
 
         try
         {
@@ -118,31 +141,55 @@ public class EmbeddedExtractor
 
                     if ("labkey/distribution.zip".equals(entryName))
                     {
+                        Set<String> distributionDirs = new HashSet<>();
                         try (ZipInputStream zipIn = new ZipInputStream(jar.getInputStream(entry)))
                         {
                             ZipEntry zipEntry = zipIn.getNextEntry();
                             // iterates over entries in the zip file
                             while (zipEntry != null)
                             {
-                                if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/VERSION"))
+                                distributionDirs.add(zipEntry.getName().split("/", 2)[0]);
+                                if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/VERSION"))
                                 {
-                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
+                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
-                                if (!zipEntry.isDirectory() && zipEntry.getName().equals("labkeywebapp/WEB-INF/classes/distribution"))
+                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution"))
                                 {
-                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8);
+                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
                                 zipIn.closeEntry();
                                 zipEntry = zipIn.getNextEntry();
                             }
                         }
-                        if (version == null)
+                        if (version.isEmpty())
                         {
                             throw new ConfigException("Unable to determine version of distribution.");
                         }
-                        if (distributionName == null)
+                        if (distributionName.isEmpty())
                         {
                             throw new ConfigException("Unable to determine name of distribution.");
+                        }
+                        if (!distributionDirs.equals(EXPECTED_DIST_DIRS))
+                        {
+                            StringBuilder msg = new StringBuilder("Corrupted distribution; contents are not as expected.");
+
+                            Set<String> missingDirs = EXPECTED_DIST_DIRS.stream().filter(d -> !distributionDirs.contains(d)).collect(Collectors.toSet());
+                            if (!missingDirs.isEmpty())
+                            {
+                                msg.append(" Missing directories: ");
+                                msg.append(missingDirs);
+                                msg.append(".");
+                            }
+
+                            Set<String> extraDirs = distributionDirs.stream().filter(d -> !EXPECTED_DIST_DIRS.contains(d)).collect(Collectors.toSet());
+                            if (!extraDirs.isEmpty())
+                            {
+                                msg.append(" Unexpected directories: ");
+                                msg.append(extraDirs);
+                                msg.append(".");
+                            }
+
+                            throw new IllegalStateException(msg.toString());
                         }
                         return new LabKeyDistributionInfo(version, distributionName);
                     }
@@ -162,6 +209,7 @@ public class EmbeddedExtractor
         if (shouldExtract(webAppLocation))
         {
             labkeyWebappDirName = webAppLocation.getName();
+            deleteOldDistribution(webAppLocation);
             extractExecutableJar(webAppLocation.getParentFile(), false);
         }
     }
@@ -241,7 +289,7 @@ public class EmbeddedExtractor
             {
                 String entryName = labkeyWebappDirName == null
                         ? entry.getName()
-                        : entry.getName().replaceFirst("^labkeywebapp", labkeyWebappDirName);
+                        : entry.getName().replaceFirst("^" + LABKEYWEBAPP, labkeyWebappDirName);
                 File filePath = new File(destDir, entryName);
                 if (!entry.isDirectory())
                 {
@@ -280,6 +328,35 @@ public class EmbeddedExtractor
         }
     }
 
+    /**
+     * Delete all files from the previously extracted 'distribution.zip'
+     * @param webAppLocation file object for 'labkeywebapp' directory
+     */
+    private void deleteOldDistribution(File webAppLocation)
+    {
+        try
+        {
+            Set<File> toDelete = new HashSet<>(1 + EXPECTED_DIST_DIRS.size());
+            if (webAppLocation.exists())
+            {
+                toDelete.add(webAppLocation);
+            }
+            EXPECTED_DIST_DIRS.stream()
+                    .map(dir -> new File(webAppLocation.getParentFile(), dir))
+                    .filter(File::exists)
+                    .forEach(toDelete::add);
+
+            for (File f : toDelete)
+            {
+                LOG.debug("Deleting directory from previous LabKey installation: " + f.getAbsolutePath());
+                FileUtils.forceDelete(f);
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to delete existing LabKey installation", e);
+        }
+    }
 }
 
 class LabKeyDistributionInfo
@@ -330,5 +407,11 @@ class LabKeyDistributionInfo
         result = 31 * result + (buildUrl != null ? buildUrl.hashCode() : 0);
         result = 31 * result + distributionName.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return distributionName + ":" + version;
     }
 }

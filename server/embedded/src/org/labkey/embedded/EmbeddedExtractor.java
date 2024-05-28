@@ -203,9 +203,8 @@ public class EmbeddedExtractor
         if (shouldExtract(webAppLocation))
         {
             labkeyWebappDirName = webAppLocation.getName();
-            File backupDir = createTempBackup(webAppLocation);
+            deleteOldDistribution(webAppLocation);
             extractExecutableJar(webAppLocation.getParentFile(), false);
-            deleteTempBackup(backupDir);
         }
     }
 
@@ -323,54 +322,33 @@ public class EmbeddedExtractor
         }
     }
 
-    private File createTempBackup(File webAppLocation)
+    /**
+     * Delete all files from the previously extracted 'distribution.zip'
+     * @param webAppLocation file object for 'labkeywebapp' directory
+     */
+    private void deleteOldDistribution(File webAppLocation)
     {
         try
         {
-            Set<File> toBackup = new HashSet<>(1 + EXPECTED_DIST_DIRS.size());
+            Set<File> toDelete = new HashSet<>(1 + EXPECTED_DIST_DIRS.size());
             if (webAppLocation.exists())
             {
-                toBackup.add(webAppLocation);
+                toDelete.add(webAppLocation);
             }
             EXPECTED_DIST_DIRS.stream()
                     .map(dir -> new File(webAppLocation.getParentFile(), dir))
                     .filter(File::exists)
-                    .forEach(toBackup::add);
+                    .forEach(toDelete::add);
 
-            if (!toBackup.isEmpty())
+            for (File f : toDelete)
             {
-                File backupDir = Files.createTempDirectory("labkeyBackup").toFile();
-
-                for (File f : toBackup)
-                {
-                    FileUtils.moveToDirectory(f, backupDir, true);
-                }
-                return backupDir;
-            }
-            else
-            {
-                return null;
+                LOG.debug("Deleting directory from previous LabKey installation: " + f.getAbsolutePath());
+                FileUtils.forceDelete(f);
             }
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Failed to backup existing LabKey installation", e);
-        }
-    }
-
-    private void deleteTempBackup(File backupDir)
-    {
-        if (backupDir != null)
-        {
-            try
-            {
-                FileUtils.forceDelete(backupDir); // Delete temp backup
-                LOG.debug("Deleted temporary backup: " + backupDir.getAbsolutePath());
-            }
-            catch (IOException e)
-            {
-                LOG.warn("Failed to delete temporary backup: " + backupDir.getAbsolutePath(), e);
-            }
+            throw new RuntimeException("Failed to delete existing LabKey installation", e);
         }
     }
 }

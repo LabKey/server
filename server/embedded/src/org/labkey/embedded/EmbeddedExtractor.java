@@ -82,7 +82,7 @@ public class EmbeddedExtractor
 
         LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        // Likely upgrading from standalone Tomcat installation or webAppLocation doesn't exist.
+        // Fresh installation or upgrading from non-embedded Tomcat
         if (!existingVersionFile.exists() || !existingDistributionFile.exists())
         {
             LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));
@@ -105,15 +105,18 @@ public class EmbeddedExtractor
 
         if (!existingDistribution.equals(incomingDistribution))
         {
-            LOG.info("Updating LabKey deployment (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            LOG.info("Updating LabKey (%s -> %s)".formatted(existingDistribution, incomingDistribution));
             return true;
         }
         else if (incomingDistribution.buildUrl == null)
         {
-            LOG.info("Updating LabKey deployment (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            LOG.info("Extracting custom-build LabKey distribution (%s)".formatted(existingDistribution));
             return true;
         }
-        return false;
+        else
+        {
+            return false;
+        }
     }
 
     /**

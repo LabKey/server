@@ -27,6 +27,9 @@ public class EmbeddedExtractor
     private static final Log LOG = LogFactory.getLog(EmbeddedExtractor.class);
     private static final int BUFFER_SIZE = 1024 * 64;
     public static final String LABKEYWEBAPP = "labkeywebapp";
+    /**
+     * Directories that are expected to exist in 'distribution.zip'.
+     */
     private static final Set<String> EXPECTED_DIST_DIRS = Set.of(LABKEYWEBAPP, "modules");
 
     private final File currentDir = new File("").getAbsoluteFile();

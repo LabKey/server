@@ -124,6 +124,7 @@ class RenamedDependencyRule implements ComponentMetadataRule {
                     }
                 }
             }
+
             // 'org.codehaus.woodstox:woodstox-core-asl' moved to 'com.fasterxml.woodstox:woodstox-core' at version 5.0
             else if (id.group == 'org.codehaus.woodstox' && id.name == 'woodstox-core-asl') {
                 allVariants {
@@ -132,6 +133,7 @@ class RenamedDependencyRule implements ComponentMetadataRule {
                     }
                 }
             }
+
             // Normalize bouncycastle dependencies to detect conflict across jdk variants
             else if (id.group == 'bouncycastle' || id.group == 'org.bouncycastle') {
                 var fixedName = id.name
@@ -160,6 +162,7 @@ class RenamedDependencyRule implements ComponentMetadataRule {
                     }
                 }
             }
+
             // 'org.graalvm.js:js' moved to 'org.graalvm.polyglot:js-community' at version 23.1.0
             else if (id.group == 'org.graalvm.js' && id.name == 'js') {
                 allVariants {

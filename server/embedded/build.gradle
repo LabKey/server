@@ -1,5 +1,8 @@
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.PomFileHelper
+import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.task.CheckForVersionConflicts
+import org.labkey.gradle.plugin.extension.ServerDeployExtension
 
 plugins {
     id "java"
@@ -83,6 +86,19 @@ dependencies {
 }
 
 BuildUtils.addLabKeyDependency(project: project, config: "implementation", depProjectPath: BuildUtils.getBootstrapProjectPath(gradle))
+
+project.tasks.register(
+    "checkVersionConflicts", CheckForVersionConflicts)
+        { CheckForVersionConflicts task ->
+            task.group = GroupNames.BUILD
+            task.description = "Check for conflicts in version numbers of jar file and files already in the build directory ${ServerDeployExtension.getEmbeddedServerDeployDirectory(project)}. " +
+                    "Default action on detecting a conflict is to fail.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                    "conflicting version(s) in the ${ServerDeployExtension.getEmbeddedServerDeployDirectory(project)} directory to be removed."
+            task.directory = new File(ServerDeployExtension.getEmbeddedServerDeployDirectory(project))
+            task.extension = "jar"
+            task.cleanTask = "server:cleanEmbeddedDeploy"
+            task.collection = project.tasks.bootJar.outputs.files
+        }
 
 project.publishing {
     publications {

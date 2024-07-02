@@ -173,19 +173,19 @@ account managers so that we can coordinate edits with other customized copies of
         </Root>
 
         <!-- category for server side script messages -->
-        <Logger name="org.labkey.api.script.ScriptService.Console" level="info">
+        <Logger name="org.labkey.api.script.ScriptService.Console" additivity="false" level="info">
             <AppenderRef ref="SessionAppender"/>
         </Logger>
 
         <!-- category for Mule messages -->
-        <Logger name="org.mule.MuleManager" level="info"/>
+        <Logger name="org.mule.MuleManager" additivity="false" level="info"/>
 
         <!--
             <Logger name="org.labkey.pipeline.mule.transformers" level="debug"/>
         -->
 
         <!-- category for jasper messages -->
-        <Logger name="org.apache.jasper" level="warn"/>
+        <Logger name="org.apache.jasper" additivity="false" level="warn"/>
 
         <Logger name="org.labkey" />
 
@@ -201,7 +201,7 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="LABKEY"/>
         </Logger> -->
 
-        <Logger name="mondrian." level="info" />
+        <Logger name="mondrian." additivity="false" level="info" />
 
         <!--
             <Logger name="org.labkey.wiki" level="debug"/>
@@ -212,13 +212,13 @@ account managers so that we can coordinate edits with other customized copies of
         -->
 
         <!-- only show errors from PipelineJob output -->
-        <Logger name="org.labkey.api.pipeline.PipelineJob" level="error"/>
+        <Logger name="org.labkey.api.pipeline.PipelineJob" additivity="false" level="error"/>
 
         <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
-        <Logger name="org.apache.pdfbox" level="fatal"/>
+        <Logger name="org.apache.pdfbox" additivity="false" level="fatal"/>
 
         <!-- Suppress EHCache "maxElementsInMemory of 0" warnings, Issue 49593 -->
-        <Logger name="net.sf.ehcache.config.CacheConfiguration" level="error"/>
+        <Logger name="net.sf.ehcache.config.CacheConfiguration" additivity="false" level="error"/>
 
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--
@@ -232,15 +232,15 @@ account managers so that we can coordinate edits with other customized copies of
             <Logger name="org.labkey.api.data.Table" level="debug"/>
         -->
 
-        <Logger name="org.labkey.api.data"/>
+        <Logger name="org.labkey.api.data" additivity="false"/>
 
-        <Logger name="org.labkey.api.dataiterator"/>
+        <Logger name="org.labkey.api.dataiterator" additivity="false"/>
 
-        <Logger name="org.labkey.docker">
+        <Logger name="org.labkey.docker" additivity="false">
             <level value="info"/>
         </Logger>
 
-        <Logger name="org.labkey.rstudio" level="info"/>
+        <Logger name="org.labkey.rstudio" additivity="false" level="info"/>
 
         <!--
             <Logger name="org.labkey.api.cache" level="debug"/>
@@ -274,11 +274,11 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="INDEXED_DOCUMENTS"/>
         </Logger>
 
-        <Logger name="org.labkey.api.util.DebugInfoDumper" level="debug">
+        <Logger name="org.labkey.api.util.DebugInfoDumper" additivity="false" level="debug">
             <AppenderRef ref="THREAD_DUMP"/>
         </Logger>
 
-        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction"  additivity="false" level="warn">
+        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction" additivity="false" level="warn">
             <AppenderRef ref="CSP_REPORT" />
             <AppenderRef ref="CONSOLE"/>
         </Logger>
@@ -301,7 +301,7 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 
-        <Logger name="org.labkey.audit.event" level="OFF">
+        <Logger name="org.labkey.audit.event" additivity="false" level="OFF">
             <AppenderRef ref="LABKEY_AUDIT"/>
             <AppenderRef ref="CONSOLE"/>
         </Logger>

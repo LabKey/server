@@ -178,14 +178,14 @@ account managers so that we can coordinate edits with other customized copies of
         </Logger>
 
         <!-- category for Mule messages -->
-        <Logger name="org.mule.MuleManager" additivity="false" level="info"/>
+        <Logger name="org.mule.MuleManager" level="info"/>
 
         <!--
             <Logger name="org.labkey.pipeline.mule.transformers" level="debug"/>
         -->
 
         <!-- category for jasper messages -->
-        <Logger name="org.apache.jasper" additivity="false" level="warn"/>
+        <Logger name="org.apache.jasper" level="warn"/>
 
         <Logger name="org.labkey" />
 
@@ -201,7 +201,7 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="LABKEY"/>
         </Logger> -->
 
-        <Logger name="mondrian." additivity="false" level="info" />
+        <Logger name="mondrian." level="info" />
 
         <!--
             <Logger name="org.labkey.wiki" level="debug"/>
@@ -215,10 +215,10 @@ account managers so that we can coordinate edits with other customized copies of
         <Logger name="org.labkey.api.pipeline.PipelineJob" additivity="false" level="error"/>
 
         <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
-        <Logger name="org.apache.pdfbox" additivity="false" level="fatal"/>
+        <Logger name="org.apache.pdfbox" level="fatal"/>
 
         <!-- Suppress EHCache "maxElementsInMemory of 0" warnings, Issue 49593 -->
-        <Logger name="net.sf.ehcache.config.CacheConfiguration" additivity="false" level="error"/>
+        <Logger name="net.sf.ehcache.config.CacheConfiguration" level="error"/>
 
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--

@@ -173,7 +173,7 @@ account managers so that we can coordinate edits with other customized copies of
         </Root>
 
         <!-- category for server side script messages -->
-        <Logger name="org.labkey.api.script.ScriptService.Console" additivity="false" level="info">
+        <Logger name="org.labkey.api.script.ScriptService.Console" level="info">
             <AppenderRef ref="SessionAppender"/>
         </Logger>
 
@@ -212,7 +212,7 @@ account managers so that we can coordinate edits with other customized copies of
         -->
 
         <!-- only show errors from PipelineJob output -->
-        <Logger name="org.labkey.api.pipeline.PipelineJob" additivity="false" level="error"/>
+        <Logger name="org.labkey.api.pipeline.PipelineJob" level="error"/>
 
         <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
         <Logger name="org.apache.pdfbox" level="fatal"/>
@@ -232,15 +232,15 @@ account managers so that we can coordinate edits with other customized copies of
             <Logger name="org.labkey.api.data.Table" level="debug"/>
         -->
 
-        <Logger name="org.labkey.api.data" additivity="false"/>
+        <Logger name="org.labkey.api.data" />
 
-        <Logger name="org.labkey.api.dataiterator" additivity="false"/>
+        <Logger name="org.labkey.api.dataiterator" />
 
-        <Logger name="org.labkey.docker" additivity="false">
+        <Logger name="org.labkey.docker" >
             <level value="info"/>
         </Logger>
 
-        <Logger name="org.labkey.rstudio" additivity="false" level="info"/>
+        <Logger name="org.labkey.rstudio" level="info"/>
 
         <!--
             <Logger name="org.labkey.api.cache" level="debug"/>
@@ -274,13 +274,12 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="INDEXED_DOCUMENTS"/>
         </Logger>
 
-        <Logger name="org.labkey.api.util.DebugInfoDumper" additivity="false" level="debug">
+        <Logger name="org.labkey.api.util.DebugInfoDumper" level="debug">
             <AppenderRef ref="THREAD_DUMP"/>
         </Logger>
 
-        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction" additivity="false" level="warn">
+        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction" level="warn">
             <AppenderRef ref="CSP_REPORT" />
-            <AppenderRef ref="CONSOLE"/>
         </Logger>
 
         <!--
@@ -293,17 +292,16 @@ account managers so that we can coordinate edits with other customized copies of
             </Logger>
          -->
 
-        <Logger name="org.labkey.core.admin.ActionsTsvWriter" additivity="false" level="info">
+        <Logger name="org.labkey.core.admin.ActionsTsvWriter" level="info">
             <AppenderRef ref="ACTION_STATS"/>
         </Logger>
 
-        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler.QueryProfilerThread" additivity="false" level="info">
+        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler.QueryProfilerThread" level="info">
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 
-        <Logger name="org.labkey.audit.event" additivity="false" level="OFF">
+        <Logger name="org.labkey.audit.event" level="OFF">
             <AppenderRef ref="LABKEY_AUDIT"/>
-            <AppenderRef ref="CONSOLE"/>
         </Logger>
 
         <!--
@@ -339,6 +337,6 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="CONSOLE"/>
         </Logger>
 
-        <Logger name="NoOpLogger" level="OFF" additivity="false"/>
+        <Logger name="NoOpLogger" level="OFF" />
     </Loggers>
 </Configuration>

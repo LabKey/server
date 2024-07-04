@@ -292,11 +292,11 @@ account managers so that we can coordinate edits with other customized copies of
             </Logger>
          -->
 
-        <Logger name="org.labkey.core.admin.ActionsTsvWriter" level="info">
+        <Logger name="org.labkey.core.admin.ActionsTsvWriter" additivity="false" level="info">
             <AppenderRef ref="ACTION_STATS"/>
         </Logger>
 
-        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler.QueryProfilerThread" level="info">
+        <Logger name="org.labkey.api.data.queryprofiler.QueryProfiler.QueryProfilerThread" additivity="false" level="info">
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 
@@ -337,6 +337,6 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="CONSOLE"/>
         </Logger>
 
-        <Logger name="NoOpLogger" level="OFF" />
+        <Logger name="NoOpLogger" level="OFF" additivity="false"/>
     </Loggers>
 </Configuration>

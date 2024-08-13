@@ -24,6 +24,6 @@ prunsrv.exe //IS//labkeyServer ^
     --Startup manual ^
     --LogLevel Debug ^
     --JvmOptions "-Djava.io.tmpdir=%LABKEY_HOME%\labkey-tmp;-XX:+HeapDumpOnOutOfMemoryError;-XX:HeapDumpPath=%LABKEY_HOME%\labkey-tmp;-DterminateOnStartupFailure=true;%JvmArgs%" ^
-    --JvmOptions9 "--add-opens=java.base/java.lang=ALL-UNNAMED#--add-opens=java.base/java.io=ALL-UNNAMED#--add-opens=java.base/java.util=ALL-UNNAMED#--add-opens=java.base/java.util.concurrent=ALL-UNNAMED#--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED" ^
+    --JvmOptions9 "--add-opens=java.base/java.lang=ALL-UNNAMED#--add-opens=java.base/java.io=ALL-UNNAMED#--add-opens=java.base/java.nio=ALL-UNNAMED#--add-opens=java.base/java.util=ALL-UNNAMED#--add-opens=java.base/java.util.concurrent=ALL-UNNAMED#--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED" ^
     --JvmMs 2048 ^
     --JvmMx 2048

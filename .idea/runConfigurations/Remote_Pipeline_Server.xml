@@ -2,7 +2,7 @@
   <configuration default="false" name="Remote Pipeline Server" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="org.labkey.bootstrap.RemoteServerBootstrap" />
-    <option name="VM_PARAMETERS" value="-Xmx384m --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED" />
+    <option name="VM_PARAMETERS" value="-Xmx384m --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED" />
     <option name="PROGRAM_PARAMETERS" value="-configdir=$PROJECT_DIR$/server/configs/config-remote -modulesdir=$PROJECT_DIR$/build/deploy/modules -webappdir=$PROJECT_DIR$/build/deploy/labkeyWebapp" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/build/deploy" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />

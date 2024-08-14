@@ -4,7 +4,7 @@
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="org.labkey.embedded.LabKeyServer" />
     <module name="labkey-server.server.embedded.main" />
-    <option name="VM_PARAMETERS" value="--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED -Ddevmode=true -ea -Dsun.io.useCanonCaches=false -Xmx2G" />
+    <option name="VM_PARAMETERS" value="--add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED -Ddevmode=true -ea -Dsun.io.useCanonCaches=false -Xmx2G" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/build/deploy/embedded" />
     <method v="2">
       <option name="Make" enabled="true" />

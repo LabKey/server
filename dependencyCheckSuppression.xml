@@ -224,7 +224,7 @@
     </suppress>
 
     <!--
-    suppress CVEs bzip2-0.9.1.jar which enters through DiscvrLabKeyModules/SequenceAnalysis
+    suppress CVEs bzip2-0.9.1.jar which enters through DiscvrLabKeyModules/SequenceAnalysis and is matching CVEs from the bzip2 command-line utility
     -->
     <suppress>
         <notes><![CDATA[

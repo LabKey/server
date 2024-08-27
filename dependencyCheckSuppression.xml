@@ -223,5 +223,19 @@
         <vulnerabilityName>CVE-2024-23076</vulnerabilityName>
     </suppress>
 
+    <!--
+    suppress CVEs bzip2-0.9.1.jar which enters through DiscvrLabKeyModules/SequenceAnalysis and is matching CVEs from the bzip2 command-line utility
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: bzip2-0.9.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
+        <cve>CVE-2019-12900</cve>
+        <cve>CVE-2011-4089</cve>
+        <cve>CVE-2010-0405</cve>
+        <cve>CVE-2005-1260</cve>
+    </suppress>
+
 </suppressions>
 

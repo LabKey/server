@@ -16,7 +16,7 @@ sourceSets {
 
 dependencies
         {
-            def tomcatVersion = BuildUtils.useEmbeddedTomcat(project) ? project.springBootTomcatVersion : project.apacheTomcatVersion
+            def tomcatVersion = project.springBootTomcatVersion
 
             implementation "org.apache.tomcat:tomcat-api:${tomcatVersion}"
             implementation "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"

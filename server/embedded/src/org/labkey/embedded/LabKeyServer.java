@@ -75,7 +75,7 @@ public class LabKeyServer
                 "server.compression.enabled", "true",
 
                 "server.tomcat.accesslog.enabled", "true",
-                "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referrer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+                "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
                 "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i"
         ));
         application.setBannerMode(Banner.Mode.OFF);

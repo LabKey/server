@@ -4,7 +4,9 @@ import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -23,6 +25,14 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     public LabKeySpringBootClassLoader(ClassLoader parent)
     {
         super(parent);
+
+        // HACK: This ensures that the "embedded" URLs get added first, so our canonical log4j2.xml file is found even
+        // if dependencies include their own version. See Issue 51286.
+        if (parent instanceof URLClassLoader ucl)
+        {
+            Arrays.stream(ucl.getURLs())
+                .forEach(this::addURL);
+        }
     }
 
     @Override
@@ -50,7 +60,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
         // Eventually we should shift to only configuring and loading SLF4J and Log4J via Spring Boot and not
         // from inside the webapp.
         if (name.equalsIgnoreCase("META-INF/services/org.apache.logging.log4j.util.PropertySource") ||
-           name.equalsIgnoreCase("META-INF/services/org.apache.logging.log4j.spi.Provider") ||
+            name.equalsIgnoreCase("META-INF/services/org.apache.logging.log4j.spi.Provider") ||
             name.equalsIgnoreCase("META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat"))
         {
             List<URL> urls = new ArrayList<>();

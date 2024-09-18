@@ -1,8 +1,10 @@
 package org.labkey.embedded;
 
+import org.jboss.logging.Logger;
 import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -17,6 +19,8 @@ import java.util.List;
  */
 public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
 {
+    private static final Logger LOG = Logger.getLogger(LabKeySpringBootClassLoader.class);
+
     public LabKeySpringBootClassLoader()
     {
         super();
@@ -26,12 +30,26 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     {
         super(parent);
 
-        // HACK: This ensures that the "embedded" URLs get added first, so our canonical log4j2.xml file is found even
-        // if dependencies include their own version. See Issue 51286.
+        // HACK: This ensures that the jar containing our canonical log4j2.xml file gets added first, so it's found
+        // even if dependencies include their own version. See Issue 51286.
         if (parent instanceof URLClassLoader ucl)
         {
             Arrays.stream(ucl.getURLs())
-                .forEach(this::addURL);
+                .forEach(url -> {
+                    // Test this url via a class loader with no parent; if URL resolves a log4j2.xml file, add it and log.
+                    try (URLClassLoader loader = new URLClassLoader(new URL[]{url}, null); InputStream is = loader.getResourceAsStream("log4j2.xml"))
+                    {
+                        if (is != null)
+                        {
+                            addURL(url);
+                            LOG.info("Added URL that resolves log4j2.xml to class loader: " + url);
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                });
         }
     }
 

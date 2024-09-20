@@ -1,10 +1,14 @@
 package org.labkey.embedded;
 
+import org.jboss.logging.Logger;
 import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -15,6 +19,8 @@ import java.util.List;
  */
 public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
 {
+    private static final Logger LOG = Logger.getLogger(LabKeySpringBootClassLoader.class);
+
     public LabKeySpringBootClassLoader()
     {
         super();
@@ -23,6 +29,28 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     public LabKeySpringBootClassLoader(ClassLoader parent)
     {
         super(parent);
+
+        // HACK: This ensures that the jar containing our canonical log4j2.xml file gets added first, so it's found
+        // even if dependencies include their own version. See Issue 51286.
+        if (parent instanceof URLClassLoader ucl)
+        {
+            Arrays.stream(ucl.getURLs())
+                .forEach(url -> {
+                    // Test this url via a class loader with no parent; if URL resolves a log4j2.xml file, add it and log.
+                    try (URLClassLoader loader = new URLClassLoader(new URL[]{url}, null); InputStream is = loader.getResourceAsStream("log4j2.xml"))
+                    {
+                        if (is != null)
+                        {
+                            addURL(url);
+                            LOG.info("Added URL that resolves log4j2.xml to class loader: " + url);
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                });
+        }
     }
 
     @Override
@@ -50,7 +78,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
         // Eventually we should shift to only configuring and loading SLF4J and Log4J via Spring Boot and not
         // from inside the webapp.
         if (name.equalsIgnoreCase("META-INF/services/org.apache.logging.log4j.util.PropertySource") ||
-           name.equalsIgnoreCase("META-INF/services/org.apache.logging.log4j.spi.Provider") ||
+            name.equalsIgnoreCase("META-INF/services/org.apache.logging.log4j.spi.Provider") ||
             name.equalsIgnoreCase("META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat"))
         {
             List<URL> urls = new ArrayList<>();

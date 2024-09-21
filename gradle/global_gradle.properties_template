@@ -4,6 +4,7 @@ deployMode=dev
 # uncomment to enable artifactory password authentication
 #artifactory_user=<your user>
 # the artifactory password or identity token for the user above
+# note: if you've configured a .npmrc file then you'll likely need to provide a base64-encoded credential there as well
 #artifactory_password=<your password or identity token>
 
 # Uncomment to include version control information in the generated module.xml files for locally built modules

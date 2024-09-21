@@ -146,7 +146,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 // Add the SMTP config
                 context.getNamingResources().addResource(getMailResource());
 
-                // And the master encryption key
+                // Add the encryption key(s)
                 context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
                 if (contextProperties.getOldEncryptionKey() != null)
                 {

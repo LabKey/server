@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -153,9 +154,11 @@ public class EmbeddedExtractor
                                 {
                                     version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
                                 }
-                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution"))
+                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution.properties"))
                                 {
-                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
+                                    Properties props = new Properties();
+                                    props.load(zipIn);
+                                    distributionName = props.getProperty("name", "").trim();
                                 }
                                 zipIn.closeEntry();
                                 zipEntry = zipIn.getNextEntry();
@@ -368,11 +371,11 @@ class LabKeyDistributionInfo
     /**
      * 'VERSION' file is expected to contain one or two lines. The LabKey version (e.g. 24.3-SNAPSHOT) is the first line.
      * The TeamCity BUILD_URL is the second line if the distribution was produced by TeamCity
-     * 'distribution' file is expected to contain the name of the deployed distribution
+     * 'distribution.properties' file is expected to contain a 'name' property holding the deployed distribution's name
      * @param versionFileContents contents of 'labkeywebapp/WEB-INF/classes/VERSION'
-     * @param distributionFileContents contents of 'labkeywebapp/WEB-INF/classes/distribution'
+     * @param distributionName value of the 'name' property in 'labkeywebapp/WEB-INF/classes/distribution.properties'
      */
-    public LabKeyDistributionInfo(String versionFileContents, String distributionFileContents)
+    public LabKeyDistributionInfo(String versionFileContents, String distributionName)
     {
         String[] splitVersion = versionFileContents.trim().split("\\n");
         version = splitVersion[0];
@@ -384,7 +387,7 @@ class LabKeyDistributionInfo
         {
             buildUrl = null;
         }
-        distributionName = distributionFileContents;
+        this.distributionName = distributionName;
     }
 
     @Override

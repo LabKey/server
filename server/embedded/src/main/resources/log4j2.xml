@@ -215,7 +215,7 @@ account managers so that we can coordinate edits with other customized copies of
         <Logger name="org.labkey.api.pipeline.PipelineJob" level="error"/>
 
         <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
-        <Logger name="org.apache.pdfbox" level="fatal"/>
+        <Logger name="org.apache.pdfbox" level="debug"/>
 
         <!-- Suppress EHCache "maxElementsInMemory of 0" warnings, Issue 49593 -->
         <Logger name="net.sf.ehcache.config.CacheConfiguration" level="error"/>

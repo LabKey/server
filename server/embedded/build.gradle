@@ -48,36 +48,37 @@ dependencies {
         }
     }
 
-    // Allows forcing a Tomcat version that differs from spring-boot's version (e.g., to address CVEs or test a release candidate)
+    // Allows forcing a Tomcat version that differs from spring-boot's version (e.g., to address CVEs or regressions,
+    // or to test a Tomcat release candidate)
     implementation('org.apache.tomcat.embed:tomcat-embed-core') {
         version {
-            strictly "${springBootTomcatVersion}"
+            strictly "${apacheTomcatVersion}"
         }
     }
     implementation('org.apache.tomcat.embed:tomcat-embed-el') {
         version {
-            strictly "${springBootTomcatVersion}"
+            strictly "${apacheTomcatVersion}"
         }
     }
     implementation('org.apache.tomcat.embed:tomcat-embed-websocket') {
         version {
-            strictly "${springBootTomcatVersion}"
+            strictly "${apacheTomcatVersion}"
         }
     }
     implementation('org.apache.tomcat:tomcat-annotations-api') {
         version {
-            strictly "${springBootTomcatVersion}"
+            strictly "${apacheTomcatVersion}"
         }
     }
     implementation('org.apache.tomcat:tomcat-jsp-api') {
         version {
-            strictly "${springBootTomcatVersion}"
+            strictly "${apacheTomcatVersion}"
         }
     }
 
-    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${springBootTomcatVersion}"
+    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${apacheTomcatVersion}"
     runtimeOnly group: "com.sun.mail", name: "jakarta.mail", version: "${javaMailVersion}"
-    runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${springBootTomcatVersion}"
+    runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${apacheTomcatVersion}"
     runtimeOnly "org.postgresql:postgresql:${postgresqlDriverVersion}"
     runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
     implementation "commons-io:commons-io:${commonsIoVersion}"
@@ -93,7 +94,7 @@ project.tasks.register(
         { CheckForVersionConflicts task ->
             task.group = GroupNames.BUILD
             task.description = "Check for conflicts in version numbers of jar file and files already in the build directory ${ServerDeployExtension.getEmbeddedServerDeployDirectory(project)}. " +
-                    "Default action on detecting a conflict is to fail.  Use -PversionConflictAction=[delete|fail|warn] to change this behavior.  The value 'delete' will cause the " +
+                    "Default action on detecting a conflict is to fail. Use -PversionConflictAction=[delete|fail|warn] to change this behavior. The value 'delete' will cause the " +
                     "conflicting version(s) in the ${ServerDeployExtension.getEmbeddedServerDeployDirectory(project)} directory to be removed."
             task.directory = new File(ServerDeployExtension.getEmbeddedServerDeployDirectory(project))
             task.extension = "jar"
@@ -133,8 +134,8 @@ project.artifacts {
 }
 
 // The primary artifact from this build should be the jar produced from the bootJar task as that contains
-// the SpringBoot classes.  This default jar task produces a jar file containing only the classes from src,
-// which no one really needs.  If produced, this is the jar file that will be used in distributions, making
+// the SpringBoot classes. This default jar task produces a jar file containing only the classes from src,
+// which no one really needs. If produced, this is the jar file that will be used in distributions, making
 // them not really embedding anything.
 jar {
  onlyIf { false }

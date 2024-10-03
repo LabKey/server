@@ -88,7 +88,93 @@ rootProject.name="labkey-server"
 
 apply from: 'gradle/settings/parameters.gradle'
 
+import groovy.transform.CompileStatic
 import org.labkey.gradle.util.BuildUtils
+
+
+// Define known renamed packages. We can't define a resolution strategy here but this will trigger a build failure if
+// a conflicting dependency is introduced. Note: This information isn't recognized by ':showDiscrepancies'
+// https://docs.gradle.org/current/userguide/dependency_capability_conflict.html
+dependencyResolutionManagement {
+    components {
+        all(RenamedDependencyRule)
+    }
+}
+
+@CompileStatic
+class RenamedDependencyRule implements ComponentMetadataRule {
+    void execute(ComponentMetadataContext context) {
+        context.details.with {
+            // Make local and remote modules collide
+            if (id.group == 'org.labkey.module') {
+                allVariants {
+                    it.withCapabilities {
+                        it.addCapability('org.labkey', id.name, id.version)
+                    }
+                }
+            }
+
+            // 'net.hydromatic' is the new group coordinate for 'eigenbase' packages
+            if (id.group == 'eigenbase') {
+                allVariants {
+                    it.withCapabilities {
+                        // Declare that eigenbase:eigenbase-* packages provide net.hydromatic:eigenbase-* capability, but with an older version
+                        // Affects 'eigenbase-properties', 'eigenbase-resgen', and 'eigenbase-xom'
+                        it.addCapability('net.hydromatic', id.name, id.version)
+                    }
+                }
+            }
+
+            // 'org.codehaus.woodstox:woodstox-core-asl' moved to 'com.fasterxml.woodstox:woodstox-core' at version 5.0
+            else if (id.group == 'org.codehaus.woodstox' && id.name == 'woodstox-core-asl') {
+                allVariants {
+                    it.withCapabilities {
+                        it.addCapability('com.fasterxml.woodstox', 'woodstox-core', id.version)
+                    }
+                }
+            }
+
+            // Normalize bouncycastle dependencies to detect conflict across jdk variants
+            else if (id.group == 'bouncycastle' || id.group == 'org.bouncycastle') {
+                var fixedName = id.name
+
+                // Strip '-jdkXX' suffix
+                var splitAt = fixedName.indexOf("-jdk")
+                if (splitAt >= 0) {
+                    fixedName = fixedName.substring(0, splitAt)
+                }
+
+                // bcmail renamed to bcpkix at version 1.47
+                if (fixedName == 'bcmail') {
+                    fixedName = 'bcpkix'
+                }
+
+                // Insert '.' into old version numbers (e.g. '140' -> '1.40')
+                var fixedVersion = id.version
+                if (!fixedVersion.contains('.')) {
+                    fixedVersion = "1." + fixedVersion.substring(1)
+                }
+
+                allVariants {
+                    it.withCapabilities {
+                        // Add normalized capability to catch conflicts
+                        it.addCapability('org.bouncycastle', fixedName, fixedVersion)
+                    }
+                }
+            }
+
+            // 'org.graalvm.js:js' moved to 'org.graalvm.polyglot:js-community' at version 23.1.0
+            else if (id.group == 'org.graalvm.js' && id.name == 'js') {
+                allVariants {
+                    it.withCapabilities {
+                        it.addCapability('org.graalvm.polyglot', 'js-community', id.version)
+                    }
+                }
+            }
+        }
+    }
+}
+
 /*
   This file is used to determine which projects will be configured during the Gradle build of LabKey Server.
 

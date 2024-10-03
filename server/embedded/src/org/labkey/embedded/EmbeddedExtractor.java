@@ -83,7 +83,7 @@ public class EmbeddedExtractor
 
         LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        // Fresh installation
+        // Fresh installation or upgrading from a pre-distribution.properties distribution
         if (!existingVersionFile.exists() || !existingDistributionFile.exists())
         {
             LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));

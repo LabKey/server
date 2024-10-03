@@ -79,11 +79,11 @@ public class EmbeddedExtractor
     private boolean shouldExtract(File webAppLocation)
     {
         File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
-        File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution");
+        File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution.properties");
 
         LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        // Fresh installation or upgrading from non-embedded Tomcat
+        // Fresh installation
         if (!existingVersionFile.exists() || !existingDistributionFile.exists())
         {
             LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));
@@ -91,18 +91,40 @@ public class EmbeddedExtractor
         }
 
         String existingVersion;
+        String existingBuildUrl;
         String existingDistributionName;
         try
         {
-            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
-            existingDistributionName = Files.readString(existingDistributionFile.toPath()).trim();
+            try (InputStream is = Files.newInputStream(existingDistributionFile.toPath()))
+            {
+                LabKeyDistributionInfo info = getFromProperties(is);
+                existingVersion = info.version;
+                existingBuildUrl = info.buildUrl;
+                existingDistributionName = info.distributionName;
+            }
+
+            // TODO: Stop reading VERSION file
+            if (existingVersion.isEmpty())
+            {
+                String versionFileContents = Files.readString(existingVersionFile.toPath()).trim();
+                String[] splitVersion = versionFileContents.trim().split("\\n");
+                existingVersion = splitVersion[0];
+                if (splitVersion.length > 1)
+                {
+                    existingBuildUrl = splitVersion[1];
+                }
+                else
+                {
+                    existingBuildUrl = null;
+                }
+            }
         }
         catch (IOException e)
         {
             throw new RuntimeException(e);
         }
 
-        LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingDistributionName);
+        LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingBuildUrl, existingDistributionName);
 
         if (!existingDistribution.equals(incomingDistribution))
         {
@@ -128,6 +150,7 @@ public class EmbeddedExtractor
     private LabKeyDistributionInfo getDistributionInfo()
     {
         String version = "";
+        String buildUrl = null;
         String distributionName = "";
 
         try
@@ -150,15 +173,34 @@ public class EmbeddedExtractor
                             while (zipEntry != null)
                             {
                                 distributionDirs.add(zipEntry.getName().split("/", 2)[0]);
+                                // TODO: Remove this branch once newest gradle plugins version is adopted
                                 if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/VERSION"))
                                 {
-                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
+                                    // Don't overwrite values from distribution.properties
+                                    if (version.isEmpty())
+                                    {
+                                        String versionFileContents = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
+
+                                        String[] splitVersion = versionFileContents.trim().split("\\n");
+                                        version = splitVersion[0];
+                                        if (splitVersion.length > 1)
+                                        {
+                                            buildUrl = splitVersion[1];
+                                        }
+                                        else
+                                        {
+                                            buildUrl = null;
+                                        }
+                                    }
                                 }
                                 else if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution.properties"))
                                 {
-                                    Properties props = new Properties();
-                                    props.load(zipIn);
-                                    distributionName = props.getProperty("name", "").trim();
+                                    LabKeyDistributionInfo info = getFromProperties(zipIn);
+                                    distributionName = info.distributionName;
+                                    if (!info.version.isEmpty())
+                                        version = info.version;
+                                    if (info.buildUrl != null)
+                                        buildUrl = info.buildUrl;
                                 }
                                 zipIn.closeEntry();
                                 zipEntry = zipIn.getNextEntry();
@@ -194,7 +236,7 @@ public class EmbeddedExtractor
 
                             throw new IllegalStateException(msg.toString());
                         }
-                        return new LabKeyDistributionInfo(version, distributionName);
+                        return new LabKeyDistributionInfo(version, buildUrl, distributionName);
                     }
                 }
 
@@ -205,6 +247,18 @@ public class EmbeddedExtractor
         {
             throw new RuntimeException(e);
         }
+    }
+
+    // Caller must close the stream
+    private LabKeyDistributionInfo getFromProperties(InputStream in) throws IOException
+    {
+        Properties props = new Properties();
+        props.load(in);
+        String distributionName = props.getProperty("name", "").trim();
+        String version = props.getProperty("version", "").trim();
+        String buildUrl = props.containsKey("buildUrl") ? props.getProperty("buildUrl").trim() : null;
+
+        return new LabKeyDistributionInfo(version, buildUrl, distributionName);
     }
 
     public void extractDistribution(File webAppLocation)
@@ -345,9 +399,9 @@ public class EmbeddedExtractor
                 toDelete.add(webAppLocation);
             }
             EXPECTED_DIST_DIRS.stream()
-                    .map(dir -> new File(webAppLocation.getParentFile(), dir))
-                    .filter(File::exists)
-                    .forEach(toDelete::add);
+                .map(dir -> new File(webAppLocation.getParentFile(), dir))
+                .filter(File::exists)
+                .forEach(toDelete::add);
 
             for (File f : toDelete)
             {
@@ -369,24 +423,15 @@ class LabKeyDistributionInfo
     final String distributionName;
 
     /**
-     * 'VERSION' file is expected to contain one or two lines. The LabKey version (e.g. 24.3-SNAPSHOT) is the first line.
-     * The TeamCity BUILD_URL is the second line if the distribution was produced by TeamCity
-     * 'distribution.properties' file is expected to contain a 'name' property holding the deployed distribution's name
-     * @param versionFileContents contents of 'labkeywebapp/WEB-INF/classes/VERSION'
-     * @param distributionName value of the 'name' property in 'labkeywebapp/WEB-INF/classes/distribution.properties'
+     * Build properties from 'distribution.properties' file
+     * @param version the LabKey version (e.g. 24.3-SNAPSHOT)
+     * @param buildUrl TeamCity BUILD_URL, if distribution was produced by TeamCity
+     * @param distributionName value of the 'name' property
      */
-    public LabKeyDistributionInfo(String versionFileContents, String distributionName)
+    public LabKeyDistributionInfo(String version, String buildUrl, String distributionName)
     {
-        String[] splitVersion = versionFileContents.trim().split("\\n");
-        version = splitVersion[0];
-        if (splitVersion.length > 1)
-        {
-            buildUrl = splitVersion[1];
-        }
-        else
-        {
-            buildUrl = null;
-        }
+        this.version = version;
+        this.buildUrl = buildUrl;
         this.distributionName = distributionName;
     }
 

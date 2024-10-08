@@ -33,6 +33,15 @@
         <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: gwt-servlet-jakarta-2.11.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf-java</cpe>
+        <vulnerabilityName>CVE-2024-7254</vulnerabilityName>
+    </suppress>
+
     <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
     <suppress>
         <notes><![CDATA[

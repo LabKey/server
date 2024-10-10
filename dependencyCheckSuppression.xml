@@ -257,6 +257,47 @@
         <cve>CVE-2024-45772</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-backward-codecs-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-backward-codecs@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-core-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-core@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-queries-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queries@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-queryparser-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queryparser@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-sandbox-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-sandbox@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+    <!-- end of lucene suppressions -->
+
     <!--
     suppress glassfish false positives, being corrected in:
     https://github.com/jeremylong/DependencyCheck/issues/7015

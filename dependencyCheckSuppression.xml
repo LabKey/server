@@ -257,5 +257,76 @@
         <cve>CVE-2024-45772</cve>
     </suppress>
 
+    <!--
+    suppress glassfish false positives, being corrected in:
+    https://github.com/jeremylong/DependencyCheck/issues/7015
+    https://github.com/jeremylong/DependencyCheck/pull/7016
+    https://github.com/jeremylong/DependencyCheck/pull/7024
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: osgi-resource-locator-1.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.hk2/osgi-resource-locator@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <!-- end of glassfish false positive suppressions -->
+
 </suppressions>
 

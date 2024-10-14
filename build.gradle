@@ -386,7 +386,6 @@ if (BuildUtils.shouldPublish(project) || BuildUtils.shouldPublishDistribution(pr
                     username = artifactory_user
                     password = artifactory_password
                 }
-                maven = true
             }
             defaults
                     {

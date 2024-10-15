@@ -246,5 +246,128 @@
         <cve>CVE-2005-1260</cve>
     </suppress>
 
+    <!--
+    suppress CVE-2024-45772 for lucene 9.10, fixed in develop with bump to 9.12
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-analysis-common-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-analysis-common@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-backward-codecs-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-backward-codecs@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-core-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-core@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-queries-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queries@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-queryparser-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queryparser@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-sandbox-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-sandbox@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+    <!-- end of lucene suppressions -->
+
+    <!--
+    suppress glassfish false positives, being corrected in:
+    https://github.com/jeremylong/DependencyCheck/issues/7015
+    https://github.com/jeremylong/DependencyCheck/pull/7016
+    https://github.com/jeremylong/DependencyCheck/pull/7024
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: osgi-resource-locator-1.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.hk2/osgi-resource-locator@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <!-- end of glassfish false positive suppressions -->
+
 </suppressions>
 

@@ -43,12 +43,12 @@ public class ${NAME} extends WebDriverComponent<${NAME}.ElementCache>
         return this;
     }
 
-    public LabKeyPage clickButton()
+    public LabKeyPage<?> clickButton()
     {
         getWrapper().clickAndWait(elementCache().button);
 
         // TODO: Methods that navigate should return an appropriate page object
-        return new LabKeyPage(getDriver());
+        return new LabKeyPage<>(getDriver());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ${NAME} extends WebDriverComponent<${NAME}.ElementCache>
      *  ElementCache should be responsible for finding and storing all elements and
      *  sub-components that the component contains
      */
-    protected class ElementCache extends Component<?>.ElementCache
+    protected class ElementCache extends Component<ElementCache>.ElementCache
     {
         // TODO: Add elements that are in the component
         final Input input = Input(Locator.css("input"), getDriver()).findWhenNeeded(this);

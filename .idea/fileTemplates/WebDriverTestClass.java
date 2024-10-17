@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 @Category({})
 public class ${NAME} extends BaseWebDriverTest
 {
-    private static final String USER = "template_user@${NAME}.test";
+    private static final String USER = "template_user@${NAME.toLowerCase()}.test";
 
     @Override
     protected void doCleanup(boolean afterTest)
@@ -46,7 +46,7 @@ public class ${NAME} extends BaseWebDriverTest
     @Test
     public void testSomething()
     {
-        assertTrue("Test something", true);
+        assertTrue("Failing stub test", false);
     }
 
     @Override

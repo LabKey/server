@@ -335,6 +335,9 @@ allprojects {
                     // Force patched version of okhttp for CVE-2021-0341 and CVE-2023-0833
                     force "com.squareup.okhttp:okhttp:${okhttpVersion}"
 
+                    // Force latest VFS2
+                    force "org.apache.commons:commons-vfs2:${commonsVfs2Version}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

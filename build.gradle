@@ -332,6 +332,9 @@ allprojects {
                     // Force consistency for dependencies from cloud
                     force "joda-time:joda-time:${jodaTimeVersion}"
 
+                    // Force patched version of okhttp for CVE-2021-0341 and CVE-2023-0833
+                    force "com.squareup.okhttp:okhttp:${okhttpVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that
@@ -368,6 +371,9 @@ allprojects {
 
                         substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                         substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
+
+                        // Force patched version of okhttp in new location for CVE-2021-0341 and CVE-2023-0833
+                        substitute module('com.squareup.okhttp:okhttp') using module("com.squareup.okhttp3:okhttp:${okhttpVersion}")
                     }
                 }
             }

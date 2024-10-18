@@ -332,9 +332,6 @@ allprojects {
                     // Force consistency for dependencies from cloud
                     force "joda-time:joda-time:${jodaTimeVersion}"
 
-                    // Force latest VFS2
-                    force "org.apache.commons:commons-vfs2:${commonsVfs2Version}"
-
                     // Force latest hadoop-hdfs-client for CVE-2021-37404, CVE-2022-25168, CVE-2022-26612, CVE-2021-25642, CVE-2021-33036, CVE-2023-26031
                     force "org.apache.hadoop:hadoop-hdfs-client:${hadoopHdfsClientVersion}"
 
@@ -374,7 +371,6 @@ allprojects {
 
                         substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                         substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
-
                     }
                 }
             }

@@ -332,11 +332,7 @@ allprojects {
                     // Force consistency for dependencies from cloud
                     force "joda-time:joda-time:${jodaTimeVersion}"
 
-                    // Force patched version of okhttp for CVE-2021-0341 and CVE-2023-0833
-                    force "com.squareup.okhttp:okhttp:${okhttpVersion}"
-
                     // Force latest VFS2
-                    // may be moot after forcing hadoop-hdfs-client to 3.4.1
                     force "org.apache.commons:commons-vfs2:${commonsVfs2Version}"
 
                     // Force latest hadoop-hdfs-client for CVE-2021-37404, CVE-2022-25168, CVE-2022-26612, CVE-2021-25642, CVE-2021-33036, CVE-2023-26031
@@ -379,9 +375,6 @@ allprojects {
                         substitute module('org.hamcrest:hamcrest-core') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
                         substitute module('org.hamcrest:hamcrest-library') using module("org.hamcrest:hamcrest:${hamcrestVersion}")
 
-                        // Force patched version of okhttp in new location for CVE-2021-0341 and CVE-2023-0833
-                        // may be moot after forcing hadoop-hdfs-client to 3.4.1
-                        substitute module('com.squareup.okhttp:okhttp') using module("com.squareup.okhttp3:okhttp:${okhttpVersion}")
                     }
                 }
             }

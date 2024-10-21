@@ -332,6 +332,9 @@ allprojects {
                     // Force consistency for dependencies from cloud
                     force "joda-time:joda-time:${jodaTimeVersion}"
 
+                    // Force latest hadoop-hdfs-client for CVE-2021-37404, CVE-2022-25168, CVE-2022-26612, CVE-2021-25642, CVE-2021-33036, CVE-2023-26031
+                    force "org.apache.hadoop:hadoop-hdfs-client:${hadoopHdfsClientVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

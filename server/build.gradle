@@ -96,14 +96,14 @@ if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle,
     xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "assay")).file("schemas/assayProvider.xsd")
 if (project.findProject( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")) != null)
     xsdFiles += project.project( BuildUtils.getPlatformModuleProjectPath(project.gradle, "list")).file("schemas/lists.xsd")
-if (project.findProject(":server:modules:dataintegration")  != null)
-    xsdFiles += project.project(":server:modules:dataintegration").file("schemas/etl.xsd")
-if (project.findProject(":server:modules:redcap") != null)
-    xsdFiles += project.project(":server:modules:redcap").file("schemas/redcapExport.xsd")
-if (project.findProject(":server:modules:cdisc_ODM") != null)
-    xsdFiles += project.project(":server:modules:cdisc_ODM").file("schemas/cdiscExport.xsd")
-if (project.findProject(":server:modules:freezerpro") != null)
-    xsdFiles += project.project(":server:modules:freezerpro").file("schemas/freezerProExport.xsd")
+if (project.findProject(":server:modules:premiumModules:dataintegration")  != null)
+    xsdFiles += project.project(":server:modules:premiumModules:dataintegration").file("schemas/etl.xsd")
+if (project.findProject(":server:modules:premiumModules:redcap") != null)
+    xsdFiles += project.project(":server:modules:premiumModules:redcap").file("schemas/redcapExport.xsd")
+if (project.findProject(":server:modules:premiumModules:cdisc_ODM") != null)
+    xsdFiles += project.project(":server:modules:premiumModules:cdisc_ODM").file("schemas/cdiscExport.xsd")
+if (project.findProject(":server:modules:premiumModules:freezerpro") != null)
+    xsdFiles += project.project(":server:modules:premiumModules:freezerpro").file("schemas/freezerProExport.xsd")
 
 project.xsdDoc.xsdFiles=xsdFiles
 

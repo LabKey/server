@@ -93,10 +93,10 @@ project.tasks.register(
     "checkVersionConflicts", CheckForVersionConflicts)
         { CheckForVersionConflicts task ->
             task.group = GroupNames.BUILD
-            task.description = "Check for conflicts in version numbers of jar file and files already in the build directory ${ServerDeployExtension.getEmbeddedServerDeployDirectory(project)}. " +
+            task.description = "Check for conflicts in version numbers of jar file and files already in the build directory ${ServerDeployExtension.getEmbeddedServerDeployDirectoryPath(project)}. " +
                     "Default action on detecting a conflict is to fail. Use -PversionConflictAction=[delete|fail|warn] to change this behavior. The value 'delete' will cause the " +
-                    "conflicting version(s) in the ${ServerDeployExtension.getEmbeddedServerDeployDirectory(project)} directory to be removed."
-            task.directory = new File(ServerDeployExtension.getEmbeddedServerDeployDirectory(project))
+                    "conflicting version(s) in the ${ServerDeployExtension.getEmbeddedServerDeployDirectoryPath(project)} directory to be removed."
+            task.directory = new File(ServerDeployExtension.getEmbeddedServerDeployDirectoryPath(project))
             task.extension = "jar"
             task.cleanTask = "server:cleanEmbeddedDeploy"
             task.collection = project.tasks.bootJar.outputs.files

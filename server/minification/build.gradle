@@ -1,5 +1,8 @@
-import org.labkey.gradle.util.BuildUtils
 
 apply plugin: 'org.labkey.build.npmRun'
 
-project.tasks.npmSetup.dependsOn(BuildUtils.getServerProject(project).tasks.npmSetup)
+project.node {
+    download = true
+    workDir = project.file(".gradle/nodejs")
+    npmWorkDir = project.file(".gradle/npm")
+}

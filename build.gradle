@@ -243,6 +243,10 @@ allprojects {
                     // cloud and SequenceAnalysis bring this in as a transitive dependency. We resolve to the later version here to keep things consistent
                     force "com.google.code.gson:gson:${gsonVersion}"
 
+                    // docker and cloud bring in different versions
+                    force "jakarta.ws.rs:jakarta.ws.rs-api:${jakartaWsRsApiVersion}"
+                    force "jakarta.annotation:jakarta.annotation-api:${jakartaWsAnnotationApiVersion}"
+
                     // Google oauth2-http Library and api-common (via Picard, and perhaps others) bring in different versions; force the latest
                     force "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
                     force "com.google.http-client:google-http-client-apache-v2:${googleHttpClientVersion}"
@@ -330,6 +334,7 @@ allprojects {
                     force "javax.xml.bind:jaxb-api:${jaxbApiOldVersion}"
 
                     // Force consistency for dependencies from cloud
+                    force "joda-time:joda-time:${jodaTimeVersion}"
                     force "joda-time:joda-time:${jodaTimeVersion}"
 
                     // Force latest hadoop-hdfs-client for CVE-2021-37404, CVE-2022-25168, CVE-2022-26612, CVE-2021-25642, CVE-2021-33036, CVE-2023-26031

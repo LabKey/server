@@ -62,7 +62,7 @@ public class LabKeyServer
         if (System.getProperty(JARS_TO_SKIP) == null && System.getProperty(JARS_TO_SCAN) == null)
         {
             System.setProperty(JARS_TO_SKIP, "*");
-            System.setProperty(JARS_TO_SCAN, "rstudio-??.?*.jar,cas-??.?*.jar,core-??.?*.jar,connectors-??.?*.jar,devtools-??.?*.jar");
+            System.setProperty(JARS_TO_SCAN, "rstudio-??.?*.jar,cas-??.?*.jar,core-??.?*.jar,connectors-??.?*.jar,devtools-??.?*.jar,labbook-??.?*.jar");
         }
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);

@@ -369,5 +369,14 @@
     </suppress>
     <!-- end of glassfish false positive suppressions -->
 
+    <!-- False positive. Only 5.3.0 - 5.3.41 are affected:
+     https://spring.io/security/cve-2024-38828 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-web-6.1.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
+    </suppress>
 </suppressions>
 

@@ -144,8 +144,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 addExtraContextResources(contextProperties, context);
 
                 // Add the SMTP config
-                // TODO: Remove or get this to work with Angus Mail. See MailHelper for more info.
-//                context.getNamingResources().addResource(getMailResource());
                 addSmtpProperties(context);
 
                 // Add the encryption key(s)

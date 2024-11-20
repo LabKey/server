@@ -144,7 +144,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 addExtraContextResources(contextProperties, context);
 
                 // Add the SMTP config
-                context.getNamingResources().addResource(getMailResource());
+                addSmtpProperties(context);
 
                 // Add the encryption key(s)
                 context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -373,39 +373,34 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         return val != null && !val.isBlank() ? val.trim() : defaultValue;
     }
 
-    private ContextResource getMailResource()
+    private void addSmtpProperties(StandardContext context)
     {
         // Get session/mail properties
         LabKeyServer.MailProperties mailProps = _server.smtpSource();
-        ContextResource mailResource = new ContextResource();
-        mailResource.setName("mail/Session");
-        mailResource.setAuth("Container");
-        mailResource.setType("jakarta.mail.Session");
-        mailResource.setProperty("mail.smtp.host", mailProps.getSmtpHost());
-        mailResource.setProperty("mail.smtp.user", mailProps.getSmtpUser());
-        mailResource.setProperty("mail.smtp.port", mailProps.getSmtpPort());
+
+        context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
+        context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
+        context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
 
         if (mailProps.getSmtpFrom() != null)
         {
-            mailResource.setProperty("mail.smtp.from", mailProps.getSmtpFrom());
+            context.addParameter("mail.smtp.from", mailProps.getSmtpFrom());
         }
         if (mailProps.getSmtpPassword() != null)
         {
-            mailResource.setProperty("mail.smtp.password", mailProps.getSmtpPassword());
+            context.addParameter("mail.smtp.password", mailProps.getSmtpPassword());
         }
         if (mailProps.getSmtpStartTlsEnable() != null)
         {
-            mailResource.setProperty("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
+            context.addParameter("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
         }
         if (mailProps.getSmtpSocketFactoryClass() != null)
         {
-            mailResource.setProperty("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
+            context.addParameter("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
         }
         if (mailProps.getSmtpAuth() != null)
         {
-            mailResource.setProperty("mail.smtp.auth", mailProps.getSmtpAuth());
+            context.addParameter("mail.smtp.auth", mailProps.getSmtpAuth());
         }
-
-        return mailResource;
     }
 }

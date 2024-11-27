@@ -7,6 +7,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -19,6 +20,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.labkey.embedded.LabKeyServer.CORS_PREFIX;
 import static org.labkey.embedded.LabKeyServer.CUSTOM_LOG4J_CONFIG;
 import static org.labkey.embedded.LabKeyServer.SERVER_GUID_PARAMETER_NAME;
 import static org.labkey.embedded.LabKeyServer.SERVER_SSL_KEYSTORE;
@@ -31,6 +33,27 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     public LabKeyTomcatServletWebServerFactory(LabKeyServer server)
     {
         _server = server;
+
+        addConnectorCustomizers(connector -> {
+            LabKeyServer.TomcatProperties props = _server.tomcatProperties();
+
+            if (props.getUseBodyEncodingForURI() != null)
+            {
+                connector.setUseBodyEncodingForURI(props.getUseBodyEncodingForURI());
+            }
+
+            if (connector.getProtocolHandler() instanceof AbstractHttp11Protocol<?> handler)
+            {
+                if (props.getDisableUploadTimeout() != null)
+                {
+                    handler.setDisableUploadTimeout(props.getDisableUploadTimeout());
+                }
+                if (props.getUseSendfile() != null)
+                {
+                    handler.setUseSendfile(props.getUseSendfile());
+                }
+            }
+        });
     }
 
     @Override
@@ -48,10 +71,10 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     @Override
     protected TomcatWebServer getTomcatWebServer(Tomcat tomcat)
     {
-        LabKeyServer.ManagementProperties props = _server.managementSource();
+        LabKeyServer.ManagementServerProperties props = _server.managementServerSource();
 
         // Don't deploy LK webapp on the separate instance running on the management port
-        if (props == null || props.getServer() == null || props.getServer().getPort() != getPort())
+        if (props == null || props.getPort() != getPort())
         {
             tomcat.enableNaming();
 
@@ -121,12 +144,9 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 addExtraContextResources(contextProperties, context);
 
                 // Add the SMTP config
-                context.getNamingResources().addResource(getMailResource());
+                addSmtpProperties(context);
 
-                // Signal that we started up via Embedded Tomcat for reporting purposes
-                context.addParameter("embeddedTomcat", "true");
-
-                // And the master encryption key
+                // Add the encryption key(s)
                 context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
                 if (contextProperties.getOldEncryptionKey() != null)
                 {
@@ -164,10 +184,22 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 }
                 context.addParameter(CUSTOM_LOG4J_CONFIG, Boolean.toString(customLog4J));
 
-                // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes.
-                if (null != contextProperties.getServerGUID())
+                // Add serverGUID for mothership - it tells mothership that 2 instances of a server should be considered the same for metrics gathering purposes
+                addContextProperty(context, contextProperties.getServerGUID(), SERVER_GUID_PARAMETER_NAME);
+
+                LabKeyServer.TomcatProperties tomcatProperties = _server.tomcatProperties();
+                if (tomcatProperties != null && tomcatProperties.getCors() != null)
                 {
-                    context.addParameter(SERVER_GUID_PARAMETER_NAME, contextProperties.getServerGUID());
+                    // Push these into the context so that ApiModule can register Tomcat's CorsFilter as desired
+                    LabKeyServer.CorsProperties corsProperties = tomcatProperties.getCors();
+                    addContextProperty(context, corsProperties.getAllowedOrigins(), CORS_PREFIX + "allowedOrigins");
+                    addContextProperty(context, corsProperties.getAllowedMethods(), CORS_PREFIX + "allowedMethods");
+                    addContextProperty(context, corsProperties.getAllowedHeaders(), CORS_PREFIX + "allowedHeaders");
+                    addContextProperty(context, corsProperties.getExposedHeaders(), CORS_PREFIX + "exposedHeaders");
+                    addContextProperty(context, corsProperties.getSupportCredentials(), CORS_PREFIX + "supportCredentials");
+                    addContextProperty(context, corsProperties.getUrlPattern(), CORS_PREFIX + "urlPattern");
+                    addContextProperty(context, corsProperties.getPreflightMaxAge(), CORS_PREFIX + "preflightMaxAge");
+                    addContextProperty(context, corsProperties.getRequestDecorate(), CORS_PREFIX + "requestDecorate");
                 }
 
                 LabKeyServer.ServerSslProperties sslProps = _server.serverSslSource();
@@ -218,6 +250,14 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         }
 
         return super.getTomcatWebServer(tomcat);
+    }
+
+    private void addContextProperty(StandardContext context, String value, String name)
+    {
+        if (null != value)
+        {
+            context.addParameter(name, value);
+        }
     }
 
     // Issue 48565: allow for JSON-formatted access logs in embedded tomcat
@@ -333,39 +373,34 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         return val != null && !val.isBlank() ? val.trim() : defaultValue;
     }
 
-    private ContextResource getMailResource()
+    private void addSmtpProperties(StandardContext context)
     {
         // Get session/mail properties
         LabKeyServer.MailProperties mailProps = _server.smtpSource();
-        ContextResource mailResource = new ContextResource();
-        mailResource.setName("mail/Session");
-        mailResource.setAuth("Container");
-        mailResource.setType("jakarta.mail.Session");
-        mailResource.setProperty("mail.smtp.host", mailProps.getSmtpHost());
-        mailResource.setProperty("mail.smtp.user", mailProps.getSmtpUser());
-        mailResource.setProperty("mail.smtp.port", mailProps.getSmtpPort());
+
+        context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
+        context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
+        context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
 
         if (mailProps.getSmtpFrom() != null)
         {
-            mailResource.setProperty("mail.smtp.from", mailProps.getSmtpFrom());
+            context.addParameter("mail.smtp.from", mailProps.getSmtpFrom());
         }
         if (mailProps.getSmtpPassword() != null)
         {
-            mailResource.setProperty("mail.smtp.password", mailProps.getSmtpPassword());
+            context.addParameter("mail.smtp.password", mailProps.getSmtpPassword());
         }
         if (mailProps.getSmtpStartTlsEnable() != null)
         {
-            mailResource.setProperty("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
+            context.addParameter("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
         }
         if (mailProps.getSmtpSocketFactoryClass() != null)
         {
-            mailResource.setProperty("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
+            context.addParameter("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
         }
         if (mailProps.getSmtpAuth() != null)
         {
-            mailResource.setProperty("mail.smtp.auth", mailProps.getSmtpAuth());
+            context.addParameter("mail.smtp.auth", mailProps.getSmtpAuth());
         }
-
-        return mailResource;
     }
 }

@@ -27,12 +27,12 @@ public class ${NAME} extends LabKeyPage<${NAME}.ElementCache>
     }
 
     // TODO: Add methods for other actions on this page
-    public LabKeyPage clickButton()
+    public LabKeyPage<?> clickButton()
     {
         clickAndWait(elementCache().example);
         
         // TODO: Methods that navigate should return an appropriate page object
-        return new LabKeyPage(getDriver());
+        return new LabKeyPage<>(getDriver());
     }
 
     @Override
@@ -41,9 +41,9 @@ public class ${NAME} extends LabKeyPage<${NAME}.ElementCache>
         return new ElementCache();
     }
 
-    protected class ElementCache extends LabKeyPage<?>.ElementCache
+    protected class ElementCache extends LabKeyPage<ElementCache>.ElementCache
     {
         // TODO: Add other elements that are on the page
-        WebElement example = Locator.css("button").findWhenNeeded(this);
+        final WebElement example = Locator.css("button").findWhenNeeded(this);
     }
 }

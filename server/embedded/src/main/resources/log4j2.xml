@@ -232,11 +232,11 @@ account managers so that we can coordinate edits with other customized copies of
             <Logger name="org.labkey.api.data.Table" level="debug"/>
         -->
 
-        <Logger name="org.labkey.api.data"/>
+        <Logger name="org.labkey.api.data" />
 
-        <Logger name="org.labkey.api.dataiterator"/>
+        <Logger name="org.labkey.api.dataiterator" />
 
-        <Logger name="org.labkey.docker">
+        <Logger name="org.labkey.docker" >
             <level value="info"/>
         </Logger>
 
@@ -278,9 +278,8 @@ account managers so that we can coordinate edits with other customized copies of
             <AppenderRef ref="THREAD_DUMP"/>
         </Logger>
 
-        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction"  additivity="false" level="warn">
+        <Logger name="org.labkey.core.admin.AdminController.ContentSecurityPolicyReportAction" level="warn">
             <AppenderRef ref="CSP_REPORT" />
-            <AppenderRef ref="CONSOLE"/>
         </Logger>
 
         <!--
@@ -303,7 +302,6 @@ account managers so that we can coordinate edits with other customized copies of
 
         <Logger name="org.labkey.audit.event" level="OFF">
             <AppenderRef ref="LABKEY_AUDIT"/>
-            <AppenderRef ref="CONSOLE"/>
         </Logger>
 
         <!--

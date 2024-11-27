@@ -29,6 +29,7 @@ public class LabKeyServer
     public static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
     public static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
     public static final String CUSTOM_LOG4J_CONFIG = "org.labkey.customLog4JConfig";
+    public static final String CORS_PREFIX = "cors.";
     static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
     static final String MAX_IDLE_DEFAULT = "10";
     static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
@@ -61,7 +62,7 @@ public class LabKeyServer
         if (System.getProperty(JARS_TO_SKIP) == null && System.getProperty(JARS_TO_SCAN) == null)
         {
             System.setProperty(JARS_TO_SKIP, "*");
-            System.setProperty(JARS_TO_SCAN, "rstudio-??.?*.jar,cas-??.?*.jar,core-??.?*.jar,connectors-??.?*.jar,devtools-??.?*.jar");
+            System.setProperty(JARS_TO_SCAN, "rstudio-??.?*.jar,cas-??.?*.jar,core-??.?*.jar,connectors-??.?*.jar,devtools-??.?*.jar,labbook-??.?*.jar");
         }
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
@@ -71,8 +72,12 @@ public class LabKeyServer
                 "server.tomcat.accesslog.directory", logHome,
 
                 // Enable HTTP compression for response content
-                "server.compression.enabled", "true"
-                ));
+                "server.compression.enabled", "true",
+
+                "server.tomcat.accesslog.enabled", "true",
+                "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+                "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i"
+        ));
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
     }
@@ -183,9 +188,9 @@ public class LabKeyServer
     }
 
     @Bean
-    public ManagementProperties managementSource()
+    public ManagementServerProperties managementServerSource()
     {
-        return new ManagementProperties();
+        return new ManagementServerProperties();
     }
 
     @Bean
@@ -194,29 +199,19 @@ public class LabKeyServer
         return new LoggingProperties();
     }
 
+    @Bean
+    public TomcatProperties tomcatProperties()
+    {
+        return new TomcatProperties();
+    }
 
     /**
      * This lets us snoop on the Spring Boot config for deploying the management endpoint on a different port, as
      * we don't want to deploy LK on that port
      */
     @Configuration
-    @ConfigurationProperties("management")
-    public static class ManagementProperties
-    {
-        private ServerProperties _server;
-
-        public ServerProperties getServer()
-        {
-            return _server;
-        }
-
-        public void setServer(ServerProperties server)
-        {
-            _server = server;
-        }
-    }
-
-    public static class ServerProperties
+    @ConfigurationProperties("management.server")
+    public static class ManagementServerProperties
     {
         private int _port;
 
@@ -228,6 +223,151 @@ public class LabKeyServer
         public void setPort(int port)
         {
             _port = port;
+        }
+    }
+
+    /** Values that we'll propagate to org.apache.catalina.filters.CorsFilter */
+    public static class CorsProperties
+    {
+        private String _allowedOrigins;
+        private String _allowedMethods;
+        private String _allowedHeaders;
+        private String _exposedHeaders;
+        private String _supportCredentials;
+        private String _urlPattern;
+        private String _preflightMaxAge;
+        private String _requestDecorate;
+
+        public String getAllowedOrigins()
+        {
+            return _allowedOrigins;
+        }
+
+        public void setAllowedOrigins(String allowedOrigins)
+        {
+            _allowedOrigins = allowedOrigins;
+        }
+
+        public String getAllowedMethods()
+        {
+            return _allowedMethods;
+        }
+
+        public void setAllowedMethods(String allowedMethods)
+        {
+            _allowedMethods = allowedMethods;
+        }
+
+        public String getAllowedHeaders()
+        {
+            return _allowedHeaders;
+        }
+
+        public void setAllowedHeaders(String allowedHeaders)
+        {
+            _allowedHeaders = allowedHeaders;
+        }
+
+        public String getExposedHeaders()
+        {
+            return _exposedHeaders;
+        }
+
+        public void setExposedHeaders(String exposedHeaders)
+        {
+            _exposedHeaders = exposedHeaders;
+        }
+
+        public String getSupportCredentials()
+        {
+            return _supportCredentials;
+        }
+
+        public void setSupportCredentials(String supportCredentials)
+        {
+            _supportCredentials = supportCredentials;
+        }
+
+        public String getUrlPattern()
+        {
+            return _urlPattern;
+        }
+
+        public void setUrlPattern(String urlPattern)
+        {
+            _urlPattern = urlPattern;
+        }
+
+        public String getPreflightMaxAge()
+        {
+            return _preflightMaxAge;
+        }
+
+        public void setPreflightMaxAge(String preflightMaxAge)
+        {
+            _preflightMaxAge = preflightMaxAge;
+        }
+
+        public String getRequestDecorate()
+        {
+            return _requestDecorate;
+        }
+
+        public void setRequestDecorate(String requestDecorate)
+        {
+            _requestDecorate = requestDecorate;
+        }
+    }
+
+    /** Add some properties that Spring Boot doesn't support setting. See issue 50690 */
+    @Configuration
+    @ConfigurationProperties("server.tomcat")
+    public static class TomcatProperties
+    {
+        private Boolean _useSendfile;
+        private Boolean _disableUploadTimeout;
+        private Boolean _useBodyEncodingForURI;
+
+        private CorsProperties _cors;
+
+        public Boolean getUseSendfile()
+        {
+            return _useSendfile;
+        }
+
+        public void setUseSendfile(Boolean useSendfile)
+        {
+            _useSendfile = useSendfile;
+        }
+
+        public Boolean getDisableUploadTimeout()
+        {
+            return _disableUploadTimeout;
+        }
+
+        public void setDisableUploadTimeout(Boolean disableUploadTimeout)
+        {
+            _disableUploadTimeout = disableUploadTimeout;
+        }
+
+        public Boolean getUseBodyEncodingForURI()
+        {
+            return _useBodyEncodingForURI;
+        }
+
+        public void setUseBodyEncodingForURI(Boolean useBodyEncodingForURI)
+        {
+            _useBodyEncodingForURI = useBodyEncodingForURI;
+        }
+
+        public CorsProperties getCors()
+        {
+            return _cors;
+        }
+
+        public void setCors(CorsProperties cors)
+        {
+            _cors = cors;
         }
     }
 

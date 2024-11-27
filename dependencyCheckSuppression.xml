@@ -33,6 +33,15 @@
         <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: gwt-servlet-jakarta-2.11.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf-java</cpe>
+        <vulnerabilityName>CVE-2024-7254</vulnerabilityName>
+    </suppress>
+
     <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
     <suppress>
         <notes><![CDATA[
@@ -223,5 +232,151 @@
         <vulnerabilityName>CVE-2024-23076</vulnerabilityName>
     </suppress>
 
+    <!--
+    suppress CVEs bzip2-0.9.1.jar which enters through DiscvrLabKeyModules/SequenceAnalysis and is matching CVEs from the bzip2 command-line utility
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: bzip2-0.9.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
+        <cve>CVE-2019-12900</cve>
+        <cve>CVE-2011-4089</cve>
+        <cve>CVE-2010-0405</cve>
+        <cve>CVE-2005-1260</cve>
+    </suppress>
+
+    <!--
+    suppress CVE-2024-45772 for lucene 9.10, fixed in develop with bump to 9.12
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-analysis-common-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-analysis-common@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-backward-codecs-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-backward-codecs@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-core-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-core@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-queries-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queries@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-queryparser-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queryparser@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: lucene-sandbox-9.10.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-sandbox@.*$</packageUrl>
+        <cve>CVE-2024-45772</cve>
+    </suppress>
+    <!-- end of lucene suppressions -->
+
+    <!--
+    suppress glassfish false positives, being corrected in:
+    https://github.com/jeremylong/DependencyCheck/issues/7015
+    https://github.com/jeremylong/DependencyCheck/pull/7016
+    https://github.com/jeremylong/DependencyCheck/pull/7024
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-core-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jaxb-runtime-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: osgi-resource-locator-1.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.hk2/osgi-resource-locator@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-4.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: txw2-4.0.5.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
+        <cve>CVE-2024-9329</cve>
+    </suppress>
+    <!-- end of glassfish false positive suppressions -->
+
+    <!-- False positive. Only 5.3.0 - 5.3.41 are affected:
+     https://spring.io/security/cve-2024-38828 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-web-6.1.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-38828</vulnerabilityName>
+    </suppress>
 </suppressions>
 

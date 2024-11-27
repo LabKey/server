@@ -4,18 +4,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.labkey.bootstrap.ConfigException;
-import org.springframework.util.StreamUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -77,38 +75,37 @@ public class EmbeddedExtractor
 
     private boolean shouldExtract(File webAppLocation)
     {
-        File existingVersionFile = new File(webAppLocation, "WEB-INF/classes/VERSION");
-        File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution");
+        File existingDistributionFile = new File(webAppLocation, "WEB-INF/classes/distribution.properties");
 
         LabKeyDistributionInfo incomingDistribution = getDistributionInfo();
 
-        // Fresh installation or upgrading from non-embedded Tomcat
-        if (!existingVersionFile.exists() || !existingDistributionFile.exists())
+        // Fresh installation or upgrading from a pre-distribution.properties distribution
+        if (!existingDistributionFile.exists())
         {
             LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));
             return true;
         }
 
-        String existingVersion;
-        String existingDistributionName;
+        LabKeyDistributionInfo existingDistribution;
+
         try
         {
-            existingVersion = Files.readString(existingVersionFile.toPath()).trim();
-            existingDistributionName = Files.readString(existingDistributionFile.toPath()).trim();
+            try (InputStream is = Files.newInputStream(existingDistributionFile.toPath()))
+            {
+                existingDistribution = getFromProperties(is);
+            }
         }
         catch (IOException e)
         {
             throw new RuntimeException(e);
         }
 
-        LabKeyDistributionInfo existingDistribution = new LabKeyDistributionInfo(existingVersion, existingDistributionName);
-
         if (!existingDistribution.equals(incomingDistribution))
         {
             LOG.info("Updating LabKey (%s -> %s)".formatted(existingDistribution, incomingDistribution));
             return true;
         }
-        else if (incomingDistribution.buildUrl == null)
+        else if (incomingDistribution.buildUrl() == null)
         {
             LOG.info("Extracting custom-build LabKey distribution (%s)".formatted(existingDistribution));
             return true;
@@ -126,8 +123,7 @@ public class EmbeddedExtractor
      */
     private LabKeyDistributionInfo getDistributionInfo()
     {
-        String version = "";
-        String distributionName = "";
+        LabKeyDistributionInfo info = null;
 
         try
         {
@@ -149,26 +145,15 @@ public class EmbeddedExtractor
                             while (zipEntry != null)
                             {
                                 distributionDirs.add(zipEntry.getName().split("/", 2)[0]);
-                                if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/VERSION"))
+                                if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution.properties"))
                                 {
-                                    version = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
-                                }
-                                else if (!zipEntry.isDirectory() && zipEntry.getName().equals(LABKEYWEBAPP + "/WEB-INF/classes/distribution"))
-                                {
-                                    distributionName = StreamUtils.copyToString(zipIn, StandardCharsets.UTF_8).trim();
+                                    info = getFromProperties(zipIn);
                                 }
                                 zipIn.closeEntry();
                                 zipEntry = zipIn.getNextEntry();
                             }
                         }
-                        if (version.isEmpty())
-                        {
-                            throw new ConfigException("Unable to determine version of distribution.");
-                        }
-                        if (distributionName.isEmpty())
-                        {
-                            throw new ConfigException("Unable to determine name of distribution.");
-                        }
+
                         if (!distributionDirs.equals(EXPECTED_DIST_DIRS))
                         {
                             StringBuilder msg = new StringBuilder("Corrupted distribution; contents are not as expected.");
@@ -191,7 +176,11 @@ public class EmbeddedExtractor
 
                             throw new IllegalStateException(msg.toString());
                         }
-                        return new LabKeyDistributionInfo(version, distributionName);
+
+                        if (null == info)
+                            throw new IllegalStateException("distribution.properties file was not found!");
+
+                        return info;
                     }
                 }
 
@@ -202,6 +191,21 @@ public class EmbeddedExtractor
         {
             throw new RuntimeException(e);
         }
+    }
+
+    // Caller must close the stream
+    private LabKeyDistributionInfo getFromProperties(InputStream in) throws IOException
+    {
+        Properties props = new Properties();
+        props.load(in);
+        String distributionName = props.getProperty("name", "").trim();
+        String version = props.getProperty("version", "").trim();
+        String buildUrl = props.containsKey("buildUrl") ? props.getProperty("buildUrl").trim() : null;
+
+        var info = new LabKeyDistributionInfo(version, buildUrl, distributionName);
+        LOG.info("LabKeyDistributionInfo: " + info);
+
+        return info;
     }
 
     public void extractDistribution(File webAppLocation)
@@ -342,9 +346,9 @@ public class EmbeddedExtractor
                 toDelete.add(webAppLocation);
             }
             EXPECTED_DIST_DIRS.stream()
-                    .map(dir -> new File(webAppLocation.getParentFile(), dir))
-                    .filter(File::exists)
-                    .forEach(toDelete::add);
+                .map(dir -> new File(webAppLocation.getParentFile(), dir))
+                .filter(File::exists)
+                .forEach(toDelete::add);
 
             for (File f : toDelete)
             {
@@ -359,59 +363,18 @@ public class EmbeddedExtractor
     }
 }
 
-class LabKeyDistributionInfo
+/**
+ * Build properties from 'distribution.properties' file
+ *
+ * @param version          the LabKey version (e.g. 24.3-SNAPSHOT)
+ * @param buildUrl         optional TeamCity BUILD_URL, if distribution was produced by TeamCity
+ * @param distributionName value of the 'name' property
+ */
+record LabKeyDistributionInfo(String version, String buildUrl, String distributionName)
 {
-    final String version;
-    final String buildUrl;
-    final String distributionName;
-
-    /**
-     * 'VERSION' file is expected to contain one or two lines. The LabKey version (e.g. 24.3-SNAPSHOT) is the first line.
-     * The TeamCity BUILD_URL is the second line if the distribution was produced by TeamCity
-     * 'distribution' file is expected to contain the name of the deployed distribution
-     * @param versionFileContents contents of 'labkeywebapp/WEB-INF/classes/VERSION'
-     * @param distributionFileContents contents of 'labkeywebapp/WEB-INF/classes/distribution'
-     */
-    public LabKeyDistributionInfo(String versionFileContents, String distributionFileContents)
-    {
-        String[] splitVersion = versionFileContents.trim().split("\\n");
-        version = splitVersion[0];
-        if (splitVersion.length > 1)
-        {
-            buildUrl = splitVersion[1];
-        }
-        else
-        {
-            buildUrl = null;
-        }
-        distributionName = distributionFileContents;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LabKeyDistributionInfo that = (LabKeyDistributionInfo) o;
-
-        if (!version.equals(that.version)) return false;
-        if (!Objects.equals(buildUrl, that.buildUrl)) return false;
-        return distributionName.equals(that.distributionName);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int result = version.hashCode();
-        result = 31 * result + (buildUrl != null ? buildUrl.hashCode() : 0);
-        result = 31 * result + distributionName.hashCode();
-        return result;
-    }
-
     @Override
     public String toString()
     {
-        return distributionName + ":" + version;
+        return distributionName + ":" + version + (buildUrl != null ? ":" + buildUrl : "");
     }
 }

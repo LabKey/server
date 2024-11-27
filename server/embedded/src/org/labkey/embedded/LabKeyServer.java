@@ -497,6 +497,8 @@ public class LabKeyServer
 
         public String getEncryptionKey()
         {
+            if (null == encryptionKey)
+                throw new RuntimeException("Must provide encryptionKey");
             return encryptionKey;
         }
 

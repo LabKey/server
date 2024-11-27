@@ -1,6 +1,7 @@
 package org.labkey.embedded;
 
-import org.jboss.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
 {
-    private static final Logger LOG = Logger.getLogger(LabKeySpringBootClassLoader.class);
+    private static final Logger LOG = LogManager.getLogger(LabKeySpringBootClassLoader.class);
 
     public LabKeySpringBootClassLoader()
     {

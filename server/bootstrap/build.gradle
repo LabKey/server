@@ -15,14 +15,13 @@ sourceSets {
 }
 
 dependencies
-        {
-            def tomcatVersion = project.apacheTomcatVersion
-
-            implementation "org.apache.tomcat:tomcat-api:${tomcatVersion}"
-            implementation "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
-            implementation "org.apache.tomcat:tomcat-juli:${tomcatVersion}"
-            implementation "org.apache.tomcat:tomcat-util:${tomcatVersion}"
+{
+    implementation('org.apache.tomcat.embed:tomcat-embed-core') {
+        version {
+            strictly "${apacheTomcatVersion}"
         }
+    }
+}
 
 def JAR_BASE_NAME = "labkeyBootstrap"
 project.jar {
@@ -65,9 +64,6 @@ project.afterEvaluate  {
                     publications('libs')
                 }
             }
-
         }
     }
 }
-
-

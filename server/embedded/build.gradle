@@ -31,15 +31,15 @@ configurations {
 }
 
 configurations.configureEach {
-//    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     exclude group: 'ch.qos.logback', module: 'logback-classic'
     exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
 }
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-json" // Not used (?) and pulls in an old version of Jackson
+        exclude group: "jakarta.annotation", module: "jakarta.annotation-api" // Already present in tomcat-annotations-api
+    }
 
     // Allows forcing a Spring Framework version that differs from spring-boot's version (e.g., to address CVEs)
     implementation('org.springframework:spring-web') {
@@ -50,11 +50,6 @@ dependencies {
 
     // Allows forcing a Tomcat version that differs from spring-boot's version (e.g., to address CVEs or regressions,
     // or to test a Tomcat release candidate)
-    implementation('org.apache.tomcat.embed:tomcat-embed-core') {
-        version {
-            strictly "${apacheTomcatVersion}"
-        }
-    }
     implementation('org.apache.tomcat.embed:tomcat-embed-el') {
         version {
             strictly "${apacheTomcatVersion}"
@@ -70,14 +65,11 @@ dependencies {
             strictly "${apacheTomcatVersion}"
         }
     }
-    implementation('org.apache.tomcat:tomcat-jsp-api') {
-        version {
-            strictly "${apacheTomcatVersion}"
-        }
-    }
 
     runtimeOnly "org.apache.tomcat.embed:tomcat-embed-jasper:${apacheTomcatVersion}"
-    runtimeOnly group: "org.apache.tomcat", name: "tomcat-dbcp", version: "${apacheTomcatVersion}"
+    runtimeOnly("org.apache.tomcat:tomcat-dbcp:${apacheTomcatVersion}") {
+        exclude group: "org.apache.tomcat", module: "tomcat-juli"
+    }
     runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
     implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"

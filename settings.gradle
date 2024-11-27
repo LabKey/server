@@ -114,6 +114,36 @@ class RenamedDependencyRule implements ComponentMetadataRule {
                 }
             }
 
+//            // Make embedded and standard tomcats collide
+//            if (id.group == 'org.apache.tomcat.embed') {
+//                if (id.name == 'tomcat-embed-core') {
+//                    allVariants {
+//                        it.withCapabilities {
+//                            it.addCapability('org.apache.tomcat', 'tomcat-catalina', id.version)
+//                            it.addCapability('org.apache.tomcat', 'tomcat-coyote', id.version)
+//                            it.addCapability('org.apache.tomcat', 'tomcat-juli', id.version)
+//                            it.addCapability('org.apache.tomcat', 'tomcat-api', id.version)
+//                            it.addCapability('org.apache.tomcat', 'tomcat-util', id.version)
+//                            it.addCapability('org.apache.tomcat', 'tomcat-util-scan', id.version)
+//                        }
+//                    }
+//                }
+//                if (id.name == 'tomcat-embed-el') {
+//                    allVariants {
+//                        it.withCapabilities {
+//                            it.addCapability('org.apache.tomcat', 'tomcat-el-api', id.version)
+//                        }
+//                    }
+//                }
+//                if (id.name == 'tomcat-embed-websocket') {
+//                    allVariants {
+//                        it.withCapabilities {
+//                            it.addCapability('org.apache.tomcat', 'tomcat-websocket', id.version)
+//                        }
+//                    }
+//                }
+//            }
+
             // 'net.hydromatic' is the new group coordinate for 'eigenbase' packages
             if (id.group == 'eigenbase') {
                 allVariants {

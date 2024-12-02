@@ -84,7 +84,6 @@ if (project.findProject(schemasProjectPath))
         project.project(schemasProjectPath).file("schemas/query.xsd"),
         project.project(schemasProjectPath).file("schemas/report.xsd"),
         project.project(schemasProjectPath).file("schemas/reportProps.xsd"),
-        project.project(schemasProjectPath).file("schemas/studyDesign.xsd"),
         project.project(schemasProjectPath).file("schemas/studyViews.xsd"),
         project.project(schemasProjectPath).file("schemas/view.xsd"),
         project.project(schemasProjectPath).file("schemas/viewCategory.xsd"),

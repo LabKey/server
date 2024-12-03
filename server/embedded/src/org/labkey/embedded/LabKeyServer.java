@@ -1,6 +1,5 @@
 package org.labkey.embedded;
 
-import jakarta.validation.constraints.NotNull;
 import org.apache.catalina.connector.Connector;
 import org.labkey.bootstrap.PipelineBootstrapConfig;
 import org.springframework.boot.Banner;
@@ -405,7 +404,6 @@ public class LabKeyServer
 
         private String webAppLocation;
         private String workDirLocation;
-        @NotNull (message = "Must provide encryptionKey")
         private String encryptionKey;
         private String oldEncryptionKey;
         private String legacyContextPath;
@@ -499,6 +497,8 @@ public class LabKeyServer
 
         public String getEncryptionKey()
         {
+            if (null == encryptionKey)
+                throw new RuntimeException("Must provide encryptionKey");
             return encryptionKey;
         }
 

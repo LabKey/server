@@ -39,6 +39,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-json" // Not used (?) and pulls in an old version of Jackson
         exclude group: "jakarta.annotation", module: "jakarta.annotation-api" // Already present in tomcat-annotations-api
+        exclude group: "org.apache.tomcat.embed", module: "tomcat-embed-core" // We want to force apacheTomcatVersion
     }
 
     // Allows forcing a Spring Framework version that differs from spring-boot's version (e.g., to address CVEs)
@@ -50,6 +51,11 @@ dependencies {
 
     // Allows forcing a Tomcat version that differs from spring-boot's version (e.g., to address CVEs or regressions,
     // or to test a Tomcat release candidate)
+    implementation('org.apache.tomcat.embed:tomcat-embed-core') {
+        version {
+            strictly "${apacheTomcatVersion}"
+        }
+    }
     implementation('org.apache.tomcat.embed:tomcat-embed-el') {
         version {
             strictly "${apacheTomcatVersion}"
@@ -59,6 +65,7 @@ dependencies {
         version {
             strictly "${apacheTomcatVersion}"
         }
+        exclude group: "org.apache.tomcat.embed", module: "tomcat-embed-core" // We want to force apacheTomcatVersion
     }
     implementation('org.apache.tomcat:tomcat-annotations-api') {
         version {

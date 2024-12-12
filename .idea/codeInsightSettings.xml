@@ -31,6 +31,7 @@
       <name>org.slf4j.Logger</name>
       <name>org.springframework.lang.Nullable</name>
       <name>org.springframework.util.StringUtils</name>
+      <name>com.sun.istack.Nullable</name>
     </excluded-names>
   </component>
 </project>

@@ -231,8 +231,9 @@ else
 // Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode
 // task we need a single location, and one that works even when not building from source (Issue 35207)
 project.node {
-    workDir = BuildUtils.getRootBuildDirFile(project, ".node")
-    npmWorkDir = BuildUtils.getRootBuildDirFile(project, ".node")
-    yarnWorkDir = BuildUtils.getRootBuildDirFile(project, ".node")
+    workDir = project.file("${project.rootProject.projectDir}/.node")
+    npmWorkDir = project.file("${project.rootProject.projectDir}/.node")
+//    workDir = BuildUtils.getRootBuildDirFile(project, ".node")
+//    npmWorkDir = BuildUtils.getRootBuildDirFile(project, ".node")
 }
 project.tasks.named('deployApp').configure { dependsOn(project.tasks.npmSetup) }

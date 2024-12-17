@@ -506,7 +506,7 @@ project.tasks.register('listNpmProjects', DefaultTask) {
             List<String> npmProjects = []
             project.allprojects({Project p ->
                 if (p.getPlugins().hasPlugin(NpmRun.class))
-                    npmProjects.add("${p.path} (${NpmRun.useYarn(p) ? 'yarn' : 'npm'})")
+                    npmProjects.add(p.path) 
             })
             if (npmProjects.size() == 0)
                 println("No projects found containing ${NpmRun.NPM_PROJECT_FILE}")

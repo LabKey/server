@@ -106,7 +106,7 @@ include BuildUtils.getMinificationProjectPath(gradle)
 List<String> excludedModules = []
 if (hasProperty('excludedModules'))
 {
-    excludedModules.addAll("${excludedModules}".split(","))
+    excludedModules.addAll("${getProperty('excludedModules')}".split(","))
 }
 
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getPlatformProjectPath(gradle))).exists()

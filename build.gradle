@@ -108,7 +108,7 @@ allprojects {
                 if (project.hasProperty("artifactory_contextUrl"))
                 {
                     maven {
-                        url "${artifactory_contextUrl}/ext-tools-local"
+                        url = "${artifactory_contextUrl}/ext-tools-local"
                         content {
                             includeGroup "org.labkey.tools.windows"
                             includeGroup "org.labkey.tools.linux"
@@ -116,7 +116,7 @@ allprojects {
                         }
                     }
                     maven {
-                        url "${artifactory_contextUrl}/libs-release-no-proxy"
+                        url = "${artifactory_contextUrl}/libs-release-no-proxy"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
                         {
@@ -133,7 +133,7 @@ allprojects {
                         }
                     }
                     maven {
-                        url "${artifactory_contextUrl}/libs-snapshot-no-proxy"
+                        url = "${artifactory_contextUrl}/libs-snapshot-no-proxy"
 
                         if (project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
                         {
@@ -165,7 +165,7 @@ allprojects {
                     maven {
                         // Mondrian dependencies are available via this repository. It's a direct dependency of the Query
                         // module but is declared here as many modules depend on Query and therefore need it as well.
-                        url "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
+                        url = "https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn"
                         content {
                             includeGroup "pentaho"
                             includeGroup "org.pentaho"

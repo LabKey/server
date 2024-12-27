@@ -8,7 +8,7 @@ pluginManagement {
             }
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release-no-proxy"
+            url = "${artifactory_contextUrl}/plugins-release-no-proxy"
             mavenContent {
                 releasesOnly()
             }
@@ -21,7 +21,7 @@ pluginManagement {
         {
             mavenLocal()
             maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
+                url = "${artifactory_contextUrl}/plugins-snapshot-local"
                 mavenContent {
                     snapshotsOnly()
                 }
@@ -57,7 +57,7 @@ buildscript {
             }
         }
         maven {
-            url "${artifactory_contextUrl}/plugins-release"
+            url = "${artifactory_contextUrl}/plugins-release"
             mavenContent {
                 releasesOnly()
             }
@@ -68,7 +68,7 @@ buildscript {
             // You will need to rerun the publish task to pick up new changes.
             mavenLocal()
             maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
+                url = "${artifactory_contextUrl}/plugins-snapshot-local"
                 mavenContent {
                     snapshotsOnly()
                 }

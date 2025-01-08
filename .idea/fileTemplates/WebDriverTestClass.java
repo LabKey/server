@@ -26,7 +26,7 @@ public class ${NAME} extends BaseWebDriverTest
     @BeforeClass
     public static void setupProject()
     {
-        ${NAME} init = (${NAME})getCurrentTest();
+        ${NAME} init = getCurrentTest();
        
         init.doSetup();
     }

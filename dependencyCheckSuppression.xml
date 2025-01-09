@@ -109,6 +109,19 @@
     </suppress>
 
     <!--
+    This is a dependency of Java-FPDF, used by the WNPRC billing module for PDF generation, which hasn't been updated
+    to reference the now-renamed Commons Imaging library instead of the old Sanselan incubator. The CVE is related
+    to file parsing, not generation so we're not vulnerable
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: sanselan-0.97-incubator.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sanselan/sanselan@.*$</packageUrl>
+        <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
+    </suppress>
+
+    <!--
     GraalJS shaded and re-versioned icu4j without changing the file name, leading to many old CVEs getting tagged.
     This should be fixed soon, but suppress all CVEs for now. https://github.com/oracle/graal/issues/8204
     -->
@@ -142,6 +155,9 @@
         <cpe>cpe:/a:apache:tomcat</cpe>
     </suppress>
 
+    <!--
+    suppress CVE-2023-52070 for jfreechart, may become moot after subsequent upgrades
+    -->
     <suppress>
         <notes><![CDATA[
    file name: jfreechart-1.0.19.jar

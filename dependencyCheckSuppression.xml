@@ -25,7 +25,7 @@
     -->
     <suppress>
         <notes><![CDATA[
-   file name: gwt-servlet-2.10.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
+   file name: gwt-servlet-2.11.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
         <cpe>cpe:/a:google:protobuf-java</cpe>
@@ -121,14 +121,6 @@
         <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
     </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   file name: jackson-databind-2.15.2.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-35116</vulnerabilityName>
-    </suppress>
-
     <!--
     GraalJS shaded and re-versioned icu4j without changing the file name, leading to many old CVEs getting tagged.
     This should be fixed soon, but suppress all CVEs for now. https://github.com/oracle/graal/issues/8204
@@ -149,7 +141,7 @@
     -->
     <suppress>
         <notes><![CDATA[
-   file name: tomcat-jaspic-api-10.1.18.jar
+   file name: tomcat-jaspic-api-10.1.34.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jaspic\-api@.*$</packageUrl>
         <cpe>cpe:/a:apache:tomcat</cpe>
@@ -157,43 +149,10 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: tomcat-jsp-api-10.1.18.jar
+   file name: tomcat-jsp-api-10.1.34.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jsp\-api@.*$</packageUrl>
         <cpe>cpe:/a:apache:tomcat</cpe>
-    </suppress>
-
-    <!--
-    suppress CVE-2024-23080 after jodaTime upgrade to 2.12.7, as still detected as 2.12.5
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: joda-time-2.12.7.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/joda\-time/joda\-time@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-23080</vulnerabilityName>
-    </suppress>
-
-    <!--
-    suppress CVE-2024-23080 after jodaTime upgrade to 2.12.7, as still detected as 2.12.5
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: joda-time-2.12.7.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/joda\-time/joda\-time@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-23080</vulnerabilityName>
-    </suppress>
-
-    <!--
-    suppress CVE-2024-22949 for jfreechart, may become moot after subsequent upgrades
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: jfreechart-1.0.19.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.jfree/jfreechart@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-22949</vulnerabilityName>
     </suppress>
 
     <!--
@@ -207,153 +166,12 @@
         <vulnerabilityName>CVE-2023-52070</vulnerabilityName>
     </suppress>
 
-    <!--
-    suppress CVE-2024-23076 for jfreechart, may become moot after subsequent upgrades
-    -->
+    <!-- We don't use the sun.io.useCanonCaches setting referenced by this CVE.  -->
     <suppress>
         <notes><![CDATA[
-   file name: jfreechart-1.0.19.jar
+   file name: tomcat-catalina-10.1.34.jar
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.jfree/jfreechart@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-23076</vulnerabilityName>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat-catalina@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-56337</vulnerabilityName>
     </suppress>
-
-    <!--
-    suppress CVEs bzip2-0.9.1.jar which enters through DiscvrLabKeyModules/SequenceAnalysis and is matching CVEs from the bzip2 command-line utility
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: bzip2-0.9.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
-        <cve>CVE-2019-12900</cve>
-        <cve>CVE-2011-4089</cve>
-        <cve>CVE-2010-0405</cve>
-        <cve>CVE-2005-1260</cve>
-    </suppress>
-
-    <!--
-    suppress CVE-2024-45772 for lucene 9.10, fixed in develop with bump to 9.12
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: lucene-analysis-common-9.10.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-analysis-common@.*$</packageUrl>
-        <cve>CVE-2024-45772</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: lucene-backward-codecs-9.10.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-backward-codecs@.*$</packageUrl>
-        <cve>CVE-2024-45772</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: lucene-core-9.10.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-core@.*$</packageUrl>
-        <cve>CVE-2024-45772</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: lucene-queries-9.10.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queries@.*$</packageUrl>
-        <cve>CVE-2024-45772</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: lucene-queryparser-9.10.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-queryparser@.*$</packageUrl>
-        <cve>CVE-2024-45772</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: lucene-sandbox-9.10.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.lucene/lucene-sandbox@.*$</packageUrl>
-        <cve>CVE-2024-45772</cve>
-    </suppress>
-    <!-- end of lucene suppressions -->
-
-    <!--
-    suppress glassfish false positives, being corrected in:
-    https://github.com/jeremylong/DependencyCheck/issues/7015
-    https://github.com/jeremylong/DependencyCheck/pull/7016
-    https://github.com/jeremylong/DependencyCheck/pull/7024
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: jaxb-core-4.0.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: jaxb-core-4.0.5.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: jaxb-core-4.0.5.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-core@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: jaxb-runtime-4.0.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: jaxb-runtime-4.0.5.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/jaxb-runtime@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: osgi-resource-locator-1.0.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.hk2/osgi-resource-locator@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: txw2-4.0.3.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: txw2-4.0.5.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.glassfish\.jaxb/txw2@.*$</packageUrl>
-        <cve>CVE-2024-9329</cve>
-    </suppress>
-    <!-- end of glassfish false positive suppressions -->
-
 </suppressions>
-

@@ -304,7 +304,7 @@ allprojects {
                     force "org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}"
                     // force consistency in docker and connectors and saml
                     force "org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}"
-                    // force consistency with netty jar files for docker and UserReg-WS
+                    // docker dependency: force to mitigate CVEs in 4.1.46
                     force "io.netty:netty-resolver:${nettyVersion}"
                     force "io.netty:netty-resolver-dns:${nettyVersion}"
                     force "io.netty:netty-handler:${nettyVersion}"

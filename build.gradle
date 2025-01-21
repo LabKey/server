@@ -290,6 +290,8 @@ allprojects {
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
                     force "org.jetbrains:annotations:${annotationsVersion}"
+                    // force consistency in TCRdb, mfa (Duo SDK)
+                    force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${intellijKotlinVersion}"
                     // force consistency between API and Java remote API
                     force "org.json:json:${orgJsonVersion}"
                     force "org.ow2.asm:asm:${asmVersion}"

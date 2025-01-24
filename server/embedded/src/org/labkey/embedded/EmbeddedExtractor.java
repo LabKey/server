@@ -1,8 +1,8 @@
 package org.labkey.embedded;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.labkey.bootstrap.ConfigException;
 
 import java.io.BufferedOutputStream;
@@ -22,7 +22,7 @@ import java.util.zip.ZipInputStream;
 
 public class EmbeddedExtractor
 {
-    private static final Log LOG = LogFactory.getLog(EmbeddedExtractor.class);
+    private static final Logger LOG = LogManager.getLogger(EmbeddedExtractor.class);
     private static final int BUFFER_SIZE = 1024 * 64;
     public static final String LABKEYWEBAPP = "labkeywebapp";
     /**

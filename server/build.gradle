@@ -101,8 +101,6 @@ if (project.findProject(":server:modules:premiumModules:redcap") != null)
     xsdFiles += project.project(":server:modules:premiumModules:redcap").file("schemas/redcapExport.xsd")
 if (project.findProject(":server:modules:premiumModules:cdisc_ODM") != null)
     xsdFiles += project.project(":server:modules:premiumModules:cdisc_ODM").file("schemas/cdiscExport.xsd")
-if (project.findProject(":server:modules:premiumModules:freezerpro") != null)
-    xsdFiles += project.project(":server:modules:premiumModules:freezerpro").file("schemas/freezerProExport.xsd")
 
 project.xsdDoc.xsdFiles=xsdFiles
 

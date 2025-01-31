@@ -81,6 +81,9 @@ dependencies {
     implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 
+    // need jackson-databind for advanced log4j configuration options
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 

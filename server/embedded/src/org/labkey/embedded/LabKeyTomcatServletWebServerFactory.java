@@ -5,9 +5,9 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -27,7 +27,7 @@ import static org.labkey.embedded.LabKeyServer.SERVER_SSL_KEYSTORE;
 
 class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 {
-    private static final Log LOG = LogFactory.getLog(LabKeyTomcatServletWebServerFactory.class);
+    private static final Logger LOG = LogManager.getLogger(LabKeyTomcatServletWebServerFactory.class);
     private final LabKeyServer _server;
 
     public LabKeyTomcatServletWebServerFactory(LabKeyServer server)

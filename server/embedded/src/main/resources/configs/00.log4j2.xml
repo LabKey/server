@@ -9,7 +9,7 @@ account managers so that we can coordinate edits with other customized copies of
 <Configuration packages="org.labkey.api.util,org.labkey.embedded">
 
     <Appenders>
-        <Console name="CONSOLE" target="SYSTEM_OUT">
+        <Console name="Console" target="SYSTEM_OUT">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
             <PatternLayout pattern="%-5p %-24.24c{1} %d{ISO8601} %24.24t : %m%n" />
         </Console>
@@ -167,15 +167,15 @@ account managers so that we can coordinate edits with other customized copies of
             and send errors to the labkey-errors.log as well.
         -->
         <Root level="info">
-            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="LABKEY"/>
             <AppenderRef ref="ERRORS"/>
         </Root>
 
         <!-- category for server side script messages -->
-        <Logger name="org.labkey.api.script.ScriptService.Console" level="info">
-            <AppenderRef ref="SessionAppender"/>
-        </Logger>
+<!--        <Logger name="org.labkey.api.script.ScriptService.Console" level="info">-->
+<!--            <AppenderRef ref="SessionAppender"/>-->
+<!--        </Logger>-->
 
         <!-- category for Mule messages -->
         <Logger name="org.mule.MuleManager" level="info"/>
@@ -192,12 +192,12 @@ account managers so that we can coordinate edits with other customized copies of
         <!-- uncomment to enable 'DEBUG' level on external SAML libraries to troubleshoot.
         Note: you will also have to set dependency on slf4j lib in saml/build.gradle - uncomment 'slf4j' external libraries and build
         <Logger name="org.opensaml" level="DEBUG">
-            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="LABKEY"/>
         </Logger>
 
         <Logger name="org.apache.xml.security" level="DEBUG">
-            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="Console"/>
             <AppenderRef ref="LABKEY"/>
         </Logger> -->
 
@@ -334,7 +334,7 @@ account managers so that we can coordinate edits with other customized copies of
         -->
         <Logger name="org.labkey.audit.event.UserAuditEvent" additivity="false" level="OFF">
             <AppenderRef ref="LABKEY_AUDIT"/>
-            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="Console"/>
         </Logger>
 
         <Logger name="NoOpLogger" level="OFF" additivity="false"/>

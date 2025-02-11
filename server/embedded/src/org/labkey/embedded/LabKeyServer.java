@@ -44,6 +44,7 @@ public class LabKeyServer
             embeddedExtractor.extractExecutableJar(currentDir, true);
             return;
         }
+        System.setProperty("log4j.configurationFactory", "org.labkey.bootstrap.LabKeyLog4j2ConfigurationFactory");
 
         // Issue 40038: Ride-or-die Mode - default to shutting down by default in embedded deployment scenario
         if (System.getProperty(TERMINATE_ON_STARTUP_FAILURE) == null)

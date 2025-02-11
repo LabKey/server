@@ -3,6 +3,9 @@ package org.labkey.embedded;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.labkey.bootstrap.LabKeyBootstrapClassLoader;
+import org.labkey.bootstrap.LabKeyLog4j2ConfigurationFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,6 +67,10 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
         {
             return true;
         }
+//        else if (name.contains("LabKeyLog4j2ConfigurationFactory"))
+//        {
+//            return true;
+//        }
         return super.filter(name, isClassName);
     }
 
@@ -97,5 +104,16 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
             return Collections.enumeration(urls);
         }
         return super.getResources(name);
+    }
+
+    @Override
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
+    {
+        if (name.contains("LabKeyLog4j2ConfigurationFactory"))
+        {
+            return findSystemClass(name);
+        }
+
+        return super.loadClass(name, resolve);
     }
 }

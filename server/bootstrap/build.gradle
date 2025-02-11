@@ -21,20 +21,20 @@ dependencies
             strictly "${apacheTomcatVersion}"
         }
     }
-
-    // Allows forcing a Spring Framework version that differs from spring-boot's version (e.g., to address CVEs)
-    implementation('org.springframework:spring-web') {
-        version {
-            strictly "${springVersion}"
-        }
-    }
-
-//    // Needed to support composite Log4j2 plugins using JSONLayout elements
-    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
 //
-//    runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
-//    implementation "commons-io:commons-io:${commonsIoVersion}"
-    implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
+//    // Allows forcing a Spring Framework version that differs from spring-boot's version (e.g., to address CVEs)
+//    implementation('org.springframework:spring-web') {
+//        version {
+//            strictly "${springVersion}"
+//        }
+//    }
+//
+////    // Needed to support composite Log4j2 plugins using JSONLayout elements
+//    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
+////
+////    runtimeOnly "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
+////    implementation "commons-io:commons-io:${commonsIoVersion}"
+//    implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 }
 
 def JAR_BASE_NAME = "labkeyBootstrap"

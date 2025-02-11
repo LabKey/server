@@ -55,6 +55,8 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         String headless = "java.awt.headless";
         if (System.getProperty(headless) == null)
             System.setProperty(headless, "true");
+
+        // Initialize the Log4j Composite Configuration factory
         System.setProperty("log4j.configurationFactory", "org.labkey.api.util.logging.LabKeyLog4j2ConfigurationFactory");
     }
 
@@ -384,29 +386,4 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
 
         return deleted;
     }
-//
-//
-//    @Override
-//    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
-//    {
-//        if (name.contains("LabKeyLog4j2ConfigurationFactory"))
-//        {
-//            return findSystemClass(name);
-////            return null;
-//        }
-//
-//        return super.loadClass(name, resolve);
-//    }
-//
-//    @Override
-//    public Class<?> findClass(String name) throws ClassNotFoundException {
-//        if (name.contains("LabKeyLog4j2ConfigurationFactory"))
-//        {
-//            return findSystemClass(name);
-////            return null;
-//        }
-//
-//        return super.findClass(name);
-//    }
-
 }

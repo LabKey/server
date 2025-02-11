@@ -66,10 +66,6 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
         {
             return true;
         }
-//        else if (name.contains("LabKeyLog4j2ConfigurationFactory"))
-//        {
-//            return true;
-//        }
         return super.filter(name, isClassName);
     }
 

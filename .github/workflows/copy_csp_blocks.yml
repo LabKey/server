@@ -13,16 +13,10 @@ on:
       - fb_*
     paths:
       - server/configs/application.properties
-  # TODO remove 'push' later, obviously:
-  push:
-    branches:
-      - fb_*
-    paths:
-      - server/configs/application.properties
 
 jobs:
   copy_csp:
-    # TODO: restore this: if: github.event.pull_request.merged
+    if: github.event.pull_request.merged
     runs-on: ubuntu-latest
     outputs:
       csp_report_on: ${{ steps.cspvars.outputs.csp_report_on }}
@@ -79,7 +73,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with: 
-          repository: labkey-willm/syseng-chef-server # TODO: LabKey/syseng-chef-server
+          repository: LabKey/syseng-chef-server
           token: ${{ secrets.TERRAFORM_TOKEN }}      
       - name: Paste Into Chef Repo
         run: |
@@ -146,7 +140,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with: 
-          repository: labkey-willm/Dockerfile # TODO: Labkey/Dockerfile
+          repository: Labkey/Dockerfile
           token: ${{ secrets.TERRAFORM_TOKEN }}
       - name: Paste Into Dockerfile Repo
         run: |

@@ -106,10 +106,13 @@ jobs:
           printf "\n\n>>>> updated $ap_file:  <<<<\n\n"
           cat $ap_file
 
-          printf "\n\n>>>> updating chef recipe version <<<<\n\n"
-          NEW_VER=$(grep version cookbooks/lk_appserver/metadata.rb |cut -d '"' -f 2 |awk -F. -v OFS=. '{$NF += 1 ; print}')
-          sed -i 's/\(version.*\)".*"/\1"'$NEW_VER'"/' cookbooks/lk_appserver/metadata.rb
-          sed -i 's/\(lk_appserver .*\)([0-9]*.[0-9]*.[0-9]*)/\1('$NEW_VER')/' Berksfile.lock 
+          git status
+          if [[ $(git diff-index --name-only HEAD |grep application.properties) ]]; then
+            printf "\n\n>>>> changes detected, so updating chef recipe version <<<<\n\n"
+            NEW_VER=$(grep version cookbooks/lk_appserver/metadata.rb |cut -d '"' -f 2 |awk -F. -v OFS=. '{$NF += 1 ; print}') 
+            sed -i 's/\(version.*\)".*"/\1"'$NEW_VER'"/' cookbooks/lk_appserver/metadata.rb
+            sed -i 's/\(lk_appserver .*\)([0-9]*.[0-9]*.[0-9]*)/\1('$NEW_VER')/' Berksfile.lock 
+          fi
 
       - name: Create Pull Request
         id: cpr
@@ -128,7 +131,7 @@ jobs:
       - name: Check outputs
         if: ${{ steps.cpr.outputs.pull-request-number }}
         run: |
-          echo "Server Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Chef Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
 
   paste_enforce_csp_into_dockerfile_repo:
     needs: copy_csp

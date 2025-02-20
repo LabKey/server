@@ -26,7 +26,7 @@ jobs:
       - name: Check Out Code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Copy CSP blocks into vars
         id: cspvars

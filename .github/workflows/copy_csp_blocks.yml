@@ -10,7 +10,7 @@ on:
     types:
       - closed
     branches:
-      - fb_*
+      - develop
     paths:
       - server/configs/application.properties
 

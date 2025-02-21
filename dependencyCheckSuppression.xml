@@ -387,5 +387,30 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat-catalina@.*$</packageUrl>
         <vulnerabilityName>CVE-2024-56337</vulnerabilityName>
     </suppress>
+    
+    <!--
+    False positives: labkey-api-client.jar is getting tagged as an old version of LabKey Server
+    -->
+    <suppress>
+       <notes><![CDATA[
+   file name: labkey-client-api-6.2.0.jar
+   ]]></notes>
+       <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
+       <cve>CVE-2019-3911</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: labkey-client-api-6.2.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
+        <cve>CVE-2019-3912</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: labkey-client-api-6.2.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
+        <cve>CVE-2019-3913</cve>
+    </suppress>
 </suppressions>
 

@@ -80,7 +80,10 @@ dependencies {
     runtimeOnly("org.apache.tomcat:tomcat-dbcp:${apacheTomcatVersion}") {
         exclude group: "org.apache.tomcat", module: "tomcat-juli"
     }
-    implementation "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
+    implementation ("org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}") {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
     implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 

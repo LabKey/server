@@ -133,10 +133,11 @@ jobs:
         run: |
           echo "Chef Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
 
-  paste_enforce_csp_into_dockerfile_repo:
+  paste_csp_into_dockerfile_repo:
     needs: copy_csp
     runs-on: ubuntu-latest
     env:
+      csp_report_on: ${{ needs.copy_csp.outputs.csp_report_on }}
       csp_enforce_on: ${{ needs.copy_csp.outputs.csp_enforce_on }}
       ap_file: "application.properties"
     steps:
@@ -150,6 +151,7 @@ jobs:
           printf "\n\n>>>> $ap_file before I change it: <<<<\n\n"
           cat $ap_file
 
+          printf "\n\n>>>> caught csp_report_on env var: <<<<\n$csp_report_on n\n"
           printf "\n\n>>>> caught csp_enforce_on env var:<<<<\n$csp_enforce_on\n\n"
 
           printf "\n\n>>>> replacing csp block in $ap_file <<<<\n\n"
@@ -160,6 +162,11 @@ jobs:
           os.rename(fname, fname + '.orig')
           with open(fname + '.orig', 'r') as fin, open(fname, 'w') as fout:
               data = fin.read()
+              data = re.sub(r'(## START OF CSP REPORT BLOCK \\(DO NOT CHANGE THIS TEXT\\)).*?(## END OF CSP REPORT BLOCK \\(DO NOT CHANGE THIS TEXT\\))',
+                r'\1\n' +
+                os.environ.get('csp_report_on') +
+                r'\n\2', data, flags=re.DOTALL)
+
               data = re.sub(r'(## START OF CSP ENFORCE BLOCK \\(DO NOT CHANGE THIS TEXT\\)).*?(## END OF CSP ENFORCE BLOCK \\(DO NOT CHANGE THIS TEXT\\))',
                 r'\1\n' +
                 os.environ.get('csp_enforce_on') +

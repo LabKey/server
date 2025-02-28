@@ -75,7 +75,11 @@ public class LabKeyServer
 
                 "server.tomcat.accesslog.enabled", "true",
                 "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
-                "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i"
+                "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+
+                // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
+                "server.error.include-stacktrace", "never",
+                "server.error.include-message", "always"
         ));
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);

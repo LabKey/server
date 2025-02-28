@@ -1,7 +1,9 @@
 package org.labkey.embedded;
 
+import org.apache.catalina.Container;
 import org.apache.catalina.Host;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.JsonAccessLogValve;
@@ -52,6 +54,14 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 {
                     handler.setUseSendfile(props.getUseSendfile());
                 }
+            }
+        });
+
+        addContextCustomizers(context -> {
+            final Container parent = context.getParent();
+            if (parent instanceof StandardHost sh)
+            {
+                sh.setErrorReportValveClass(LabKeyErrorReportValve.class.getName());
             }
         });
     }

@@ -55,9 +55,6 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         String headless = "java.awt.headless";
         if (System.getProperty(headless) == null)
             System.setProperty(headless, "true");
-
-        // Initialize the Log4j Composite Configuration factory
-        System.setProperty("log4j.configurationFactory", "org.labkey.api.util.logging.LabKeyLog4j2ConfigurationFactory");
     }
 
     private ModuleExtractor _moduleExtractor;

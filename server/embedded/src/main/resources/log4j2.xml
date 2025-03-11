@@ -187,7 +187,7 @@ account managers so that we can coordinate edits with other customized copies of
         <!-- category for jasper messages -->
         <Logger name="org.apache.jasper" level="warn"/>
 
-        <Logger name="org.labkey" level="info" />
+        <Logger name="org.labkey" />
 
         <!-- uncomment to enable 'DEBUG' level on external SAML libraries to troubleshoot.
         Note: you will also have to set dependency on slf4j lib in saml/build.gradle - uncomment 'slf4j' external libraries and build
@@ -232,9 +232,9 @@ account managers so that we can coordinate edits with other customized copies of
             <Logger name="org.labkey.api.data.Table" level="debug"/>
         -->
 
-        <Logger name="org.labkey.api.data" level="info" />
+        <Logger name="org.labkey.api.data" />
 
-        <Logger name="org.labkey.api.dataiterator" level="info" />
+        <Logger name="org.labkey.api.dataiterator" />
 
         <Logger name="org.labkey.docker" >
             <level value="info"/>

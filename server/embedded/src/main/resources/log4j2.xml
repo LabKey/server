@@ -220,6 +220,9 @@ account managers so that we can coordinate edits with other customized copies of
         <!-- Suppress EHCache "maxElementsInMemory of 0" warnings, Issue 49593 -->
         <Logger name="net.sf.ehcache.config.CacheConfiguration" level="error"/>
 
+        <!-- Suppress POI's PackageRelationshipCollection's "Cannot convert {} in a valid relationship URI" URISyntaxExceptions, Issue 51960 -->
+        <Logger name="org.apache.poi.openxml4j.opc.PackageRelationshipCollection" level="fatal"/>
+
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--
             <Logger name="org.labkey.api.security.SecurityManager" level="debug"/>

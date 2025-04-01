@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 
+    <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-vfs2-2.7.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.apache.commons/commons-vfs@.*$</packageUrl>
+        <vulnerabilityName>CVE-2025-27553</vulnerabilityName>
+    </suppress>
+
     <!-- Prevent match against unrelated "rengine" at https://github.com/yogeshojha/rengine -->
     <suppress>
         <notes><![CDATA[

@@ -195,6 +195,10 @@ allprojects {
                     force "org.apache.logging.log4j:log4j-core:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-api:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-1.2-api:${log4j2Version}"
+                    force "org.apache.commons.vfs2:FileContent:${commonsVfs2Version}"
+                    force "org.apache.commons.vfs2:FileObject:${commonsVfs2Version}"
+                    force "org.apache.commons.vfs2:FileSystemException:${commonsVfs2Version}"
+                    force "org.apache.commons.vfs2:FileSystemManager:${commonsVfs2Version}"
                     // force version for consistency with saml, query, LDK, and pipeline
                     force "commons-lang:commons-lang:${commonsLangVersion}"
                     // force version for consistency with workflow, api, SequenceAnalysis

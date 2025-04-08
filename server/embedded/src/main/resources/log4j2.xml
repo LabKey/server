@@ -239,9 +239,7 @@ account managers so that we can coordinate edits with other customized copies of
 
         <Logger name="org.labkey.api.dataiterator" />
 
-        <Logger name="org.labkey.docker" >
-            <level value="info"/>
-        </Logger>
+        <Logger name="org.labkey.docker" level="info"/>
 
         <Logger name="org.labkey.rstudio" level="info"/>
 

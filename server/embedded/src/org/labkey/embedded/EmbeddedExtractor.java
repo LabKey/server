@@ -277,11 +277,11 @@ public class EmbeddedExtractor
                 }
                 if (missingBootstrapJar)
                 {
-                    throw new ConfigException("Unable to find labkeyServer.jar required to run LabKey Server.");
+                    throw new ConfigException("Unable to find labkeyServer.jar required to run LabKey Server's remote pipeline code.");
                 }
                 if (missingServletApiJar)
                 {
-                    throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
+                    throw new ConfigException("Unable to find Servlet API file required to run LabKey Server's remote pipeline code.");
                 }
             }
         }

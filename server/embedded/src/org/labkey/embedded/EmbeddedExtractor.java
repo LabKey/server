@@ -224,7 +224,9 @@ public class EmbeddedExtractor
         {
             try (JarFile jar = new JarFile(verifyJar()))
             {
-                boolean foundDistributionZip = false;
+                boolean missingDistributionZip = true;
+                boolean missingBootstrapJar = remotePipeline;
+                boolean missingServletApiJar = remotePipeline;
                 var entries = jar.entries();
                 while (entries.hasMoreElements())
                 {
@@ -233,7 +235,7 @@ public class EmbeddedExtractor
 
                     if ("labkey/distribution.zip".equals(entryName))
                     {
-                        foundDistributionZip = true;
+                        missingDistributionZip = false;
                         try (var distInputStream = jar.getInputStream(entry))
                         {
                             extractDistributionZip(distInputStream, destDirectory);
@@ -241,14 +243,16 @@ public class EmbeddedExtractor
                     }
                     if (remotePipeline)
                     {
+                        // Keep this code in sync with org.labkey.pipeline.api.PipelineServiceImpl.extractBootstrapFromEmbedded()
                         if (entry.getName().contains("labkeyBootstrap") && entry.getName().toLowerCase().endsWith(".jar"))
                         {
                             try (var in = jar.getInputStream(entry))
                             {
                                 extractFile(in, new File(destDirectory, "labkeyBootstrap.jar"));
                             }
+                            missingBootstrapJar = false;
                         }
-                        if (entry.getName().contains("tomcat-servlet-api") && entry.getName().toLowerCase().endsWith(".jar"))
+                        if (entry.getName().contains("tomcat-embed-core") && entry.getName().toLowerCase().endsWith(".jar"))
                         {
                             File pipelineLib = new File(destDirectory, "pipeline-lib");
                             if (!pipelineLib.exists())
@@ -262,13 +266,22 @@ public class EmbeddedExtractor
                             {
                                 extractFile(in, new File(pipelineLib, "servletApi.jar"));
                             }
+                            missingServletApiJar = false;
                         }
                     }
                 }
 
-                if (!foundDistributionZip)
+                if (missingDistributionZip)
                 {
                     throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
+                }
+                if (missingBootstrapJar)
+                {
+                    throw new ConfigException("Unable to find labkeyServer.jar required to run LabKey Server's remote pipeline code.");
+                }
+                if (missingServletApiJar)
+                {
+                    throw new ConfigException("Unable to find Servlet API file required to run LabKey Server's remote pipeline code.");
                 }
             }
         }

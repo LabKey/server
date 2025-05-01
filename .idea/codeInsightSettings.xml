@@ -32,6 +32,10 @@
       <name>org.springframework.lang.Nullable</name>
       <name>org.springframework.util.StringUtils</name>
       <name>com.sun.istack.Nullable</name>
+      <name>org.jspecify.annotations.Nullable</name>
+      <name>org.jspecify.annotations.NotNull</name>
+      <name>io.micrometer.common.lang.NonNull</name>
+      <name>io.micrometer.common.lang.Nullable</name>
     </excluded-names>
   </component>
 </project>

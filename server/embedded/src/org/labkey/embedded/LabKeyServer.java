@@ -66,6 +66,21 @@ public class LabKeyServer
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
+        // A strong Content Security Policy that reports violations to this server
+        String strongCsp = """
+                default-src 'self' ;
+                connect-src 'self' ${CONNECTION.SOURCES} ;
+                object-src 'none' ;
+                style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
+                img-src 'self' data: ${IMAGE.SOURCES} ;
+                font-src 'self' data: ${FONT.SOURCES} ;
+                script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
+                base-uri 'self' ;
+                ${UPGRADE.INSECURE.REQUESTS}
+                frame-ancestors 'self' ;
+                frame-src 'self' ${FRAME.SOURCES} ;
+                report-uri /admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS}
+            """;
         application.setDefaultProperties(Map.of(
                 "server.tomcat.basedir", ".",
                 "server.tomcat.accesslog.directory", logHome,
@@ -81,20 +96,7 @@ public class LabKeyServer
                 "server.error.include-stacktrace", "never",
                 "server.error.include-message", "always",
 
-                // A strong report-only Content Security Policy that reports violations to this server
-                "csp.report", """
-                        default-src 'self' ;
-                        connect-src 'self' ${CONNECTION.SOURCES} ;
-                        object-src 'none' ;
-                        style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
-                        img-src 'self' data: ${IMAGE.SOURCES} ;
-                        font-src 'self' data: ${FONT.SOURCES} ;
-                        script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
-                        base-uri 'self' ;
-                        frame-ancestors 'self' ;
-                        frame-src 'self' ${FRAME.SOURCES} ;
-                        report-uri /admin-contentSecurityPolicyReport.api?cspVersion=r11&${CSP.REPORT.PARAMS}
-                    """
+                "csp.report", strongCsp
         ));
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);

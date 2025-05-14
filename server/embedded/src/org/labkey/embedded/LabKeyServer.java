@@ -66,8 +66,8 @@ public class LabKeyServer
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
-        // A strong Content Security Policy that reports violations to this server
-        String strongCsp = """
+        // A strong Content Security Policy
+        String baseCsp = """
                 default-src 'self' ;
                 connect-src 'self' ${CONNECTION.SOURCES} ;
                 object-src 'none' ;
@@ -76,27 +76,35 @@ public class LabKeyServer
                 font-src 'self' data: ${FONT.SOURCES} ;
                 script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
                 base-uri 'self' ;
+                frame-src 'self' ${FRAME.SOURCES} ;
+            """;
+        // Add upgrade_insecure_requests substitution, frame-ancestors, and e12 version for enforce CSP
+        String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
-                frame-src 'self' ${FRAME.SOURCES} ;
-                report-uri /admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS}
+                report-uri /admin-contentSecurityPolicyReport.api?cspVersion=e12&${CSP.REPORT.PARAMS} ;
+            """;
+        // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
+        String reportCsp = baseCsp + """
+                report-uri /admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
             """;
         application.setDefaultProperties(Map.of(
-                "server.tomcat.basedir", ".",
-                "server.tomcat.accesslog.directory", logHome,
+            "server.tomcat.basedir", ".",
+            "server.tomcat.accesslog.directory", logHome,
 
-                // Enable HTTP compression for response content
-                "server.compression.enabled", "true",
+            // Enable HTTP compression for response content
+            "server.compression.enabled", "true",
 
-                "server.tomcat.accesslog.enabled", "true",
-                "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
-                "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+            "server.tomcat.accesslog.enabled", "true",
+            "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+            "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
 
-                // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
-                "server.error.include-stacktrace", "never",
-                "server.error.include-message", "always",
+            // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
+            "server.error.include-stacktrace", "never",
+            "server.error.include-message", "always",
 
-                "csp.report", strongCsp
+            "csp.enforce", enforceCsp,
+            "csp.report", reportCsp
         ));
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);

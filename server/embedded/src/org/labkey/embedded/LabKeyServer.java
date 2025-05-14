@@ -76,7 +76,7 @@ public class LabKeyServer
                 font-src 'self' data: ${FONT.SOURCES} ;
                 script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
                 base-uri 'self' ;
-                ${UPGRADE.SECURE.REQUESTS}
+                ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
                 report-uri /admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS}

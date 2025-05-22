@@ -15,8 +15,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * Variant of the classloader that supports Spring Boot by deferring to the parent classloader for SLF4J classes
- * to avoid conflicting copies (even if they're the same version) between the parent and webapp classloaders.
+ * Variant of the classloader that supports Spring Boot by deferring to the parent classloader for SLF4J and Log4J classes
+ * to avoid duplicate copies (even if they're the same version) between the parent and webapp classloaders.
  */
 public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
 {
@@ -57,9 +57,8 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     @Override
     protected boolean filter(String name, boolean isClassName)
     {
-        // Defer to the Spring Boot classloader for SLF4J classes to avoid problems with double-loading.
-        // Eventually we should shift to only configuring and loading SLF4J and Log4J via Spring Boot and not
-        // from inside the webapp.
+        // Defer to the Spring Boot classloader for SLF4J and Log4J classes to avoid problems with double-loading.
+        // Eventually we should shift to only shipping SLF4J and Log4J via Spring Boot and not inside the webapp.
         if (name.startsWith("org.slf4j.") || name.startsWith("org.apache.logging.log4j"))
         {
             return true;

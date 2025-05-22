@@ -18,6 +18,8 @@ package org.labkey.bootstrap;
 
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.loader.WebappClassLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class LabKeyBootstrapClassLoader extends WebappClassLoader implements ExplodedModuleService
 {
-    private final SimpleLogger _log = new CommonsLogger(LabKeyBootstrapClassLoader.class);
+    private final static Logger _log = LogManager.getLogger(LabKeyBootstrapClassLoader.class);
 
     /** Modules which have been previously logged as having changed, which would trigger a webapp redeployment in development scenarios */
     private final Set<String> _previouslyLoggedModules = new HashSet<>();
@@ -87,7 +89,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
     {
         try
         {
-            _moduleExtractor = new ModuleExtractor(webappDir, new CommonsLogger(ModuleExtractor.class));
+            _moduleExtractor = new ModuleExtractor(webappDir);
             var explodedModules = _moduleExtractor.extractModules();
             for(var exploded : explodedModules)
             {
@@ -176,10 +178,6 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
      *
      * NOTE: this doesn't guarantee that the webapp won't reload.  The caller has to inspect the archive
      * to ensure that.
-     *
-     * @param updatedArchive
-     * @param existingArchive
-     * @return
      */
     public void validateReplaceArchive(File explodedModuleDirectory, File updatedArchive, File existingArchive) throws IOException
     {
@@ -193,8 +191,8 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         if (!_moduleExtractor.hasExplodedArchive(existingArchive))
             throw new IllegalStateException(existingArchive.getAbsolutePath() + " it not an existing archive");
 
-        ModuleArchive existingModuleArchive = new ModuleArchive(existingArchive, _log);
-        ModuleArchive updatedModuleArchive = new ModuleArchive(updatedArchive, _log);
+        ModuleArchive existingModuleArchive = new ModuleArchive(existingArchive);
+        ModuleArchive updatedModuleArchive = new ModuleArchive(updatedArchive);
         if (!existingModuleArchive.getModuleName().equalsIgnoreCase(updatedModuleArchive.getModuleName()))
             throw new IllegalArgumentException("Module name doesn't match, expected " + existingModuleArchive.getModuleName());
 
@@ -286,7 +284,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         if (target.exists())
             throw new IllegalArgumentException("File already exists: " + target.getPath());
 
-        ModuleArchive newModuleArchive = new ModuleArchive(newArchive, _log);
+        ModuleArchive newModuleArchive = new ModuleArchive(newArchive);
         String moduleName = newModuleArchive.getModuleName();
         if (null==moduleName || moduleName.isBlank())
             throw new IllegalArgumentException("Module name not found in archive");

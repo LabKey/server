@@ -177,7 +177,7 @@ public class PipelineBootstrapConfig
     {
         if (_classLoader == null)
         {
-            ModuleExtractor extractor = new ModuleExtractor(getWebappDir(), new StdOutLogger());
+            ModuleExtractor extractor = new ModuleExtractor(getWebappDir());
             Collection<ExplodedModule> explodedModules = extractor.extractModules();
             _moduleFiles = new ArrayList<>(extractor.getExplodedModuleDirectories());
             _moduleSpringContextFiles = new ArrayList<>();

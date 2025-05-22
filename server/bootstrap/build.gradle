@@ -21,6 +21,7 @@ dependencies
             strictly "${apacheTomcatVersion}"
         }
     }
+    implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
 }
 
 def JAR_BASE_NAME = "labkeyBootstrap"

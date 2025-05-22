@@ -16,6 +16,9 @@
 
 package org.labkey.bootstrap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,13 +40,12 @@ public class ModuleExtractor
     private Set<File> _ignoredExplodedDirs;
     private Set<ExplodedModule> _explodedModules;
 
-    private final SimpleLogger _log;
+    private static final Logger _log = LogManager.getLogger(ModuleExtractor.class);
 
-    public ModuleExtractor(File webAppDirectory, SimpleLogger log)
+    public ModuleExtractor(File webAppDirectory)
     {
         _webAppDirectory = webAppDirectory;
         _moduleDirectories = new ModuleDirectories(_webAppDirectory);
-        _log = log;
     }
 
     public Collection<ExplodedModule> extractModules()
@@ -71,11 +73,11 @@ public class ModuleExtractor
                 .map(moduleArchiveFile -> {
                     try
                     {
-                        return new ModuleArchive(moduleArchiveFile, _log);
+                        return new ModuleArchive(moduleArchiveFile);
                     }
                     catch (IOException e)
                     {
-                        _log.error("Unable to open module archive " + moduleArchiveFile.getPath() + "!", e);
+                        _log.error("Unable to open module archive {}!", moduleArchiveFile.getPath(), e);
                         _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                         return null;
                     }
@@ -89,8 +91,8 @@ public class ModuleExtractor
             if (null != found)
             {
                 var re = new IllegalStateException("LabKey found two modules with the name \"" + moduleArchive.getModuleName() + "\".  Please resolve this problem and restart the server");
-                _log.error("Unable to extract module archive " + found.getFile().getPath() + "!");
-                _log.error("Unable to extract module archive " + moduleArchive.getFile().getPath(), re);
+                _log.error("Unable to extract module archive {}!", found.getFile().getPath());
+                _log.error("Unable to extract module archive {}", moduleArchive.getFile().getPath(), re);
                 throw re;
             }
         }
@@ -107,7 +109,7 @@ public class ModuleExtractor
                 }
                 catch (IOException e)
                 {
-                    _log.error("Unable to extract module archive " + moduleArchiveFile.getPath() + "!", e);
+                    _log.error("Unable to extract module archive {}!", moduleArchiveFile.getPath(), e);
                     _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                 }
             });
@@ -120,7 +122,7 @@ public class ModuleExtractor
         // from a .module archive.
         _moduleDirectories.streamAllModuleDirectories()
             .flatMap(dir-> {File[] files=dir.listFiles(File::isDirectory); return null==files ? null : Stream.of(files);})
-            .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
+            .toList() // This intermediate list is critical. See comment above.
             .parallelStream()
             .forEach(dir->{
                 if (dir.isHidden() || dir.getName().startsWith("."))
@@ -133,16 +135,16 @@ public class ModuleExtractor
                 {
                     ModuleArchive archive = mapModuleDirToArchive.get(dir.getAbsoluteFile());
                     ExplodedModule explodedModule = new ExplodedModule(dir, null==archive?null:archive.getFile());
-                    _log.info("Deploying resources from " + explodedModule.getRootDirectory() + ".");
+                    _log.info("Deploying resources from {}.", explodedModule.getRootDirectory());
                     long startTime = System.currentTimeMillis();
                     Set<File> moduleWebAppFiles = explodedModule.deployToWebApp(_webAppDirectory);
 
                     _explodedModules.add(explodedModule);
-                    _log.info("Done deploying resources from " + explodedModule.getRootDirectory() + ". Extracted " + moduleWebAppFiles.size() + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+                    _log.info("Done deploying resources from {}. Extracted {} file(s) in {}ms.", explodedModule.getRootDirectory(), moduleWebAppFiles.size(), System.currentTimeMillis() - startTime);
                 }
                 catch(IOException e)
                 {
-                    _log.error("Unable to deploy resources from exploded module " + dir.getPath() + " to web app directory!", e);
+                    _log.error("Unable to deploy resources from exploded module {} to web app directory!", dir.getPath(), e);
                 }
             });
 
@@ -239,7 +241,7 @@ public class ModuleExtractor
                         moduleArchive = null;
                     if (null == moduleArchive)
                     {
-                        moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
+                        moduleArchive = new ModuleArchive(moduleArchiveFile);
                         File explodedDir = moduleArchive.extractAll();
                         new ExplodedModule(explodedDir).deployToWebApp(_webAppDirectory);
                         _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
@@ -320,7 +322,7 @@ public class ModuleExtractor
      */
     public Map.Entry<File,File> extractUpdatedModuleArchive(File moduleArchiveFile, File previousArchiveFile) throws IOException
     {
-        ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
+        ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile);
         File explodedDir = moduleArchive.extractAll();
 
         ExplodedModule explodedModule = new ExplodedModule(explodedDir, moduleArchiveFile);
@@ -340,7 +342,7 @@ public class ModuleExtractor
 
     public Map.Entry<File,File> extractNewModuleArchive(File moduleArchiveFile) throws IOException
     {
-        ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile, _log);
+        ModuleArchive moduleArchive = new ModuleArchive(moduleArchiveFile);
         File explodedDir = moduleArchive.extractAll();
 
         ExplodedModule explodedModule = new ExplodedModule(explodedDir, moduleArchiveFile);
@@ -356,7 +358,6 @@ public class ModuleExtractor
      * Extract .module files
      * @param args see usages
      * @throws ConfigException thrown if there is a problem with the configuration
-     * @throws IOException thrown if there is a problem extracting the module archives
      */
     public static void main(String... args)
     {
@@ -364,7 +365,7 @@ public class ModuleExtractor
         {
             PipelineBootstrapConfig config = new PipelineBootstrapConfig(args, false);
 
-            ModuleExtractor extractor = new ModuleExtractor(config.getWebappDir(), new StdOutLogger());
+            ModuleExtractor extractor = new ModuleExtractor(config.getWebappDir());
             extractor.extractModules();
         }
         catch (ConfigException e)

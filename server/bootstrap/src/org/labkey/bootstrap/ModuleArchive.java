@@ -15,6 +15,8 @@
  */
 package org.labkey.bootstrap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -53,10 +55,8 @@ public class ModuleArchive
     protected static final FileComparator _fileComparator = new FileComparator();
 
     private final File _file;
-    private final long _modified;
     private final String _moduleName;
-    private final SimpleLogger _log;
-    private final boolean _hasJavaCode;
+    private final static Logger LOG = LogManager.getLogger(ModuleArchive.class);
 
 
     private String stripToNull(String s)
@@ -118,12 +118,10 @@ public class ModuleArchive
     }
 
 
-    public ModuleArchive(File file, SimpleLogger log) throws IOException
+    public ModuleArchive(File file) throws IOException
     {
         _file = file;
         assert _file.exists() && _file.isFile();
-        _modified = _file.lastModified();
-        _log = log;
 
         String moduleName = null;
         boolean hasJavaCode = false;
@@ -163,7 +161,6 @@ public class ModuleArchive
         }
 
         _moduleName = moduleName;
-        _hasJavaCode = hasJavaCode;
     }
 
     public File getFile()
@@ -181,8 +178,7 @@ public class ModuleArchive
         if (null == _moduleName)
         {
             String fileName = getFile().getName();
-            String baseName = fileName.substring(0, fileName.length() - FILE_EXTENSION.length());
-            return baseName;
+            return fileName.substring(0, fileName.length() - FILE_EXTENSION.length());
         }
         return _moduleName;
     }
@@ -234,7 +230,7 @@ public class ModuleArchive
 
         File archiveFile = getFile();
         long archiveFileLastModified = archiveFile.lastModified();
-        _log.info("Extracting module " + archiveFile.getName() + ".");
+        LOG.info("Extracting module " + archiveFile.getName() + ".");
 
         // delete existing directory so that files that are
         // no longer in the archive are removed
@@ -259,7 +255,7 @@ public class ModuleArchive
 
         //set last mod on target directory to match module file
         targetDirectory.setLastModified(archiveFileLastModified);
-        _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+        LOG.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
@@ -271,7 +267,7 @@ public class ModuleArchive
             entryParent.mkdirs();
         if (!entryParent.isDirectory())
         {
-            _log.error("Unable to create directory " + entryParent.getPath() + ", there may be a problem with file permissions");
+            LOG.error("Unable to create directory " + entryParent.getPath() + ", there may be a problem with file permissions");
         }
 
         // if entry is a directory, just mkdirs, set last mod and return

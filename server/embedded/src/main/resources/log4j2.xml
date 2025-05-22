@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!--
-When making edits to this file, please be sure to make corresponding updates to the copy in gradlePlugins.
-Additionally, please communicate with systems engineering and
-account managers so that we can coordinate edits with other customized copies of the file
--->
-
-<Configuration packages="org.labkey.api.util,org.labkey.embedded">
-
+<Configuration>
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
@@ -17,6 +10,7 @@ account managers so that we can coordinate edits with other customized copies of
         <RollingFile name="ERRORS"
                      fileName="${sys:labkey.log.home}/labkey-errors.log"
                      append="true"
+                     bufferSize="0"
                      bufferedIO="false"
                      filePattern="${sys:labkey.log.home}/labkey-errors.log.%i">
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -37,6 +31,7 @@ account managers so that we can coordinate edits with other customized copies of
         <RollingFile name="ACTION_STATS"
                      fileName="${sys:labkey.log.home}/labkey-action-stats.tsv"
                      append="true"
+                     bufferSize="0"
                      bufferedIO="false"
                      filePattern="${sys:labkey.log.home}/labkey-action-stats.tsv.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
@@ -53,6 +48,7 @@ account managers so that we can coordinate edits with other customized copies of
         <RollingFile name="QUERY_STATS"
                      fileName="${sys:labkey.log.home}/labkey-query-stats.tsv"
                      append="true"
+                     bufferSize="0"
                      bufferedIO="false"
                      filePattern="${sys:labkey.log.home}/labkey-query-stats.tsv.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
@@ -69,6 +65,7 @@ account managers so that we can coordinate edits with other customized copies of
         <RollingFile name="LABKEY"
                      fileName="${sys:labkey.log.home}/labkey.log"
                      append="true"
+                     bufferSize="0"
                      bufferedIO="false"
                      filePattern="${sys:labkey.log.home}/labkey.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
@@ -84,6 +81,7 @@ account managers so that we can coordinate edits with other customized copies of
         <RollingFile name="LABKEY_AUDIT"
                      fileName="${sys:labkey.log.home}/labkey-audit.log"
                      append="true"
+                     bufferSize="0"
                      bufferedIO="false"
                      filePattern="${sys:labkey.log.home}/labkey-audit.log.%i">
             <!-- p=priority c=category d=datetime t=thread m=message n=newline -->
@@ -147,6 +145,7 @@ account managers so that we can coordinate edits with other customized copies of
         <RollingFile name="INDEXED_DOCUMENTS"
                      fileName="${sys:labkey.log.home}/labkey-indexed-documents.log"
                      append="true"
+                     bufferSize="0"
                      bufferedIO="false"
                      filePattern="${sys:labkey.log.home}/labkey-indexed-documents.log.%i">
             <!-- d=datetime m=message n=newline -->

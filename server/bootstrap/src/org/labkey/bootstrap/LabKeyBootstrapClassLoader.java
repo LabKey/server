@@ -44,6 +44,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LabKeyBootstrapClassLoader extends WebappClassLoader implements ExplodedModuleService
 {
     private final static Logger _log = LogManager.getLogger(LabKeyBootstrapClassLoader.class);
+    private static final Log4JLogger MODULE_ARCHIVE_LOG = new Log4JLogger(LogManager.getLogger(ModuleArchive.class));
+    private static final Log4JLogger MODULE_EXTRACTOR_LOG = new Log4JLogger(LogManager.getLogger(ModuleExtractor.class));
 
     /** Modules which have been previously logged as having changed, which would trigger a webapp redeployment in development scenarios */
     private final Set<String> _previouslyLoggedModules = new HashSet<>();
@@ -89,7 +91,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
     {
         try
         {
-            _moduleExtractor = new ModuleExtractor(webappDir);
+            _moduleExtractor = new ModuleExtractor(webappDir, MODULE_EXTRACTOR_LOG);
             var explodedModules = _moduleExtractor.extractModules();
             for(var exploded : explodedModules)
             {
@@ -191,8 +193,8 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         if (!_moduleExtractor.hasExplodedArchive(existingArchive))
             throw new IllegalStateException(existingArchive.getAbsolutePath() + " it not an existing archive");
 
-        ModuleArchive existingModuleArchive = new ModuleArchive(existingArchive);
-        ModuleArchive updatedModuleArchive = new ModuleArchive(updatedArchive);
+        ModuleArchive existingModuleArchive = new ModuleArchive(existingArchive, MODULE_ARCHIVE_LOG);
+        ModuleArchive updatedModuleArchive = new ModuleArchive(updatedArchive, MODULE_ARCHIVE_LOG);
         if (!existingModuleArchive.getModuleName().equalsIgnoreCase(updatedModuleArchive.getModuleName()))
             throw new IllegalArgumentException("Module name doesn't match, expected " + existingModuleArchive.getModuleName());
 
@@ -284,7 +286,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         if (target.exists())
             throw new IllegalArgumentException("File already exists: " + target.getPath());
 
-        ModuleArchive newModuleArchive = new ModuleArchive(newArchive);
+        ModuleArchive newModuleArchive = new ModuleArchive(newArchive, MODULE_ARCHIVE_LOG);
         String moduleName = newModuleArchive.getModuleName();
         if (null==moduleName || moduleName.isBlank())
             throw new IllegalArgumentException("Module name not found in archive");

@@ -68,7 +68,7 @@ public class EmbeddedExtractor
     {
         if (labkeyServerJar == null)
         {
-            throw new ConfigException("Executable jar not found in " + currentDir);
+            throw new ConfigException("Executable jar not found in " + currentDir + " which had contents " + Arrays.stream(currentDir.listFiles()).map(File::getName).toList());
         }
 
         return labkeyServerJar;

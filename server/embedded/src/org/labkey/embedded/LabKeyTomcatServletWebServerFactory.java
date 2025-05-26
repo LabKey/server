@@ -105,7 +105,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                     webAppLocation = new File(contextProperties.getWebAppLocation());
                 }
 
-                EmbeddedExtractor extractor = new EmbeddedExtractor(true);
+                EmbeddedExtractor extractor = new EmbeddedExtractor();
                 if (contextProperties.getWebAppLocation() == null || extractor.foundLabkeyServerJar())
                 {
                     extractor.extractDistribution(webAppLocation);

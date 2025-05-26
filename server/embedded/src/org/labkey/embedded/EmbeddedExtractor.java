@@ -36,11 +36,11 @@ public class EmbeddedExtractor
 
     private String labkeyWebappDirName = null;
 
-    public EmbeddedExtractor(boolean expectEmbeddedInJarName)
+    public EmbeddedExtractor()
     {
         File[] files = currentDir.listFiles(file -> {
             String name = file.getName().toLowerCase();
-            return name.endsWith(".jar") && !name.contains("labkeybootstrap") && (expectEmbeddedInJarName != name.contains("embedded"));
+            return name.endsWith(".jar") && !name.contains("labkeybootstrap");
         });
 
         if (files == null || files.length == 0)

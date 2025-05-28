@@ -185,4 +185,14 @@
         <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
         <cve>CVE-2019-3913</cve>
     </suppress>
+
+    <!-- False positive - mxparser is not XStream -->
+    <suppress>
+        <notes><![CDATA[
+    file name: mxparser-1.2.2.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.github\.x-stream/mxparser@.*$</packageUrl>
+        <cpe>cpe:/a:xstream:xstream</cpe>
+    </suppress>
+
 </suppressions>

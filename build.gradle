@@ -206,6 +206,8 @@ allprojects {
                     force "commons-pool:commons-pool:${commonsPoolVersion}"
                     // force version for consistency with premium, OpenLdapSync
                     force "org.apache.commons:commons-text:${commonsTextVersion}"
+                    // force version for consistency with search, premium, api
+                    force "org.apache.commons:commons-collections4:${commonsCollections4Version}"
                     // force version for consistency with query, saml, LDK, api
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
                     // force version for ms2, saml, fileTransfer, harvest, api, accounts, docker

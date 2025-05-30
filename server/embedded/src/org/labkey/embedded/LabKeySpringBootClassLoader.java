@@ -65,6 +65,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
             ClassLoader parent = getParent();
             while (parent != null)
             {
+                LOG.info("Looking for SessionAppending - checking ClassLoader " + parent);
                 if (parent.getClass().getName().equals("jdk.internal.loader.ClassLoaders$AppClassLoader"))
                 {
                     return getParent().getParent().loadClass(name);
@@ -81,7 +82,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     {
         // Defer to the Spring Boot classloader for SLF4J and Log4J classes to avoid problems with double-loading.
         // Eventually we should shift to only shipping SLF4J and Log4J via Spring Boot and not inside the webapp.
-        if (name.startsWith("org.slf4j.") || name.startsWith("org.apache.logging.log4j.") || name.startsWith("org.labkey.embedded."))
+        if (name.startsWith("org.slf4j.") || name.startsWith("org.apache.logging.log4j."))
         {
             return true;
         }

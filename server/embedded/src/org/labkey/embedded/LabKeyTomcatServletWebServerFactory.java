@@ -175,6 +175,11 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 {
                     context.addParameter("requiredModules", contextProperties.getRequiredModules());
                 }
+                if (contextProperties.getExternalModules() != null)
+                {
+                    // We've long supported configuring this via a system property so propagate the value
+                    System.setProperty("labkey.externalModulesDir", contextProperties.getExternalModules());
+                }
                 if (contextProperties.getPipelineConfig() != null)
                 {
                     context.addParameter("org.labkey.api.pipeline.config", contextProperties.getPipelineConfig());

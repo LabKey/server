@@ -65,11 +65,11 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
             ClassLoader parent = getParent();
             while (parent != null)
             {
-                LOG.info("Looking for SessionAppending - checking ClassLoader " + parent);
+                LOG.debug("Looking for SessionAppending - checking ClassLoader " + parent);
                 if (parent.getClass().getName().equals("jdk.internal.loader.ClassLoaders$AppClassLoader") ||
                         parent.getClass().getName().equals("org.springframework.boot.loader.launch.LaunchedClassLoader"))
                 {
-                    return getParent().getParent().loadClass(name);
+                    return parent.loadClass(name);
                 }
                 parent = parent.getParent();
             }

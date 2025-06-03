@@ -194,5 +194,27 @@
         <packageUrl regex="true">^pkg:maven/io\.github\.x-stream/mxparser@.*$</packageUrl>
         <cpe>cpe:/a:xstream:xstream</cpe>
     </suppress>
-
+    
+    <!-- False positives - bzip2 from a different source -->
+    <suppress>
+       <notes><![CDATA[
+       file name: bzip2-0.9.1.jar
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
+       <cve>CVE-2019-12900</cve>
+    </suppress>
+    <suppress>
+       <notes><![CDATA[
+       file name: bzip2-0.9.1.jar
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
+       <cve>CVE-2010-0405</cve>
+    </suppress>
+    <suppress>
+       <notes><![CDATA[
+       file name: bzip2-0.9.1.jar
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
+       <cve>CVE-2005-1260</cve>
+    </suppress>
 </suppressions>

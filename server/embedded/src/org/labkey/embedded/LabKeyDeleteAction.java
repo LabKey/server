@@ -48,13 +48,10 @@ import java.util.stream.Collectors;
 /**
  * A modified version of log4j2 DeleteAction that doesn't require any conditions; files to delete are determined
  * by Java code.
- *
- *
+ * <p>
  * We will retain up to three error log files of 100 MB (as configured in log4j2.xml). We'll keep the first log from a given
  * webapp startup, moving it to labkey-errors-yyyy-MM-dd.log for archive purposes.
- *
- * Keep in sync with org.labkey.api.util.LabKeyDeleteAction until we're embedded-only and can consolidate.
- *
+ * <p>
  * See issue 43686.
  */
 @Plugin(name = "LabKeyDelete", category = Core.CATEGORY_NAME, printObject = true)
@@ -111,21 +108,15 @@ public class LabKeyDeleteAction extends AbstractPathAction
      * @see org.apache.logging.log4j.core.appender.rolling.action.AbstractPathAction#execute()
      */
     @Override
-    public boolean execute() throws IOException {
-        return executeDelete();
-    }
-
-    private boolean executeDelete() throws IOException {
+    public boolean execute() throws IOException
+    {
         final List<PathWithAttributes> selectedForDeletion = selectFiles();
-        if (selectedForDeletion == null) {
-            LOGGER.trace("Null list returned (no files to delete)");
-            return true;
-        }
         deleteSelectedFiles(selectedForDeletion);
         return true;
     }
 
-    private List<PathWithAttributes> selectFiles() throws IOException {
+    private List<PathWithAttributes> selectFiles() throws IOException
+    {
         final List<PathWithAttributes> sortedPaths = getSortedPaths();
         trace("Sorted paths:", sortedPaths);
         return selectFilesToDelete(getBasePath(), sortedPaths);
@@ -234,18 +225,14 @@ public class LabKeyDeleteAction extends AbstractPathAction
      * Returns a sorted list of all files up to maxDepth under the basePath.
      *
      * @return a sorted list of files
-     * @throws IOException
      */
     List<PathWithAttributes> getSortedPaths() throws IOException {
         final SortingVisitor sort = new SortingVisitor(pathSorter);
         super.execute(sort);
-        final List<PathWithAttributes> sortedPaths = sort.getSortedPaths();
-        return sortedPaths;
+        return sort.getSortedPaths();
     }
 
     /**
-     * Returns {@code true} if files are not deleted even when all conditions accept a path, {@code false} otherwise.
-     *
      * @return {@code true} if files are not deleted even when all conditions accept a path, {@code false} otherwise
      */
     public boolean isTestMode() {

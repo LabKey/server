@@ -26,19 +26,16 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.springframework.util.ConcurrentReferenceHashMap;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.function.Consumer;
 
+/**
+ * As configured in log4j2.xml, captures logging from server-side JavaScript to make it available through the
+ * web UI's Server JavaScript Console. Since Log4J is initialized in the outer Spring Boot code, this loads early and
+ * separate from the webapp. Thus, it lets the webapp register a consumer for the LogEvents, which this class
+ * forwards along.
+ */
 @Plugin(name = "SessionAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class SessionAppender extends AbstractAppender
 {
@@ -55,140 +52,15 @@ public class SessionAppender extends AbstractAppender
         super(name, filter, layout, ignoreExceptions, properties);
     }
 
-    static class AppenderInfo implements Serializable
-    {
-        AppenderInfo(String key, boolean on)
-        {
-            this.key = key;
-            this.on = on;
-        }
-
-        final String key;
-        boolean on;
-        final Map<LogEvent, Integer> eventIdMap = Collections.synchronizedMap(new LinkedHashMap<>()
-        {
-            // Safeguard against runaway size.
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<LogEvent, Integer> eldest)
-            {
-                return size() > 1000;
-            }
-        });
-        int eventId=0;
-    }
-
-    private static final ThreadLocal<AppenderInfo> localInfo = new ThreadLocal<>();
-
-    // AppenderInfos are thread-local variables initialized with the user session. This Map allows background threads to share an
-    // active session's appenderInfo to output logs to that session's SessionAppender. When the session is ended, the
-    // thread-local appenderInfo will be released and this map, which uses weak references, will allow gc to remove and
-    // reclaim the appenderInfo entry.
-    private static final Map<String, AppenderInfo> appenderInfos = new ConcurrentReferenceHashMap<>(16, ConcurrentReferenceHashMap.ReferenceType.WEAK);
-
-    // Makes appenderInfo available outside this thread
-    private static void registerAppenderInfo(AppenderInfo info)
-    {
-        appenderInfos.put(info.key, info);
-    }
-
-    // If accessing appenderInfo using this function ensure operations on the appenderInfo are thread safe as multiple
-    // threads could be accessing it.
-    public static AppenderInfo getAppenderInfoByKey(String key)
-    {
-        return appenderInfos.get(key);
-    }
-
-    public static String getAppendingInfoKey(HttpServletRequest request)
-    {
-        return _getLoggingForSession(request).key;
-    }
+    /** Set via reflection in org.labkey.api.util.SessionAppender */
+    public static Consumer<LogEvent> _consumer;
 
     @Override
     public void append(LogEvent event)
     {
-        AppenderInfo info = localInfo.get();
-        if (null == info || !info.on)
-            return;
-        info.eventIdMap.put(event, ++info.eventId);
-    }
-
-
-    /**
-     * @return serialization-suitable list of events with eventId, level, message, and timestamp properties
-     */
-    public static List<Map<String, Object>> getLoggingEvents(HttpServletRequest request, Integer maxEventId)
-    {
-        AppenderInfo info = _getLoggingForSession(request);
-        if (null == info)
-            return Collections.emptyList();
-
-        // Lock the map to avoid concurrent modifications while we iterate
-        synchronized (info.eventIdMap)
+        if (_consumer != null)
         {
-            List<Map<String, Object>> result = new ArrayList<>(info.eventIdMap.size());
-            for (Map.Entry<LogEvent, Integer> entry : info.eventIdMap.entrySet())
-            {
-                if (maxEventId == null || maxEventId < entry.getValue().intValue())
-                {
-                    LogEvent e = entry.getKey();
-                    Map<String, Object> m = new HashMap<>();
-                    // We've historically returned these as strings
-                    m.put("eventId", Integer.toString(entry.getValue()));
-                    m.put("level", e.getLevel().toString());
-                    m.put("message", e.getMessage().getFormattedMessage());
-                    m.put("timestamp", new Date(e.getTimeMillis()));
-                    result.add(m);
-                }
-            }
-
-            return result;
+            _consumer.accept(event);
         }
-    }
-
-    public static void setLoggingForSession(HttpServletRequest request, boolean on)
-    {
-        AppenderInfo info = _getLoggingForSession(request);
-        if (null != info)
-            info.on = on;
-    }
-
-    public static boolean isLogging(HttpServletRequest request)
-    {
-        AppenderInfo info = _getLoggingForSession(request);
-        return null != info && info.on;
-    }
-
-    private static AppenderInfo _getLoggingForSession(HttpServletRequest request)
-    {
-        HttpSession session = request.getSession(true);
-        if (null == session)
-            return null;
-        {
-            AppenderInfo info = (AppenderInfo)session.getAttribute("SessionAppender#info");
-            if (null == info)
-            {
-                info = new AppenderInfo(session.getId(), false);
-                session.setAttribute("SessionAppender#info",info);
-            }
-            registerAppenderInfo(info);
-            return info;
-        }
-    }
-
-    public static void removeAppenderInfo()
-    {
-        localInfo.remove();
-    }
-
-    // set up logging for this thread, based on an already existing AppenderInfo
-    public static void initThread(AppenderInfo info)
-    {
-        localInfo.set(info);
-    }
-
-    // set up logging for this thread, based on session settings
-    public static void initThread(HttpServletRequest request)
-    {
-        localInfo.set(_getLoggingForSession(request));
     }
 }

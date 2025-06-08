@@ -39,7 +39,7 @@ public class ModuleExtractor
 
     private final SimpleLogger _log;
 
-    public ModuleExtractor(File webAppDirectory, SimpleLogger log)
+    public  ModuleExtractor(File webAppDirectory, SimpleLogger log)
     {
         _webAppDirectory = webAppDirectory;
         _moduleDirectories = new ModuleDirectories(_webAppDirectory);
@@ -120,7 +120,7 @@ public class ModuleExtractor
         // from a .module archive.
         _moduleDirectories.streamAllModuleDirectories()
             .flatMap(dir-> {File[] files=dir.listFiles(File::isDirectory); return null==files ? null : Stream.of(files);})
-            .collect(Collectors.toList()) // This intermediate list is critical. See comment above.
+            .toList() // This intermediate list is critical. See comment above.
             .parallelStream()
             .forEach(dir->{
                 if (dir.isHidden() || dir.getName().startsWith("."))
@@ -356,7 +356,6 @@ public class ModuleExtractor
      * Extract .module files
      * @param args see usages
      * @throws ConfigException thrown if there is a problem with the configuration
-     * @throws IOException thrown if there is a problem extracting the module archives
      */
     public static void main(String... args)
     {

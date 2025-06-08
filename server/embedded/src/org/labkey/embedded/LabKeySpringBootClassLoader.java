@@ -15,8 +15,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * Variant of the classloader that supports Spring Boot by deferring to the parent classloader for SLF4J classes
- * to avoid conflicting copies (even if they're the same version) between the parent and webapp classloaders.
+ * Variant of the classloader that supports Spring Boot by deferring to the parent classloader for SLF4J and Log4J classes
+ * to avoid duplicate copies (even if they're the same version) between the parent and webapp classloaders.
  */
 public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
 {
@@ -55,12 +55,35 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
     }
 
     @Override
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
+    {
+        // Hack to make us only load one copy of SessionAppender. It loads via a parent classloader early
+        // during Log4J initialization, and if we load a second copy the log events aren't captured in a place
+        // where we can expose them to users in the Server JavaScript Console.
+        if (name.equals("org.labkey.embedded.SessionAppender"))
+        {
+            ClassLoader parent = getParent();
+            while (parent != null)
+            {
+                LOG.debug("Looking for SessionAppending - checking ClassLoader " + parent);
+                if (parent.getClass().getName().equals("jdk.internal.loader.ClassLoaders$AppClassLoader") ||
+                        parent.getClass().getName().equals("org.springframework.boot.loader.launch.LaunchedClassLoader"))
+                {
+                    return parent.loadClass(name);
+                }
+                parent = parent.getParent();
+            }
+            LOG.error("Failed to find AppClassLoader. The Server JavaScript Console will not be available");
+        }
+        return super.loadClass(name, resolve);
+    }
+
+    @Override
     protected boolean filter(String name, boolean isClassName)
     {
-        // Defer to the Spring Boot classloader for SLF4J classes to avoid problems with double-loading.
-        // Eventually we should shift to only configuring and loading SLF4J and Log4J via Spring Boot and not
-        // from inside the webapp.
-        if (name.startsWith("org.slf4j."))
+        // Defer to the Spring Boot classloader for SLF4J and Log4J classes to avoid problems with double-loading.
+        // Eventually we should shift to only shipping SLF4J and Log4J via Spring Boot and not inside the webapp.
+        if (name.startsWith("org.slf4j.") || name.startsWith("org.apache.logging.log4j."))
         {
             return true;
         }

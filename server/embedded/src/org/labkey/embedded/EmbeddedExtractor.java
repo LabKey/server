@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -35,17 +36,17 @@ public class EmbeddedExtractor
 
     private String labkeyWebappDirName = null;
 
-    public EmbeddedExtractor()
+    public EmbeddedExtractor(boolean allowEmbedded)
     {
         File[] files = currentDir.listFiles(file -> {
             String name = file.getName().toLowerCase();
-            return name.endsWith(".jar") && !name.contains("embedded") && !name.contains("labkeybootstrap");
+            return name.endsWith(".jar") && !name.contains("labkeybootstrap") && (allowEmbedded || !name.contains("embedded"));
         });
 
         if (files == null || files.length == 0)
         {
             labkeyServerJar = null;
-            LOG.debug("Executable jar not found in " + currentDir);
+            LOG.debug("Executable jar not found in {}", currentDir);
         }
         else if (files.length > 1)
         {
@@ -54,7 +55,7 @@ public class EmbeddedExtractor
         else
         {
             labkeyServerJar = files[0];
-            LOG.debug("Executable jar found: " + labkeyServerJar.getAbsolutePath());
+            LOG.debug("Executable jar found: {}", labkeyServerJar.getAbsolutePath());
         }
     }
 
@@ -67,7 +68,7 @@ public class EmbeddedExtractor
     {
         if (labkeyServerJar == null)
         {
-            throw new ConfigException("Executable jar not found in " + currentDir);
+            throw new ConfigException("Executable jar not found in " + currentDir + " which had contents " + Arrays.stream(currentDir.listFiles()).map(File::getName).toList());
         }
 
         return labkeyServerJar;
@@ -82,7 +83,7 @@ public class EmbeddedExtractor
         // Fresh installation or upgrading from a pre-distribution.properties distribution
         if (!existingDistributionFile.exists())
         {
-            LOG.info("Extracting new LabKey distribution - %s".formatted(incomingDistribution));
+            LOG.info("Extracting new LabKey distribution - {}", incomingDistribution);
             return true;
         }
 
@@ -102,12 +103,12 @@ public class EmbeddedExtractor
 
         if (!existingDistribution.equals(incomingDistribution))
         {
-            LOG.info("Updating LabKey (%s -> %s)".formatted(existingDistribution, incomingDistribution));
+            LOG.info("Updating LabKey ({} -> {}})", existingDistribution, incomingDistribution);
             return true;
         }
         else if (incomingDistribution.buildUrl() == null)
         {
-            LOG.info("Extracting custom-build LabKey distribution (%s)".formatted(existingDistribution));
+            LOG.info("Extracting custom-build LabKey distribution ({})", existingDistribution);
             return true;
         }
         else
@@ -203,7 +204,7 @@ public class EmbeddedExtractor
         String buildUrl = props.containsKey("buildUrl") ? props.getProperty("buildUrl").trim() : null;
 
         var info = new LabKeyDistributionInfo(version, buildUrl, distributionName);
-        LOG.info("LabKeyDistributionInfo: " + info);
+        LOG.info("LabKeyDistributionInfo: {}", info);
 
         return info;
     }
@@ -218,77 +219,119 @@ public class EmbeddedExtractor
         }
     }
 
+    @SuppressWarnings("unused") /* Called via reflection by PipelineServiceImpl.getClusterStartupArguments() */
+    public File extractRemotePipelineJars()
+    {
+        return extractExecutableJar(new File("."), false, true);
+    }
+
     public void extractExecutableJar(File destDirectory, boolean remotePipeline)
     {
+        extractExecutableJar(destDirectory, true, remotePipeline);
+    }
+
+    public File extractExecutableJar(File destDirectory, boolean distribution, boolean remotePipeline)
+    {
+        File pipelineLib = null;
+        if (remotePipeline)
+        {
+            pipelineLib = new File(destDirectory, "pipeline-lib");
+            if (!pipelineLib.exists())
+            {
+                if (!pipelineLib.mkdirs())
+                {
+                    throw new ConfigException("Failed to create directory " + pipelineLib + " Please check file system permissions");
+                }
+            }
+        }
+
+        boolean foundDistributionZip = false;
+        File bootstrapJar = null;
+        File servletApiJar = null;
+        File log4JCoreJar = null;
+        File log4JApiJar = null;
+
         try
         {
             try (JarFile jar = new JarFile(verifyJar()))
             {
-                boolean missingDistributionZip = true;
-                boolean missingBootstrapJar = remotePipeline;
-                boolean missingServletApiJar = remotePipeline;
                 var entries = jar.entries();
                 while (entries.hasMoreElements())
                 {
                     var entry = entries.nextElement();
                     var entryName = entry.getName();
 
-                    if ("labkey/distribution.zip".equals(entryName))
+                    if (distribution)
                     {
-                        missingDistributionZip = false;
-                        try (var distInputStream = jar.getInputStream(entry))
+                        if ("labkey/distribution.zip".equals(entryName))
                         {
-                            extractDistributionZip(distInputStream, destDirectory);
+                            foundDistributionZip = true;
+                            try (var distInputStream = jar.getInputStream(entry))
+                            {
+                                extractDistributionZip(distInputStream, destDirectory);
+                            }
                         }
                     }
                     if (remotePipeline)
                     {
                         // Keep this code in sync with org.labkey.pipeline.api.PipelineServiceImpl.extractBootstrapFromEmbedded()
-                        if (entry.getName().contains("labkeyBootstrap") && entry.getName().toLowerCase().endsWith(".jar"))
-                        {
-                            try (var in = jar.getInputStream(entry))
-                            {
-                                extractFile(in, new File(destDirectory, "labkeyBootstrap.jar"));
-                            }
-                            missingBootstrapJar = false;
-                        }
-                        if (entry.getName().contains("tomcat-embed-core") && entry.getName().toLowerCase().endsWith(".jar"))
-                        {
-                            File pipelineLib = new File(destDirectory, "pipeline-lib");
-                            if (!pipelineLib.exists())
-                            {
-                                if (!pipelineLib.mkdirs())
-                                {
-                                    throw new ConfigException("Failed to create directory " + pipelineLib + " Please check file system permissions");
-                                }
-                            }
-                            try (var in = jar.getInputStream(entry))
-                            {
-                                extractFile(in, new File(pipelineLib, "servletApi.jar"));
-                            }
-                            missingServletApiJar = false;
-                        }
+                        bootstrapJar = extractIfMatch(bootstrapJar, entry, jar, "labkeyBootstrap", "labkeyBootstrap.jar", destDirectory);
+                        servletApiJar = extractIfMatch(servletApiJar, entry, jar, "tomcat-embed-core", "servletApi.jar", pipelineLib);
+                        log4JCoreJar = extractIfMatch(log4JCoreJar, entry, jar, "log4j-core", "log4j-core.jar", pipelineLib);
+                        log4JApiJar = extractIfMatch(log4JApiJar, entry, jar, "log4j-api", "log4j-api.jar", pipelineLib);
                     }
                 }
 
-                if (missingDistributionZip)
+                if (distribution)
                 {
-                    throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
+                    if (!foundDistributionZip)
+                    {
+                        throw new ConfigException("Unable to find distribution zip required to run LabKey Server.");
+                    }
                 }
-                if (missingBootstrapJar)
+
+                if (remotePipeline)
                 {
-                    throw new ConfigException("Unable to find labkeyServer.jar required to run LabKey Server's remote pipeline code.");
-                }
-                if (missingServletApiJar)
-                {
-                    throw new ConfigException("Unable to find Servlet API file required to run LabKey Server's remote pipeline code.");
+                    if (bootstrapJar == null)
+                    {
+                        throw new ConfigException("Unable to find labkeyServer.jar required to run LabKey Server's remote pipeline code.");
+                    }
+                    if (servletApiJar == null)
+                    {
+                        throw new ConfigException("Unable to find Servlet API file required to run LabKey Server's remote pipeline code.");
+                    }
+                    if (log4JCoreJar == null)
+                    {
+                        throw new ConfigException("Unable to find Log4J Core file required to run LabKey Server's remote pipeline code.");
+                    }
+                    if (log4JApiJar == null)
+                    {
+                        throw new ConfigException("Unable to find Log4J API file required to run LabKey Server's remote pipeline code.");
+                    }
                 }
             }
         }
-        catch (IOException | ConfigException e)
+        catch (IOException e)
         {
             throw new RuntimeException(e);
         }
+        return bootstrapJar;
+    }
+
+    private File extractIfMatch(File extractedFile, JarEntry entry, JarFile jar, String originalName, String targetName, File targetDirectory) throws IOException
+    {
+        if (extractedFile == null)
+        {
+            if (entry.getName().contains(originalName) && entry.getName().toLowerCase().endsWith(".jar"))
+            {
+                try (var in = jar.getInputStream(entry))
+                {
+                    extractedFile = new File(targetDirectory, targetName);
+                    extractFile(in, extractedFile);
+                }
+            }
+        }
+        return extractedFile;
     }
 
     private void extractDistributionZip(InputStream zipInputStream, File destDir) throws IOException
@@ -365,7 +408,7 @@ public class EmbeddedExtractor
 
             for (File f : toDelete)
             {
-                LOG.debug("Deleting directory from previous LabKey installation: " + f.getAbsolutePath());
+                LOG.debug("Deleting directory from previous LabKey installation: {}", f.getAbsolutePath());
                 FileUtils.forceDelete(f);
             }
         }

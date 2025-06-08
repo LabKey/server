@@ -24,8 +24,8 @@ import java.util.*;
  */
 public class ArgumentParser
 {
-    private List<String> _params = new ArrayList<>();
-    private Map<String, String> _options = new HashMap<>();
+    private final List<String> _params = new ArrayList<>();
+    private final Map<String, String> _options = new HashMap<>();
 
     public ArgumentParser(String[] args)
     {

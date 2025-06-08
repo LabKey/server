@@ -77,7 +77,7 @@ public class ModuleArchive
             SAXParser parser = SAXParserFactory.newDefaultInstance().newSAXParser();
             parser.parse(is, new DefaultHandler()
             {
-                ArrayList<String> elementStack = new ArrayList<>();
+                final ArrayList<String> elementStack = new ArrayList<>();
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException

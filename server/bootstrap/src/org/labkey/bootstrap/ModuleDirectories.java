@@ -16,7 +16,6 @@
 package org.labkey.bootstrap;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.stream.Stream;
 
 /*
@@ -33,7 +32,7 @@ public class ModuleDirectories
     public static final String DEFAULT_MODULES_DIR = "modules";
     public static final String DEFAULT_EXTERNAL_MODULES_DIR = "externalModules";
 
-    private File _modulesDirectory;
+    private final File _modulesDirectory;
     private File _externalModulesDirectory;
 
     public ModuleDirectories(File webAppDirectory)

@@ -1,7 +1,8 @@
-import org.labkey.gradle.plugin.extension.ServerDeployExtension
-import org.labkey.gradle.task.CheckForVersionConflicts
 import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.PomFileHelper
 import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.task.CheckForVersionConflicts
+import org.labkey.gradle.plugin.extension.ServerDeployExtension
 
 plugins {
     id "java"

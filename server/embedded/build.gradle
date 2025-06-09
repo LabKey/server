@@ -1,8 +1,7 @@
-import org.labkey.gradle.util.BuildUtils
-import org.labkey.gradle.util.PomFileHelper
-import org.labkey.gradle.util.GroupNames
-import org.labkey.gradle.task.CheckForVersionConflicts
 import org.labkey.gradle.plugin.extension.ServerDeployExtension
+import org.labkey.gradle.task.CheckForVersionConflicts
+import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.GroupNames
 
 plugins {
     id "java"
@@ -36,6 +35,7 @@ configurations.configureEach {
 }
 
 dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}" // Required for shutdown endpoint
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-json" // Not used (?) and pulls in an old version of Jackson
         exclude group: "jakarta.annotation", module: "jakarta.annotation-api" // Already present in tomcat-annotations-api

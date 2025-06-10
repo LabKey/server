@@ -431,6 +431,8 @@ public class LabKeyServer
         private String contextPath = "";
         private String pipelineConfig;
         private String requiredModules;
+        /** Path to external modules directory */
+        private String externalModules;
         private boolean bypass2FA = false;
         private String serverGUID;
         private Integer httpPort;
@@ -574,6 +576,16 @@ public class LabKeyServer
         public void setRequiredModules(String requiredModules)
         {
             this.requiredModules = requiredModules;
+        }
+
+        public String getExternalModules()
+        {
+            return externalModules;
+        }
+
+        public void setExternalModules(String externalModules)
+        {
+            this.externalModules = externalModules;
         }
 
         public boolean isBypass2FA()

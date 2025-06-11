@@ -64,9 +64,9 @@ public class ExplodedModule
 
     private static final FileComparator _fileComparator = new FileComparator();
 
-    private File _rootDirectory;
+    private final File _rootDirectory;
     private File _sourceModuleFile;
-    private Map<File, Long> _watchedFiles = new HashMap<>();
+    private final Map<File, Long> _watchedFiles = new HashMap<>();
 
     public ExplodedModule(File rootDirectory)
     {

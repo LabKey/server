@@ -37,8 +37,8 @@ public class FileUtils
     // constants, for use in subsequent code (e.g., resolveFile()). These simplified versions should be identical.
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase(Locale.US);
     private static final String PATH_SEP = System.getProperty("path.separator");
-    private static boolean onNetWare = OS_NAME.contains("netware");     // Essentially what Os.isFamily("netware") does
-    private static boolean onDos = PATH_SEP.equals(";") && !onNetWare;  // Essentially what Os.isFamily("dos") does
+    private static final boolean onNetWare = OS_NAME.contains("netware");     // Essentially what Os.isFamily("netware") does
+    private static final boolean onDos = PATH_SEP.equals(";") && !onNetWare;  // Essentially what Os.isFamily("dos") does
 
     /**
      * Method to retrieve The FileUtils, which is shared by all users of this
@@ -109,7 +109,7 @@ public class FileUtils
      * @since Ant 1.7
      */
     public static boolean isContextRelativePath(String filename) {
-        if (!(onDos || onNetWare) || filename.length() == 0) {
+        if (!(onDos || onNetWare) || filename.isEmpty()) {
             return false;
         }
         char sep = File.separatorChar;
@@ -222,7 +222,7 @@ public class FileUtils
         if (!isAbsolutePath(path)) {
             throw new BuildException(path + " is not an absolute path");
         }
-        String root = null;
+        String root;
         int colon = path.indexOf(':');
         if (colon > 0 && (onDos || onNetWare)) {
 

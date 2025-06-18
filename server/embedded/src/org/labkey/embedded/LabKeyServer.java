@@ -456,7 +456,7 @@ public class LabKeyServer
         private Map<String, Map<String, Map<String, String>>> resources;
         private Map<String, String> additionalWebapps;
 
-        private Integer maxConnectorPartCount = 100;
+        private Integer maxConnectorPartCount = 500;
         private Integer maxConnectorPartHeaderSize = 512;
 
         public List<String> getDataSourceName()

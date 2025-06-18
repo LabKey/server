@@ -38,6 +38,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 
         addConnectorCustomizers(connector -> {
             LabKeyServer.TomcatProperties props = _server.tomcatProperties();
+            _server.connectorCustomizer().customize(connector);
 
             if (props.getUseBodyEncodingForURI() != null)
             {

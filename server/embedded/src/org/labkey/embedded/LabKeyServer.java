@@ -94,7 +94,7 @@ public class LabKeyServer
                         base-uri 'self' ;
                         frame-ancestors 'self' ;
                         frame-src 'self' ${FRAME.SOURCES} ;
-                        report-uri admin-contentSecurityPolicyReport.api?cspVersion=r11&${CSP.REPORT.PARAMS}
+                        report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r11&${CSP.REPORT.PARAMS}
                     """
         ));
         application.setBannerMode(Banner.Mode.OFF);

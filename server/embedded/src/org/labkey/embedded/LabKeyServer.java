@@ -149,14 +149,6 @@ public class LabKeyServer
     }
 
     @Bean
-    TomcatConnectorCustomizer connectorCustomizer() {
-        return (connector) -> {
-            connector.setMaxPartCount(contextSource().getMaxConnectorPartCount());
-            connector.setMaxPartHeaderSize(contextSource().getMaxConnectorPartHeaderSize());
-        };
-    }
-
-    @Bean
     public TomcatServletWebServerFactory servletContainerFactory()
     {
         var result = new LabKeyTomcatServletWebServerFactory(this);
@@ -168,7 +160,6 @@ public class LabKeyServer
             Connector httpConnector = new Connector();
             httpConnector.setScheme("http");
             httpConnector.setPort(contextProperties.getHttpPort());
-            result.getTomcatConnectorCustomizers().forEach(customizer -> customizer.customize(httpConnector));
             result.addAdditionalTomcatConnectors(httpConnector);
         }
 
@@ -466,9 +457,6 @@ public class LabKeyServer
         private Map<String, Map<String, Map<String, String>>> resources;
         private Map<String, String> additionalWebapps;
 
-        private Integer maxConnectorPartCount = 500;
-        private Integer maxConnectorPartHeaderSize = 512;
-
         public List<String> getDataSourceName()
         {
             return dataSourceName;
@@ -730,26 +718,6 @@ public class LabKeyServer
         public void setAdditionalWebapps(Map<String, String> additionalWebapps)
         {
             this.additionalWebapps = additionalWebapps;
-        }
-
-        public Integer getMaxConnectorPartCount()
-        {
-            return maxConnectorPartCount;
-        }
-
-        public void setMaxConnectorPartCount(Integer maxConnectorPartCount)
-        {
-            this.maxConnectorPartCount = maxConnectorPartCount;
-        }
-
-        public Integer getMaxConnectorPartHeaderSize()
-        {
-            return maxConnectorPartHeaderSize;
-        }
-
-        public void setMaxConnectorPartHeaderSize(Integer maxConnectorPartHeaderSize)
-        {
-            this.maxConnectorPartHeaderSize = maxConnectorPartHeaderSize;
         }
     }
 

@@ -156,12 +156,23 @@ allprojects {
                         }
                     }
 
-// Temporarily uncomment the block below and update the four-digit number to allow building with Tomcat versions that
-// haven't been released yet. The "VOTE" emails sent to the Tomcat dev email list include a staging repo URL. In
-// addition to updating the url to match, you'll also need to update apacheTomcatVersion in gradle.properties.
+// To build and test Tomcat versions that haven't been released yet, temporarily uncomment the block below and update
+// the four-digit number. The "VOTE" emails sent to the Tomcat dev email list include a staging repo URL. In addition
+// to updating the url to match, you'll need to update apacheTomcatVersion in gradle.properties.
 //                    maven {
 //                    	url "https://repository.apache.org/content/repositories/orgapachetomcat-1322/"
 //                    }
+
+// To test SNAPSHOT PostgreSQL JDBC drivers locally, temporarily uncomment the block below and update the
+// postgresqlDriverVersion property in gradle.properties to a SNAPSHOT version (e.g., 42.7.7-SNAPSHOT). Note that
+// the writeDependenciesList task does not support SNAPSHOT versions, so you'll need to build with something like:
+//
+//     ./gradlew deployApp -x writeDependenciesList
+//
+//                    maven {
+//                    	url "https://oss.sonatype.org/content/repositories/snapshots/"
+//                    }
+
                     maven {
                         // Mondrian dependencies are available via this repository. It's a direct dependency of the Query
                         // module but is declared here as many modules depend on Query and therefore need it as well.

@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -82,11 +83,11 @@ public class LabKeyServer
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
-                report-uri /admin-contentSecurityPolicyReport.api?cspVersion=e12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e12&${CSP.REPORT.PARAMS} ;
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                report-uri /admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
             """;
         application.setDefaultProperties(Map.of(
             "server.tomcat.basedir", ".",

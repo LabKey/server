@@ -158,7 +158,7 @@ allprojects {
 
 // To build and test Tomcat versions that haven't been released yet, temporarily uncomment the block below and update
 // the four-digit number. The "VOTE" emails sent to the Tomcat dev email list include a staging repo URL. In addition
-// to updating the url to match, you'll also need to update apacheTomcatVersion in gradle.properties.
+// to updating the url to match, you'll need to update apacheTomcatVersion in gradle.properties.
 //                    maven {
 //                    	url "https://repository.apache.org/content/repositories/orgapachetomcat-1322/"
 //                    }

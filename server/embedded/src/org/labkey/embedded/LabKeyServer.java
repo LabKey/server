@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,36 +67,43 @@ public class LabKeyServer
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
-        application.setDefaultProperties(Map.of(
-                "server.tomcat.basedir", ".",
-                "server.tomcat.accesslog.directory", logHome,
+        application.setDefaultProperties(new HashMap<>()
+             {{
+                 put("server.tomcat.basedir", ".");
+                 put("server.tomcat.accesslog.directory", logHome);
 
-                // Enable HTTP compression for response content
-                "server.compression.enabled", "true",
+                 // Boost limits imposed by Tomcat v10.1.42
+                 put("server.tomcat.max-part-count", 500);
+                 put("server.tomcat.max-part-header-size", 512);
+                 put("server.tomcat.max-connections", 250);
 
-                "server.tomcat.accesslog.enabled", "true",
-                "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
-                "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+                 // Enable HTTP compression for response content
+                 put("server.compression.enabled", "true");
 
-                // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
-                "server.error.include-stacktrace", "never",
-                "server.error.include-message", "always",
+                 put("server.tomcat.accesslog.enabled", "true");
+                 put("server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
+                 put("jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
 
-                // A strong report-only Content Security Policy that reports violations to this server
-                "csp.report", """
-                        default-src 'self' ;
-                        connect-src 'self' ${CONNECTION.SOURCES} ;
-                        object-src 'none' ;
-                        style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
-                        img-src 'self' data: ${IMAGE.SOURCES} ;
-                        font-src 'self' data: ${FONT.SOURCES} ;
-                        script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
-                        base-uri 'self' ;
-                        frame-ancestors 'self' ;
-                        frame-src 'self' ${FRAME.SOURCES} ;
-                        report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r11&${CSP.REPORT.PARAMS}
-                    """
-        ));
+                 // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
+                 put("server.error.include-stacktrace", "never");
+                 put("server.error.include-message", "always");
+
+                 // A strong report-only Content Security Policy that reports violations to this server
+                 put("csp.report", """
+                             default-src 'self' ;
+                             connect-src 'self' ${CONNECTION.SOURCES} ;
+                             object-src 'none' ;
+                             style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
+                             img-src 'self' data: ${IMAGE.SOURCES} ;
+                             font-src 'self' data: ${FONT.SOURCES} ;
+                             script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
+                             base-uri 'self' ;
+                             frame-ancestors 'self' ;
+                             frame-src 'self' ${FRAME.SOURCES} ;
+                             report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r11&${CSP.REPORT.PARAMS}
+                         """);
+             }}
+        );
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
     }

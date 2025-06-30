@@ -45,7 +45,7 @@ public class LabKeyServer
             return;
         }
 
-        // Issue 40038: Ride-or-die Mode - default to shutting down by default in embedded deployment scenario
+        // Issue 40038: Ride-or-die Mode - default to shutting down by default
         if (System.getProperty(TERMINATE_ON_STARTUP_FAILURE) == null)
         {
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
@@ -70,7 +70,7 @@ public class LabKeyServer
         String baseCsp = """
                 default-src 'self' ;
                 connect-src 'self' ${CONNECTION.SOURCES} ;
-                object-src 'none' ;
+                object-src ${OBJECT.SOURCES} ;  /* Substitution value defaults to 'none' unless overridden by an admin */
                 style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
                 img-src 'self' data: ${IMAGE.SOURCES} ;
                 font-src 'self' data: ${FONT.SOURCES} ;
@@ -862,5 +862,4 @@ public class LabKeyServer
             this.keyStore = keyStore;
         }
     }
-
 }

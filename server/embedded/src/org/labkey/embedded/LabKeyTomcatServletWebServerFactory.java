@@ -275,7 +275,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         }
     }
 
-    // Issue 48565: allow for JSON-formatted access logs in embedded tomcat
+    // Issue 48565: allow for JSON-formatted access logs
     private void configureJsonAccessLogging(Tomcat tomcat, LabKeyServer.JsonAccessLog logConfig)
     {
         var v = new JsonAccessLogValve();

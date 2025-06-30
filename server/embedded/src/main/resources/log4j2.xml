@@ -300,7 +300,7 @@
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 
-        <!-- <Logger name="org.labkey.audit.event" level="OFF">
+        <!-- <Logger name="org.labkey.audit.event" level="INFO">
             <AppenderRef ref="LABKEY_AUDIT"/>
         </Logger> -->
 
@@ -332,7 +332,7 @@
          individual stanza like the one shown below, where you prefix the audit event type
          with 'org.labkey.audit.event'. Then set the level to INFO and specify the appenders.
         -->
-        <!-- <Logger name="org.labkey.audit.event.UserAuditEvent" additivity="false" level="OFF">
+        <!-- <Logger name="org.labkey.audit.event.UserAuditEvent" additivity="false" level="INFO">
             <AppenderRef ref="LABKEY_AUDIT"/>
             <AppenderRef ref="CONSOLE"/>
         </Logger> -->

@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -88,24 +89,32 @@ public class LabKeyServer
         String reportCsp = baseCsp + """
                 report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
             """;
-        application.setDefaultProperties(Map.of(
-            "server.tomcat.basedir", ".",
-            "server.tomcat.accesslog.directory", logHome,
 
-            // Enable HTTP compression for response content
-            "server.compression.enabled", "true",
+        application.setDefaultProperties(new HashMap<>()
+             {{
+                 put("server.tomcat.basedir", ".");
+                 put("server.tomcat.accesslog.directory", logHome);
 
-            "server.tomcat.accesslog.enabled", "true",
-            "server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
-            "jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i",
+                 // Boost limits imposed by Tomcat v10.1.42
+                 put("server.tomcat.max-part-count", 500);
+                 put("server.tomcat.max-part-header-size", 512);
+                 put("server.tomcat.max-connections", 250);
 
-            // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
-            "server.error.include-stacktrace", "never",
-            "server.error.include-message", "always",
+                 // Enable HTTP compression for response content
+                 put("server.compression.enabled", "true");
 
-            "csp.enforce", enforceCsp,
-            "csp.report", reportCsp
-        ));
+                 put("server.tomcat.accesslog.enabled", "true");
+                 put("server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
+                 put("jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
+
+                 // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
+                 put("server.error.include-stacktrace", "never");
+                 put("server.error.include-message", "always");
+
+                 put("csp.enforce", enforceCsp);
+                 put("csp.report", reportCsp);
+             }}
+        );
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
     }

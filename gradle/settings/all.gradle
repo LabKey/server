@@ -24,7 +24,7 @@ buildscript {
         {
             mavenLocal()
             maven {
-                url "${artifactory_contextUrl}/plugins-snapshot-local"
+                url = "${artifactory_contextUrl}/plugins-snapshot-local"
                 mavenContent {
                     snapshotsOnly()
                 }

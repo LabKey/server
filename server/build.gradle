@@ -191,6 +191,7 @@ project.tasks.register("reportVersionToTeamCity", DefaultTask) {
             println "##teamcity[setParameter name='labkey.version' value='${labkeyVersion}']"
         })
 }
+
 if (project.hasProperty("teamcity"))
 {
     project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }
@@ -210,14 +211,11 @@ else
             task.description = "Copy dependencies required for JSP dynamic compiling"
             task.into project.rootProject.layout.buildDirectory.dir("jspRecompiling")
             task.from project.configurations.recompilingJsp
-            task.mustRunAfter(cleanJspRecompileSetup)
+            task.dependsOn(cleanJspRecompileSetup)
             if (project.hasProperty('apacheTomcatVersion'))
                 task.inputs.property 'apacheTomcatVersion', project.property('apacheTomcatVersion')
             else
                 task.outputs.cacheIf { false } // Just don't cache if we can't be sure of the Jasper version
-            task.doFirst {
-                project.delete project.rootProject.layout.buildDirectory.dir("jspRecompiling")
-            }
     }
 
     project.tasks.named('deployApp').configure {

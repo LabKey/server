@@ -161,7 +161,7 @@ project.publishing {
             artifact project.tasks.bootJar.outputs.files.singleFile
             pom {
                 name = "LabKey Server Embedded"
-                description = "LabKey classes for producing distributions with embedded TomCat."
+                description = "Embedded Tomcat, Spring Boot, and the LabKey classes that configure these components"
                 developers PomFileHelper.getLabKeyTeamDevelopers()
                 licenses PomFileHelper.getApacheLicense()
                 organization PomFileHelper.getLabKeyOrganization()

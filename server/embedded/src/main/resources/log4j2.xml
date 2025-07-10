@@ -300,9 +300,9 @@
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 
-        <!-- <Logger name="org.labkey.audit.event" level="INFO">
+        <Logger name="org.labkey.audit.event" level="INFO">
             <AppenderRef ref="LABKEY_AUDIT"/>
-        </Logger> -->
+        </Logger>
 
         <!--
           Other audit event types include, but are not limited to:

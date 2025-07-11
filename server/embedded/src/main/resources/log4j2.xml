@@ -300,7 +300,7 @@
             <AppenderRef ref="QUERY_STATS"/>
         </Logger>
 
-        <Logger name="org.labkey.audit.event" level="INFO">
+        <Logger name="org.labkey.audit.event" level="OFF">
             <AppenderRef ref="LABKEY_AUDIT"/>
         </Logger>
 

@@ -19,29 +19,6 @@
         <cve>CVE-2021-39491</cve>
     </suppress>
 
-    <!--
-    GWT uses Protobuf internally but doesn't expose it, meaning the handful of CVEs in 2.5.0 are not a concern.
-    https://github.com/gwtproject/gwt/issues/9778
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: gwt-servlet-2.11.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
-        <cpe>cpe:/a:google:protobuf-java</cpe>
-        <vulnerabilityName>CVE-2022-3509</vulnerabilityName>
-        <vulnerabilityName>CVE-2021-22569</vulnerabilityName>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: gwt-servlet-jakarta-2.11.0.jar (shaded: com.google.protobuf:protobuf-java:2.5.0)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf\-java@.*$</packageUrl>
-        <cpe>cpe:/a:google:protobuf-java</cpe>
-        <vulnerabilityName>CVE-2024-7254</vulnerabilityName>
-    </suppress>
-
     <!-- Tangled CVEs. See https://github.com/jeremylong/DependencyCheck/issues/4614 and https://github.com/OSSIndex/vulns/issues/316 -->
     <suppress>
         <notes><![CDATA[
@@ -109,39 +86,6 @@
     </suppress>
 
     <!--
-    This is a dependency of Java-FPDF, used by the WNPRC billing module for PDF generation, which hasn't been updated
-    to reference the now-renamed Commons Imaging library instead of the old Sanselan incubator. The CVE is related
-    to file parsing, not generation so we're not vulnerable
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: sanselan-0.97-incubator.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.sanselan/sanselan@.*$</packageUrl>
-        <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
-    </suppress>
-
-    <!--
-    The Tomcat jaspic-api and jsp-api jars are false positives, for some reason matching against Tomcat 3.0. See
-    https://github.com/jeremylong/DependencyCheck/issues/5659, which has been raised, but no response.
-    -->
-    <suppress>
-        <notes><![CDATA[
-   file name: tomcat-jaspic-api-10.1.34.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jaspic\-api@.*$</packageUrl>
-        <cpe>cpe:/a:apache:tomcat</cpe>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: tomcat-jsp-api-10.1.34.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat\-jsp\-api@.*$</packageUrl>
-        <cpe>cpe:/a:apache:tomcat</cpe>
-    </suppress>
-
-    <!--
     suppress CVE-2023-52070 for jfreechart, may become moot after subsequent upgrades
     -->
     <suppress>
@@ -150,72 +94,6 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.jfree/jfreechart@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-52070</vulnerabilityName>
-    </suppress>
-
-    <!-- We don't use the sun.io.useCanonCaches setting referenced by this CVE.  -->
-    <suppress>
-        <notes><![CDATA[
-   file name: tomcat-catalina-10.1.34.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat-catalina@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-56337</vulnerabilityName>
-    </suppress>
-    
-    <!--
-    False positives: labkey-api-client.jar is getting tagged as an old version of LabKey Server
-    -->
-    <suppress>
-       <notes><![CDATA[
-   file name: labkey-client-api-6.2.0.jar
-   ]]></notes>
-       <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
-       <cve>CVE-2019-3911</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: labkey-client-api-6.2.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
-        <cve>CVE-2019-3912</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: labkey-client-api-6.2.0.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
-        <cve>CVE-2019-3913</cve>
-    </suppress>
-
-    <!-- False positive - mxparser is not XStream -->
-    <suppress>
-        <notes><![CDATA[
-    file name: mxparser-1.2.2.jar
-    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.github\.x-stream/mxparser@.*$</packageUrl>
-        <cpe>cpe:/a:xstream:xstream</cpe>
-    </suppress>
-    
-    <!-- False positives - bzip2 from a different source -->
-    <suppress>
-       <notes><![CDATA[
-       file name: bzip2-0.9.1.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
-       <cve>CVE-2019-12900</cve>
-    </suppress>
-    <suppress>
-       <notes><![CDATA[
-       file name: bzip2-0.9.1.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
-       <cve>CVE-2010-0405</cve>
-    </suppress>
-    <suppress>
-       <notes><![CDATA[
-       file name: bzip2-0.9.1.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
-       <cve>CVE-2005-1260</cve>
     </suppress>
 
     <!-- Related to the setting of channel binding as required, which is not relevant to us. -->
@@ -234,18 +112,5 @@
        ]]></notes>
        <packageUrl regex="true">^pkg:maven/commons-lang/commons-lang@.*$</packageUrl>
        <vulnerabilityName>CVE-2025-48924</vulnerabilityName>
-    </suppress>
-    
-    <!--
-    GSON is getting flagged for "Connect2id Nimbus JOSE + JWT before 10.0.2 allows a remote attacker 
-    to cause a denial of service via a deeply nested JSON object supplied in a JWT claim set, because of
-    uncontrolled recursion." Seems like a case of mistaken identity, so suppress it.
-    -->
-    <suppress>
-       <notes><![CDATA[
-       file name: gson-2.8.9.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
-       <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
     </suppress>
 </suppressions>

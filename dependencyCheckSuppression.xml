@@ -86,6 +86,19 @@
     </suppress>
 
     <!--
+    This is a dependency of Java-FPDF, used by the WNPRC billing module for PDF generation, which hasn't been updated
+    to reference the now-renamed Commons Imaging library instead of the old Sanselan incubator. The CVE is related
+    to file parsing, not generation, so we're not vulnerable
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: sanselan-0.97-incubator.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.sanselan/sanselan@.*$</packageUrl>
+        <vulnerabilityName>CVE-2018-17201</vulnerabilityName>
+    </suppress>
+
+    <!--
     suppress CVE-2023-52070 for jfreechart, may become moot after subsequent upgrades
     -->
     <suppress>
@@ -112,5 +125,18 @@
        ]]></notes>
        <packageUrl regex="true">^pkg:maven/commons-lang/commons-lang@.*$</packageUrl>
        <vulnerabilityName>CVE-2025-48924</vulnerabilityName>
+    </suppress>
+
+    <!--
+    GSON is getting flagged for "Connect2id Nimbus JOSE + JWT before 10.0.2 allows a remote attacker
+    to cause a denial of service via a deeply nested JSON object supplied in a JWT claim set, because of
+    uncontrolled recursion." Seems like a case of mistaken identity, so suppress it.
+    -->
+    <suppress>
+       <notes><![CDATA[
+       file name: gson-2.8.9.jar
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
+       <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
     </suppress>
 </suppressions>

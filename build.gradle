@@ -433,17 +433,6 @@ subprojects {
                 }
             })
     }
-    project.tasks.register("showConfigs") {
-        task ->
-            task.group = GroupNames.HELP
-            task.description = "Show all the configurations available in the project and their published artifacts"
-            task.doLast({
-                project.configurations.forEach({
-                    Configuration config ->
-                        println(config.name + ": (${config.getDescription()})")
-                })
-            })
-    }
     
     project.tasks.register("allDepInsight", DependencyInsightReportTask) {
             DependencyInsightReportTask t ->
@@ -513,24 +502,6 @@ project.tasks.register('getModulesManifest', DefaultTask) {
                 }
             })
             manifestFile.text = manifestString.toString()
-        })
-}
-
-project.tasks.register('listNpmProjects', DefaultTask) {
-    task ->
-        task.group = GroupNames.NPM_RUN
-        task.description ="List all projects that employ npm in their build"
-        task.doLast({
-            List<String> npmProjects = []
-            project.allprojects({Project p ->
-                if (p.getPlugins().hasPlugin(NpmRun.class))
-                    npmProjects.add(p.path) 
-            })
-            if (npmProjects.size() == 0)
-                println("No projects found containing ${NpmRun.NPM_PROJECT_FILE}")
-            else {
-                println("The following projects use NPM in their builds:\n\t${npmProjects.join("\n\t")}\n")
-            }
         })
 }
 

@@ -248,4 +248,13 @@
        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
        <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+       file name: protobuf-java-util-3.23.2.jar
+       ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-java-util@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf</cpe>
+    </suppress>
+
 </suppressions>

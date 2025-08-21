@@ -249,6 +249,7 @@
        <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
     </suppress>
 
+    <!-- Old version of protobuf brought in as a transitive dependency in Sequence Analysis module. Currently no way to force upgrade.   -->
     <suppress>
         <notes><![CDATA[
        file name: protobuf-java-util-3.23.2.jar

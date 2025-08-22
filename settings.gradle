@@ -77,8 +77,6 @@ buildscript {
     }
     dependencies {
         classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-//        classpath "org.postgresql:postgresql:${postgresqlDriverVersion}"
-//        classpath "com.microsoft.sqlserver:mssql-jdbc:${mssqlJdbcVersion}"
     }
     configurations.configureEach {
         // Check for updates every build for SNAPSHOT dependencies

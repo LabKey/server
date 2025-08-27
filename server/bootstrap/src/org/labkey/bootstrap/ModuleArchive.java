@@ -255,7 +255,7 @@ public class ModuleArchive
 
     public static void ensureChild(File parent, File child) throws IOException
     {
-        // Prevent Zip Slip: ensure destFile is inside targetDirectory
+        // Prevent Zip Slip: though we should always only deploy trusted modules, it's wise to always unzip safely
         java.nio.file.Path targetDirPath = parent.toPath().toAbsolutePath().normalize();
         java.nio.file.Path destFilePath = child.toPath().toAbsolutePath().normalize();
         if (!destFilePath.startsWith(targetDirPath))
@@ -269,13 +269,6 @@ public class ModuleArchive
     {
         @SuppressWarnings("SSBasedInspection") File destFile = new File(targetDirectory, entry.getName());
         ensureChild(targetDirectory, destFile);
-
-        // Prevent Zip Slip: ensure destFile is inside targetDirectory
-        java.nio.file.Path targetDirPath = targetDirectory.toPath().toAbsolutePath().normalize();
-        java.nio.file.Path destFilePath = destFile.toPath().toAbsolutePath().normalize();
-        if (!destFilePath.startsWith(targetDirPath)) {
-            throw new IOException("Entry '" + entry.getName() + "' is outside of the target directory");
-        }
 
         File entryParent = destFile.getParentFile();
         if (!entryParent.isDirectory())

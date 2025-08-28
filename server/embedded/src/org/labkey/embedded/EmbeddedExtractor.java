@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.labkey.bootstrap.ConfigException;
+import org.labkey.bootstrap.ModuleArchive;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@SuppressWarnings("SSBasedInspection") // Disable warnings intended for webapp code
 public class EmbeddedExtractor
 {
     private static final Logger LOG = LogManager.getLogger(EmbeddedExtractor.class);
@@ -351,6 +353,7 @@ public class EmbeddedExtractor
                         ? entry.getName()
                         : entry.getName().replaceFirst("^" + LABKEYWEBAPP, labkeyWebappDirName);
                 File filePath = new File(destDir, entryName);
+                ModuleArchive.ensureChild(destDir, filePath);
                 if (!entry.isDirectory())
                 {
                     // if the entry is a file, extracts it

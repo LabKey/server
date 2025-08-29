@@ -53,11 +53,8 @@ public class ModuleArchive
     protected static final FileComparator _fileComparator = new FileComparator();
 
     private final File _file;
-    private final long _modified;
     private final String _moduleName;
     private final SimpleLogger _log;
-    private final boolean _hasJavaCode;
-
 
     private String stripToNull(String s)
     {
@@ -122,11 +119,9 @@ public class ModuleArchive
     {
         _file = file;
         assert _file.exists() && _file.isFile();
-        _modified = _file.lastModified();
         _log = log;
 
         String moduleName = null;
-        boolean hasJavaCode = false;
 
         /* try to find moduleName in archive */
         try (JarFile jar = new JarFile(getFile()))
@@ -156,14 +151,10 @@ public class ModuleArchive
                             moduleName = name.toLowerCase();
                     }
                 }
-
-                if (entryName.endsWith(".class") || entryName.endsWith(".jar"))
-                    hasJavaCode = true;
             }
         }
 
         _moduleName = moduleName;
-        _hasJavaCode = hasJavaCode;
     }
 
     public File getFile()
@@ -181,8 +172,7 @@ public class ModuleArchive
         if (null == _moduleName)
         {
             String fileName = getFile().getName();
-            String baseName = fileName.substring(0, fileName.length() - FILE_EXTENSION.length());
-            return baseName;
+            return fileName.substring(0, fileName.length() - FILE_EXTENSION.length());
         }
         return _moduleName;
     }
@@ -262,9 +252,23 @@ public class ModuleArchive
         _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
 
+
+    public static void ensureChild(File parent, File child) throws IOException
+    {
+        // Prevent Zip Slip: though we should always only deploy trusted modules, it's wise to always unzip safely
+        java.nio.file.Path targetDirPath = parent.toPath().toAbsolutePath().normalize();
+        java.nio.file.Path destFilePath = child.toPath().toAbsolutePath().normalize();
+        if (!destFilePath.startsWith(targetDirPath))
+        {
+            throw new IOException("Entry '" + child.getName() + "' is outside of the target directory");
+        }
+    }
+
+
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
     {
-        File destFile = new File(targetDirectory, entry.getName());
+        @SuppressWarnings("SSBasedInspection") File destFile = new File(targetDirectory, entry.getName());
+        ensureChild(targetDirectory, destFile);
 
         File entryParent = destFile.getParentFile();
         if (!entryParent.isDirectory())

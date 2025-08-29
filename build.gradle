@@ -236,8 +236,9 @@ allprojects {
                     force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
-                    // force version for SequenceAnalysis, TargetedMS
+                    // force versions for SequenceAnalysis, TargetedMS
                     force "com.google.protobuf:protobuf-java:${googleProtocolBufVersion}"
+                    force "com.google.protobuf:protobuf-java-util:${googleProtocolBufVersion}"
                     // force version for Cloud, FileTransfer, SequenceAnalysis, etc.
                     force "com.google.code.findbugs:jsr305:${jsr305Version}"
                     // force Jakarta Activation API version used by our Angus Activation implementation

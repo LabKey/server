@@ -222,6 +222,15 @@
         <!-- Suppress POI's PackageRelationshipCollection's "Cannot convert {} in a valid relationship URI" URISyntaxExceptions, Issue 51960 -->
         <Logger name="org.apache.poi.openxml4j.opc.PackageRelationshipCollection" level="fatal"/>
 
+        <!-- Suppress some other noisy POI classes that log warnings during document text extraction -->
+        <Logger name="org.apache.poi.hdgf.chunks.Chunk" level="error"/>
+        <Logger name="org.apache.poi.hpsf.CodePageString" level="error"/>
+        <Logger name="org.apache.poi.hslf.model.textproperties.BitMaskTextProp" level="error"/>
+        <Logger name="org.apache.poi.hslf.record.Record" level="error"/>
+        <Logger name="org.apache.poi.hslf.usermodel.HSLFTextParagraph" level="error"/>
+        <Logger name="org.apache.poi.hwpf.model.FileInformationBlock" level="error"/>
+        <Logger name="org.apache.poi.xssf.usermodel.XSSFDrawing" level="error"/>
+
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--
             <Logger name="org.labkey.api.security.SecurityManager" level="debug"/>

@@ -1,7 +1,9 @@
 package org.labkey.embedded;
 
 import org.apache.catalina.Container;
+import org.apache.catalina.Context;
 import org.apache.catalina.Host;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.loader.WebappLoader;
@@ -243,8 +245,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
             Map<String, String> additionalWebapps = contextProperties.getAdditionalWebapps();
             if (additionalWebapps != null)
             {
-                // Turn the default web.xml behavior back on so that Tomcat serves up static files as normal
-                tomcat.setAddDefaultWebXmlToWebapp(true);
                 setRegisterDefaultServlet(true);
 
                 for (Map.Entry<String, String> entry : additionalWebapps.entrySet())
@@ -259,7 +259,23 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                     {
                         throw new ConfigException("No docBase supplied additional webapp at context path " + contextPath);
                     }
-                    tomcat.addWebapp(contextPath, docBase);
+                    Context ctx = tomcat.addWebapp(contextPath, docBase);
+
+
+                    // Issue 53723: register the default servlet without enabling JSPs
+
+                    // Code copied from Tomcat.initWebappDefaults(), removing JSP-specific initialization
+                    Wrapper servlet = Tomcat.addServlet(ctx, "default", "org.apache.catalina.servlets.DefaultServlet");
+                    servlet.setLoadOnStartup(1);
+                    servlet.setOverridable(true);
+                    ctx.addServletMappingDecoded("/", "default");
+                    Tomcat.addDefaultMimeTypeMappings(ctx);
+                    ctx.addWelcomeFile("index.html");
+                    ctx.addWelcomeFile("index.htm");
+                    // Any application configured welcome files should override the defaults.
+                    if (ctx instanceof StandardContext) {
+                        ((StandardContext) ctx).setReplaceWelcomeFiles(true);
+                    }
                 }
             }
         }

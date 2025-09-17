@@ -139,4 +139,13 @@
        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
        <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
     </suppress>
+
+    <!-- We don't use @EnableMethodSecurity, so we are not impacted by CVE-2025-41249 -->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-core-6.2.10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-core@.*$</packageUrl>
+        <vulnerabilityName>CVE-2025-41249</vulnerabilityName>
+    </suppress>
 </suppressions>

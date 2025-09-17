@@ -180,6 +180,7 @@ tasks.register('createModule', CreateModule) {
             "Use createFiles to control which subdirectories are created.  Include some subset of api, test, and/or schema " +
             "in a comma delimited list to create those subdirectories in the new module. If none are required, still " +
             "include -PcreateFiles with no value to avoid being prompted."
+        task.notCompatibleWithConfigurationCache("Class needs to declare more input and output properties.")
 }
 
 project.tasks.register("reportVersionToTeamCity", DefaultTask) {

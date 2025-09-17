@@ -74,9 +74,8 @@ public class LabKeyServer
                 object-src ${OBJECT.SOURCES} ;  /* Substitution value defaults to 'none' unless overridden by an admin */
                 style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
                 img-src 'self' data: ${IMAGE.SOURCES} ;
-                script-src-elem 'self' ${SCRIPT.SOURCES} ;
                 font-src 'self' data: ${FONT.SOURCES} ;
-                script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
+                script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ${SCRIPT.SOURCES} ;
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
             """;

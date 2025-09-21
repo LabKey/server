@@ -75,7 +75,7 @@ public class LabKeyServer
                 style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
                 img-src 'self' data: ${IMAGE.SOURCES} ;
                 font-src 'self' data: ${FONT.SOURCES} ;
-                script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ;
+                script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ${SCRIPT.SOURCES} ;
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
             """;

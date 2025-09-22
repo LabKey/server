@@ -71,12 +71,11 @@ allprojects {
         // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
         exclude group: "log4j", module:"log4j"
     }
-    configurations.driver.setDescription("Dependencies used for SqlUtils")
+    configurations.driver.setDescription("Dependencies used for Gradle SetUpProperties task")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")
 
     dependencies
             {
-                //for SqlUtils
                 driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
                 driver "com.microsoft.sqlserver:mssql-jdbc:${mssqlJdbcVersion}"
 

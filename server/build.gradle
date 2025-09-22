@@ -1,7 +1,7 @@
 import org.apache.commons.lang3.SystemUtils
-import org.labkey.gradle.plugin.JsDoc
 import org.labkey.gradle.plugin.XsdDoc
 import org.labkey.gradle.task.CreateModule
+import org.labkey.gradle.task.CreateJsDocs
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PomFileHelper
@@ -162,13 +162,13 @@ project.publishing {
 }
 
 
-project.tasks.register("cleanDocs", DefaultTask) {
-    DefaultTask task ->
+project.tasks.register("cleanDocs", Delete) {
+    Delete task ->
         task.group = GroupNames.DOCUMENTATION
         task.description = "Remove directories created for xsd and js doc tasks"
-        task.doLast({
-            project.delete(XsdDoc.getXsdDocDirectory(project))
-            project.delete(JsDoc.getJsDocDirectory(project))
+        task.configure({ DeleteSpec delete ->
+            delete.delete(XsdDoc.getXsdDocDirectory(project))
+            delete.delete(CreateJsDocs.getJsDocDirectory(project))
         })
 }
 
@@ -180,6 +180,7 @@ tasks.register('createModule', CreateModule) {
             "Use createFiles to control which subdirectories are created.  Include some subset of api, test, and/or schema " +
             "in a comma delimited list to create those subdirectories in the new module. If none are required, still " +
             "include -PcreateFiles with no value to avoid being prompted."
+        task.notCompatibleWithConfigurationCache("Class needs to declare more input and output properties.")
 }
 
 project.tasks.register("reportVersionToTeamCity", DefaultTask) {
@@ -199,7 +200,7 @@ if (project.hasProperty("teamcity"))
 else
 {
     var cleanJspRecompileSetup = project.tasks.register("cleanJspRecompileSetup", Delete) {
-        DeleteSpec task ->
+        Delete task ->
             task.group = GroupNames.BUILD
             task.delete project.rootProject.layout.buildDirectory.dir("jspRecompiling").get()
             task.description = "Remove build/jspRecompiling directory"
@@ -226,16 +227,8 @@ else
 // We add this configuration here so we have a single location to link to for the npm and node executables.
 // Each project that requires node will have its own downloaded version of node and npm, but for the symlinkNode
 // task we need a single location, and one that works even when not building from source (Issue 35207)
-if (BuildUtils.useServerNode(project))
-{
-    project.node {
-        workDir = project.file("${project.rootProject.projectDir}/.node")
-        npmWorkDir = project.file("${project.rootProject.projectDir}/.node")
-    }
-} else {
-    project.node {
-        workDir = BuildUtils.getRootBuildDirFile(project, ".node")
-        npmWorkDir = BuildUtils.getRootBuildDirFile(project, ".node")
-    }
+project.node {
+    workDir = project.file("${project.rootProject.projectDir}/.node")
+    npmWorkDir = project.file("${project.rootProject.projectDir}/.node")
 }
 project.tasks.named('deployApp').configure { dependsOn(project.tasks.npmSetup) }

@@ -71,12 +71,11 @@ allprojects {
         // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
         exclude group: "log4j", module:"log4j"
     }
-    configurations.driver.setDescription("Dependencies used for SqlUtils")
+    configurations.driver.setDescription("Dependencies used for Gradle SetUpProperties task")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")
 
     dependencies
             {
-                //for SqlUtils
                 driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
                 driver "com.microsoft.sqlserver:mssql-jdbc:${mssqlJdbcVersion}"
 
@@ -436,17 +435,6 @@ subprojects {
                 }
             })
     }
-    project.tasks.register("showConfigs") {
-        task ->
-            task.group = GroupNames.HELP
-            task.description = "Show all the configurations available in the project and their published artifacts"
-            task.doLast({
-                project.configurations.forEach({
-                    Configuration config ->
-                        println(config.name + ": (${config.getDescription()})")
-                })
-            })
-    }
     
     project.tasks.register("allDepInsight", DependencyInsightReportTask) {
             DependencyInsightReportTask t ->
@@ -465,6 +453,7 @@ project.tasks.register("showDiscrepancies", ShowDiscrepancies) {
     task ->
         task.group = "Help"
         task.description = "Report external dependencies that have more than one version referenced in the modules in this build"
+        task.notCompatibleWithConfigurationCache("Walks the project tree")
 }
 
 project.tasks.register('getModulesManifest', DefaultTask) {
@@ -517,24 +506,7 @@ project.tasks.register('getModulesManifest', DefaultTask) {
             })
             manifestFile.text = manifestString.toString()
         })
-}
-
-project.tasks.register('listNpmProjects', DefaultTask) {
-    task ->
-        task.group = GroupNames.NPM_RUN
-        task.description ="List all projects that employ npm in their build"
-        task.doLast({
-            List<String> npmProjects = []
-            project.allprojects({Project p ->
-                if (p.getPlugins().hasPlugin(NpmRun.class))
-                    npmProjects.add(p.path) 
-            })
-            if (npmProjects.size() == 0)
-                println("No projects found containing ${NpmRun.NPM_PROJECT_FILE}")
-            else {
-                println("The following projects use NPM in their builds:\n\t${npmProjects.join("\n\t")}\n")
-            }
-        })
+        task.notCompatibleWithConfigurationCache("Walks the project tree")
 }
 
 project.tasks.register('ijWorkspaceSetup', Copy) {

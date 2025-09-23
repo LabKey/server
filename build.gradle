@@ -17,7 +17,6 @@ plugins {
 allprojects {
     if (project.hasProperty('enableOwaspDependencyCheck'))
     {
-        // Comment in to enable the tasks for owasp dependency checking
         apply plugin: 'org.owasp.dependencycheck'
         dependencyCheck {
             outputDirectory = project.rootProject.layout.buildDirectory.file("reports/dependencyCheck/${project.path.replaceAll(':', '_').substring(1)}").get().asFile
@@ -31,6 +30,15 @@ allprojects {
                 retirejs {
                     enabled = false
                 }
+            }
+            if (project.hasProperty('ossIndexUsername') && project.hasProperty('ossIndexPassword'))
+            {
+                analyzers.ossIndex.username = project.property('ossIndexUsername')
+                analyzers.ossIndex.password = project.property('ossIndexPassword');
+            }
+            else
+            {
+                analyzers.ossIndex.enabled = false
             }
             formats = ['HTML', 'JUNIT']
             skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']

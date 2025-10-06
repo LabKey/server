@@ -66,10 +66,15 @@ if (hasProperty('excludedModules'))
 BuildUtils.includeModules(this.settings, rootDir, [BuildUtils.PLATFORM_MODULES_DIR, BuildUtils.COMMON_ASSAYS_MODULES_DIR], excludedModules)
 BuildUtils.includeModules(this.settings, rootDir, ehrModulesDirs, excludedModules)
 
-include ":server:modules:snd"
-include ":server:modules:premiumModules:dataintegration"
-include ":server:modules:premiumModules:premium"
-include ":server:modules:premiumModules:ldap"
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(":server:modules:premiumModules")).exists())
+{
+    include ":server:modules:premiumModules:dataintegration"
+    include ":server:modules:premiumModules:premium"
+    include ":server:modules:premiumModules:ldap"
+}
 
-// include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
-include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists())
+{
+    // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
+    include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
+}

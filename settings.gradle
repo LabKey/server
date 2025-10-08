@@ -171,13 +171,13 @@ else
     // The line below includes all modules in the server/modules, server/modules/platform, server/modules/commonAssays, and server/modules/customModules directories
     //BuildUtils.includeModules(this.settings, rootDir, BuildUtils.SERVER_MODULE_DIRS, excludedModules)
 
-    // The line below includes a set of individual modules (in this case, some EHR related modules)
-    //BuildUtils.includeModules(this.settings, [":server:modules:tnprc_ehr",
-    //                                         ":server:modules:tnprc_billing",
-    //                                         ":server:modules:snd"])
+    // The line below includes a set of individual modules (in this case, some assay modules)
+    //BuildUtils.includeModules(this.settings, [":server:modules:commonAssays:elisa",
+    //                                         ":server:modules:commonAssays:flow",
+    //                                         ":server:modules:commonAssays:ms2"])
 
     // The line below is an example of how to include a single module
-    //include ":server:modules:workflow"
+    //include ":server:modules:commonAssays:ms2"
 }
 
 if (hasProperty('extraIncludes'))

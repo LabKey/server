@@ -58,16 +58,13 @@ if (hasProperty('gradleExcludeModuleDirs'))
 if (hasProperty('excludedModules'))
     exclusions.addAll("${excludedModules}".split(","))
 
-// Include ':server:embedded' unless explicitly excluded
-if (!exclusions.contains("embedded"))
-{
-    include BuildUtils.getEmbeddedProjectPath(gradle)
-}
-
 BuildUtils.includeModules(this.settings, rootDir, ["server/modules"], exclusions, true)
 
-// include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
-include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
+if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getTestProjectPath(gradle))).exists())
+{
+    // include the test distribution, which is used to create an artifact for TeamCity to pass around to the agents
+    include "${BuildUtils.getTestProjectPath(this.settings.gradle)}:distributions:teamcity"
+}
 
 if (new File(getRootDir(), BuildUtils.convertPathToRelativeDir(BuildUtils.getJdbcApiProjectPath(gradle))).exists())
 {

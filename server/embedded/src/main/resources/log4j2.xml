@@ -235,6 +235,7 @@
         <Logger name="org.apache.poi.hwpf.model.FileInformationBlock" level="error"/>
         <Logger name="org.apache.poi.hwpf.model.ListLevel" level="error"/>
         <Logger name="org.apache.poi.hwpf.model.PAPBinTable" level="error"/>
+        <Logger name="org.apache.poi.ooxml.POIXMLDocumentPart" level="error"/>
         <Logger name="org.apache.poi.xssf.usermodel.XSSFDrawing" level="error"/>
 
         <!-- this is a very verbose logger for security/permissions checking -->

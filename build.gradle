@@ -250,6 +250,8 @@ allprojects {
                     force "com.google.protobuf:protobuf-java-util:${googleProtocolBufVersion}"
                     // force version for Cloud, FileTransfer, SequenceAnalysis, etc.
                     force "com.google.code.findbugs:jsr305:${jsr305Version}"
+                    // force version used by JAXB to match api
+                    force "org.eclipse.angus:angus-activation:${angusActivationVersion}"
                     // force Jakarta Activation API version used by our Angus Activation implementation
                     force "jakarta.activation:jakarta.activation-api:${jakartaActivationApiVersion}"
                     // force version for accounts, api, query

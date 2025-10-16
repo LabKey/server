@@ -139,4 +139,29 @@
        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
        <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
     </suppress>
+
+    <!--
+    False positives - API jars are getting matched to old (18.3) LabKey Server releases
+    -->
+    <suppress>
+        <notes><![CDATA[
+        file name: provisioning-2.1.0-api.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/provisioning@.*$</packageUrl>
+        <cpe>cpe:/a:labkey:labkey_server</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: labkey-client-api-7.0.0.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-client-api@.*$</packageUrl>
+        <cpe>cpe:/a:labkey:labkey_server</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: labkey-api-jdbc-3.1.0-all.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.labkey\.api/labkey-api-jdbc@.*$</packageUrl>
+        <cpe>cpe:/a:labkey:labkey_server</cpe>
+    </suppress>
 </suppressions>

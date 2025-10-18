@@ -210,7 +210,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
     @Override
     public Map.Entry<File,File> updateModule(File explodedModuleDirectory, File updateArchive, File existingArchive, File mvExistingArchive, boolean dryRun) throws IOException
     {
-        File updateArchiveNewHome = new File(existingArchive.getParent(), updateArchive.getName());
+        File updateArchiveNewHome = new File(existingArchive.getParentFile(), updateArchive.getName());
 
         validateReplaceArchive(explodedModuleDirectory, updateArchive, existingArchive);
 

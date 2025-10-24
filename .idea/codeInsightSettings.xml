@@ -36,6 +36,8 @@
       <name>org.jspecify.annotations.NotNull</name>
       <name>io.micrometer.common.lang.NonNull</name>
       <name>io.micrometer.common.lang.Nullable</name>
+      <name>edu.umd.cs.findbugs.annotations.Nullable</name>
+      <name>org.apache.poi.hpsf.GUID</name>
     </excluded-names>
   </component>
 </project>

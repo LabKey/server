@@ -252,6 +252,8 @@ allprojects {
                     force "org.eclipse.angus:angus-activation:${angusActivationVersion}"
                     // force Jakarta Activation API version used by our Angus Activation implementation
                     force "jakarta.activation:jakarta.activation-api:${jakartaActivationApiVersion}"
+                    // SequenceAnalysis brings in an older version via biojava-genome 7.1.1
+                    force "jakarta.xml.bind:jakarta.xml.bind-api:${jaxbBindApiVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
                     // force version for accounts, docker, api, workflow

@@ -252,6 +252,8 @@ allprojects {
                     force "org.eclipse.angus:angus-activation:${angusActivationVersion}"
                     // force Jakarta Activation API version used by our Angus Activation implementation
                     force "jakarta.activation:jakarta.activation-api:${jakartaActivationApiVersion}"
+                    // SequenceAnalysis brings in an older version via biojava-genome 7.1.1
+                    force "jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
                     // force version for accounts, docker, api, workflow
@@ -299,7 +301,7 @@ allprojects {
                     force "io.grpc:grpc-stub:${grpcVersion}"
                     force "io.grpc:grpc-xds:${grpcVersion}"
 
-                    // workflow (Activiti) brings in older versions of these libraries, so we need to force these versions
+                    // tcrdb, cloud, SequenceAnalysis, recipe mfa, pipeline, fileTransfer, docker mcc, DiscvrLabKeyModules:Studies and api have differnet versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
                     // The version of picard we depend on brings in an older version of htsjdk, but SequenceAnalysis depends on a later version
@@ -557,6 +559,6 @@ project.tasks.register('ijConfigure') {
 project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
     group = GroupNames.NPM_RUN
     description = "Given an alpha version prefix for npm packages via the property -P${PurgeNpmAlphaVersions.ALPHA_PREFIX_PROPERTY}=yourPrefix, " +
-            "removes all packages with versions that match that prefix from Artifactory (e.g., @labkey/components-1.2.3-yourPrefix.0 and @labkey/workflow-0.3.4-yourPrefix.1). " +
+            "removes all packages with versions that match that prefix from Artifactory (e.g., @labkey/components-1.2.3-yourPrefix.0 and @labkey/premium-0.3.4-yourPrefix.1). " +
             " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
 }

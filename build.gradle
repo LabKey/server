@@ -160,6 +160,7 @@ allprojects {
                             includeGroup "org.labkey.api"
                             includeGroup "org.labkey.module"
                             includeGroup "org.labkey.build"
+                            includeGroup "org.apache.xmlbeans"
                         }
                     }
 

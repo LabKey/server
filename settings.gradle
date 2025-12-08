@@ -14,10 +14,9 @@ pluginManagement {
             }
             content {
                 includeGroup "org.labkey.build"
-                includeGroup "org.labkey.versioning"
             }
         }
-        if (gradlePluginsVersion.contains("SNAPSHOT") || versioningPluginVersion.contains("SNAPSHOT"))
+        if (gradlePluginsVersion.contains("SNAPSHOT"))
         {
             mavenLocal()
             maven {
@@ -27,19 +26,13 @@ pluginManagement {
                 }
                 content {
                     includeGroup "org.labkey.build"
-                    includeGroup "org.labkey.versioning"
                 }
             }
         }
     }
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == 'org.labkey.versioning')
-            {
-                // Versioning isn't published with plugin markers
-                useModule("org.labkey.build:versioning:${versioningPluginVersion}")
-            }
-            else if (requested.id.namespace == 'org.labkey.build')
+            if (requested.id.namespace == 'org.labkey.build')
             {
                 // This doesn't really do anything. The jar on the classpath will take precedence
                 useVersion("${gradlePluginsVersion}")

@@ -565,7 +565,7 @@ project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
 
 project.tasks.register('purgeNpmVersions', PurgeNpmVersions) {
     group = GroupNames.NPM_RUN
-    description = "Given an package name via -P${PurgeNpmVersions.PACKAGE_NAME_PROP}=component (without the @labkey prefix) and a version list via -P${PurgeNpmVersions.VERSION_LIST_PROP}=fileName for npm package, " +
+    description = "Given a package name via -P${PurgeNpmVersions.PACKAGE_NAME_PROP}=name (without the @labkey prefix) and a version list via -P${PurgeNpmVersions.VERSION_LIST_PROP}=fileName for npm package, " +
             "removes the versions specified from Artifactory. " +
             " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
 }

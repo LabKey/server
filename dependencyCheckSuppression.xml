@@ -251,7 +251,7 @@
     
     <!--
     Rhino 1.7R3 is getting flagged with a potential DoS issue when toFixed() is called on very small floating point numbers.
-    Upgading to a fix version is not trivial. See https://github.com/LabKey/internal-issues/issues/724 for details.
+    Upgrading to a fixed version is not trivial. See https://github.com/LabKey/internal-issues/issues/724 for details.
     -->
     <suppress>
        <notes><![CDATA[

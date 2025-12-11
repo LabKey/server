@@ -119,7 +119,7 @@ public class LabKeyServer
                  // in application.properties, like the key store. Without those other settings,
                  // HTTP-only startup fails unless "server.ssl.enabled" is explicitly set to false here
                  put("server.ssl.enabled", "false");
-                 put("#server.ssl.protocol", "TLS");
+                 put("server.ssl.protocol", "TLS");
                  put("server.ssl.enabled-protocols", "TLSv1.3,TLSv1.2");
                  // Use explicit JSSE cipher suite names to avoid CBC-mode suites
                  put("server.ssl.ciphers",

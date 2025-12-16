@@ -1,6 +1,7 @@
 import org.apache.commons.lang3.SystemUtils
 import org.labkey.gradle.plugin.NpmRun
 import org.labkey.gradle.task.PurgeNpmAlphaVersions
+import org.labkey.gradle.task.PurgeNpmVersions
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -11,7 +12,6 @@ plugins {
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
 //    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
-    id 'org.labkey.versioning' apply false // Need this for our 'base' plugin to get the version specified in settings.gradle
 }
 
 allprojects {
@@ -561,5 +561,12 @@ project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
     group = GroupNames.NPM_RUN
     description = "Given an alpha version prefix for npm packages via the property -P${PurgeNpmAlphaVersions.ALPHA_PREFIX_PROPERTY}=yourPrefix, " +
             "removes all packages with versions that match that prefix from Artifactory (e.g., @labkey/components-1.2.3-yourPrefix.0 and @labkey/premium-0.3.4-yourPrefix.1). " +
+            " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
+}
+
+project.tasks.register('purgeNpmVersions', PurgeNpmVersions) {
+    group = GroupNames.NPM_RUN
+    description = "Given a package name via -P${PurgeNpmVersions.PACKAGE_NAME_PROP}=name (without the @labkey prefix) and a version list via -P${PurgeNpmVersions.VERSION_LIST_PROP}=fileName for npm package, " +
+            "removes the versions specified from Artifactory. " +
             " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
 }

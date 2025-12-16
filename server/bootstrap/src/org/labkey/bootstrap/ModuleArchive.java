@@ -267,7 +267,7 @@ public class ModuleArchive
 
     public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
     {
-        @SuppressWarnings("SSBasedInspection") File destFile = new File(targetDirectory, entry.getName());
+        @SuppressWarnings({"SSBasedInspection", "JvmTaintAnalysis"}) File destFile = new File(targetDirectory, entry.getName());
         ensureChild(targetDirectory, destFile);
 
         File entryParent = destFile.getParentFile();

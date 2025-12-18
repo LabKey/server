@@ -182,4 +182,16 @@
         <packageUrl regex="true">^pkg:maven/org\.itadaki/bzip2@.*$</packageUrl>
         <cpe>cpe:/a:bzip2_project:bzip2</cpe>
     </suppress>
+
+    <!--
+    Rhino 1.7R3 is getting flagged with a potential DoS issue when toFixed() is called on very small floating point numbers.
+    Upgrading to a fixed version is not trivial. See https://github.com/LabKey/internal-issues/issues/724 for details.
+    -->
+    <suppress>
+       <notes><![CDATA[
+       file name: rhino-1.7R3.jar
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/org\.mozilla/rhino@.*$</packageUrl>
+       <vulnerabilityName>CVE-2025-66453</vulnerabilityName>
+    </suppress>
 </suppressions>

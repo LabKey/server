@@ -7,7 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -193,7 +193,7 @@ public class LabKeyServer
             Connector httpConnector = new Connector();
             httpConnector.setScheme("http");
             httpConnector.setPort(contextProperties.getHttpPort());
-            result.addAdditionalTomcatConnectors(httpConnector);
+            result.addAdditionalConnectors(httpConnector);
         }
 
         return result;

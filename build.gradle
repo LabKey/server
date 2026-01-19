@@ -202,6 +202,8 @@ allprojects {
     configurations.configureEach
             {Configuration config ->
                 resolutionStrategy {
+                    //  spring-ai pulls a different version of antr-ST4 than the version pulled by query (via antlr)
+                    force "org.antlr:ST4:${antlrST4Version}"
                     // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
                     // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
                     force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"

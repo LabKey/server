@@ -71,11 +71,6 @@ dependencies {
             strictly "${springVersion}"
         }
     }
-    implementation('org.springframework:spring-jcl') {
-        version {
-            strictly "${springVersion}"
-        }
-    }
     implementation('org.springframework:spring-web') {
         version {
             strictly "${springVersion}"

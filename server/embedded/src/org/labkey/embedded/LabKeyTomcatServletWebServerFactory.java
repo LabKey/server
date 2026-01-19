@@ -14,8 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
+import org.springframework.boot.tomcat.TomcatWebServer;
+import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 
 import javax.sql.DataSource;
@@ -72,7 +72,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     protected void prepareContext(Host host, ServletContextInitializer[] initializers)
     {
         // Prevent the Spring Boot webapp from trying to deserialize the LabKey sessions
-        getSession().setPersistent(false);
+        getSettings().getSession().setPersistent(false);
 
         // Don't use Spring Boot's error pages, as we want to render our own
         setErrorPages(Collections.emptySet());
@@ -121,7 +121,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 setRegisterDefaultServlet(false);
 
                 // We want the LK webapp to serialize/deserialize sessions during restarts
-                getSession().setPersistent(true);
+                getSettings().getSession().setPersistent(true);
 
                 // Spring Boot's webapp is being deployed to the root. We have to deploy elsewhere in this initial
                 // call, but can immediately swap it with the desired place
@@ -130,7 +130,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 context.setPath(contextProperties.getContextPath());
 
                 // Propagate standard Spring Boot properties such as the session timeout
-                configureContext(context, new ServletContextInitializer[0]);
+                configureContext(context, Collections.emptyList());
 
                 LabKeyServer.CSPFilterProperties cspFilterProperties = _server.cspSource();
 

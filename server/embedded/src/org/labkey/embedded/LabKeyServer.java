@@ -99,6 +99,8 @@ public class LabKeyServer
                  put("server.tomcat.max-part-count", 500);
                  put("server.tomcat.max-part-header-size", 1024);  // GitHub Issue 161: LKS insert forms can't handle long file field names
                  put("server.tomcat.max-connections", 250);
+                // Boost limit back to Tomcat 10 level
+                 put("server.tomcat.max-parameter-count", 10_000);
 
                  // Enable HTTP compression for response content
                  put("server.compression.enabled", "true");

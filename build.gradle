@@ -76,8 +76,10 @@ allprojects {
                 utilities
             }
     configurations.configureEach {
-        // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
+        // exclude log4j 1.x, which may come in transitively, from all configurations to avoid its potential vulnerabilities
         exclude group: "log4j", module:"log4j"
+        // exclude to ensure we don't have Log4J to SLFJ adapters or other unwanted logging libraries added to modules
+        exclude group: "org.springframework.boot", module:"spring-boot-starter-logging"
     }
     configurations.driver.setDescription("Dependencies used for Gradle SetUpProperties task")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")

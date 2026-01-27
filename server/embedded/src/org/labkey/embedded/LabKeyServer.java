@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,15 +112,7 @@ public class LabKeyServer
                          }
                          if (log4JConfigParts.length > 1)
                          {
-                             StringBuilder sb = new StringBuilder();
-                             String separator = "";
-                             for (int i = 1; i < log4JConfigParts.length; i++)
-                             {
-                                 sb.append(separator);
-                                 separator = ",";
-                                 sb.append(log4JConfigParts[i]);
-                             }
-                            put("logging.log4j2.config.override", sb.toString());
+                            put("logging.log4j2.config.override", String.join(",", Arrays.asList(log4JConfigParts).subList(1, log4JConfigParts.length)));
                          }
                          else
                              throw new IllegalArgumentException("log4j.configurationFile must be in the form log4j2.xml[,secondaryFile]");

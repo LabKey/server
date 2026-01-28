@@ -276,7 +276,7 @@ public class EmbeddedExtractor
                     }
                     if (remotePipeline)
                     {
-                        // Keep this code in sync with org.labkey.pipeline.api.PipelineServiceImpl.extractBootstrapFromEmbedded()
+                        // Keep this code in sync with org.labkey.pipeline.api.PipelineServiceImpl.getClusterStartupArguments()
                         bootstrapJar = extractIfMatch(bootstrapJar, entry, jar, "labkeyBootstrap", "labkeyBootstrap.jar", destDirectory);
                         servletApiJar = extractIfMatch(servletApiJar, entry, jar, "tomcat-embed-core", "servletApi.jar", pipelineLib);
                         log4JCoreJar = extractIfMatch(log4JCoreJar, entry, jar, "log4j-core", "log4j-core.jar", pipelineLib);

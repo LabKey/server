@@ -142,10 +142,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 {
                     context.addParameter("csp.report", cspFilterProperties.getReport());
                 }
-                if (cspFilterProperties.getViolationEndpoint() != null)
-                {
-                    context.addParameter("csp.violationEndpoint", cspFilterProperties.getViolationEndpoint());
-                }
 
                 // Issue 48426: Allow config for desired work directory
                 if (contextProperties.getWorkDirLocation() != null)

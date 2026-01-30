@@ -79,17 +79,21 @@ public class LabKeyServer
                 script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ${SCRIPT.SOURCES} ;
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
+                report-to csp-endpoint ;  /* Keep in sync with ContentSecurityPolicyFilter Reporting-Endpoints header value */
             """;
         // Add upgrade_insecure_requests substitution, frame-ancestors, and e12 version for enforce CSP
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e13&${CSP.REPORT.PARAMS} ;
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r13&${CSP.REPORT.PARAMS} ;
             """;
+
+        // CSP.VERSION is substituted when ContentSecurityPolicyFilter is initialized. Value is extracted from each policy.
+        String cspViolationEndpoint = "${context.contextPath:}/admin-contentSecurityPolicyReportTo.api?cspVersion=${CSP.VERSION}&${CSP.REPORT.PARAMS}";
 
         application.setDefaultProperties(new HashMap<>()
              {{
@@ -142,6 +146,7 @@ public class LabKeyServer
 
                  put("csp.enforce", enforceCsp);
                  put("csp.report", reportCsp);
+                 put("csp.violation-endpoint", cspViolationEndpoint);
 
                  // GitHub Issue 692: Stop using CBC in HTTPS ciphers
                  // These settings configure HTTPS. Admins must opt in with additional settings
@@ -883,6 +888,7 @@ public class LabKeyServer
     {
         private String enforce;
         private String report;
+        private String violationEndpoint;
 
         public String getEnforce()
         {
@@ -902,6 +908,16 @@ public class LabKeyServer
         public void setReport(String report)
         {
             this.report = report;
+        }
+
+        public String getViolationEndpoint()
+        {
+            return violationEndpoint;
+        }
+
+        public void setViolationEndpoint(String violationEndpoint)
+        {
+            this.violationEndpoint = violationEndpoint;
         }
     }
 

@@ -114,8 +114,6 @@ public class LabKeyServer
                          {
                             put("logging.log4j2.config.override", String.join(",", Arrays.asList(log4JConfigParts).subList(1, log4JConfigParts.length)));
                          }
-                         else
-                             throw new IllegalArgumentException("log4j.configurationFile must be in the form log4j2.xml[,secondaryFile]");
                      }
                  }
 

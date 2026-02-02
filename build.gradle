@@ -76,8 +76,10 @@ allprojects {
                 utilities
             }
     configurations.configureEach {
-        // exclude log4j, which may come in transitively, from all configurations to avoid its potential vulnerabilities
+        // exclude log4j 1.x, which may come in transitively, from all configurations to avoid its potential vulnerabilities
         exclude group: "log4j", module:"log4j"
+        // exclude to ensure we don't have Log4J to SLFJ adapters or other unwanted logging libraries added to modules
+        exclude group: "org.springframework.boot", module:"spring-boot-starter-logging"
     }
     configurations.driver.setDescription("Dependencies used for Gradle SetUpProperties task")
     configurations.utilities.setDescription("Utility binaries for use on Windows platform")
@@ -202,6 +204,13 @@ allprojects {
     configurations.configureEach
             {Configuration config ->
                 resolutionStrategy {
+                    //  spring-ai pulls a different version of antr-ST4 than the version pulled by query (via antlr)
+                    force "org.antlr:ST4:${antlrST4Version}"
+                    // also it pulls in a bunch of com.google.api dependencies which conflict with DiscvrLabKeyModules:SequenceAnalysis and wnprc-modules:WNPRC_EHR
+                    force "com.google.api:api-common:${googleApiVersion}"
+                    force "com.google.auth:google-auth-library-oauth2-http:${googleAuthVersion}"
+                    force "com.google.auth:google-auth-library-credentials:${googleAuthVersion}"
+
                     // we force this version because we have compilation problems with version 1.9.2 of commons-beanutils, which is the version
                     // that is brought in by Gradle's conflict resolution as a result of our chosen versions for commons-validator (1.5.0) and commons-digester (1.8.1)
                     force "commons-beanutils:commons-beanutils:${commonsBeanutilsVersion}"

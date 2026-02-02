@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,19 +80,43 @@ public class LabKeyServer
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
             """;
-        // Add upgrade_insecure_requests substitution, frame-ancestors, and e12 version for enforce CSP
+        // Add upgrade_insecure_requests substitution, frame-ancestors, and e13 version for enforce CSP
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e13&${CSP.REPORT.PARAMS} ;
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r13&${CSP.REPORT.PARAMS} ;
             """;
 
         application.setDefaultProperties(new HashMap<>()
              {{
+                // GitHub Issue 796: JSON logging stopped after Tomcat/Spring update
+                 // Propagate log4j configuration to Spring Boot config, which is necessary with Spring Boot 4.x
+                 String log4JConfig = System.getProperty("log4j.configurationFile");
+                 if (log4JConfig != null)
+                 {
+                     String[] log4JConfigParts = log4JConfig.split(",");
+                     if (log4JConfigParts.length > 0)
+                     {
+                         if ("log4j2.xml".equals(log4JConfigParts[0]))
+                         {
+                             // Assume this is the one packaged with our embedded build and on the classpath
+                             put("logging.config", "classpath:log4j2.xml");
+                         }
+                         else
+                         {
+                             put("logging.config", log4JConfigParts[0]);
+                         }
+                         if (log4JConfigParts.length > 1)
+                         {
+                            put("logging.log4j2.config.override", String.join(",", Arrays.asList(log4JConfigParts).subList(1, log4JConfigParts.length)));
+                         }
+                     }
+                 }
+
                  put("server.tomcat.basedir", ".");
                  put("server.tomcat.accesslog.directory", logHome);
 

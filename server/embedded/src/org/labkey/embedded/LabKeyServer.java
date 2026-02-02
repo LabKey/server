@@ -80,15 +80,15 @@ public class LabKeyServer
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
             """;
-        // Add upgrade_insecure_requests substitution, frame-ancestors, and e12 version for enforce CSP
+        // Add upgrade_insecure_requests substitution, frame-ancestors, and e13 version for enforce CSP
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e13&${CSP.REPORT.PARAMS} ;
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r12&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r13&${CSP.REPORT.PARAMS} ;
             """;
 
         application.setDefaultProperties(new HashMap<>()
@@ -114,8 +114,6 @@ public class LabKeyServer
                          {
                             put("logging.log4j2.config.override", String.join(",", Arrays.asList(log4JConfigParts).subList(1, log4JConfigParts.length)));
                          }
-                         else
-                             throw new IllegalArgumentException("log4j.configurationFile must be in the form log4j2.xml[,secondaryFile]");
                      }
                  }
 

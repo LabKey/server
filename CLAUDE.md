@@ -98,12 +98,10 @@ All external library versions are centralized in `gradle.properties` (200+ versi
 ## Key Build Properties (`gradle.properties`)
 
 - `sourceCompatibility`/`targetCompatibility`: Java 25
-- `labkeyVersion`: 26.2-SNAPSHOT
 - `buildFromSource`: true (build modules from source vs. pulling artifacts)
 - `useLocalBuild`: use locally built artifacts
 - `moduleSet`: select a predefined set of modules (e.g., `community`, `all`, `distributions`)
 - `excludedModules`: comma-separated list of modules to exclude
-- `org.gradle.workers.max`: 3 (parallel build workers)
 
 ## Search Tips
 

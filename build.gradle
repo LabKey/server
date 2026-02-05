@@ -310,6 +310,27 @@ allprojects {
                     force "io.grpc:grpc-stub:${grpcVersion}"
                     force "io.grpc:grpc-xds:${grpcVersion}"
 
+                    // Netty - transitive dependency via azure-core-http-netty; force for CVE-2025-67735
+                    force "io.netty:netty-buffer:${nettyVersion}"
+                    force "io.netty:netty-codec:${nettyVersion}"
+                    force "io.netty:netty-codec-dns:${nettyVersion}"
+                    force "io.netty:netty-codec-http:${nettyVersion}"
+                    force "io.netty:netty-codec-http2:${nettyVersion}"
+                    force "io.netty:netty-codec-socks:${nettyVersion}"
+                    force "io.netty:netty-common:${nettyVersion}"
+                    force "io.netty:netty-handler:${nettyVersion}"
+                    force "io.netty:netty-handler-proxy:${nettyVersion}"
+                    force "io.netty:netty-resolver:${nettyVersion}"
+                    force "io.netty:netty-resolver-dns:${nettyVersion}"
+                    force "io.netty:netty-resolver-dns-classes-macos:${nettyVersion}"
+                    force "io.netty:netty-resolver-dns-native-macos:${nettyVersion}"
+                    force "io.netty:netty-transport:${nettyVersion}"
+                    force "io.netty:netty-transport-classes-epoll:${nettyVersion}"
+                    force "io.netty:netty-transport-classes-kqueue:${nettyVersion}"
+                    force "io.netty:netty-transport-native-epoll:${nettyVersion}"
+                    force "io.netty:netty-transport-native-kqueue:${nettyVersion}"
+                    force "io.netty:netty-transport-native-unix-common:${nettyVersion}"
+
                     // tcrdb, cloud, SequenceAnalysis, recipe mfa, pipeline, fileTransfer, docker mcc, DiscvrLabKeyModules:Studies and api have differnet versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"

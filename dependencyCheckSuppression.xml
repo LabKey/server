@@ -184,6 +184,27 @@
     </suppress>
 
     <!--
+    False positives - these CVEs cover MSAL libraries across multiple languages (Java, JavaScript, .NET, Python),
+    each versioned independently. The scanner conflates the Java msal4j library with the JavaScript
+    @azure/msal-browser/@azure/msal-node libraries. Both CVEs were fixed in msal4j 1.15.1 and 1.16.1
+    respectively; our version (1.23.1+) is not affected.
+    -->
+    <suppress>
+        <notes><![CDATA[
+        file name: msal4j-*.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.azure/msal4j@.*$</packageUrl>
+        <vulnerabilityName>>CVE-2024-35255</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: msal4j-*.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.azure/msal4j@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-36415</vulnerabilityName>
+    </suppress>
+
+    <!--
     Rhino 1.7R3 is getting flagged with a potential DoS issue when toFixed() is called on very small floating point numbers.
     Upgrading to a fixed version is not trivial. See https://github.com/LabKey/internal-issues/issues/724 for details.
     -->

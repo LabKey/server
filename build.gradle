@@ -310,6 +310,9 @@ allprojects {
                     force "io.grpc:grpc-stub:${grpcVersion}"
                     force "io.grpc:grpc-xds:${grpcVersion}"
 
+                    // msal4j - transitive dependency via azure-identity; force to suppress false-positive CVE-2024-35255 and CVE-2023-36415
+                    force "com.microsoft.azure:msal4j:${msal4jVersion}"
+
                     // Netty - transitive dependency via azure-core-http-netty; force for CVE-2025-67735
                     force "io.netty:netty-buffer:${nettyVersion}"
                     force "io.netty:netty-codec:${nettyVersion}"

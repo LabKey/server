@@ -194,7 +194,7 @@
         file name: msal4j-*.jar
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.microsoft\.azure/msal4j@.*$</packageUrl>
-        <vulnerabilityName>>CVE-2024-35255</vulnerabilityName>
+        <vulnerabilityName>CVE-2024-35255</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[

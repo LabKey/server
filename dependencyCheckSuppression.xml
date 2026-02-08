@@ -200,7 +200,14 @@
         <notes><![CDATA[
         file name: msal4j-*.jar
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.microsoft\.azure/msal4j@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-35255</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        file name: msal4j-*.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-36415</vulnerabilityName>
     </suppress>
 

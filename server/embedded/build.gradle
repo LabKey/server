@@ -38,6 +38,7 @@ configurations.configureEach {
 dependencies {
     // Needed to support composite Log4j2 plugins using JSONLayout elements
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
 
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-json" // Not used (?) and pulls in an old version of Jackson

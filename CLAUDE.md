@@ -72,7 +72,9 @@ Dual database support (PostgreSQL and MS SQL Server). Configuration lives in `se
 
 ### Frontend
 
-Mix of JSPs, React (via `@labkey/components`), and ExtJS. Modules with JavaScript/TypeScript have their own `package.json` and use npm builds. Node.js and npm versions are pinned in `gradle.properties` and downloaded during build.
+Mix of JSPs, React (via `@labkey/components`, `@labkey/premium`), ExtJS, and vanilla JS. Modules with TypeScript have their own `package.json` and use Webpack builds (via `@labkey/build`). TypeScript code is linted and formatted with `@labkey/eslint-config`. Node.js and npm versions are pinned in `gradle.properties` and downloaded during build.
+
+The path to the local copy of the `@labkey/components` package is located in the `LABKEY_UI_COMPONENTS_HOME` environment variable. The path to the local copy of `@labkey/premium` is located in the `LABKEY_UI_PREMIUM_HOME` environment variable. The local copies of the packages may contain changes related to the current branches in any of the modules that have an NPM build. For example there may be changes to the `@labkey/components` package that affect the package in the `server/modules/platform/core` module.
 
 ### Distributions
 
@@ -82,11 +84,11 @@ The `distributions/` directory defines 60+ distribution configurations that sele
 
 All external library versions are centralized in `gradle.properties` (200+ version properties). The root `build.gradle` forces consistent versions across all modules via `resolutionStrategy`. Always consult before adding, removing, or updating a third-party dependency.
 
-## Coding Conventions
+## Java Coding Conventions
 
 - **Java Streams**: Prefer `Stream` API over traditional for-loops for collection processing.
 - **Resources**: Use try-with-resources for automatic resource management.
-- **Nullability**: Use `org.jetbrains.annotations.NotNull` and `@Nullable`. Be explicit in public API signatures.
+- **Nullability**: Use `org.jetbrains.annotations.NotNull` and `org.jetbrains.annotations.Nullable` annotations. Be explicit in public API signatures.
 - **Logging**: Use Log4J2. Name the static logger `LOG`, initialized via `LogHelper.getLogger()`:
   ```java
   private static final Logger LOG = LogHelper.getLogger(MyClass.class, "optional description");

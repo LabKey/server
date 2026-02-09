@@ -310,6 +310,10 @@ allprojects {
                     force "io.grpc:grpc-stub:${grpcVersion}"
                     force "io.grpc:grpc-xds:${grpcVersion}"
 
+                    // JNA - transitive dependency via azure-identity and docker; force for consistency
+                    force "net.java.dev.jna:jna:${jnaVersion}"
+                    force "net.java.dev.jna:jna-platform:${jnaVersion}"
+
                     // Netty - transitive dependency via azure-core-http-netty; force for CVE-2025-67735
                     force "io.netty:netty-buffer:${nettyVersion}"
                     force "io.netty:netty-codec:${nettyVersion}"

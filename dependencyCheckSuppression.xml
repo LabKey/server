@@ -194,4 +194,32 @@
        <packageUrl regex="true">^pkg:maven/org\.mozilla/rhino@.*$</packageUrl>
        <vulnerabilityName>CVE-2025-66453</vulnerabilityName>
     </suppress>
+
+    <!-- Lots of false positives for Spring AI 2.0 due to bad matches-->
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-ai-autoconfigure-mcp-server-common-2.0.0-M2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/spring-ai-autoconfigure-mcp-server-common@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:server</cpe>
+        <cpe>cpe:/a:vmware:vmware_server</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-ai-autoconfigure-mcp-server-webmvc-2.0.0-M2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/spring-ai-autoconfigure-mcp-server-webmvc@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:server</cpe>
+        <cpe>cpe:/a:vmware:vmware_server</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-ai-starter-mcp-server-webmvc-2.0.0-M2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/spring-ai-starter-mcp-server-webmvc@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:server</cpe>
+        <cpe>cpe:/a:vmware:vmware_server</cpe>
+    </suppress>
 </suppressions>

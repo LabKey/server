@@ -71,7 +71,12 @@ public class ModuleArchive
 
         try
         {
-            SAXParser parser = SAXParserFactory.newDefaultInstance().newSAXParser();
+            SAXParserFactory factory = SAXParserFactory.newDefaultInstance();
+            factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            SAXParser parser = factory.newSAXParser();
             parser.parse(is, new DefaultHandler()
             {
                 final ArrayList<String> elementStack = new ArrayList<>();

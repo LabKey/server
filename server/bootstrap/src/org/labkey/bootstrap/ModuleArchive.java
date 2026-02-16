@@ -72,7 +72,7 @@ public class ModuleArchive
 
         try
         {
-            // Keep this in sync with config on XmlBeanUtil.SAX_PARSER_FACTORY. See motiviations in comments there.
+            // Keep this in sync with config on XmlBeansUtil.SAX_PARSER_FACTORY. See motiviations in comments there.
             SAXParserFactory factory = SAXParserFactory.newDefaultInstance();
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             factory.setFeature("http://xml.org/sax/features/external-general-entities", false);

@@ -19,6 +19,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -71,7 +72,14 @@ public class ModuleArchive
 
         try
         {
-            SAXParser parser = SAXParserFactory.newDefaultInstance().newSAXParser();
+            // Keep this in sync with config on XmlBeansUtil.SAX_PARSER_FACTORY. See motiviations in comments there.
+            SAXParserFactory factory = SAXParserFactory.newDefaultInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+            SAXParser parser = factory.newSAXParser();
             parser.parse(is, new DefaultHandler()
             {
                 final ArrayList<String> elementStack = new ArrayList<>();

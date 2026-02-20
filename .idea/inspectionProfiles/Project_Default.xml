@@ -1,9 +1,8 @@
 <component name="InspectionProjectProfileManager">
-  <profile version="1.0" is_locked="false">
+  <profile version="1.0">
     <option name="myName" value="Project Default" />
     <inspection_tool class="35f0afe5-6749-3bcd-88fe-638b65ec3b43" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="CatchMayIgnoreExceptionMerged" />
@@ -12,8 +11,11 @@
       <option name="m_ignoreTestCases" value="true" />
       <option name="m_ignoreIgnoreParameter" value="true" />
     </inspection_tool>
+    <inspection_tool class="JUnitMalformedDeclaration" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="JUnitRule" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="Java8CollectionsApi" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="JavadocBlankLines" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="JavadocLinkAsPlainText" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MissingOverrideAnnotation" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreObjectMethods" value="true" />
       <option name="ignoreAnonymousClassMethods" value="false" />
@@ -23,6 +25,24 @@
         <constraint name="Expression" script="&quot;&quot;" regexp="(h|q|text|textLink|generateButton|PageFlowUtil.\w*)\(.*\)" nameOfExprType="java.lang.String" negateName="true" within="" contains="" />
         <constraint name="JspWriter" script="&quot;&quot;" nameOfExprType="javax.servlet.jsp.JspWriter" within="" contains="" />
       </searchConfiguration>
+      <replaceConfiguration name="BufferedReader(FileReader) always uses default character set" text="new BufferedReader(new FileReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="BufferedReader(InputStreamReader) used without specifying character encoding" text="new BufferedReader(new InputStreamReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="BufferedWriter(FileWriter) always uses default character set" text="new BufferedWriter(new FileWriter($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
+        <constraint name="Arg" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="Errors.reject(errorCode)" uuid="754a8524-698d-3596-a571-f9779f728f3a" description="Spring wants an error code, not just the error messsage." problemDescriptor="Don't use a message in place of the errorCode" text="$Errors$.reject($x$)" recursive="false" caseInsensitive="false" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="$Errors$.reject(org.labkey.api.action.SpringActionController.ERROR_MSG, $x$)">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="Errors" regexp="Errors" withinHierarchy="true" within="" contains="" />
+        <constraint name="x" within="" contains="" />
+      </replaceConfiguration>
+      <replaceConfiguration name="File.createNewFile() used without validating filename - use FileUtil.createNewFile(File file) instead" text="$arg$.createNewFile()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createNewFile($arg$)">
+        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
       <replaceConfiguration name="File.createTempFile() typically creates file with wide read permissions" text="java.io.File.createTempFile($Arg1$, $Arg2$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.FileUtil.createTempFile($Arg1$, $Arg2$)">
         <constraint name="__context__" within="" contains="" />
         <constraint name="Arg2" within="" contains="" />
@@ -34,11 +54,11 @@
         <constraint name="Arg2" within="" contains="" />
         <constraint name="Arg1" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="File.getCanonicalPath() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalPath()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$).getAbsolutePath()">
+      <replaceConfiguration name="File.getCanonicalFile() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalFile()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$)">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="File.getCanonicalFile() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalFile()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$)">
+      <replaceConfiguration name="File.getCanonicalPath() fully resolves symbolic links - use FileUtil.getAbsoluteCaseSensitiveFile() instead" text="$arg$.getCanonicalPath()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.getAbsoluteCaseSensitiveFile($arg$).getAbsolutePath()">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
@@ -50,29 +70,22 @@
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="File.createNewFile() used without validating filename - use FileUtil.createNewFile(File file) instead" text="$arg$.createNewFile()" recursive="true" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createNewFile($arg$)">
-        <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.io.File" within="" contains="" />
+      <replaceConfiguration name="FileReader always uses default character set" text="new FileReader($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="Files.createDirectory(Path) used without validating filename - use FileUtil.createDirectory(Path) instead" text="Files.createDirectory($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createDirectory($arg$)">
+      <replaceConfiguration name="Files.createDirectories(Path) used without validating filename - use FileUtil.createDirectories(Path) instead" text="Files.createDirectories($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createDirectories($arg$)">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.nio.file.Path" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="Files.createDirectories(Path) used without validating filename - use FileUtil.createDirectories(Path) instead" text="Files.createDirectories($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createDirectories($arg$)">
+      <replaceConfiguration name="Files.createDirectory(Path) used without validating filename - use FileUtil.createDirectory(Path) instead" text="Files.createDirectory($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createDirectory($arg$)">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.nio.file.Path" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="Files.createFile(Path) used without validating filename - use FileUtil.createFile(Path) instead" text="Files.createFile($arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="FileUtil.createFile($arg$)">
         <constraint name="arg" script="&quot;&quot;" nameOfExprType="java.nio.file.Path" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
-      <searchConfiguration name="PrintWriter used without specifying encoding" text="new PrintWriter($Parameter$, $Parameter2$)" recursive="false" caseInsensitive="false" type="JAVA">
-        <constraint name="Parameter" script="&quot;&quot;" nameOfExprType="java.io.File|java.io.OutputStream|java.lang.String" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
-        <constraint name="Parameter2" script="&quot;&quot;" nameOfExprType="boolean" minCount="0" within="" contains="" />
-      </searchConfiguration>
-      <replaceConfiguration name="String.getBytes() used without specifying character encoding" text="$String$.getBytes()" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="$String$.getBytes(StringUtilsLabKey.DEFAULT_CHARSET)">
-        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
+      <replaceConfiguration name="FileWriter always uses default character set" text="new FileWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
-      </replaceConfiguration>
-      <replaceConfiguration name="BufferedReader(InputStreamReader) used without specifying character encoding" text="new BufferedReader(new InputStreamReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
-        <constraint name="Arg" within="" contains="" />
       </replaceConfiguration>
       <searchConfiguration name="HtmlView(String)" description="Deprecated" problemDescriptor="Use HtmlView(HtmlString)" text="new HtmlView($Argument$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
         <constraint name="__context__" within="" contains="" />
@@ -82,6 +95,10 @@
         <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
         <constraint name="__context__" target="true" within="" contains="" />
       </replaceConfiguration>
+      <replaceConfiguration name="IOUtils.toString() always uses default character set" text="IOUtils.toString($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PageFlowUtil.getStreamContentsAsString($Arg$)">
+        <constraint name="Arg" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
+      </replaceConfiguration>
       <replaceConfiguration name="Log4J logger - notes for Loggers page" problemDescriptor="Use LogHelper to provide a description to help admins choose their logging level" text="org.apache.logging.log4j.LogManager.getLogger($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="org.labkey.api.util.logging.LogHelper.getLogger($Arg$, &quot;Fill in description&quot;)">
         <constraint name="Arg" within="" contains="" />
         <constraint name="__context__" within="" contains="" />
@@ -90,54 +107,45 @@
         <constraint name="Arg" within="" contains="" />
         <constraint name="__context__" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="OutputStreamWriter used without specifying character encoding" text="new OutputStreamWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
-        <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.OutputStream" exprTypeWithinHierarchy="true" within="" contains="" />
-      </replaceConfiguration>
       <searchConfiguration name="new File(File,String)" problemDescriptor="Use FileUtil.appendPath() or FileUtil.appendName()" text="new File($argument1$, $argument2$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
         <constraint name="__context__" within="" contains="" />
         <constraint name="argument1" nameOfExprType="java\.io\.File" within="" contains="" />
         <constraint name="argument2" nameOfExprType="String" within="" contains="" />
       </searchConfiguration>
-      <replaceConfiguration name="BufferedReader(FileReader) always uses default character set" text="new BufferedReader(new FileReader($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
-        <constraint name="Arg" within="" contains="" />
+      <replaceConfiguration name="OutputStreamWriter used without specifying character encoding" text="new OutputStreamWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
+        <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.OutputStream" exprTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
-      <replaceConfiguration name="FileReader always uses default character set" text="new FileReader($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="Readers.getReader($Arg$)">
-        <constraint name="Arg" script="&quot;&quot;" within="" contains="" />
-        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
-      </replaceConfiguration>
-      <replaceConfiguration name="BufferedWriter(FileWriter) always uses default character set" text="new BufferedWriter(new FileWriter($Arg$))" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
-        <constraint name="Arg" within="" contains="" />
-      </replaceConfiguration>
-      <replaceConfiguration name="FileWriter always uses default character set" text="new FileWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
-        <constraint name="Arg" script="&quot;&quot;" within="" contains="" />
-        <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
-      </replaceConfiguration>
-      <replaceConfiguration name="IOUtils.toString() always uses default character set" text="IOUtils.toString($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PageFlowUtil.getStreamContentsAsString($Arg$)">
-        <constraint name="Arg" nameOfExprType="java.io.InputStream" exprTypeWithinHierarchy="true" within="" contains="" />
+      <searchConfiguration name="printStackTrace" text=".printStackTrace" recursive="true" caseInsensitive="true" type="JAVA" />
+      <searchConfiguration name="PrintWriter used without specifying encoding" text="new PrintWriter($Parameter$, $Parameter2$)" recursive="false" caseInsensitive="false" type="JAVA">
+        <constraint name="Parameter" script="&quot;&quot;" nameOfExprType="java.io.File|java.io.OutputStream|java.lang.String" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="Parameter2" script="&quot;&quot;" nameOfExprType="boolean" minCount="0" within="" contains="" />
+      </searchConfiguration>
+      <replaceConfiguration name="String.getBytes() used without specifying character encoding" text="$String$.getBytes()" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="$String$.getBytes(StringUtilsLabKey.DEFAULT_CHARSET)">
+        <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
         <constraint name="__context__" script="&quot;&quot;" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="String constructor passed bytes without specifying character encoding" text="new String($arg1$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" useStaticImport="true" replacement="new String($arg1$, StringUtilsLabKey.DEFAULT_CHARSET)">
-        <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" expressionTypes="byte[]" within="" contains="" />
-      </replaceConfiguration>
-      <replaceConfiguration name="Errors.reject(errorCode)" uuid="754a8524-698d-3596-a571-f9779f728f3a" description="Spring wants an error code, not just the error messsage." problemDescriptor="Don't use a message in place of the errorCode" text="$Errors$.reject($x$)" recursive="false" caseInsensitive="false" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="$Errors$.reject(org.labkey.api.action.SpringActionController.ERROR_MSG, $x$)">
-        <constraint name="__context__" within="" contains="" />
-        <constraint name="Errors" regexp="Errors" withinHierarchy="true" within="" contains="" />
-        <constraint name="x" within="" contains="" />
+        <constraint name="arg1" script="&quot;&quot;" nameOfExprType="byte\[\]" within="" contains="" />
       </replaceConfiguration>
       <searchConfiguration name="System.out" text="System.$out$" recursive="true" caseInsensitive="true" type="JAVA">
         <constraint name="out" regexp="(out|err)" within="" contains="" />
       </searchConfiguration>
-      <searchConfiguration name="printStackTrace" text=".printStackTrace" recursive="true" caseInsensitive="true" type="JAVA" />
+      <searchConfiguration name="XMLInputFactory.newInstance()" description="XML parsers should always be configured to protect against XXE" suppressId="XMLInputFactory" text="javax.xml.stream.XMLInputFactory.newInstance()" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="XMLInputFactory.newInstance()" text="javax.xml.parsers.SAXParserFactory.newInstance()" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="XMLInputFactory.newInstance()" text="javax.xml.parsers.DocumentBuilderFactory.newInstance()" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+      </searchConfiguration>
     </inspection_tool>
     <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="TestMethodIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryBoxing" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UnnecessaryUnboxing" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="UnnecessaryUnicodeEscape" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UseOfObsoleteAssert" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="WeakerAccess" enabled="false" level="WARNING" enabled_by_default="false">
-      <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="true" />
-      <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="true" />
-      <option name="SUGGEST_PRIVATE_FOR_INNERS" value="false" />
-    </inspection_tool>
+    <inspection_tool class="bafc1209-cee0-3ccd-aa9c-d6108ae4321d" enabled="true" level="WARNING" enabled_by_default="true" />
   </profile>
 </component>

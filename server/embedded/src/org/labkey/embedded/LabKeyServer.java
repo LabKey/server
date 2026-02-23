@@ -80,15 +80,15 @@ public class LabKeyServer
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
             """;
-        // Add upgrade_insecure_requests substitution, frame-ancestors, and e13 version for enforce CSP
+        // Add upgrade_insecure_requests substitution, frame-ancestors, and enforce version
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ;
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e13&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=e14 ;
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r13&${CSP.REPORT.PARAMS} ;
+                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api?cspVersion=r14 ;
             """;
 
         application.setDefaultProperties(new HashMap<>()

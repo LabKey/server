@@ -144,8 +144,6 @@
     <inspection_tool class="TestMethodIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryBoxing" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UnnecessaryUnboxing" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="UnnecessaryUnicodeEscape" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UseOfObsoleteAssert" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="bafc1209-cee0-3ccd-aa9c-d6108ae4321d" enabled="true" level="WARNING" enabled_by_default="true" />
   </profile>
 </component>

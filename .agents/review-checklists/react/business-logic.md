@@ -35,8 +35,6 @@ Use a stable, unique identifier from the data itself:
 - **Before:** `items.map((item, index) => <Row key={index} ... />)`
 - **After:** `items.map(item => <Row key={item.id} ... />)`
 
-If no natural unique key exists, consider whether the data model should include one. As a last resort, generate stable IDs when the data is first loaded.
-
 ---
 
 ## Falsy value rendered by `&&` short-circuit
@@ -78,9 +76,6 @@ Convert the condition to a boolean explicitly:
 ```tsx
 // ✅ Renders nothing when count is 0
 {count > 0 && <Badge count={count} />}
-
-// ✅ Or use a ternary
-{count ? <Badge count={count} /> : null}
 
 // ✅ Double negation for truthy check
 {!!name && <Greeting name={name} />}

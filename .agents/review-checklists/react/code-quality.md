@@ -17,8 +17,6 @@ Flag only when the component has multiple props or the inline type is large enou
 ### Exceptions / False Positives
 
 - Do not flag tiny local components with a single simple prop where an inline type is shorter and clearer.
-- Do not require this pattern if the surrounding file consistently uses a different accepted convention and the PR is not refactoring style.
-- If the project avoids `FC` entirely and types props on the function parameter instead, apply the spirit of the rule (named props type) rather than the exact syntax.
 
 ### Description
 
@@ -266,7 +264,6 @@ Flag only when the file/area already uses a class-name utility convention (for e
 
 ### Exceptions / False Positives
 
-- Do not require `classnames` specifically if the project uses another equivalent utility such as `clsx` or `cn`.
 - Do not flag simple static class strings or library APIs that require a computed string expression without a utility helper.
 - If introducing a utility import for a single trivial ternary would add more noise than value in a local file, prefer a suggestion.
 

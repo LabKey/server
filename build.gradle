@@ -314,6 +314,9 @@ allprojects {
                     force "net.java.dev.jna:jna:${jnaVersion}"
                     force "net.java.dev.jna:jna-platform:${jnaVersion}"
 
+                    // Reactor - transitive dependency via azure-core; force for version consistency across modules
+                    force "io.projectreactor:reactor-core:${reactorCoreVersion}"
+
                     // Netty - transitive dependency via azure-core-http-netty; force for CVE-2025-67735
                     force "io.netty:netty-buffer:${nettyVersion}"
                     force "io.netty:netty-codec:${nettyVersion}"

@@ -103,7 +103,7 @@ interface ModalProps {
 2. For each optional prop, verify whether any call site omits it
 3. If all call sites provide the prop, flag it for conversion to required
 
-**Scope note:** For widely-used shared components (5+ call sites), this check can be deferred to a separate audit. Focus on components with 1–3 usages where the call sites are visible in the current PR.
+**Scope note:** For widely-used shared components (5+ call sites), this check can be deferred to a separate audit. Focus on components with 1–4 usages where the call sites are visible in the current PR.
 
 ## No unused imports, variables, props, or exports
 

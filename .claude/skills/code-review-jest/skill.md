@@ -1,12 +1,12 @@
 ---
 name: code-review-jest
-description: "Trigger when the user requests a review of Jest test files (e.g., `.test.tsx`, `.spec.tsx`). Supports --full flag for complete file/directory review; defaults to staged changes when a path is provided."
+description: "Trigger when the user requests a review of Jest test files (e.g., `.test.tsx`, `.test.ts`). Supports --full flag for complete file/directory review; defaults to staged changes when a path is provided."
 ---
 
 # Jest Test Code Review
 
 ## Intent
-Use this skill whenever the user asks to review Jest test code (especially `.test.tsx`, `.spec.tsx`, `.test.ts`, or `.spec.ts` files). Support three review modes:
+Use this skill whenever the user asks to review Jest test code (especially `.test.tsx` or `.test.ts` files). Support three review modes:
 
 1. **Pending-change review** – bare invocation with no arguments; inspects staged/working-tree
    files slated for commit across all repos.
@@ -36,7 +36,7 @@ Parse the invocation arguments to extract:
   running `find server/modules -maxdepth 2 -name ".git" -type d` from the workspace root,
   then for each discovered repo (and the top-level root) run `git diff --cached --name-only`
   and `git diff --name-only`. Aggregate all results, filtering to test file extensions
-  (`.test.tsx`, `.spec.tsx`, `.test.ts`, `.spec.ts`).
+  (`.test.tsx` or `.test.ts`).
 
 - **Path provided (no `--full` flag — default):** Determine the git root via
   `git -C <path> rev-parse --show-toplevel`.

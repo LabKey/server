@@ -17,7 +17,6 @@ Flag as a high-severity finding when the test would still pass after removing th
 ### Exceptions / False Positives
 
 - Allow explicit smoke tests when the purpose is only to verify the component/function does not throw on render or initialization.
-- Do not flag helper tests that intentionally validate test utilities/builders rather than product behavior, if the subject under test is the utility itself.
 - A simple existence assertion can be acceptable when the behavior under review is conditional presence/absence itself (for example, permission-gated rendering).
 
 ### Detection heuristic
@@ -53,6 +52,7 @@ expect(data[0].name).toBe('Alpha'); // This tests your test, not your code
 // ✅ GOOD — asserts on rendered output from that input
 const data = [{ name: 'Alpha', value: 10 }];
 render(<Table rows={data} />);
-expect(screen.getByText('Alpha')).toBeInTheDocument();
-expect(screen.getByText('10')).toBeInTheDocument();
+const row = screen.getByRole('row', { name: /alpha\s+10/i });
+expect(within(row).getByRole('cell', { name: 'Alpha' })).toBeInTheDocument();
+expect(within(row).getByRole('cell', { name: '10' })).toBeInTheDocument();
 ```

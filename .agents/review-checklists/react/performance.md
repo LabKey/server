@@ -60,7 +60,7 @@ Maintainability
 
 ### Confidence Threshold
 
-Flag when the computation is non-trivial (for example, sorting/filtering large collections or repeated transformations) and can run frequently with unchanged inputs. For small arrays or infrequent renders, make this a suggestion only.
+Flag when the computation is non-trivial (for example, sorting/filtering large collections or repeated transformations) and can run frequently with unchanged inputs. For small arrays or infrequent renders, make this a suggestion only. If array size is not known, prefer memoization.
 
 ### Exceptions / False Positives
 

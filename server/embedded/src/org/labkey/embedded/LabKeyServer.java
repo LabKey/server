@@ -184,6 +184,12 @@ public class LabKeyServer
     }
 
     @Bean
+    public GraphMailProperties graphSource()
+    {
+        return new GraphMailProperties();
+    }
+
+    @Bean
     public CSPFilterProperties cspSource()
     {
         return new CSPFilterProperties();
@@ -872,6 +878,56 @@ public class LabKeyServer
         public void setSmtpAuth(String smtpAuth)
         {
             this.smtpAuth = smtpAuth;
+        }
+    }
+
+    @Configuration
+    @ConfigurationProperties("mail.graph")
+    public static class GraphMailProperties
+    {
+        private String tenantId;
+        private String clientId;
+        private String clientSecret;
+        private String fromAddress;
+
+        public String getTenantId()
+        {
+            return tenantId;
+        }
+
+        public void setTenantId(String tenantId)
+        {
+            this.tenantId = tenantId;
+        }
+
+        public String getClientId()
+        {
+            return clientId;
+        }
+
+        public void setClientId(String clientId)
+        {
+            this.clientId = clientId;
+        }
+
+        public String getClientSecret()
+        {
+            return clientSecret;
+        }
+
+        public void setClientSecret(String clientSecret)
+        {
+            this.clientSecret = clientSecret;
+        }
+
+        public String getFromAddress()
+        {
+            return fromAddress;
+        }
+
+        public void setFromAddress(String fromAddress)
+        {
+            this.fromAddress = fromAddress;
         }
     }
 

@@ -155,8 +155,9 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 // Add extra resources to context (e.g. LDAP, JMS)
                 addExtraContextResources(contextProperties, context);
 
-                // Add the SMTP config
+                // Add the mail transport config (SMTP or Microsoft Graph)
                 addSmtpProperties(context);
+                addGraphProperties(context);
 
                 // Add the encryption key(s)
                 context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -409,10 +410,18 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         // Get session/mail properties
         LabKeyServer.MailProperties mailProps = _server.smtpSource();
 
-        context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
-        context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
-        context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
-
+        if (mailProps.getSmtpHost() != null)
+        {
+            context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
+        }
+        if (mailProps.getSmtpUser() != null)
+        {
+            context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
+        }
+        if (mailProps.getSmtpPort() != null)
+        {
+            context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
+        }
         if (mailProps.getSmtpFrom() != null)
         {
             context.addParameter("mail.smtp.from", mailProps.getSmtpFrom());
@@ -432,6 +441,29 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         if (mailProps.getSmtpAuth() != null)
         {
             context.addParameter("mail.smtp.auth", mailProps.getSmtpAuth());
+        }
+    }
+
+    private void addGraphProperties(StandardContext context)
+    {
+        // Get Microsoft Graph mail properties
+        LabKeyServer.GraphMailProperties graphProps = _server.graphSource();
+
+        if (graphProps.getTenantId() != null)
+        {
+            context.addParameter("mail.graph.tenantId", graphProps.getTenantId());
+        }
+        if (graphProps.getClientId() != null)
+        {
+            context.addParameter("mail.graph.clientId", graphProps.getClientId());
+        }
+        if (graphProps.getClientSecret() != null)
+        {
+            context.addParameter("mail.graph.clientSecret", graphProps.getClientSecret());
+        }
+        if (graphProps.getFromAddress() != null)
+        {
+            context.addParameter("mail.graph.fromAddress", graphProps.getFromAddress());
         }
     }
 }

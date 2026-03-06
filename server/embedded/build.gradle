@@ -41,9 +41,25 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
 
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
-        exclude group: "org.springframework.boot", module: "spring-boot-starter-json" // Not used (?) and pulls in an old version of Jackson
         exclude group: "jakarta.annotation", module: "jakarta.annotation-api" // Already present in tomcat-annotations-api
         exclude group: "org.apache.tomcat.embed", module: "tomcat-embed-core" // We want to force apacheTomcatVersion
+    }
+
+    // Allows forcing a Jackson version that differs from spring-boot's version (e.g., to address CVEs)
+    implementation('tools.jackson.core:jackson-databind') {
+        version {
+            strictly "${jackson3Version}"
+        }
+    }
+    implementation('tools.jackson.core:jackson-core') {
+        version {
+            strictly "${jackson3Version}"
+        }
+    }
+    implementation('tools.jackson:jackson-bom') {
+        version {
+            strictly "${jackson3Version}"
+        }
     }
 
     // Allows forcing a Spring Framework version that differs from spring-boot's version (e.g., to address CVEs)

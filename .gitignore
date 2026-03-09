@@ -20,6 +20,8 @@ remoteapi/
 server/modules/ 
 server/testAutomation/
 tools/
+clientAPIs/*
+!clientAPIs/README.md
 
 # Include the remoteapi README -- this line will override previous exclusion
 !remoteapi/README.md

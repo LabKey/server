@@ -2,6 +2,11 @@
 
 Evaluates variants of the `review-pr` prompt against a training set of GitHub PRs that contain known bugs, measuring how often the prompt catches them.
 
+Each run invokes Claude on every PR in the training set. With the current training set, expect **10+ minutes** per evaluation. A `--compare` with two names runs both sequentially, so plan for double that.
+
+**Security warning:** The eval script runs Claude with `--dangerously-skip-permissions` so it can read files from the checked-out repo. PR diffs are injected verbatim into Claude's prompt, so a PR containing adversarial instructions in its diff (e.g. in code comments or string literals) could act as a prompt injection attack and cause Claude to execute arbitrary commands without confirmation. Only add PRs from trusted sources — ideally already-merged, internal PRs where the diff content is known.
+
+
 ## Prerequisites
 
 - Python 3.10+
@@ -20,8 +25,6 @@ python eval.py prompts/my-variant.md
 # Compare the live prompt against a variant side by side
 python eval.py --compare current my-variant
 ```
-
-**Warning:** Each run invokes Claude on every PR in the training set. With the current 3-PR training set, expect **10+ minutes** per evaluation. A `--compare` with two names runs both sequentially, so plan for 20+ minutes.
 
 ## Training set
 

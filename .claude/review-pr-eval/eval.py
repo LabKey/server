@@ -23,7 +23,7 @@ SCRIPT_DIR = Path(__file__).parent
 TRAINING_SET_FILE = SCRIPT_DIR / "training_set.json"
 PROMPTS_DIR = SCRIPT_DIR / "prompts"
 RESULTS_DIR = SCRIPT_DIR.parent.parent / "build" / "review-pr-output"
-REPOS_DIR = Path.home() / "pr-eval-repos"
+REPOS_DIR = SCRIPT_DIR.parent.parent / "build" / "pr-eval-repos"
 LIVE_PROMPT = SCRIPT_DIR.parent / "commands" / "review-pr.md"
 
 JUDGE_MODEL = "claude-haiku-4-5"
@@ -65,18 +65,13 @@ def get_pr_data(url: str) -> tuple[dict, str]:
     return pr_view, pr_diff
 
 
-def repo_key(url: str) -> str:
-    """Return 'owner/repo' from a GitHub PR URL."""
-    parts = url.rstrip("/").split("/")
-    return f"{parts[-4]}/{parts[-3]}"
-
 
 @contextmanager
 def get_merge_commit(pr_view: dict, url: str):
     """Context manager that checks out the PR's merge commit in ~/pr-eval-repos/<repo>."""
     parts = url.rstrip("/").split("/")
     org, repo_name = parts[-4], parts[-3]
-    repo_path = REPOS_DIR / repo_name
+    repo_path = REPOS_DIR / org / repo_name
     merge_commit = (pr_view.get("mergeCommit") or {}).get("oid")
 
     if not merge_commit:
@@ -119,8 +114,10 @@ def get_merge_commit(pr_view: dict, url: str):
         pass  # Leave detached HEAD; next run will checkout the right commit
 
 
-def run_claude(prompt: str, extra_args: list[str] = None, stream: bool = False, cwd: str = None) -> str:
-    cmd = ["claude", "-p", "--dangerously-skip-permissions"]  # Run in headless mode. Trust Claude won't try anything dangerous
+def run_claude(prompt: str, extra_args: list[str] = None, stream: bool = False, cwd: str = None, skip_permissions: bool = False) -> str:
+    cmd = ["claude", "-p"]
+    if skip_permissions:
+        cmd.append("--dangerously-skip-permissions")
     if extra_args:
         cmd.extend(extra_args)
 
@@ -139,7 +136,11 @@ def run_claude(prompt: str, extra_args: list[str] = None, stream: bool = False, 
         for line in process.stdout:
             print(line, end="", flush=True)
             lines.append(line)
-        process.wait(timeout=1200)
+        try:
+            process.wait(timeout=1200)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            raise RuntimeError("claude -p timed out after 20 minutes")
         if process.returncode != 0:
             raise RuntimeError(process.stderr.read().strip() or f"claude -p exited with code {process.returncode}")
         return "".join(lines).strip()
@@ -177,7 +178,7 @@ Note: The PR data has already been fetched. Use the following instead of running
 {pr_diff}"""
 
     print()
-    return run_claude(full_prompt, stream=True, cwd=cwd)
+    return run_claude(full_prompt, stream=True, cwd=cwd, skip_permissions=True)
 
 
 def judge_review(review_output: str, expected_issue: str) -> tuple[str, str]:
@@ -268,7 +269,7 @@ def print_summary(evaluation: dict):
 
 
 def main():
-    RESULTS_DIR.mkdir(exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     if not TRAINING_SET_FILE.exists():
         print(f"Error: training set not found at {TRAINING_SET_FILE}")
@@ -286,9 +287,14 @@ def main():
             print("Usage: eval.py --compare <name1> <name2> ...")
             sys.exit(1)
 
+        prompt_files = {name: LIVE_PROMPT if name == "current" else PROMPTS_DIR / f"{name}.md" for name in names}
+        for name, prompt_file in prompt_files.items():
+            if not prompt_file.exists():
+                print(f"Error: prompt file not found at {prompt_file}")
+                sys.exit(1)
+
         all_results = []
-        for name in names:
-            prompt_file = LIVE_PROMPT if name == "current" else PROMPTS_DIR / f"{name}.md"
+        for name, prompt_file in prompt_files.items():
             print(f"\nEvaluating {name}...")
             result = evaluate_prompt(prompt_file, training_set)
             all_results.append(result)

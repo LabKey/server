@@ -22,9 +22,20 @@ python eval.py
 # Evaluate a specific variant
 python eval.py prompts/my-variant.md
 
+# Evaluate using a specific model
+python eval.py --model claude-opus-4-6
+
 # Compare the live prompt against a variant side by side
 python eval.py --compare current my-variant
+
+# Compare the same prompt across two models
+python eval.py --compare current@claude-opus-4-6 current@claude-sonnet-4-6
+
+# Compare a variant on a specific model against the live prompt
+python eval.py --compare current my-variant@claude-opus-4-6
 ```
+
+The `name@model` syntax in `--compare` specifies which Claude model to use for the review step. Cache keys include the model, so results for different models are stored separately.
 
 ## Training set
 
@@ -49,6 +60,7 @@ The live prompt is always `../commands/review-pr.md`. Named variants live in `pr
 cp ../commands/review-pr.md prompts/my-variant.md
 # edit prompts/my-variant.md
 python eval.py --compare current my-variant
+python eval.py --compare current my-variant@claude-opus-4-6
 ```
 
 ## Repo cache

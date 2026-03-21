@@ -89,7 +89,7 @@ All external library versions are centralized in `gradle.properties` (200+ versi
 - **Java Streams**: Prefer `Stream` API over traditional for-loops for collection processing.
 - **Resources**: Use try-with-resources for automatic resource management.
 - **Nullability**: Use `org.jetbrains.annotations.NotNull` and `org.jetbrains.annotations.Nullable` annotations. Be explicit in public API signatures.
-- **Logging**: Use Log4J2. Name the static logger `LOG`, initialized via `LogHelper.getLogger()`:
+- **Logging**: Use Log4J2. Never use System.out or System.err. Name the static logger `LOG`, initialized via `LogHelper.getLogger()`:
   ```java
   private static final Logger LOG = LogHelper.getLogger(MyClass.class, "optional description");
   ```

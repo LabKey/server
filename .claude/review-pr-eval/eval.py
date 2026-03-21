@@ -394,9 +394,12 @@ def main():
 
         entries = []
         for name in names:
-            prompt_name, _, model = name.partition("@")
+            prompt_name, has_at, inline_model = name.partition("@")
+            if has_at and single_model:
+                print(f"Warning: --model {single_model!r} and @model syntax both specified for {name!r}; @model takes precedence")
+            effective_model = (inline_model if has_at else None) or single_model
             prompt_file = LIVE_PROMPT if prompt_name == "current" else PROMPTS_DIR / f"{prompt_name}.md"
-            entries.append((name, prompt_file, model or None))
+            entries.append((name, prompt_file, effective_model))
 
         for name, prompt_file, _ in entries:
             if not prompt_file.exists():

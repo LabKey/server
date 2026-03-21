@@ -15,6 +15,7 @@ Requires:
 import json
 import subprocess
 import sys
+import threading
 from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
@@ -68,7 +69,7 @@ def get_pr_data(url: str) -> tuple[dict, str]:
 
 @contextmanager
 def get_merge_commit(pr_view: dict, url: str):
-    """Context manager that checks out the PR's merge commit in ~/pr-eval-repos/<repo>."""
+    """Context manager that checks out the PR's merge commit in <repo-root>/build/pr-eval-repos/<org>/<repo>."""
     parts = url.rstrip("/").split("/")
     org, repo_name = parts[-4], parts[-3]
     repo_path = REPOS_DIR / org / repo_name
@@ -132,17 +133,21 @@ def run_claude(prompt: str, extra_args: list[str] = None, stream: bool = False, 
         )
         process.stdin.write(prompt)
         process.stdin.close()
+        stderr_lines = []
+        stderr_thread = threading.Thread(target=lambda: stderr_lines.extend(process.stderr), daemon=True)
+        stderr_thread.start()
         lines = []
         for line in process.stdout:
             print(line, end="", flush=True)
             lines.append(line)
+        stderr_thread.join()
         try:
             process.wait(timeout=1200)
         except subprocess.TimeoutExpired:
             process.kill()
             raise RuntimeError("claude -p timed out after 20 minutes")
         if process.returncode != 0:
-            raise RuntimeError(process.stderr.read().strip() or f"claude -p exited with code {process.returncode}")
+            raise RuntimeError("".join(stderr_lines).strip() or f"claude -p exited with code {process.returncode}")
         return "".join(lines).strip()
     else:
         result = subprocess.run(

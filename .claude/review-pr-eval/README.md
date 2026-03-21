@@ -53,7 +53,7 @@ python eval.py --compare current my-variant
 
 ## Repo cache
 
-When evaluating, the script checks out each PR's merge commit so Claude has access to the full repository context. Clones are stored at `~/pr-eval-repos/<repo-name>` and reused across runs. Fetches are only performed if the required commit is not already present locally. These clones use `--filter=blob:none` (blobless) so they are relatively lightweight.
+When evaluating, the script checks out each PR's merge commit so Claude has access to the full repository context. Clones are stored at `build/pr-eval-repos/<org>/<repo-name>` (relative to the server repo root) and reused across runs. Fetches are only performed if the required commit is not already present locally. These clones use `--filter=blob:none` (blobless) so they are relatively lightweight. Note that running `./gradlew clean` will delete the cached clones.
 
 ## Results
 

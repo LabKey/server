@@ -378,6 +378,11 @@ allprojects {
                     // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
 
+                    // Force spring-ai components to bring in spring-* versions that match the rest of spring
+                    force "org.springframework:spring-context-support:${springVersion}"
+                    force "org.springframework:spring-messaging:${springVersion}"
+                    force "org.springframework:spring-webflux:${springVersion}"
+
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 

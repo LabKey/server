@@ -1,8 +1,25 @@
 [
   {
+    "url": "https://github.com/LabKey/limsModules/pull/1792",
+    "expected_issues": [
+      "The SQLServer version of sampleManagement-25.001-25.002.sql has the wrong WHERE clause and should use role='org.labkey.samplemanagement.security.roles.WorkflowEditorRole'",
+      "WorkflowController.SetDefaultEmailPrefAction unconditionally sets the success status for the response to false",
+      "WorkflowManager.addWorkflowJobAuditEvent() fetches originalJobMetadata but fails to pass it to encodeForDataMap() "
+    ]
+  }, {
+    "url": "https://github.com/LabKey/labkey-ui-components/pull/1144",
+    "expected_issues": [
+      "The change to BulkUpdateForm.tsx displayFieldUpdates.merge(data) unconditionally includes pre-populated display values for StoredAmount/Units in every non-empty form submission"
+    ]
+  }, {
     "url": "https://github.com/LabKey/platform/pull/5703",
     "expected_issues": [
       "TsvDataSerializer.exportData() fails to write the first row of data for all files except the first due to a misplaced writeRow() call"
+    ]
+  }, {
+    "url": "https://github.com/LabKey/platform/pull/3949",
+    "expected_issues": [
+      "SampleTypeUpdateServiceDI.getMaterialMapsWithInput() uses `filter` instead of `cfilter` in the call to TableSelector"
     ]
   }
 ]

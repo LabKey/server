@@ -208,7 +208,7 @@ def judge_review(review_output: str, expected_issue: str) -> tuple[str, str]:
 
 
 def _cache_key(prompt_template: str, url: str, model: str = "") -> str:
-    return hashlib.sha256((prompt_template + "\n" + url + "\n" + model).encode()).hexdigest()[:32]
+    return hashlib.sha256((prompt_template + "\n" + url + "\n" + model + "\n" + JUDGE_PROMPT + "\n" + JUDGE_MODEL).encode()).hexdigest()[:32]
 
 
 def load_cached_pr_result(prompt_template: str, url: str, model: str = "") -> dict | None:

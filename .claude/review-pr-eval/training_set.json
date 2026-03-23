@@ -15,7 +15,8 @@
     "url": "https://github.com/LabKey/platform/pull/5703",
     "expected_issues": [
       "TsvDataSerializer.exportData() fails to write the first row of data for all files except the first due to a misplaced writeRow() call"
-    ]
+    ],
+    "comment": "This seems to be on the cusp for detectability. It's getting caught about 2/3 of the time."
   }, {
     "url": "https://github.com/LabKey/platform/pull/3949",
     "expected_issues": [

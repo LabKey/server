@@ -383,6 +383,9 @@ allprojects {
                     force "org.springframework:spring-messaging:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
 
+                    // Force spring-ai components to bring in the AssertJ version we want
+                    force "org.assertj:assertj-core:${assertjVersion}"
+
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 

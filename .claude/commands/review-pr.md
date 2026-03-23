@@ -55,5 +55,3 @@ For each issue found, report:
 > **Suggestion**: How to fix it.
 
 Lead with Critical and High severity issues. After all issues, give a one-paragraph overall assessment.
-
-ultrathink

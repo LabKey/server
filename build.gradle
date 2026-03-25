@@ -383,8 +383,15 @@ allprojects {
                     force "org.springframework:spring-messaging:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
 
-                    // Force spring-ai components to bring in the AssertJ version we want
+                    // Force spring-ai components to bring in the latest AssertJ version to avoid CVEs. Note that
+                    // spring-ai 2.0.0-M3 probably pulled this in by mistake. https://github.com/spring-projects/spring-ai/issues/5646
                     force "org.assertj:assertj-core:${assertjVersion}"
+
+                    // spring-ai 2.0.0-M3 was compiled against jsonschema-generator 4.38.0 (Jackson 2.x) but
+                    // its pom mistakenly declares 5.0.0 (Jackson 3.x/tools.jackson), causing NoSuchMethodError
+                    force "com.github.victools:jsonschema-generator:${jsonschemaGeneratorVersion}"
+                    force "com.github.victools:jsonschema-module-jackson:${jsonschemaGeneratorVersion}"
+                    force "com.github.victools:jsonschema-module-swagger-2:${jsonschemaGeneratorVersion}"
 
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"

@@ -59,6 +59,7 @@ allprojects {
         JavaCompile compile ->
             compile.options.incremental = true  // Gradle 3.4
             compile.options.encoding = 'UTF-8'
+            compile.options.compilerArgs << '-parameters'  // Preserve method parameter names for Spring AI reflection
     }
 }
 

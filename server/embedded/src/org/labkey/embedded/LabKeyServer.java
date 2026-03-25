@@ -130,9 +130,9 @@ public class LabKeyServer
 
                  // Enable HTTP compression for response content
                  put("server.compression.enabled", "true");
-                 // Spring Boot compresses HTML, JSON and other types by default, but not TSV. We have to duplicate the
-                 // defaults and add text/tab-separated-values
-                 put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,text/tab-separated-values");
+                 // Spring Boot compresses HTML, JSON and other types by default, but not TSV, CSV, or SVG. We have to
+                 // duplicate the defaults and add those types
+                 put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,text/tab-separated-values,text/csv,image/svg+xml");
 
                  put("server.tomcat.accesslog.enabled", "true");
                  put("server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");

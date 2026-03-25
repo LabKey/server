@@ -6,11 +6,64 @@ Simulates hook input without executing any commands.
 """
 
 import json
+import shutil
 import subprocess
 import sys
 import os
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+SETTINGS_PATH = os.path.join(REPO_ROOT, ".claude", "settings.json")
+
+
+def resolve_shell():
+    """Pick an available POSIX shell for executing configured hook commands.
+
+    On Windows, prefer Git Bash over WSL bash to avoid WSL startup errors.
+    """
+    if sys.platform == "win32":
+        # Git Bash locations
+        git_bash_candidates = [
+            os.path.join(os.environ.get("ProgramFiles", r"C:\Program Files"), "Git", "bin", "bash.exe"),
+            os.path.join(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"), "Git", "bin", "bash.exe"),
+            os.path.join(os.environ.get("LOCALAPPDATA", ""), "Programs", "Git", "bin", "bash.exe"),
+        ]
+        for path in git_bash_candidates:
+            if os.path.isfile(path):
+                return path
+
+    candidates = [
+        os.environ.get("SHELL"),
+        shutil.which("bash"),
+        shutil.which("sh"),
+        "/bin/bash",
+        "/bin/sh",
+    ]
+
+    for candidate in candidates:
+        if candidate and os.path.exists(candidate):
+            return candidate
+
+    return None
+
+
+def load_hook_commands():
+    """Return the configured PreToolUse commands keyed by matcher."""
+    with open(SETTINGS_PATH, encoding="utf-8") as infile:
+        settings = json.load(infile)
+
+    commands = {}
+    for hook in settings.get("hooks", {}).get("PreToolUse", []):
+        matcher = hook.get("matcher")
+        command = None
+        for item in hook.get("hooks", []):
+            if item.get("type") == "command":
+                command = item.get("command")
+                break
+        if matcher and command:
+            commands[matcher] = command
+
+    return commands
 
 
 def run_hook_test(script_name, tool_input, description, should_block):
@@ -34,6 +87,45 @@ def run_hook_test(script_name, tool_input, description, should_block):
 
     detail = ""
     if was_blocked and result.stdout.strip():
+        try:
+            resp = json.loads(result.stdout.strip())
+            detail = f" -- {resp.get('reason', '')}"
+        except json.JSONDecodeError:
+            detail = f" -- {result.stdout.strip()}"
+
+    print(f"  [{status}] {description:45s}  expected={expected}  actual={actual}{detail}")
+    return passed
+
+
+def run_configured_hook_test(command, tool_input, description, should_block):
+    """Run the hook command as configured in settings.json."""
+    shell_path = resolve_shell()
+    if not shell_path:
+        print(f"  [FAIL] {description:45s}  expected={'BLOCK' if should_block else 'ALLOW'}  actual=ALLOW -- no shell found")
+        return False
+
+    hook_input = json.dumps({"tool_input": tool_input})
+    result = subprocess.run(
+        [shell_path, "-lc", command],
+        cwd=REPO_ROOT,
+        input=hook_input,
+        capture_output=True,
+        text=True,
+    )
+
+    was_blocked = result.returncode == 2
+    passed = was_blocked == should_block and result.returncode in (0, 2)
+
+    status = "PASS" if passed else "FAIL"
+    expected = "BLOCK" if should_block else "ALLOW"
+    actual = "BLOCK" if was_blocked else "ALLOW"
+
+    detail = ""
+    if result.returncode not in (0, 2):
+        detail = f" -- exit={result.returncode}"
+        if result.stderr.strip():
+            detail += f" stderr={result.stderr.strip()}"
+    elif was_blocked and result.stdout.strip():
         try:
             resp = json.loads(result.stdout.strip())
             detail = f" -- {resp.get('reason', '')}"
@@ -141,6 +233,43 @@ def main():
             desc,
             should_block,
         ))
+
+    hook_commands = load_hook_commands()
+
+    # =========================================================================
+    print()
+    print("--- settings.json configured hook commands ---")
+    print()
+
+    CONFIGURED_TESTS = [
+        (
+            "Bash matcher allows safe command",
+            hook_commands["Bash"],
+            {"command": "ls -la"},
+            False,
+        ),
+        (
+            "Bash matcher blocks dangerous command",
+            hook_commands["Bash"],
+            {"command": "cat .env"},
+            True,
+        ),
+        (
+            "File matcher allows safe read",
+            hook_commands["Read|Edit|Write|MultiEdit|Grep"],
+            {"file_path": "/project/README.md"},
+            False,
+        ),
+        (
+            "File matcher blocks secret read",
+            hook_commands["Read|Edit|Write|MultiEdit|Grep"],
+            {"file_path": "/project/.env"},
+            True,
+        ),
+    ]
+
+    for desc, command, tool_input, should_block in CONFIGURED_TESTS:
+        tally(run_configured_hook_test(command, tool_input, desc, should_block))
 
     # =========================================================================
     print()

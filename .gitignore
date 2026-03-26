@@ -52,3 +52,6 @@ clientAPIs/*
 .idea/misc.xml
 .idea/vcs.xml
 .idea/sqldialects.xml
+
+# Local Claude settings
+.claude/settings.local.json

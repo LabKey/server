@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && if command -v python3 >/dev/null 2>&1; then python3 .claude/hooks/check-dangerous-commands.py; else python .claude/hooks/check-dangerous-commands.py; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Edit|Write|MultiEdit|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && if command -v python3 >/dev/null 2>&1; then python3 .claude/hooks/check-secrets-file.py; else python .claude/hooks/check-secrets-file.py; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+

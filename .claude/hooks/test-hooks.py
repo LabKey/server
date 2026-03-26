@@ -256,13 +256,13 @@ def main():
         ),
         (
             "File matcher allows safe read",
-            hook_commands["Read|Edit|Write|MultiEdit|Grep"],
+            hook_commands["Read|Edit|Write|MultiEdit|Grep|Glob"],
             {"file_path": "/project/README.md"},
             False,
         ),
         (
             "File matcher blocks secret read",
-            hook_commands["Read|Edit|Write|MultiEdit|Grep"],
+            hook_commands["Read|Edit|Write|MultiEdit|Grep|Glob"],
             {"file_path": "/project/.env"},
             True,
         ),

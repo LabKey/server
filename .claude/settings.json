@@ -11,7 +11,7 @@
         ]
       },
       {
-        "matcher": "Read|Edit|Write|MultiEdit|Grep",
+        "matcher": "Read|Edit|Write|MultiEdit|Grep|Glob",
         "hooks": [
           {
             "type": "command",

@@ -20,6 +20,8 @@ Stick to the checklist below for every applicable file and mode. Apply only the 
 ## Checklist
 See [.agents/review-checklists/common.md](../../../.agents/review-checklists/common.md) for reviewer priority and standard review format, and [.agents/review-checklists/react/code-quality.md](../../../.agents/review-checklists/react/code-quality.md), [.agents/review-checklists/react/performance.md](../../../.agents/review-checklists/react/performance.md), [.agents/review-checklists/react/business-logic.md](../../../.agents/review-checklists/react/business-logic.md) for the living checklist split by category—treat it as the canonical set of rules to follow.
 
+Additionally, check for WCAG 2.2 Level AA accessibility violations using [wcag-22-checklist.md](../wcag-compliance/wcag-22-checklist.md). Use category **Accessibility** for these findings. Prioritize urgent WCAG criteria (missing alt text, keyboard traps, no focus indicators, missing form labels, broken ARIA) alongside Correctness-level issues.
+
 Use the rule's `Urgency` to place findings in the "urgent issues" vs "suggestions" sections.
 
 ## Review Process
@@ -66,7 +68,7 @@ unchanged code only if they directly interact with or are affected by the change
 1. Open the relevant component/module. Gather all lines.
 2. For each applicable checklist rule, evaluate the code against the rule text, confidence threshold, and exceptions/false positives before deciding to flag it.
 3. For each confirmed violation, capture evidence (exact snippet and/or file/line), record the rule's primary category, and note confidence briefly.
-4. Compose the review section per the template below. Group findings by **Urgency** section first (urgent issues, then suggestions). Within each section, order findings by the checklist primary category priority: **Correctness**, then **Maintainability**, then **Style**.
+4. Compose the review section per the template below. Group findings by **Urgency** section first (urgent issues, then suggestions). Within each section, order findings by the checklist primary category priority: **Correctness**, then **Accessibility**, then **Maintainability**, then **Style**.
 
 ## Required output
 When invoked, the response must exactly follow one of the two templates:
@@ -79,7 +81,7 @@ Found <N> urgent issues that need to be fixed:
 ## 1 <brief description of bug>
 FilePath: <path> line <line>
 Evidence: <relevant code snippet or pointer>
-Category: <Correctness | Maintainability | Style>
+Category: <Correctness | Accessibility | Maintainability | Style>
 Confidence: <high | medium | low> - <brief justification>
 Exceptions checked: <none apply | brief exception note>
 
@@ -95,7 +97,7 @@ Found <M> suggestions for improvement:
 ## 1 <brief description of suggestion>
 FilePath: <path> line <line>
 Evidence: <relevant code snippet or pointer>
-Category: <Correctness | Maintainability | Style>
+Category: <Correctness | Accessibility | Maintainability | Style>
 Confidence: <high | medium | low> - <brief justification>
 Exceptions checked: <none apply | brief exception note>
 

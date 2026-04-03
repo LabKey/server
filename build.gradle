@@ -315,9 +315,6 @@ allprojects {
                     force "net.java.dev.jna:jna:${jnaVersion}"
                     force "net.java.dev.jna:jna-platform:${jnaVersion}"
 
-                    // Spring AI 2.0 and Duo SDK bring in different versions
-                    force "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
-
                     // Reactor - transitive dependency via azure-core; force for version consistency across modules
                     force "io.projectreactor:reactor-core:${reactorCoreVersion}"
 

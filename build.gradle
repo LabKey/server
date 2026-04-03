@@ -321,7 +321,7 @@ allprojects {
                     // Reactor - transitive dependency via azure-core; force for version consistency across modules
                     force "io.projectreactor:reactor-core:${reactorCoreVersion}"
 
-                    // Netty - transitive dependency via azure-core-http-netty; force for CVE-2025-67735
+                    // Netty - transitive dependency via azure-core-http-netty; force for various CVEs
                     force "io.netty:netty-buffer:${nettyVersion}"
                     force "io.netty:netty-codec:${nettyVersion}"
                     force "io.netty:netty-codec-dns:${nettyVersion}"
@@ -383,6 +383,9 @@ allprojects {
                     force "org.springframework:spring-context-support:${springVersion}"
                     force "org.springframework:spring-messaging:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
+
+                    // spring-ai dependency. Force to mitigate a CVE.
+                    force "io.modelcontextprotocol.sdk:mcp:${modelContextProtocolVersion}"
 
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"

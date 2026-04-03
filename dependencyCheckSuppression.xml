@@ -255,4 +255,24 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-tools@.*$</packageUrl>
         <cve>CVE-2026-23907</cve>
     </suppress>
+
+    <!--
+    False-positives
+    https://github.com/dependency-check/DependencyCheck/issues/8391
+    https://github.com/dependency-check/DependencyCheck/issues/8392
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: mcp-spring-webmvc-2.0.0-M3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:server</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: mcp-spring-webmvc-2.0.0-M3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:vmware_server</cpe>
+    </suppress>
 </suppressions>

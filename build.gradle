@@ -59,6 +59,7 @@ allprojects {
         JavaCompile compile ->
             compile.options.incremental = true  // Gradle 3.4
             compile.options.encoding = 'UTF-8'
+            compile.options.compilerArgs << '-parameters'  // Preserve method parameter names for Spring AI reflection
     }
 }
 
@@ -375,6 +376,14 @@ allprojects {
                     // Force consistency for dependencies from pipeline and query
                     force "org.dom4j:dom4j:${dom4jVersion}"
 
+                    // Force spring-ai components to bring in spring-* versions that match the rest of spring
+                    force "org.springframework:spring-context-support:${springVersion}"
+                    force "org.springframework:spring-messaging:${springVersion}"
+                    force "org.springframework:spring-webflux:${springVersion}"
+
+                    // spring-ai dependency. Force to mitigate a CVE.
+                    force "io.modelcontextprotocol.sdk:mcp:${modelContextProtocolVersion}"
+
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 
@@ -389,6 +398,9 @@ allprojects {
 
                     // Force latest hadoop-hdfs-client for CVE-2021-37404, CVE-2022-25168, CVE-2022-26612, CVE-2021-25642, CVE-2021-33036, CVE-2023-26031
                     force "org.apache.hadoop:hadoop-hdfs-client:${hadoopHdfsClientVersion}"
+
+                    // Spring AI 2.0 brings in Jackson3. Force it to match embedded and mitigate CVEs.
+                    force "tools.jackson.core:jackson-core:${jackson3Version}"
 
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use

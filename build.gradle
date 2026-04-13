@@ -34,7 +34,8 @@ allprojects {
             if (project.hasProperty('ossIndexUsername') && project.hasProperty('ossIndexPassword'))
             {
                 analyzers.ossIndex.username = project.property('ossIndexUsername')
-                analyzers.ossIndex.password = project.property('ossIndexPassword');
+                analyzers.ossIndex.password = project.property('ossIndexPassword')
+                analyzers.ossIndex.url = "https://api.guide.sonatype.com"
             }
             else
             {

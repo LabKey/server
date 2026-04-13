@@ -7,6 +7,8 @@ Steps:
 2. Run `gh pr diff $ARGUMENTS` to get the full diff.
 3. For each file changed, if you need more context than the diff provides, read the relevant file(s).
 
+**IMPORTANT — Line Numbers**: Do NOT use line numbers from the diff output file (e.g., from a saved tool result). Those are offsets within the diff text, not actual source line numbers. To cite an accurate line number in a finding, read the actual source file and find the line there. If you cannot confirm a line number, omit it and reference the code by method or function name instead.
+
 Then perform a thorough review in this exact order:
 
 ---

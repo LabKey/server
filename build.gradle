@@ -34,7 +34,8 @@ allprojects {
             if (project.hasProperty('ossIndexUsername') && project.hasProperty('ossIndexPassword'))
             {
                 analyzers.ossIndex.username = project.property('ossIndexUsername')
-                analyzers.ossIndex.password = project.property('ossIndexPassword');
+                analyzers.ossIndex.password = project.property('ossIndexPassword')
+                analyzers.ossIndex.url = "https://api.guide.sonatype.com"
             }
             else
             {
@@ -563,16 +564,19 @@ project.tasks.register('ijConfigure') {
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
 }
 
-project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
-    group = GroupNames.NPM_RUN
-    description = "Given an alpha version prefix for npm packages via the property -P${PurgeNpmAlphaVersions.ALPHA_PREFIX_PROPERTY}=yourPrefix, " +
-            "removes all packages with versions that match that prefix from Artifactory (e.g., @labkey/components-1.2.3-yourPrefix.0 and @labkey/premium-0.3.4-yourPrefix.1). " +
-            " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
-}
+if (project.hasProperty('artifactory_contextUrl') && project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+{
+    project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
+        group = GroupNames.NPM_RUN
+        description = "Given an alpha version prefix for npm packages via the property -P${PurgeNpmAlphaVersions.ALPHA_PREFIX_PROPERTY}=yourPrefix, " +
+                "removes all packages with versions that match that prefix from Artifactory (e.g., @labkey/components-1.2.3-yourPrefix.0 and @labkey/premium-0.3.4-yourPrefix.1). " +
+                " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
+    }
 
-project.tasks.register('purgeNpmVersions', PurgeNpmVersions) {
-    group = GroupNames.NPM_RUN
-    description = "Given a package name via -P${PurgeNpmVersions.PACKAGE_NAME_PROP}=name (without the @labkey prefix) and a version list via -P${PurgeNpmVersions.VERSION_LIST_PROP}=fileName for npm package, " +
-            "removes the versions specified from Artifactory. " +
-            " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
+    project.tasks.register('purgeNpmVersions', PurgeNpmVersions) {
+        group = GroupNames.NPM_RUN
+        description = "Given a package name via -P${PurgeNpmVersions.PACKAGE_NAME_PROP}=name (without the @labkey prefix) and a version list via -P${PurgeNpmVersions.VERSION_LIST_PROP}=fileName for npm package, " +
+                "removes the versions specified from Artifactory. " +
+                " Use -PdryRun to see what versions would be deleted without actually doing the deletion."
+    }
 }

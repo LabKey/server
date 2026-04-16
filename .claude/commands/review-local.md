@@ -4,14 +4,14 @@ Steps:
 1. Find the repo root with `git rev-parse --show-toplevel` (call it REPO_ROOT). The repos to check are at these known locations — no probing needed:
    - REPO_ROOT itself
    - Every direct subdirectory of REPO_ROOT/server/modules/
-   - REPO_ROOT/server/testAutomation (if it exists)
+   - REPO_ROOT/server/testAutomation
    - Every direct subdirectory of REPO_ROOT/clientAPIs/
-2. For each repo, run the appropriate command:
+2. For each repo, run the appropriate command as a plain `git` command (no shell loops, conditionals, or compound commands — each Bash call must start with `git`):
    - With no arguments: `git -C <repo-path> diff HEAD -- . ':(exclude).idea' ':(exclude)server/configs'`
    - With $ARGUMENTS as a path filter: `git -C <repo-path> diff HEAD -- $ARGUMENTS ':(exclude).idea' ':(exclude)server/configs'`
 
-   Skip repos with no changes.
-3. If `git diff HEAD` fails for a repo (e.g., no commits exist yet), fall back to `git -C <repo-path> diff --cached -- . ':(exclude).idea' ':(exclude)server/configs'`.
+   Skip repos with no changes. Skip repos where the git command exits non-zero (no git repo at that path).
+3. If `git diff HEAD` fails for a repo because no commits exist yet, fall back to `git -C <repo-path> diff --cached -- . ':(exclude).idea' ':(exclude)server/configs'`.
 4. For each file changed, if you need more context than the diff provides, read the relevant file(s).
 
 Then read [review-phases.md](../review-phases.md) and perform a thorough review following the phases and output format defined there. In Phase 1, provide a list of the locally edited files that were analyzed, including their parent repo.

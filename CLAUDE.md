@@ -74,7 +74,14 @@ Dual database support (PostgreSQL and MS SQL Server). Configuration lives in `se
 
 Mix of JSPs, React (via `@labkey/components`, `@labkey/premium`), ExtJS, and vanilla JS. Modules with TypeScript have their own `package.json` and use Webpack builds (via `@labkey/build`). TypeScript code is linted and formatted with `@labkey/eslint-config`. Node.js and npm versions are pinned in `gradle.properties` and downloaded during build.
 
-The path to the local copy of the `@labkey/components` package is located in the `LABKEY_UI_COMPONENTS_HOME` environment variable. The path to the local copy of `@labkey/premium` is located in the `LABKEY_UI_PREMIUM_HOME` environment variable. The local copies of the packages may contain changes related to the current branches in any of the modules that have an NPM build. For example there may be changes to the `@labkey/components` package that affect the package in the `server/modules/platform/core` module.
+We keep local copies of the `@labkey` packages in the `clientAPIs/` directory. You can find the following packages in this directory:
+- `@labkey/api`: `clientAPIs/labkey-api-js/`
+- `@labkey/components`: `clientAPIs/labkey-ui-components/packages/components/`
+- `@labkey/build`: `clientAPIs/labkey-ui-components/packages/build/`
+- `@labkey/eslint-config`: `clientAPIs/labkey-ui-components/packages/eslint-config/`
+- `@labkey/premium`: `clientAPIs/labkey-ui-premium/`
+
+The local copies of the packages may contain changes related to the current branches in any of the modules that have an NPM build. For example there may be changes to the `@labkey/components` package that affect the package in the `server/modules/platform/core` module. These packages are not required to be present to build the project, so they may not be available. If they are not present, you can assume that there are no changes in those packages relevant to the current branch. If you suspect an issue is with one of the packages, but it is not present you may prompt the user to check out a local copy of the relevant package.
 
 ### Distributions
 

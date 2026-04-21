@@ -39,9 +39,9 @@ dependencies
 
 configurations
         {
-            binaries.extendsFrom(utilities)
+            binaries
         }
-configurations.binaries.setDescription("Utility and proteomics binaries")
+configurations.binaries.setDescription("Proteomics binaries")
 
 if (project.hasProperty('includeProteomicsBinaries'))
 {

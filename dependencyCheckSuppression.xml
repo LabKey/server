@@ -229,31 +229,59 @@
     -->
     <suppress>
         <notes><![CDATA[
-       file name: pdfbox-3.0.4.jar
-       ]]></notes>
+   file name: pdfbox-3.0.7.jar
+   ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox@.*$</packageUrl>
         <cve>CVE-2026-23907</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-       file name: pdfbox-debugger-3.0.4.jar
-       ]]></notes>
+   file name: pdfbox-debugger-3.0.7.jar
+   ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-debugger@.*$</packageUrl>
         <cve>CVE-2026-23907</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-       file name: pdfbox-io-3.0.4.jar
-       ]]></notes>
+   file name: pdfbox-io-3.0.7.jar
+   ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-io@.*$</packageUrl>
         <cve>CVE-2026-23907</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-       file name: pdfbox-tools-3.0.4.jar
-       ]]></notes>
+   file name: pdfbox-tools-3.0.7.jar
+   ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-tools@.*$</packageUrl>
         <cve>CVE-2026-23907</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: pdfbox-3.0.7.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox@.*$</packageUrl>
+        <cve>CVE-2026-33929</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: pdfbox-debugger-3.0.7.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-debugger@.*$</packageUrl>
+        <cve>CVE-2026-33929</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: pdfbox-io-3.0.7.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-io@.*$</packageUrl>
+        <cve>CVE-2026-33929</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: pdfbox-tools-3.0.7.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.pdfbox/pdfbox-tools@.*$</packageUrl>
+        <cve>CVE-2026-33929</cve>
     </suppress>
 
     <!--
@@ -275,4 +303,5 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
         <cpe>cpe:/a:vmware:vmware_server</cpe>
     </suppress>
+
 </suppressions>

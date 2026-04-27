@@ -257,7 +257,6 @@
         <Logger name="org.labkey.docker" level="info"/>
 
         <Logger name="org.labkey.rstudio" level="info"/>
-        <Logger name="io.modelcontextprotocol" level="trace"/>
 
         <!--
             <Logger name="org.labkey.api.cache" level="debug"/>

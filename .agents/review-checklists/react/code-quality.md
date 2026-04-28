@@ -91,7 +91,7 @@ const useCustomFetch = (url: string) => {
 
 ### Suggested Fix
 
-Create `Component.test.tsx` with meaningful assertions per [`jest/business-logic.md`](../../jest/business-logic.md):
+Create `Component.test.tsx` with meaningful assertions per [`jest/business-logic.md`](../jest/business-logic.md):
 
 ```tsx
 test('increments count when button clicked', async () => {

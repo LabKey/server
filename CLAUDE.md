@@ -119,3 +119,14 @@ When searching for Java method usages, always include `*.jsp` and `*.jspf` files
 ## Pull Request Format
 
 PRs should include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items).
+
+## Tool Usage Rules
+
+When navigating or searching this codebase, prefer IntelliJ MCP tools over shell commands:
+
+- **Finding a class or symbol** → use `find_usages` or `search_in_project` MCP tool, NOT `grep` or `find`
+- **Checking errors/warnings** → use `get_file_problems` MCP tool, NOT manual inspection
+- **Project structure** → use `get_project_modules` and `list_dependencies` MCP tools
+- **Running Tomcat** → use `run_configuration` MCP tool, NOT shell
+
+Only fall back to shell commands if the MCP tool fails or is unavailable.

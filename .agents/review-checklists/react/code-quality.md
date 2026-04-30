@@ -80,11 +80,16 @@ const Counter: FC = () => {
 };
 
 // ❌ Custom hook with async logic but no tests
-const useCustomFetch = (url: string) => {
+const useItemData = (id: string) => {
     const [data, setData] = useState(null);
     useEffect(() => {
-        fetch(url).then(res => res.json()).then(setData);
-    }, [url]);
+        // Error handling omitted for brevity
+        async function load() {
+            const result = await loadItemById(id);
+            setData(result);
+        }
+        load();
+    }, [id]);
     return data;
 };
 ```

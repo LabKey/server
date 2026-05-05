@@ -379,9 +379,6 @@ allprojects {
                     force "org.springframework:spring-messaging:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
 
-                    // spring-ai dependency. Force to mitigate a CVE.
-                    force "io.modelcontextprotocol.sdk:mcp:${modelContextProtocolVersion}"
-
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 

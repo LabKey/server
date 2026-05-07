@@ -586,7 +586,7 @@ project.tasks.register('ijConfigure') {
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
 }
 
-if (project.hasProperty('artifactory_contextUrl') && project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+if (BuildUtils.hasArtifactoryProperties(project as Project))
 {
     project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
         group = GroupNames.NPM_RUN

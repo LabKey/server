@@ -48,7 +48,7 @@ allprojects {
                 analyzers.ossIndex.enabled = false
             }
             formats = ['HTML', 'JUNIT']
-            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
+            skipConfigurations = ['dedupe', 'developmentOnly']
             skipProjects = [':server:testAutomation']
 
             nvd {

@@ -83,6 +83,13 @@ We keep local copies of the `@labkey` packages in the `clientAPIs/` directory. Y
 
 The local copies of the packages may contain changes related to the current branches in any of the modules that have an NPM build. For example there may be changes to the `@labkey/components` package that affect the package in the `server/modules/platform/core` module. These packages are not required to be present to build the project, so they may not be available. If they are not present, you can assume that there are no changes in those packages relevant to the current branch. If you suspect an issue is with one of the packages, but it is not present you may prompt the user to check out a local copy of the relevant package.
 
+### React Conventions
+- We are using React 18
+- **Component typing:** Use `React.FC<Props>` (or `React.FC` for no-prop components) for proper components used as `<Component />`. Use `: React.ReactNode` as the return type for render helpers — functions that return JSX but are not used as components (typically named with a lowercase letter or a `render` prefix). Do **not** annotate with `: JSX.Element` or `: React.ReactElement`.
+- **displayName:** Set `ComponentName.displayName = 'ComponentName'` immediately after each `React.FC` definition so it appears correctly in React DevTools and error boundaries.
+- **Props interfaces:** Declare a separate named `interface ComponentNameProps` for any component with two or more props. Do not inline the type in the `FC<>` generic.
+- **Event handlers:** Wrap all event handlers defined in a component body with `useCallback`, including those passed to native DOM elements. Do not use inline arrow functions in JSX (e.g., `onClick={() => doX()}`); extract and memoize them instead. Be aware that `useCallback` on a factory function (one that itself returns a new function) does not memoize the result — each invocation still produces a new reference.
+
 ### Distributions
 
 The `distributions/` directory defines 60+ distribution configurations that select which modules to package. Distributions inherit from each other (most inherit from `:distributions:base`). Distribution directory names must not collide with module names.

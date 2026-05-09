@@ -43,7 +43,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
                         if (is != null)
                         {
                             addURL(url);
-                            LOG.info("Added URL that resolves log4j2.xml to class loader: " + url);
+                            LOG.info("Added URL that resolves log4j2.xml to class loader: {}", url);
                         }
                     }
                     catch (IOException e)
@@ -65,7 +65,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
             ClassLoader parent = getParent();
             while (parent != null)
             {
-                LOG.debug("Looking for SessionAppending - checking ClassLoader " + parent);
+                LOG.debug("Looking for SessionAppending - checking ClassLoader {}", parent);
                 if (parent.getClass().getName().equals("jdk.internal.loader.ClassLoaders$AppClassLoader") ||
                         parent.getClass().getName().equals("org.springframework.boot.loader.launch.LaunchedClassLoader"))
                 {

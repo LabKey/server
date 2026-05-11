@@ -87,7 +87,7 @@ public class ModuleArchive
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
                 {
-                    String parent = elementStack.isEmpty() ? "" : elementStack.get(elementStack.size()-1);
+                    String parent = elementStack.isEmpty() ? "" : elementStack.getLast();
                     elementStack.add(qName+"#"+attributes.getValue("id"));
                     if (qName.equals("property") && "bean#moduleBean".equals(parent))
                     {
@@ -99,7 +99,7 @@ public class ModuleArchive
                 @Override
                 public void endElement(String uri, String localName, String qName) throws SAXException
                 {
-                    elementStack.remove(elementStack.size()-1);
+                    elementStack.removeLast();
                 }
             });
 

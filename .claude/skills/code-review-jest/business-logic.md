@@ -1,6 +1,6 @@
 # Business Logic
 
-> **Prerequisite:** Review and apply the common guidelines in [`common.md`](../common.md) before using this checklist.
+> **Prerequisite:** Review and apply the shared guidelines in [`review-priority-and-format.md`](../review-priority-and-format.md) before using this checklist.
 
 ## Jest tests must assert on meaningful outcomes
 

@@ -85,7 +85,8 @@ The local copies of the packages may contain changes related to the current bran
 
 ### React Conventions
 - We are using React 18
-- **Component typing:** Use `React.FC<Props>` (or `React.FC` for no-prop components) for proper components used as `<Component />`. Use `: React.ReactNode` as the return type for render helpers — functions that return JSX but are not used as components (typically named with a lowercase letter or a `render` prefix). Do **not** annotate with `: JSX.Element` or `: React.ReactElement`.
+- **Component typing:** Use `FC<Props>` (or `FC` for no-prop components) for proper components used as `<Component />`. Use `ReactNode` as the return type for render helpers — functions that return JSX but are not used as components (typically named with a lowercase letter or a `render` prefix). Do **not** annotate with `JSX.Element` or `ReactElement`.
+- **React type imports:** Always import React types directly from `react` rather than accessing them via the `React.*` namespace. For example: `import { FC, ReactNode } from 'react'`, never `React.FC` or `React.ReactNode`.
 - **displayName:** Set `ComponentName.displayName = 'ComponentName'` immediately after each `React.FC` definition so it appears correctly in React DevTools and error boundaries.
 - **Props interfaces:** Declare a separate named `interface ComponentNameProps` for any component with two or more props. Do not inline the type in the `FC<>` generic.
 - **Event handlers:** Wrap all event handlers defined in a component body with `useCallback`, including those passed to native DOM elements. Do not use inline arrow functions in JSX (e.g., `onClick={() => doX()}`); extract and memoize them instead. Be aware that `useCallback` on a factory function (one that itself returns a new function) does not memoize the result — each invocation still produces a new reference.

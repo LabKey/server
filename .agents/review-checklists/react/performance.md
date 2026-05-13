@@ -41,7 +41,7 @@ const getHandler = useCallback((id: string) => () => handleClick(id), [handleCli
 ```tsx
 const handleDelete = useCallback(() => {
     doDelete(item.id);
-}, [item.id]);
+}, [doDelete, item.id]);
 <button onClick={handleDelete}>Delete</button>
 ```
 

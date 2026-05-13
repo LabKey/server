@@ -54,8 +54,7 @@ public class ExplodedModule
     // With Gradle 1.8, we removed the -jsp classifier at the end of the jar file name, so we need to identify by the string _jsp- in the middle of the jar file name (e.g., announcements_jsp-19.3-SNAPSHOT.jar)
     private static final FilenameFilter _jspJarFilter = (dir, name) -> name.toLowerCase().contains("_jsp-");
     private static final FilenameFilter _springConfigFilter = (dir, name) -> name.toLowerCase().endsWith("context.xml");
-    private static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.toLowerCase().equals("module.xml");
-    private static final FilenameFilter _gwtFilter = (dir, name) -> name.endsWith(".gwt.rpc");
+    private static final FilenameFilter _moduleXmlFilter = (dir, name) -> name.equalsIgnoreCase("module.xml");
 
     private static final FilenameFilter _jarFilter = (dir, name) -> {
         String lowerName = name.toLowerCase();
@@ -139,8 +138,6 @@ public class ExplodedModule
         Set<File> webAppFiles = new HashSet<>();
 
         copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH + "/WEB-INF"), new File(webAppDirectory, "WEB-INF"), webAppFiles);
-        // GWTServlet depends on finding its gwt.rpc artifacts in the webapp
-        copyBranch(new File(getRootDirectory(), WEB_CONTENT_PATH), webAppDirectory, webAppFiles, _gwtFilter);
 
         copyFiles(getFiles(CONFIG_PATH, _springConfigFilter), webInfDir, webAppFiles);
 

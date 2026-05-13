@@ -127,7 +127,6 @@ Flag JSX return statements >25 lines or those with multiple conditional branches
 ### Exceptions / False Positives
 
 - Do not flag simple, single-element returns or small layout wrappers.
-- Do not flag when extraction would require excessive prop-drilling that makes code less readable.
 
 ### Description
 

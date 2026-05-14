@@ -2,6 +2,56 @@
 
 > **Prerequisite:** Review and apply the shared guidelines in [`review-priority-and-format.md`](../review-priority-and-format.md) before using this checklist.
 
+## Event handlers should be memoized with `useCallback`
+
+**Urgency:** urgent
+
+### Category
+
+Performance
+
+### Confidence Threshold
+
+Flag any event handler prop (`onClick`, `onChange`, `onSubmit`, etc.) that is an inline arrow function or a named function in the component body without `useCallback`. Do not flag handlers defined at module scope — they are already stable references.
+
+### Exceptions / False Positives
+
+- Do not flag event handlers defined at module scope.
+- Do not suggest `useCallback` for handlers with no component-scope dependencies — hoisting to module scope is preferable (a true constant reference with no Hook overhead).
+
+### Description
+
+All event handlers in a component body should be wrapped with `useCallback`, including those on native DOM elements. The overhead is negligible; omitting it has caused real performance issues and creates audit work whenever a future refactor forwards the handler to a memoized child.
+
+Watch for the factory anti-pattern: `useCallback` wrapping a function that itself returns a function. The outer reference is stable, but invoking it still produces a new function reference on every render.
+
+### Anti-patterns to Flag
+
+```tsx
+// ❌ Inline arrow — new reference every render
+<button onClick={() => handleDelete(item.id)}>Delete</button>
+
+// ❌ Factory pattern — getHandler(id) returns a new fn each render despite useCallback
+const getHandler = useCallback((id: string) => () => handleClick(id), [handleClick]);
+<Item onClick={getHandler(item.id)} />
+```
+
+### Suggested Fix
+
+```tsx
+const handleDelete = useCallback(() => {
+    doDelete(item.id);
+}, [doDelete, item.id]);
+<button onClick={handleDelete}>Delete</button>
+```
+
+### How to Detect
+
+1. Search for `onClick={`, `onChange={`, etc. where the value is an inline arrow or an identifier not assigned via `useCallback(...)`.
+2. For existing `useCallback` calls, check if the wrapped function returns another function — if so, verify that returned function is not being passed directly as a prop.
+
+---
+
 ## Inline object/array literals in JSX props
 
 **Urgency:** urgent

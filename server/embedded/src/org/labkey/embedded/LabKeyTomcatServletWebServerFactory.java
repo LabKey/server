@@ -394,12 +394,12 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     {
         if (propValues == null)
         {
-            LOG.debug(String.format("%1$s property was not provided, using default", propName));
+            LOG.debug("{} property was not provided, using default", propName);
             return defaultValue;
         }
 
         if (!propValues.containsKey(resourceKey))
-            LOG.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
+            LOG.debug("{} property was not provided for resource [{}], using default [{}]", propName, resourceKey, defaultValue);
 
         String val = propValues.getOrDefault(resourceKey, defaultValue);
         return val != null && !val.isBlank() ? val.trim() : defaultValue;

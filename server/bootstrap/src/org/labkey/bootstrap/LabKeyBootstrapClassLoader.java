@@ -377,7 +377,7 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
             }
             catch (IOException x)
             {
-                _log.info("Could not set hidden attribute on directory: " + deleted.getPath());
+                _log.info("Could not set hidden attribute on directory: {}", deleted.getPath());
             }
         }
 

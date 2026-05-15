@@ -16,7 +16,7 @@ plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
-//    id "com.github.ben-manes.versions" version "0.39.0"
+    id "com.github.ben-manes.versions" version "0.54.0"
     id "org.labkey.build.multiGit"
 }
 
@@ -48,7 +48,7 @@ allprojects {
                 analyzers.ossIndex.enabled = false
             }
             formats = ['HTML', 'JUNIT']
-            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
+            skipConfigurations = ['dedupe', 'developmentOnly']
             skipProjects = [':server:testAutomation']
 
             nvd {
@@ -379,9 +379,6 @@ allprojects {
                     force "org.springframework:spring-messaging:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
 
-                    // spring-ai dependency. Force to mitigate a CVE.
-                    force "io.modelcontextprotocol.sdk:mcp:${modelContextProtocolVersion}"
-
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 
@@ -589,7 +586,7 @@ project.tasks.register('ijConfigure') {
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
 }
 
-if (project.hasProperty('artifactory_contextUrl') && project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
+if (BuildUtils.hasArtifactoryProperties(project as Project))
 {
     project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
         group = GroupNames.NPM_RUN

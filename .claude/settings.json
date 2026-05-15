@@ -1,4 +1,18 @@
 {
+  "permissions": {
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git switch -C:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr close:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

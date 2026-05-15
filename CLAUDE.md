@@ -124,6 +124,20 @@ All external library versions are centralized in `gradle.properties` (200+ versi
 
 When searching for Java method usages, always include `*.jsp` and `*.jspf` files in addition to `*.java`. JSP files contain inline Java code and are significant callers of API methods (especially anything in `JspBase`).
 
+## Git Branch Naming
+
+- `develop` — primary development branch (protected; no direct commits).
+- `fb_<label>_<id>` — feature/bug-fix branch off `develop`. `label` is a short snake_case description (use underscores to separate words, not dashes); `id` is the issue or Scrumwise ID. Omit `_<id>` only when no ID exists (e.g., test fixes); coordinate the label to avoid collisions.
+- `XX.Y_fb_<label>_<id>` — feature/bug-fix branch targeting a specific release.
+- `releaseXX.Y-SNAPSHOT` — beta release branch (protected); base release-targeted feature branches from it.
+- `releaseXX.Y` — final release branch (protected); receives merges from the SNAPSHOT branch only. Patch releases are tagged `XX.Y.Z`.
+
+Use an identical branch name across every repo involved in a story. Branches matching these patterns are built by TeamCity — pick a non-matching name to opt out.
+
+Before creating a branch, always propose the name and confirm it with the user. Do not run `git checkout -b` (or equivalent) until the user approves.
+
 ## Pull Request Format
 
-PRs should include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items).
+If the repo has a `pull_request_template.md` (typically under `.github/`), follow it. Otherwise, include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items). Keep descriptions brief.
+
+Before opening a PR, always draft the title and description and confirm them with the user. Do not run `gh pr create` until the user approves.

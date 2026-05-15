@@ -66,8 +66,8 @@ def load_hook_commands():
     return commands
 
 
-def run_hook_test(script_name, tool_input, description, should_block):
-    """Run a single hook test case."""
+def run_hook_test(script_name, tool_input, description, expected):
+    """Run a single hook test case. expected is one of 'BLOCK', 'ASK', 'ALLOW'."""
     hook_input = json.dumps({"tool_input": tool_input})
     script_path = os.path.join(SCRIPT_DIR, script_name)
 
@@ -78,21 +78,28 @@ def run_hook_test(script_name, tool_input, description, should_block):
         text=True,
     )
 
-    was_blocked = result.returncode == 2
-    passed = was_blocked == should_block
-
-    status = "PASS" if passed else "FAIL"
-    expected = "BLOCK" if should_block else "ALLOW"
-    actual = "BLOCK" if was_blocked else "ALLOW"
-
+    actual = "ALLOW"
     detail = ""
-    if was_blocked and result.stdout.strip():
+    if result.returncode == 2:
+        actual = "BLOCK"
+        if result.stdout.strip():
+            try:
+                resp = json.loads(result.stdout.strip())
+                detail = f" -- {resp.get('reason', '')}"
+            except json.JSONDecodeError:
+                detail = f" -- {result.stdout.strip()}"
+    elif result.returncode == 0 and result.stdout.strip():
         try:
             resp = json.loads(result.stdout.strip())
-            detail = f" -- {resp.get('reason', '')}"
+            hso = resp.get("hookSpecificOutput") or {}
+            if hso.get("permissionDecision") == "ask":
+                actual = "ASK"
+                detail = f" -- {hso.get('permissionDecisionReason', '')}"
         except json.JSONDecodeError:
-            detail = f" -- {result.stdout.strip()}"
+            pass
 
+    passed = actual == expected
+    status = "PASS" if passed else "FAIL"
     print(f"  [{status}] {description:45s}  expected={expected}  actual={actual}{detail}")
     return passed
 
@@ -231,7 +238,63 @@ def main():
             "check-dangerous-commands.py",
             {"command": cmd},
             desc,
-            should_block,
+            "BLOCK" if should_block else "ALLOW",
+        ))
+
+    # =========================================================================
+    print()
+    print("--- check-dangerous-commands.py git-ask patterns ---")
+    print()
+
+    GIT_ASK_TESTS = [
+        # ASK: git commit variants
+        ("git commit (bare)", "git commit", "ASK"),
+        ("git commit -m", "git commit -m 'msg'", "ASK"),
+        ("git commit -am", "git commit -am 'msg'", "ASK"),
+        ("git commit --amend", "git commit --amend", "ASK"),
+        ("git commit --allow-empty", "git commit --allow-empty -m hi", "ASK"),
+
+        # ASK: git push variants
+        ("git push (bare)", "git push", "ASK"),
+        ("git push origin main", "git push origin main", "ASK"),
+        ("git push --force", "git push --force origin main", "ASK"),
+        ("git push --force-with-lease", "git push --force-with-lease", "ASK"),
+        ("git push -f", "git push -f origin main", "ASK"),
+
+        # ASK: git reset --hard
+        ("git reset --hard", "git reset --hard", "ASK"),
+        ("git reset --hard HEAD~1", "git reset --hard HEAD~1", "ASK"),
+        ("git reset --hard origin/main", "git reset --hard origin/main", "ASK"),
+
+        # ASK: git branch -D (force delete)
+        ("git branch -D", "git branch -D feature/foo", "ASK"),
+
+        # ASK: gh pr write actions
+        ("gh pr create", "gh pr create --title foo --body bar", "ASK"),
+        ("gh pr merge", "gh pr merge 123 --squash", "ASK"),
+        ("gh pr close", "gh pr close 123", "ASK"),
+
+        # ALLOW: read-only or non-destructive git/gh ops should pass through
+        ("git log", "git log --oneline", "ALLOW"),
+        ("git diff", "git diff HEAD~1", "ALLOW"),
+        ("git fetch", "git fetch origin", "ALLOW"),
+        ("git pull", "git pull origin main", "ALLOW"),
+        ("git branch -d (lowercase, soft delete)", "git branch -d feature/foo", "ALLOW"),
+        ("git reset --soft", "git reset --soft HEAD~1", "ALLOW"),
+        ("git reset HEAD~1 (no --hard)", "git reset HEAD~1", "ALLOW"),
+        ("git stash", "git stash", "ALLOW"),
+        ("git checkout main", "git checkout main", "ALLOW"),
+        ("gh pr view", "gh pr view 123", "ALLOW"),
+        ("gh pr diff", "gh pr diff 123", "ALLOW"),
+        ("gh pr list", "gh pr list", "ALLOW"),
+    ]
+
+    for desc, cmd, expected in GIT_ASK_TESTS:
+        tally(run_hook_test(
+            "check-dangerous-commands.py",
+            {"command": cmd},
+            desc,
+            expected,
         ))
 
     hook_commands = load_hook_commands()
@@ -328,7 +391,7 @@ def main():
             "check-secrets-file.py",
             tool_input,
             desc,
-            should_block,
+            "BLOCK" if should_block else "ALLOW",
         ))
 
     # =========================================================================

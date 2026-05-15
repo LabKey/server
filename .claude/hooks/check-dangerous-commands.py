@@ -9,9 +9,24 @@ import sys
 import re
 import os
 import shlex
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from secrets_patterns import contains_secrets_reference, is_secrets_path
+
+
+DEBUG = False
+
+
+def _log(detail: str) -> None:
+    if not DEBUG:
+        return
+    try:
+        log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hooks.log")
+        with open(log_path, "a", encoding="utf-8") as fh:
+            fh.write(f"{datetime.now().isoformat()} check-dangerous-commands {detail}\n")
+    except Exception:
+        pass
 
 
 SHELL_OPERATORS = {"|", "||", "&", "&&", ";", ">", ">>", "<", "<<"}
@@ -48,6 +63,55 @@ def command_touches_secret(command: str) -> bool:
         ):
             return True
     return False
+
+
+GIT_ASK_PATTERNS = [
+    # Force push: match before plain push so we emit the more specific reason
+    (
+        r'\bgit\s+(?:-\S+\s+)*push\b[^\n]*(?:--force\b|--force-with-lease\b|\s-f\b)',
+        "git force-push detected — confirm before proceeding",
+    ),
+    (
+        r'\bgit\s+(?:-\S+\s+)*push\b',
+        "git push detected — confirm before proceeding",
+    ),
+    (
+        r'\bgit\s+(?:-\S+\s+)*commit\b',
+        "git commit detected — confirm before proceeding",
+    ),
+    (
+        r'\bgit\s+(?:-\S+\s+)*reset\b[^\n]*\s--hard\b',
+        "git reset --hard detected — confirm before proceeding",
+    ),
+    (
+        r'\bgit\s+(?:-\S+\s+)*branch\b[^\n]*\s(?-i:-D)\b',
+        "git branch -D detected — confirm before proceeding",
+    ),
+    (
+        r'\bgit\s+(?:-\S+\s+)*(?:checkout\s+-b|switch\s+-[cC]|branch\s+(?!-)\S+)\b',
+        "git branch creation detected — confirm name before proceeding",
+    ),
+    (
+        r'\bgh\s+(?:-\S+\s+)*pr\s+create\b',
+        "gh pr create detected — confirm title/body before proceeding",
+    ),
+    (
+        r'\bgh\s+(?:-\S+\s+)*pr\s+merge\b',
+        "gh pr merge detected — confirm before proceeding",
+    ),
+    (
+        r'\bgh\s+(?:-\S+\s+)*pr\s+close\b',
+        "gh pr close detected — confirm before proceeding",
+    ),
+]
+
+
+def check_git_for_ask(command: str) -> tuple[bool, str]:
+    """Returns (should_ask, reason) for git ops that warrant a confirmation prompt."""
+    for pattern, reason in GIT_ASK_PATTERNS:
+        if re.search(pattern, command, re.IGNORECASE):
+            return True, reason
+    return False, ""
 
 
 def check_command(command: str) -> tuple[bool, str]:
@@ -110,19 +174,36 @@ def main():
     try:
         data = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
+        _log("command='' decision=allow reason=unparseable-input")
         sys.exit(0)  # Can't parse input — allow and move on
 
     command = data.get("tool_input", {}).get("command", "")
     if not command:
+        _log("command='' decision=allow reason=no-command")
         sys.exit(0)
 
     blocked, reason = check_command(command)
 
     if blocked:
+        _log(f"command={command!r} decision=block reason={reason!r}")
         response = {"decision": "block", "reason": reason}
         print(json.dumps(response))
         sys.exit(2)
 
+    ask, ask_reason = check_git_for_ask(command)
+    if ask:
+        _log(f"command={command!r} decision=ask reason={ask_reason!r}")
+        response = {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "ask",
+                "permissionDecisionReason": ask_reason,
+            }
+        }
+        print(json.dumps(response))
+        sys.exit(0)
+
+    _log(f"command={command!r} decision=allow")
     sys.exit(0)
 
 

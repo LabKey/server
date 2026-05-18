@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Evaluate review-pr prompt variants against a training set of PRs with known critical bugs.
+Evaluate review-lk prompt variants against a training set of PRs with known critical bugs.
 
 Usage:
-  python eval.py                              # evaluate ../commands/review-pr.md
+  python eval.py                              # evaluate ../commands/review-lk.md
   python eval.py prompts/variant1.md          # evaluate a specific variant
   python eval.py --compare current variant1   # compare two variants side by side
 
@@ -26,10 +26,10 @@ from datetime import datetime
 SCRIPT_DIR = Path(__file__).parent
 TRAINING_SET_FILE = SCRIPT_DIR / "training_set.json"
 PROMPTS_DIR = SCRIPT_DIR / "prompts"
-RESULTS_DIR = SCRIPT_DIR.parent.parent / "build" / "review-pr-output"
+RESULTS_DIR = SCRIPT_DIR.parent.parent / "build" / "review-lk-output"
 CACHE_DIR = RESULTS_DIR / "cache"
 REPOS_DIR = SCRIPT_DIR.parent.parent / "build" / "pr-eval-repos"
-LIVE_PROMPT = SCRIPT_DIR.parent / "commands" / "review-pr.md"
+LIVE_PROMPT = SCRIPT_DIR.parent / "commands" / "review-lk.md"
 
 JUDGE_MODEL = "claude-haiku-4-5"
 
@@ -354,6 +354,15 @@ def print_summary(evaluation: dict):
 
 
 def main():
+    t_start = time.time()
+    try:
+        _main()
+    finally:
+        elapsed = int(time.time() - t_start)
+        print(f"\nTotal runtime: {elapsed // 60}m {elapsed % 60}s")
+
+
+def _main():
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     if not TRAINING_SET_FILE.exists():

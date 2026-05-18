@@ -128,6 +128,30 @@ When searching for Java method usages, always include `*.jsp` and `*.jspf` files
 
 PRs should include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items).
 
+## TeamCity
+
+The TeamCity MCP server at `https://teamcity.labkey.org/app/mcp` can be used to query build results. Add it with:
+```
+claude mcp add teamcity https://teamcity.labkey.org/app/mcp --transport http --scope user --header "Authorization: Bearer <token>"
+```
+
+### Branch and project naming
+
+Feature branch names are stripped of their prefix when recorded in TeamCity:
+
+| Git branch | TeamCity branch | TeamCity project |
+|---|---|---|
+| `26.3_fb_Item1045` | `Item1045` | `affectedProject:(id:LabKey_263Release)` |
+| `fb_myFeature` | `myFeature` | `affectedProject:(id:LabKey_Trunk)` |
+
+Use `affectedProject` (not `project`) to include all subprojects (Community, External, Internal, Premium, EHR, etc.).
+
+Project ID pattern for release branches: `LabKey_<major><minor>Release` (e.g., `LabKey_263Release` for 26.3).
+
+### Suite sharding
+
+Letter suffixes like `[A]`, `[B]`, `[C]` on suite names indicate shards of the same larger suite split for parallelism — not distinct configurations. A failure in `Panorama [B] postgres` is a failure in the "Panorama postgres" suite.
+
 ## Tool Usage Rules
 
 When navigating or searching this codebase, prefer IntelliJ MCP tools over shell commands:

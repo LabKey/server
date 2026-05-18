@@ -136,8 +136,20 @@ Use an identical branch name across every repo involved in a story. Branches mat
 
 Before creating a branch, always propose the name and confirm it with the user. Do not run `git checkout -b` (or equivalent) until the user approves.
 
+## Commit and PR Body Formatting
+
+Applies to every commit body and every PR body, without exception. Do not hard-wrap. Write each paragraph and each bullet as a single physical line, no matter how long. Separate paragraphs with one blank line. This applies to text passed via `-m`, `--body`, here-docs, `gh pr edit`, GitHub MCP tools — every channel that produces commit or PR body text.
+
+**Why:** GitHub renders commit and PR bodies as GFM with hard-line-break enabled. Every mid-paragraph `\n` becomes a visible `<br>` in the rendered output, producing ragged, broken-looking text. Soft-wrap is the renderer's job, not yours.
+
+**Self-check before invoking `git commit`, `gh pr create`, or `gh pr edit`:** look at the body text you are about to pass. If any paragraph spans more than one line in your tool call, that is a bug — collapse it to a single line first. Long lines are correct. Wrapped lines are wrong.
+
+## Commit Messages
+
+Subject: short imperative (≈70 chars). Body: follow the formatting rule above — one physical line per paragraph, blank lines between paragraphs.
+
 ## Pull Request Format
 
-If the repo has a `pull_request_template.md` (typically under `.github/`), follow it. Otherwise, include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items). Keep descriptions brief.
+If the repo has a `pull_request_template.md` (typically under `.github/`), follow it. Otherwise, include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items). Keep descriptions brief. Follow the formatting rule above — one physical line per paragraph and per bullet.
 
 Before opening a PR, always draft the title and description and confirm them with the user. Do not run `gh pr create` until the user approves.

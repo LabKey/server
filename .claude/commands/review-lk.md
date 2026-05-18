@@ -16,16 +16,7 @@ Inspect `$ARGUMENTS` to determine the mode:
 
 **If `$ARGUMENTS` is `local`:**
 
-1. The repos to check are at these known locations — no probing needed:
-   - REPO_ROOT itself
-   - Every direct subdirectory of REPO_ROOT/server/modules/
-   - REPO_ROOT/server/testAutomation
-   - Every direct subdirectory of REPO_ROOT/clientAPIs/
-2. For each repo, run (each Bash call must start with `git`):
-   `git -C <repo-path> diff HEAD -- . ':(exclude).idea' ':(exclude)server/configs'`
-   Skip repos with no changes. Skip repos where the git command exits non-zero (no git repo at that path).
-3. If `git diff HEAD` fails for a repo because no commits exist yet, fall back to:
-   `git -C <repo-path> diff --cached -- . ':(exclude).idea' ':(exclude)server/configs'`
+Run `python3 REPO_ROOT/.claude/scripts/gather-review-diff.py --local`
 
 ---
 

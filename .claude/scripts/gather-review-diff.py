@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 """
 Usage: gather-review-diff.py <branch-name> [--skip owner/repo]
+       gather-review-diff.py --local
 
-For every repo in the LabKey workspace that has BRANCH:
+Branch mode: for every repo in the LabKey workspace that has BRANCH:
   Pass 1 – check existence and fetch changed-file counts via the GitHub compare API.
   Pass 2 – print a summary table, then for each repo stream any PR title/description
            as a preamble followed by the raw diff.
 
-Local repos checked: REPO_ROOT, server/testAutomation, server/modules/*, clientAPIs/*
-Remote repos checked: all GitHub repos tagged with the topic "labkey-module-container"
-  that are not already covered by a local checkout.
+  Local repos checked: REPO_ROOT, server/testAutomation, server/modules/*, clientAPIs/*
+  Remote repos checked: all GitHub repos tagged with the topic "labkey-module-container"
+    that are not already covered by a local checkout.
 
---skip owner/repo   Mark one repo already covered (e.g. by `gh pr diff`) so it
-                    appears in the summary but is not re-diffed.
+  --skip owner/repo   Mark one repo already covered (e.g. by `gh pr diff`) so it
+                      appears in the summary but is not re-diffed.
+
+Local mode (--local): diff working-tree changes across all repos in the workspace.
+  No GitHub API calls are made. Runs `git diff HEAD` per repo (falls back to
+  `git diff --cached` for repos with no commits yet). Excludes .idea and server/configs.
 """
 
 import argparse
@@ -155,8 +160,7 @@ def collect_repo(
     owner_repo is None  → silently skip (not a git repo, no remote, etc.).
     pr_info is None     → repo appears in summary only (skipped or error), not diffed.
     """
-    _, ok = run("git", "-C", str(path), "rev-parse", "--git-dir")
-    if not ok:
+    if not is_git_repo(path):
         return None, "", None
 
     remote_url, ok = run("git", "-C", str(path), "remote", "get-url", "origin")
@@ -230,19 +234,70 @@ def subdirs(parent: Path) -> list[Path]:
     return sorted(d for d in parent.iterdir() if d.is_dir())
 
 
+def workspace_paths(repo_root: Path) -> list[Path]:
+    return [
+        repo_root,
+        repo_root / "server" / "testAutomation",
+        *subdirs(repo_root / "server" / "modules"),
+        *subdirs(repo_root / "clientAPIs"),
+    ]
+
+
+def is_git_repo(path: Path) -> bool:
+    _, ok = run("git", "-C", str(path), "rev-parse", "--git-dir")
+    return ok
+
+
+def run_local_mode(repo_root: Path) -> None:
+    for path in workspace_paths(repo_root):
+        if not path.exists():
+            continue
+
+        if not is_git_repo(path):
+            continue
+
+        diff, ok = run(
+            "git", "-C", str(path), "diff", "HEAD", "--",
+            ".", ":(exclude).idea", ":(exclude)server/configs",
+        )
+        if not ok:
+            diff, ok = run(
+                "git", "-C", str(path), "diff", "--cached", "--",
+                ".", ":(exclude).idea", ":(exclude)server/configs",
+            )
+            if not ok:
+                continue
+
+        if not diff:
+            continue
+
+        remote_url, ok = run("git", "-C", str(path), "remote", "get-url", "origin")
+        label = parse_owner_repo(remote_url) if ok and remote_url else path.name
+
+        print(f"=== {label}  (local changes) ===")
+        print(diff)
+        print()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Collect diffs for a branch across the LabKey multi-repo workspace."
     )
-    parser.add_argument("branch", help="Feature branch name")
+    parser.add_argument("branch", nargs="?", help="Feature branch name (omit with --local)")
+    parser.add_argument(
+        "--local", action="store_true",
+        help="Diff working-tree changes across all repos (no GitHub API calls)",
+    )
     parser.add_argument(
         "--skip", metavar="OWNER/REPO", default="",
         help="Omit one repo already covered by a PR diff",
     )
     args = parser.parse_args()
 
-    branch: str = args.branch
-    skip_repo: str = args.skip
+    if args.local and args.branch:
+        parser.error("--local and branch are mutually exclusive")
+    if not args.local and not args.branch:
+        parser.error("branch is required unless --local is specified")
 
     repo_root_str, ok = run("git", "rev-parse", "--show-toplevel")
     if not ok:
@@ -250,19 +305,19 @@ def main() -> None:
         sys.exit(1)
     repo_root = Path(repo_root_str)
 
-    candidate_paths: list[Path] = [
-        repo_root,
-        repo_root / "server" / "testAutomation",
-        *subdirs(repo_root / "server" / "modules"),
-        *subdirs(repo_root / "clientAPIs"),
-    ]
+    if args.local:
+        run_local_mode(repo_root)
+        return
+
+    branch: str = args.branch
+    skip_repo: str = args.skip
 
     summary: list[tuple[str, str]] = []          # (owner_repo, status_line)
     diff_targets: list[tuple[str, PRInfo]] = []  # repos to diff, with PR context
     seen: set[str] = set()                       # owner_repo values already processed
 
     # Pass 1a: locally cloned repos.
-    for path in candidate_paths:
+    for path in workspace_paths(repo_root):
         if not path.exists():
             continue
         owner_repo, status, pr_info = collect_repo(path, branch, skip_repo)

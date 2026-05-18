@@ -22,11 +22,9 @@ Run `python3 REPO_ROOT/.claude/scripts/gather-review-diff.py --local`
 
 **If `$ARGUMENTS` contains `/pull/` (GitHub PR URL):**
 
-1. Run `gh pr view $ARGUMENTS` to get the PR title, description, and author.
-2. Extract the branch name and primary repo identity in one call:
-   `gh pr view $ARGUMENTS --json headRefName,headRepository,headRepositoryOwner --jq '"branch=\(.headRefName) primary=\(.headRepositoryOwner.login)/\(.headRepository.name)"'`
-3. Run `gh pr diff $ARGUMENTS` to get the primary repo's diff (this is accurate to the PR's actual base branch).
-4. Run `python3 REPO_ROOT/.claude/scripts/gather-review-diff.py <branch> --skip <primary-owner/repo>` to collect diffs from any related repos that also have the same branch.
+1. Run `python3 REPO_ROOT/.claude/scripts/gather-review-diff.py --pr-url $ARGUMENTS`
+
+The script fetches PR metadata and the primary diff internally and parallelizes all secondary repo checks, so no separate `gh` calls are needed.
 
 ---
 

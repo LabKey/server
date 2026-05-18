@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Usage: gather-review-diff.py <branch-name> [--skip owner/repo]
+       gather-review-diff.py --pr-url <GitHub-PR-URL>
        gather-review-diff.py --local
 
 Branch mode: for every repo in the LabKey workspace that has BRANCH:
@@ -15,6 +16,10 @@ Branch mode: for every repo in the LabKey workspace that has BRANCH:
   --skip owner/repo   Mark one repo already covered (e.g. by `gh pr diff`) so it
                       appears in the summary but is not re-diffed.
 
+PR URL mode (--pr-url): accept a GitHub PR URL; fetch all metadata and diffs internally.
+  Absorbs the separate gh pr view / gh pr diff calls.  Collection of related repos is
+  parallelized so the primary diff and secondary checks run concurrently.
+
 Local mode (--local): diff working-tree changes across all repos in the workspace.
   No GitHub API calls are made. Runs `git diff HEAD` per repo (falls back to
   `git diff --cached` for repos with no commits yet). Excludes .idea and server/configs.
@@ -25,6 +30,7 @@ import json
 import re
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -170,8 +176,8 @@ def collect_repo(
     owner_repo = parse_owner_repo(remote_url)
 
     if skip_repo and owner_repo == skip_repo:
-        # This repo's diff is already provided by `gh pr diff` in the calling
-        # command; we acknowledge it in the summary but don't re-diff it.
+        # This repo's diff is already provided externally (gh pr diff or --pr-url);
+        # acknowledge it in the summary but don't re-diff it.
         return owner_repo, "covered by PR diff", None
 
     # Check locally first (no network), then fall back to ls-remote.
@@ -279,69 +285,126 @@ def run_local_mode(repo_root: Path) -> None:
         print()
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Collect diffs for a branch across the LabKey multi-repo workspace."
+def fetch_pr_metadata(pr_url: str) -> dict:
+    """Fetch all needed PR fields in one gh pr view call."""
+    stdout, ok = run(
+        "gh", "pr", "view", pr_url,
+        "--json", "headRefName,headRepository,headRepositoryOwner,title,body,changedFiles,baseRefName",
     )
-    parser.add_argument("branch", nargs="?", help="Feature branch name (omit with --local)")
-    parser.add_argument(
-        "--local", action="store_true",
-        help="Diff working-tree changes across all repos (no GitHub API calls)",
-    )
-    parser.add_argument(
-        "--skip", metavar="OWNER/REPO", default="",
-        help="Omit one repo already covered by a PR diff",
-    )
-    args = parser.parse_args()
-
-    if args.local and args.branch:
-        parser.error("--local and branch are mutually exclusive")
-    if not args.local and not args.branch:
-        parser.error("branch is required unless --local is specified")
-
-    repo_root_str, ok = run("git", "rev-parse", "--show-toplevel")
-    if not ok:
-        print("Error: not inside a git repository", file=sys.stderr)
+    if not ok or not stdout:
+        print(f"Error: could not fetch PR metadata for {pr_url}", file=sys.stderr)
         sys.exit(1)
-    repo_root = Path(repo_root_str)
+    try:
+        return json.loads(stdout)
+    except json.JSONDecodeError as e:
+        print(f"Error: could not parse PR metadata: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    if args.local:
-        run_local_mode(repo_root)
-        return
 
-    branch: str = args.branch
-    skip_repo: str = args.skip
+def fetch_pr_diff(pr_url: str) -> str:
+    """Fetch the unified diff for a PR URL."""
+    result = subprocess.run(
+        ["gh", "pr", "diff", pr_url],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return result.stdout
 
-    summary: list[tuple[str, str]] = []          # (owner_repo, status_line)
-    diff_targets: list[tuple[str, PRInfo]] = []  # repos to diff, with PR context
-    seen: set[str] = set()                       # owner_repo values already processed
 
-    # Pass 1a: locally cloned repos.
-    for path in workspace_paths(repo_root):
-        if not path.exists():
-            continue
-        owner_repo, status, pr_info = collect_repo(path, branch, skip_repo)
-        if owner_repo is None:
-            continue
-        seen.add(owner_repo)
+def _print_diff_block(
+    owner_repo: str, branch: str, pr_info: PRInfo, diff: str
+) -> None:
+    print(f"=== {owner_repo}  branch: {branch}  base: {pr_info.base_branch} ===")
+    if pr_info.title:
+        print(f"PR: {pr_info.title}")
+    if pr_info.body and pr_info.body.strip():
+        print()
+        print(pr_info.body.strip())
+    print()
+    if diff:
+        print(diff, end="")
+    print()
+
+
+def run_branch_mode(
+    branch: str,
+    skip_repo: str,
+    repo_root: Path,
+    pr_url: str = "",
+    primary_owner_repo: str = "",
+    primary_pr_info: PRInfo | None = None,
+    primary_changed_files: int | None = None,
+) -> None:
+    """
+    Collect diffs for BRANCH across all repos in the workspace.
+
+    When pr_url is set (--pr-url mode), the primary repo's diff is fetched
+    internally and printed first; skip_repo should equal primary_owner_repo.
+    All network-bound collection tasks run in parallel via ThreadPoolExecutor.
+    """
+    paths = [p for p in workspace_paths(repo_root) if p.exists()]
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        # Kick off independent network tasks immediately so they overlap with
+        # each other and with the local-repo git checks.
+        topic_future = executor.submit(get_topic_repos)
+        pr_diff_future = executor.submit(fetch_pr_diff, pr_url) if pr_url else None
+
+        local_futures = [
+            (p, executor.submit(collect_repo, p, branch, skip_repo))
+            for p in paths
+        ]
+
+        # Drain local futures first (preserves workspace ordering) so we can
+        # build the `seen` set before submitting remote futures.
+        seen: set[str] = set()
+        local_results: list[tuple[str, str, PRInfo | None]] = []
+        for _, f in local_futures:
+            owner_repo, status, pr_info = f.result()
+            if owner_repo:
+                seen.add(owner_repo)
+                local_results.append((owner_repo, status, pr_info))
+
+        # Remote checks — only repos not already covered by a local checkout.
+        topic_repos = topic_future.result()
+        remote_futures = [
+            (r, executor.submit(collect_remote_repo, r, branch, skip_repo))
+            for r in topic_repos
+            if r not in seen
+        ]
+
+        remote_results: list[tuple[str, str, PRInfo | None]] = []
+        for owner_repo, f in remote_futures:
+            owner_repo_out, status, pr_info = f.result()
+            if owner_repo_out:
+                remote_results.append((owner_repo_out, status, pr_info))
+
+        primary_diff = pr_diff_future.result() if pr_diff_future else ""
+
+    # Build ordered summary and diff-target lists.
+    summary: list[tuple[str, str]] = []
+    diff_targets: list[tuple[str, PRInfo]] = []
+
+    if primary_owner_repo and primary_pr_info is not None:
+        count = str(primary_changed_files) if primary_changed_files is not None else "?"
+        primary_status = f"{count} files changed  (base: {primary_pr_info.base_branch})"
+        if primary_pr_info.title:
+            primary_status += f"  —  {primary_pr_info.title}"
+        summary.append((primary_owner_repo, primary_status))
+
+    for owner_repo, status, pr_info in local_results:
+        if owner_repo == primary_owner_repo:
+            continue  # Already represented above
         summary.append((owner_repo, status))
         if pr_info is not None:
             diff_targets.append((owner_repo, pr_info))
 
-    # Pass 1b: GitHub repos tagged labkey-module-container that aren't cloned locally.
-    # These are checked purely via the GitHub API — no local git operations needed.
-    for owner_repo in get_topic_repos():
-        if owner_repo in seen:
-            # Already handled in pass 1a via the local checkout; skip to avoid
-            # a duplicate summary entry and a redundant API diff fetch.
-            continue
-        seen.add(owner_repo)
-        owner_repo_out, status, pr_info = collect_remote_repo(owner_repo, branch, skip_repo)
-        if owner_repo_out is None:
-            continue
-        summary.append((owner_repo_out, status))
+    for owner_repo, status, pr_info in remote_results:
+        summary.append((owner_repo, status))
         if pr_info is not None:
-            diff_targets.append((owner_repo_out, pr_info))
+            diff_targets.append((owner_repo, pr_info))
 
     # Print summary table.
     print(f"=== Repos examined for branch: {branch} ===")
@@ -349,24 +412,12 @@ def main() -> None:
         print(f"  {repo:<45} {status}")
     print()
 
-    # Pass 2: for each repo, print any PR context as a preamble then stream the diff.
-    # The preamble gives the reviewer intent context per repo without needing to
-    # look up each PR separately.
-    #
-    # Note: when called from /review-lk with a PR URL, the primary repo is passed
-    # via --skip (its description is already in context from `gh pr view`), so the
-    # preamble only appears for secondary repos in that flow.  In bare-branch mode
-    # it appears for every repo that has an open PR for the branch.
+    # Primary repo diff comes first when in --pr-url mode.
+    if primary_owner_repo and primary_pr_info is not None:
+        _print_diff_block(primary_owner_repo, branch, primary_pr_info, primary_diff)
+
+    # Secondary repo diffs.
     for owner_repo, pr_info in diff_targets:
-        print(f"=== {owner_repo}  branch: {branch}  base: {pr_info.base_branch} ===")
-
-        if pr_info.title:
-            print(f"PR: {pr_info.title}")
-        if pr_info.body and pr_info.body.strip():
-            print()
-            print(pr_info.body.strip())
-        print()
-
         result = subprocess.run(
             [
                 "gh", "api",
@@ -378,9 +429,64 @@ def main() -> None:
             encoding="utf-8",
             errors="replace",
         )
-        if result.stdout:
-            print(result.stdout, end="")
-        print()
+        _print_diff_block(owner_repo, branch, pr_info, result.stdout)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Collect diffs for a branch across the LabKey multi-repo workspace."
+    )
+    parser.add_argument("branch", nargs="?", help="Feature branch name (omit with --local or --pr-url)")
+    parser.add_argument(
+        "--local", action="store_true",
+        help="Diff working-tree changes across all repos (no GitHub API calls)",
+    )
+    parser.add_argument(
+        "--pr-url", metavar="URL",
+        help="GitHub PR URL — fetch metadata and diff internally (replaces separate gh pr view/diff calls)",
+    )
+    parser.add_argument(
+        "--skip", metavar="OWNER/REPO", default="",
+        help="Omit one repo already covered by a PR diff",
+    )
+    args = parser.parse_args()
+
+    if sum([bool(args.local), bool(args.pr_url), bool(args.branch)]) != 1:
+        parser.error("Provide exactly one of: branch, --local, or --pr-url")
+
+    repo_root_str, ok = run("git", "rev-parse", "--show-toplevel")
+    if not ok:
+        print("Error: not inside a git repository", file=sys.stderr)
+        sys.exit(1)
+    repo_root = Path(repo_root_str)
+
+    if args.local:
+        run_local_mode(repo_root)
+        return
+
+    if args.pr_url:
+        pr_data = fetch_pr_metadata(args.pr_url)
+        branch = pr_data["headRefName"]
+        primary_owner_repo = (
+            f"{pr_data['headRepositoryOwner']['login']}/{pr_data['headRepository']['name']}"
+        )
+        primary_pr_info = PRInfo(
+            base_branch=pr_data["baseRefName"],
+            title=pr_data.get("title", ""),
+            body=pr_data.get("body", ""),
+        )
+        run_branch_mode(
+            branch=branch,
+            skip_repo=primary_owner_repo,
+            repo_root=repo_root,
+            pr_url=args.pr_url,
+            primary_owner_repo=primary_owner_repo,
+            primary_pr_info=primary_pr_info,
+            primary_changed_files=pr_data.get("changedFiles"),
+        )
+        return
+
+    run_branch_mode(branch=args.branch, skip_repo=args.skip, repo_root=repo_root)
 
 
 if __name__ == "__main__":

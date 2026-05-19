@@ -107,11 +107,33 @@ GIT_ASK_PATTERNS = [
 
 
 def check_git_for_ask(command: str) -> tuple[bool, str]:
-    """Returns (should_ask, reason) for git ops that warrant a confirmation prompt."""
+    """Returns (should_ask, joined_reason). Surfaces every distinct op in compound commands.
+
+    For overlapping matches (e.g. the force-push pattern is a superset of the plain-push
+    pattern), the wider/earlier-listed pattern wins and suppresses the narrower one.
+    """
+    matches = []  # (start, end, reason)
     for pattern, reason in GIT_ASK_PATTERNS:
-        if re.search(pattern, command, re.IGNORECASE):
-            return True, reason
-    return False, ""
+        for m in re.finditer(pattern, command, re.IGNORECASE):
+            matches.append((m.start(), m.end(), reason))
+
+    # Sort by position; at equal start, prefer the wider span (negative end as tiebreaker).
+    matches.sort(key=lambda t: (t[0], -t[1]))
+
+    kept_spans = []
+    ordered_reasons = []
+    seen = set()
+    for start, end, reason in matches:
+        if any(ks <= start < ke for ks, ke in kept_spans):
+            continue
+        kept_spans.append((start, end))
+        if reason not in seen:
+            seen.add(reason)
+            ordered_reasons.append(reason)
+
+    if not ordered_reasons:
+        return False, ""
+    return True, "; ".join(ordered_reasons)
 
 
 def check_command(command: str) -> tuple[bool, str]:

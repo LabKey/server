@@ -274,6 +274,10 @@ def main():
         ("gh pr merge", "gh pr merge 123 --squash", "ASK"),
         ("gh pr close", "gh pr close 123", "ASK"),
 
+        # ASK: compound commands should surface every matched op
+        ("compound: commit && push", "git commit -m hi && git push", "ASK"),
+        ("compound: force-push && commit", "git push --force && git commit -m hi", "ASK"),
+
         # ALLOW: read-only or non-destructive git/gh ops should pass through
         ("git log", "git log --oneline", "ALLOW"),
         ("git diff", "git diff HEAD~1", "ALLOW"),

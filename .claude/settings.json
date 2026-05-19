@@ -9,6 +9,7 @@
       "Bash(git switch -c:*)",
       "Bash(git switch -C:*)",
       "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh pr close:*)"
     ]

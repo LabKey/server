@@ -271,6 +271,7 @@ def main():
 
         # ASK: gh pr write actions
         ("gh pr create", "gh pr create --title foo --body bar", "ASK"),
+        ("gh pr edit", "gh pr edit 123 --body foo", "ASK"),
         ("gh pr merge", "gh pr merge 123 --squash", "ASK"),
         ("gh pr close", "gh pr close 123", "ASK"),
 

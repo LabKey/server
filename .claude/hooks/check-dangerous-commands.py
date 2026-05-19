@@ -96,6 +96,10 @@ GIT_ASK_PATTERNS = [
         "gh pr create detected — confirm title/body before proceeding",
     ),
     (
+        r'\bgh\s+(?:-\S+\s+)*pr\s+edit\b',
+        "gh pr edit detected — confirm title/body before proceeding",
+    ),
+    (
         r'\bgh\s+(?:-\S+\s+)*pr\s+merge\b',
         "gh pr merge detected — confirm before proceeding",
     ),

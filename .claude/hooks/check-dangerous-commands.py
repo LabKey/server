@@ -66,45 +66,48 @@ def command_touches_secret(command: str) -> bool:
 
 
 GIT_ASK_PATTERNS = [
-    # Force push: match before plain push so we emit the more specific reason
+    # Leading gap is [^\n;&|]*? so flags that take a separate-token value (e.g. `git -C <path>`,
+    # `git -c key=value`) don't bypass the match. The gap is constrained to a single logical
+    # command (no pipe/semicolon/&&) and non-greedy to keep matches tight.
+    # Force push: match before plain push so we emit the more specific reason.
     (
-        r'\bgit\s+(?:-\S+\s+)*push\b[^\n]*(?:--force\b|--force-with-lease\b|\s-f\b)',
+        r'\bgit\s+[^\n;&|]*?\bpush\b[^\n;&|]*(?:--force\b|--force-with-lease\b|\s-f\b)',
         "git force-push detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+(?:-\S+\s+)*push\b',
+        r'\bgit\s+[^\n;&|]*?\bpush\b',
         "git push detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+(?:-\S+\s+)*commit\b',
+        r'\bgit\s+[^\n;&|]*?\bcommit\b',
         "git commit detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+(?:-\S+\s+)*reset\b[^\n]*\s--hard\b',
+        r'\bgit\s+[^\n;&|]*?\breset\b[^\n;&|]*\s--hard\b',
         "git reset --hard detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+(?:-\S+\s+)*branch\b[^\n]*\s(?-i:-D)\b',
+        r'\bgit\s+[^\n;&|]*?\bbranch\b[^\n;&|]*\s(?-i:-D)\b',
         "git branch -D detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+(?:-\S+\s+)*(?:checkout\s+-b|switch\s+-[cC]|branch\s+(?!-)\S+)\b',
+        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-b|switch\s+-[cC]|branch\s+(?!-)\S+)\b',
         "git branch creation detected — confirm name before proceeding",
     ),
     (
-        r'\bgh\s+(?:-\S+\s+)*pr\s+create\b',
+        r'\bgh\s+[^\n;&|]*?\bpr\s+create\b',
         "gh pr create detected — confirm title/body before proceeding",
     ),
     (
-        r'\bgh\s+(?:-\S+\s+)*pr\s+edit\b',
+        r'\bgh\s+[^\n;&|]*?\bpr\s+edit\b',
         "gh pr edit detected — confirm title/body before proceeding",
     ),
     (
-        r'\bgh\s+(?:-\S+\s+)*pr\s+merge\b',
+        r'\bgh\s+[^\n;&|]*?\bpr\s+merge\b',
         "gh pr merge detected — confirm before proceeding",
     ),
     (
-        r'\bgh\s+(?:-\S+\s+)*pr\s+close\b',
+        r'\bgh\s+[^\n;&|]*?\bpr\s+close\b',
         "gh pr close detected — confirm before proceeding",
     ),
 ]

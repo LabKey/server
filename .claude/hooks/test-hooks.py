@@ -279,6 +279,17 @@ def main():
         ("compound: commit && push", "git commit -m hi && git push", "ASK"),
         ("compound: force-push && commit", "git push --force && git commit -m hi", "ASK"),
 
+        # ASK: dangerous flag on a later command in a compound. The leading git verb still triggers
+        # ASK via its own pattern (plain push); the regression is that the trailing -f must NOT be
+        # attributed to the push and reported as a force-push.
+        ("compound: push then unrelated -f", "git push origin main && gradle test -f", "ASK"),
+
+        # ALLOW: a dangerous-looking flag on an UNRELATED later command must not cross the shell
+        # separator and false-positive on the leading git verb. Before the [^\n;&|] fix these
+        # incorrectly matched reset --hard / branch -D.
+        ("compound: reset HEAD then unrelated --hard", "git reset HEAD && other --hard", "ALLOW"),
+        ("compound: branch list then unrelated -D", "git branch && other -D", "ALLOW"),
+
         # ALLOW: read-only or non-destructive git/gh ops should pass through
         ("git log", "git log --oneline", "ALLOW"),
         ("git diff", "git diff HEAD~1", "ALLOW"),

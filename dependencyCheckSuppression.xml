@@ -319,17 +319,122 @@
     -->
     <suppress>
         <notes><![CDATA[
-   file name: mcp-spring-webmvc-2.0.0-M3.jar
-   ]]></notes>
+    file name: mcp-spring-webmvc-2.0.0-M3.jar
+    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
         <cpe>cpe:/a:vmware:server</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: mcp-spring-webmvc-2.0.0-M3.jar
-   ]]></notes>
+    file name: mcp-spring-webmvc-2.0.0-M3.jar
+    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
         <cpe>cpe:/a:vmware:vmware_server</cpe>
     </suppress>
 
+    <!--
+    False positives: OWASP checker seems to be confusing kiota libraries (https://github.com/microsoft/kiota-java)
+    with kiota tool (https://github.com/microsoft/kiota/)
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-abstractions-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-abstractions@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-authentication-azure-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-authentication-azure@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-http-okHttp-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-http-okHttp@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-form-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-form@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-json-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-json@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-multipart-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-multipart@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-text-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-text@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+
+    <!--
+    Checker is confusing json-schema-validator with Nu Html Checker
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: json-schema-validator-3.0.1.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.networknt/json-schema-validator@.*$</packageUrl>
+        <cve>CVE-2025-15104</cve>
+    </suppress>
+
+    <!--
+    CVE-2026-33117 against "Azure SDK for Java" might affect these libraries, but we ship the latest and our use case
+    (requiring server admins to provide credentials) is certainly not vulnerable. Newer versions may allow us to remove
+    this suppression.
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-core-1.58.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-core@.*$</packageUrl>
+        <cve>CVE-2026-33117</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-core-http-netty-1.16.4.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-core-http-netty@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-identity-1.18.3.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_identity_sdk</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-identity-1.18.3.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-json-1.5.1.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-json@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
+    </suppress>
 </suppressions>

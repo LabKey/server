@@ -396,4 +396,38 @@
         <packageUrl regex="true">^pkg:maven/com\.networknt/json-schema-validator@.*$</packageUrl>
         <cve>CVE-2025-15104</cve>
     </suppress>
+
+    <!--
+    CVE-2026-33117 against "Azure SDK for Java" might affect these libraries, but we ship the latest and our use case
+    (requiring server admins to provide credentials) is certainly not vulnerable. Newer versions may allow us to remove
+    this suppression.
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-core-1.58.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-core@.*$</packageUrl>
+        <cve>CVE-2026-33117</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-core-http-netty-1.16.4.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-core-http-netty@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-identity-1.18.3.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_identity_sdk</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: azure-json-1.5.1.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.azure/azure-json@.*$</packageUrl>
+        <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
+    </suppress>
 </suppressions>

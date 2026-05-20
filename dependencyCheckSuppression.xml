@@ -385,4 +385,15 @@
         <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-text@.*$</packageUrl>
         <cve>CVE-2026-41134</cve>
     </suppress>
+
+    <!--
+    Checker is confusing json-schema-validator with Nu Html Checker
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: json-schema-validator-3.0.1.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.networknt/json-schema-validator@.*$</packageUrl>
+        <cve>CVE-2025-15104</cve>
+    </suppress>
 </suppressions>

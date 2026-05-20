@@ -25,6 +25,13 @@ Extend `BaseUpgradeTest` (not the module's own base test class, since Java has s
 Use a helper class (e.g. `TargetedMSHelper`) to access setup utilities without subclassing:
 
 ```java
+// For 26.6+: class-level annotation covers all @Test methods
+@Category({})
+@EarliestVersion("26.6")
+public class MyModuleUpgradeTest extends BaseUpgradeTest { ... }
+
+// For 26.3 or earlier: annotate EVERY @Test method individually
+// (class-level is ignored in older BaseUpgradeTest)
 @Category({})
 public class MyModuleUpgradeTest extends BaseUpgradeTest
 {
@@ -37,10 +44,18 @@ public class MyModuleUpgradeTest extends BaseUpgradeTest
     }
 
     @Test
-    @EarliestVersion("26.3")   // only run when upgrading from 26.3+
-    public void testMigration() throws Exception
+    @EarliestVersion("26.3")   // skip when upgrading from < 26.3
+    public void testNewMigration() throws Exception
     {
-        // query the new columns / UI state that the upgrade script created
+        // query new columns / UI state that the 26.3 upgrade script created
+    }
+
+    @Test
+    @EarliestVersion("26.3")   // must repeat on every method for pre-26.6 releases
+    @LatestVersion("26.3")     // additionally cap if only relevant for this exact version
+    public void testLegacyBehavior() throws Exception
+    {
+        // verify behavior that only applies to data created on exactly 26.3
     }
 }
 ```
@@ -49,8 +64,39 @@ public class MyModuleUpgradeTest extends BaseUpgradeTest
 elements that only exist after the upgrade.
 
 `@Test` methods run against the NEW server and can reference anything the migration added.
-Use `@EarliestVersion` to skip verification when the setup was done on a version that predates
-the migration.
+
+### Version annotation semantics
+
+Both `@EarliestVersion` and `@LatestVersion` (nested annotations inside `BaseUpgradeTest`) gate
+on the **old/setup version** — the version the server was running when `doSetup()` ran, not the
+new version being upgraded to. The version string is a LabKey release version like `"26.3"` or
+`"25.11"`.
+
+| Annotation | Meaning | When to use |
+|---|---|---|
+| `@EarliestVersion("X")` | Skip if old version < X | Test requires data/config only added to `doSetup()` in version X |
+| `@LatestVersion("X")` | Skip if old version > X | Test only applies to setups done on X or earlier (legacy check) |
+| Both together | Skip if old version outside [earliest, latest] | Narrow version window, e.g. a migration that was back-ported |
+
+Method-level annotations are ignored during the setup phase — they only filter during the verify phase.
+
+### Class-level vs method-level: version matters
+
+**Class-level** `@EarliestVersion` / `@LatestVersion` is only supported in **26.6 and later**.
+In older releases the `@BeforeClass setupProject()` does not check class-level annotations, so
+placing them on the class has no effect and tests will run (or fail) unconditionally.
+
+**Method-level** annotations work in all releases via the `UpgradeVersionCheck` `@Rule`.
+
+Rule of thumb by target release:
+
+| Writing a test for… | Use |
+|---|---|
+| 26.6+ | `@EarliestVersion` on the **class** (covers all methods at once) |
+| 26.3 or earlier | `@EarliestVersion` on **every `@Test` method** individually |
+
+For a release older than 26.6, annotate every `@Test` method — omitting even one means that
+method runs regardless of the old version.
 
 ## Steps
 
@@ -105,5 +151,11 @@ that only exist after the migration. Commit this as a follow-up commit on the ne
   setup phase will fail on the old server.
 - Don't extend the module's own base test class (e.g. `TargetedMSTest`) in the upgrade test —
   use a helper class instead so you can still extend `BaseUpgradeTest`.
-- Check that `@EarliestVersion` on `@Test` methods matches the version where `doSetup()` was
-  first introduced, so the verification only runs when the expected data was actually created.
+- **Class-level `@EarliestVersion` only works in 26.6+.** For 26.3 and earlier, the
+  `@BeforeClass` in `BaseUpgradeTest` does not check class-level annotations — you must annotate
+  every `@Test` method individually or tests will run unconditionally.
+- The version in `@EarliestVersion` / `@LatestVersion` refers to the **old** (setup) version,
+  not the new one. `@EarliestVersion("26.3")` means "only run when upgrading from 26.3 or later",
+  i.e. when `doSetup()` ran on a 26.3 server.
+- Both annotations are **inner annotations** declared inside `BaseUpgradeTest`, so import them as
+  `BaseUpgradeTest.EarliestVersion` or use a static import — they are not top-level JUnit annotations.

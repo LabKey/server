@@ -91,7 +91,7 @@ GIT_ASK_PATTERNS = [
         "git branch -D detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-b|switch\s+-[cC]|branch\s+(?!-)\S+)\b',
+        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-[bB]|switch\s+(?:-[cC]|--(?:force-)?create)|branch\s+(?:(?!-)\S+|-t|--track))\b',
         "git branch creation detected — confirm name before proceeding",
     ),
     (

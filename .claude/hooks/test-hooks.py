@@ -269,6 +269,14 @@ def main():
         # ASK: git branch -D (force delete)
         ("git branch -D", "git branch -D feature/foo", "ASK"),
 
+        # ASK: branch creation/reset variants beyond the basic -b / -c
+        ("git checkout -B (force create/reset)", "git checkout -B foo", "ASK"),
+        ("git checkout -B with start point", "git checkout -B foo origin/foo", "ASK"),
+        ("git switch --create (long form)", "git switch --create foo", "ASK"),
+        ("git switch --force-create (long force)", "git switch --force-create foo origin/foo", "ASK"),
+        ("git branch -t (track + create)", "git branch -t newname origin/main", "ASK"),
+        ("git branch --track (long form)", "git branch --track newname origin/main", "ASK"),
+
         # ASK: gh pr write actions
         ("gh pr create", "gh pr create --title foo --body bar", "ASK"),
         ("gh pr edit", "gh pr edit 123 --body foo", "ASK"),
@@ -300,6 +308,8 @@ def main():
         ("git reset HEAD~1 (no --hard)", "git reset HEAD~1", "ALLOW"),
         ("git stash", "git stash", "ALLOW"),
         ("git checkout main", "git checkout main", "ALLOW"),
+        ("git switch --no-track (no create flag)", "git switch --no-track foo", "ALLOW"),
+        ("git switch existing branch", "git switch main", "ALLOW"),
         ("gh pr view", "gh pr view 123", "ALLOW"),
         ("gh pr diff", "gh pr diff 123", "ALLOW"),
         ("gh pr list", "gh pr list", "ALLOW"),

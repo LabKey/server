@@ -319,17 +319,70 @@
     -->
     <suppress>
         <notes><![CDATA[
-   file name: mcp-spring-webmvc-2.0.0-M3.jar
-   ]]></notes>
+    file name: mcp-spring-webmvc-2.0.0-M3.jar
+    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
         <cpe>cpe:/a:vmware:server</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: mcp-spring-webmvc-2.0.0-M3.jar
-   ]]></notes>
+    file name: mcp-spring-webmvc-2.0.0-M3.jar
+    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.ai/mcp-spring-webmvc@.*$</packageUrl>
         <cpe>cpe:/a:vmware:vmware_server</cpe>
     </suppress>
 
+    <!--
+    False positives: OWASP checker seems to be confusing kiota libraries (https://github.com/microsoft/kiota-java)
+    with kiota tool (https://github.com/microsoft/kiota/)
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-abstractions-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-abstractions@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-authentication-azure-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-authentication-azure@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-http-okHttp-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-http-okHttp@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-form-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-form@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-json-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-json@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-multipart-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-multipart@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: microsoft-kiota-serialization-text-1.9.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.microsoft\.kiota/microsoft-kiota-serialization-text@.*$</packageUrl>
+        <cve>CVE-2026-41134</cve>
+    </suppress>
 </suppressions>

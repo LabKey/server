@@ -276,6 +276,12 @@ def main():
         ("git switch --force-create (long force)", "git switch --force-create foo origin/foo", "ASK"),
         ("git branch -t (track + create)", "git branch -t newname origin/main", "ASK"),
         ("git branch --track (long form)", "git branch --track newname origin/main", "ASK"),
+        ("git branch -m (rename)", "git branch -m oldname newname", "ASK"),
+        ("git branch -M (force rename)", "git branch -M oldname newname", "ASK"),
+        ("git branch -c (copy)", "git branch -c oldname newname", "ASK"),
+        ("git branch -C (force copy)", "git branch -C oldname newname", "ASK"),
+        ("git branch --move (long rename)", "git branch --move oldname newname", "ASK"),
+        ("git branch --copy (long copy)", "git branch --copy oldname newname", "ASK"),
 
         # ASK: gh pr write actions
         ("gh pr create", "gh pr create --title foo --body bar", "ASK"),

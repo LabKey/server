@@ -57,6 +57,7 @@ clientAPIs/*
 .claude/settings.local.json
 .claude/hooks/*.log
 .playwright-mcp/
+.vscode/
 
 # Python bytecode
 __pycache__/

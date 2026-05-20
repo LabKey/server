@@ -29,6 +29,15 @@ def _log(detail: str) -> None:
         pass
 
 
+# Mask the password segment of basic-auth URLs (e.g. https://user:TOKEN@host) before logging.
+# Only applies to scheme://user:pass@ forms; SSH-style git@host:path URLs have no password to scrub.
+_CRED_URL_RE = re.compile(r'(://[^/:\s]+:)[^@\s]+(@)')
+
+
+def _safe_command(command: str) -> str:
+    return _CRED_URL_RE.sub(r'\1***\2', command)
+
+
 SHELL_OPERATORS = {"|", "||", "&", "&&", ";", ">", ">>", "<", "<<"}
 
 
@@ -91,7 +100,7 @@ GIT_ASK_PATTERNS = [
         "git branch -D detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-[bB]|switch\s+(?:-[cC]|--(?:force-)?create)|branch\s+(?:(?!-)\S+|-t|--track))\b',
+        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-[bB]|switch\s+(?:-[cC]|--(?:force-)?create)|branch\s+(?:(?!-)\S+|-t|--track|-[mMcC]|--(?:move|copy)))\b',
         "git branch creation detected — confirm name before proceeding",
     ),
     (
@@ -214,14 +223,19 @@ def main():
     blocked, reason = check_command(command)
 
     if blocked:
-        _log(f"command={command!r} decision=block reason={reason!r}")
+        # Block-on-secret reasons reference the secret path that triggered the match; logging
+        # the full command would re-emit that path. Drop the command for those cases.
+        if "secrets file" in reason or "secrets" in reason:
+            _log(f"decision=block reason={reason!r} (command omitted)")
+        else:
+            _log(f"command={_safe_command(command)!r} decision=block reason={reason!r}")
         response = {"decision": "block", "reason": reason}
         print(json.dumps(response))
         sys.exit(2)
 
     ask, ask_reason = check_git_for_ask(command)
     if ask:
-        _log(f"command={command!r} decision=ask reason={ask_reason!r}")
+        _log(f"command={_safe_command(command)!r} decision=ask reason={ask_reason!r}")
         response = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
@@ -232,7 +246,7 @@ def main():
         print(json.dumps(response))
         sys.exit(0)
 
-    _log(f"command={command!r} decision=allow")
+    _log(f"command={_safe_command(command)!r} decision=allow")
     sys.exit(0)
 
 

@@ -104,6 +104,30 @@ def get_topic_repos() -> list[str]:
 # ---------------------------------------------------------------------------
 
 @dataclass
+class TaskItem:
+    text: str
+    checked: bool
+
+
+def _parse_task_list(body: str) -> list[TaskItem]:
+    """Parse GitHub-flavored markdown task list items from a PR body."""
+    items = []
+    for line in (body or "").splitlines():
+        m = re.match(r'^\s*[-*]\s+\[([ xX])\]\s+(.*)', line)
+        if m:
+            items.append(TaskItem(text=m.group(2).strip(), checked=m.group(1).lower() == 'x'))
+    return items
+
+
+@dataclass
+class LinkedIssue:
+    number: int
+    title: str
+    url: str
+    task_items: list[TaskItem] = field(default_factory=list)
+
+
+@dataclass
 class PRStatus:
     repo: str
     pr_url: str = ""
@@ -115,6 +139,8 @@ class PRStatus:
     pending_reviewers: list[str] = field(default_factory=list)
     mergeable: str = ""           # MERGEABLE CONFLICTING UNKNOWN
     ci_rollup: str = ""           # SUCCESS FAILURE PENDING ""
+    task_items: list[TaskItem] = field(default_factory=list)
+    linked_issues: list[LinkedIssue] = field(default_factory=list)
 
 
 def _ci_rollup(checks: list[dict]) -> str:
@@ -140,7 +166,7 @@ def fetch_pr_status(owner_repo: str, branch: str) -> PRStatus:
         "--repo", owner_repo,
         "--head", branch,
         "--state", "all",
-        "--json", "title,url,state,isDraft,reviews,reviewRequests,mergeable,statusCheckRollup",
+        "--json", "title,url,state,isDraft,reviews,reviewRequests,mergeable,statusCheckRollup,body,closingIssuesReferences",
         "--limit", "1",
     )
     if not ok or not stdout:
@@ -161,6 +187,22 @@ def fetch_pr_status(owner_repo: str, branch: str) -> PRStatus:
     ps.is_draft = pr.get("isDraft", False)
     ps.mergeable = pr.get("mergeable", "").upper()
     ps.ci_rollup = _ci_rollup(pr.get("statusCheckRollup", []))
+    ps.task_items = _parse_task_list(pr.get("body", "") or "")
+
+    for ref in pr.get("closingIssuesReferences", []):
+        num = ref.get("number", 0)
+        if not num:
+            continue
+        body_out, ok = run(
+            "gh", "api", f"repos/{owner_repo}/issues/{num}",
+            "--jq", ".body // empty",
+        )
+        ps.linked_issues.append(LinkedIssue(
+            number=num,
+            title=ref.get("title", ""),
+            url=ref.get("url", ""),
+            task_items=_parse_task_list(body_out if ok else ""),
+        ))
 
     # Use the latest review state per reviewer (last review wins).
     latest_by_reviewer: dict[str, str] = {}
@@ -433,6 +475,7 @@ class BuildStatus:
     failure_count: int = 0
     failed_tests: list[FailedTest] = field(default_factory=list)
     has_newer_commits: Optional[bool] = None  # True = branch has commits newer than this build's queue time
+    stale_repos: list[str] = field(default_factory=list)  # repos with commits newer than build queue time
 
 
 def _fetch_failing_tests(build_id: int, token: str, max_tests: int = 500) -> list[str]:
@@ -528,14 +571,13 @@ def _fetch_repo_latest_commit_date(owner_repo: str, branch: str) -> Optional[str
     return stdout.strip() if ok and stdout.strip() else None
 
 
-def _get_latest_branch_commit_date(repos: list[str], branch: str) -> Optional[str]:
-    """Return the most recent commit date (ISO 8601) across all given repos, or None."""
+def _get_repo_commit_dates(repos: list[str], branch: str) -> dict[str, str]:
+    """Return {owner_repo: ISO date} for the latest commit on each repo's branch."""
     if not repos:
-        return None
+        return {}
     with ThreadPoolExecutor(max_workers=8) as ex:
-        futures = [ex.submit(_fetch_repo_latest_commit_date, r, branch) for r in repos]
-        dates = [f.result() for f in futures if f.result()]
-    return max(dates) if dates else None
+        futures = {r: ex.submit(_fetch_repo_latest_commit_date, r, branch) for r in repos}
+        return {r: f.result() for r, f in futures.items() if f.result()}
 
 
 def _fetch_all_build_type_ids(project_id: str, token: str) -> list[tuple[str, str, str]]:
@@ -761,6 +803,22 @@ def to_dict(
                 "pending_reviewers": ps.pending_reviewers,
                 "mergeable": ps.mergeable,
                 "ci_rollup": ps.ci_rollup,
+                "task_items": [
+                    {"text": ti.text, "checked": ti.checked}
+                    for ti in ps.task_items
+                ],
+                "linked_issues": [
+                    {
+                        "number": li.number,
+                        "title": li.title,
+                        "url": li.url,
+                        "task_items": [
+                            {"text": ti.text, "checked": ti.checked}
+                            for ti in li.task_items
+                        ],
+                    }
+                    for li in ps.linked_issues
+                ],
             }
             for ps in sorted(github, key=lambda x: x.repo)
         ],
@@ -775,6 +833,7 @@ def to_dict(
                 "finished_at": bs.finished_at,
                 "queued_at": _parse_tc_date(bs.queued_at) if bs.queued_at else "",
                 "has_newer_commits": bs.has_newer_commits,
+                "stale_repos": bs.stale_repos,
                 "failure_count": bs.failure_count,
                 "failed_tests": [
                     {"name": ft.name, "fails_on_primary": ft.fails_on_primary}
@@ -846,19 +905,25 @@ def main() -> None:
         github = github_future.result()
         builds = tc_future.result()
 
-    # Mark stale builds: has the branch received commits since this build was queued?
+    # Mark stale builds: which repos have commits newer than each build's queue time?
     repos_with_branch = [ps.repo for ps in github if ps.state != "NO_PR"]
-    latest_commit_date = _get_latest_branch_commit_date(repos_with_branch, args.branch)
-    if latest_commit_date:
-        try:
-            commit_dt = datetime.fromisoformat(latest_commit_date.replace("Z", "+00:00"))
-            for bs in builds:
-                if bs.state == "finished" and bs.queued_at:
-                    queued_dt = _parse_tc_date_to_dt(bs.queued_at)
-                    if queued_dt:
-                        bs.has_newer_commits = commit_dt > queued_dt
-        except ValueError:
-            pass
+    repo_commit_dates = _get_repo_commit_dates(repos_with_branch, args.branch)
+    latest_commit_date = max(repo_commit_dates.values()) if repo_commit_dates else None
+
+    if repo_commit_dates:
+        for bs in builds:
+            if bs.state == "finished" and bs.queued_at:
+                queued_dt = _parse_tc_date_to_dt(bs.queued_at)
+                if queued_dt:
+                    stale = []
+                    for repo, date_str in repo_commit_dates.items():
+                        try:
+                            if datetime.fromisoformat(date_str.replace("Z", "+00:00")) > queued_dt:
+                                stale.append(repo)
+                        except ValueError:
+                            pass
+                    bs.stale_repos = sorted(stale)
+                    bs.has_newer_commits = bool(stale)
 
     if args.as_json:
         print(json.dumps(to_dict(args.branch, tc_branch, primary_branch, github, builds, latest_commit_date), indent=2))

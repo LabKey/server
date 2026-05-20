@@ -1,6 +1,6 @@
 # Rule Catalog — Code Quality
 
-> **Prerequisite:** Review and apply the common guidelines in [`common.md`](../common.md) before using this checklist.
+> **Prerequisite:** Review and apply the shared guidelines in [`review-priority-and-format.md`](../review-priority-and-format.md) before using this checklist.
 
 ## Props interface should be declared separately
 
@@ -42,6 +42,268 @@ const MyComponent: FC<MyComponentProps> = ({ report, tab }) => {
     // ...
 };
 ```
+
+## React components and hooks should have unit tests
+
+**Urgency:** suggestion
+
+### Category
+
+Maintainability
+
+### Confidence Threshold
+
+Flag new or significantly modified components/hooks lacking Jest tests when they contain logic (state, effects, event handlers, conditional rendering). Simple presentational components rendering static JSX may defer testing. Existing untested code not modified in the PR should not be flagged.
+
+### Exceptions / False Positives
+
+- Do not flag demo-only, internal layout wrappers, or placeholder components.
+- Do not flag when tests exist in a different location (e.g., shared test suite) if verifiable.
+- Do not flag existing untested code outside the PR scope.
+
+### Description
+
+Components with state, effects, event handlers, or conditional logic need Jest tests. Test what should always be covered: `useState`/`useReducer`, event handlers, conditional rendering, custom hooks with logic, permission-gated rendering. Layout-only components are optional.
+
+### Anti-patterns to Flag
+
+```tsx
+// ❌ Stateful component with events but no tests
+const Counter: FC = () => {
+    const [count, setCount] = useState(0);
+    return (
+        <div>
+            <p>Count: {count}</p>
+            <button onClick={() => setCount(count + 1)}>Increment</button>
+        </div>
+    );
+};
+
+// ❌ Custom hook with async logic but no tests
+const useItemData = (id: string) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        // Error handling omitted for brevity
+        async function load() {
+            const result = await loadItemById(id);
+            setData(result);
+        }
+        load();
+    }, [id]);
+    return data;
+};
+```
+
+### Suggested Fix
+
+Create `Component.test.tsx` with meaningful assertions per [`jest/business-logic.md`](../jest/business-logic.md):
+
+```tsx
+test('increments count when button clicked', async () => {
+    render(<Counter />);
+    await userEvent.click(screen.getByRole('button', { name: /increment/i }));
+    expect(screen.getByText('Count: 1')).toBeInTheDocument();
+});
+```
+
+### How to Detect
+
+1. Check for `.test.tsx`/`.test.ts` file corresponding to modified component.
+2. If missing, flag if component has: hooks, event handlers, or conditional logic.
+3. If tests exist, verify they assert on behavior (not just render existence).
+
+## Large JSX/TSX blocks should be extracted into separate components
+
+**Urgency:** suggestion
+
+### Category
+
+Maintainability
+
+### Confidence Threshold
+
+Flag JSX return statements >25 lines or those with multiple conditional branches (3+ `{condition && <...>}` or ternary operators). Simple single-element returns or small layout wrappers are exempt.
+
+### Exceptions / False Positives
+
+- Do not flag simple, single-element returns or small layout wrappers.
+
+### Description
+
+Large JSX blocks reduce readability, increase cognitive load, and make testing harder. Red flags: multiple conditional rendering branches, repeated patterns (like tab buttons with similar structure), deeply nested element hierarchies, and components managing multiple independent concerns.
+
+### Anti-patterns to Flag
+
+```tsx
+// ❌ Return block with multiple conditional branches and repeated patterns
+const DesignerPanel: FC<Props> = ({ data, showWarnings }) => {
+    const [rightTab, setRightTab] = useState<'properties' | 'warnings'>('properties');
+
+    return (
+        <div className="designer">
+            {showWarnings && (
+                <div className="tabs" role="tablist">
+                    <button
+                        role="tab"
+                        aria-selected={rightTab === 'properties'}
+                        onClick={() => setRightTab('properties')}
+                    >
+                        Properties
+                    </button>
+                    <button
+                        role="tab"
+                        aria-selected={rightTab === 'warnings'}
+                        onClick={() => setRightTab('warnings')}
+                    >
+                        Warnings
+                    </button>
+                </div>
+            )}
+            {(!showWarnings || rightTab === 'properties') && (
+                <div role="tabpanel">
+                    <PropertiesPanel data={data} />
+                </div>
+            )}
+            {showWarnings && rightTab === 'warnings' && (
+                <div role="tabpanel">
+                    <WarningsPanel data={data} />
+                </div>
+            )}
+        </div>
+    );
+};
+```
+
+**Red flags in this example:**
+- 3 separate conditional render blocks
+- Repeated tab button structure with duplicated accessibility attrs
+- Multiple independent concerns (tabs, properties, warnings)
+- Mixed conditional logic (both &&-chaining and ternaries)
+
+### Suggested Fix
+
+Extract the tab control into a reusable component:
+
+```tsx
+interface TabPanelProps {
+    active: 'properties' | 'warnings';
+    onChange: (tab: 'properties' | 'warnings') => void;
+}
+
+const TabPanel: FC<TabPanelProps> = ({ active, onChange }) => {
+    const handlePropertiesClick = useCallback(() => onChange('properties'), [onChange]);
+    const handleWarningsClick = useCallback(() => onChange('warnings'), [onChange]);
+
+    return (
+        <div className="tabs" role="tablist">
+            <button
+                role="tab"
+                aria-selected={active === 'properties'}
+                onClick={handlePropertiesClick}
+            >
+                Properties
+            </button>
+            <button
+                role="tab"
+                aria-selected={active === 'warnings'}
+                onClick={handleWarningsClick}
+            >
+                Warnings
+            </button>
+        </div>
+    );
+};
+TabPanel.displayName = 'TabPanel';
+
+const DesignerPanel: FC<Props> = ({ data, showWarnings }) => {
+    const [rightTab, setRightTab] = useState<'properties' | 'warnings'>('properties');
+
+    return (
+        <div className="designer">
+            {showWarnings && <TabPanel active={rightTab} onChange={setRightTab} />}
+            {(!showWarnings || rightTab === 'properties') && <PropertiesPanel data={data} />}
+            {showWarnings && rightTab === 'warnings' && <WarningsPanel data={data} />}
+        </div>
+    );
+};
+DesignerPanel.displayName = 'DesignerPanel';
+```
+
+### How to Detect
+
+1. **Multiple conditional branches:** Count `{condition && <...>}` and ternary operators. 3+ suggests extraction.
+2. **Repeated patterns:** Similar button/input groups with duplicated props (e.g., `role="tab"`, `aria-selected`, `onClick`) → extract into component.
+3. **Multiple state sections:** Component with separate state for tabs/panels (e.g., `const [tab, setTab]` and `const [panel, setPanel]`) often signals multiple concerns.
+4. **Line count + nesting:** Return >25 lines OR deeply nested (3+ levels) conditional JSX → consider extraction.
+
+## React components and hooks should have unit tests
+
+**Urgency:** suggestion
+
+### Category
+
+Maintainability
+
+### Confidence Threshold
+
+Flag new or significantly modified components/hooks lacking Jest tests when they contain logic (state, effects, event handlers, conditional rendering). Simple presentational components rendering static JSX may defer testing. Existing untested code not modified in the PR should not be flagged.
+
+### Exceptions / False Positives
+
+- Do not flag demo-only, internal layout wrappers, or placeholder components.
+- Do not flag when tests exist in a different location (e.g., shared test suite) if verifiable.
+- Do not flag existing untested code outside the PR scope.
+
+### Description
+
+Components with state, effects, event handlers, or conditional logic need Jest tests. Test what should always be covered: `useState`/`useReducer`, event handlers, conditional rendering, custom hooks with logic, permission-gated rendering. Layout-only components are optional.
+
+### Anti-patterns to Flag
+
+```tsx
+// ❌ Stateful component with events but no tests
+const Counter: FC = () => {
+    const [count, setCount] = useState(0);
+    return (
+        <div>
+            <p>Count: {count}</p>
+            <button onClick={() => setCount(count + 1)}>Increment</button>
+        </div>
+    );
+};
+
+// ❌ Custom hook with async logic but no tests
+const useItemData = (id: string) => {
+    const [data, setData] = useState(null);
+    useEffect(() => {
+        // Error handling omitted for brevity
+        async function load() {
+            const result = await loadItemById(id);
+            setData(result);
+        }
+        load();
+    }, [id]);
+    return data;
+};
+```
+
+### Suggested Fix
+
+Create `Component.test.tsx` with meaningful assertions per [`jest/business-logic.md`](../jest/business-logic.md):
+
+```tsx
+test('increments count when button clicked', async () => {
+    render(<Counter />);
+    await userEvent.click(screen.getByRole('button', { name: /increment/i }));
+    expect(screen.getByText('Count: 1')).toBeInTheDocument();
+});
+```
+
+### How to Detect
+
+1. Check for `.test.tsx`/`.test.ts` file corresponding to modified component.
+2. If missing, flag if component has: hooks, event handlers, or conditional logic.
+3. If tests exist, verify they assert on behavior (not just render existence).
 
 ## Optional props that are always passed should be required
 

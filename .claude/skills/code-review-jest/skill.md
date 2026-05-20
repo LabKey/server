@@ -18,7 +18,7 @@ Use this skill whenever the user asks to review Jest test code (especially `.tes
 Stick to the checklist below for every applicable file and mode. Apply only the Jest checklist rules to test files — do not apply React component rules to component code that happens to be visible via imports in the test file.
 
 ## Checklist
-See [.agents/review-checklists/common.md](../../../.agents/review-checklists/common.md) for reviewer priority and standard review format, and [.agents/review-checklists/jest/code-quality.md](../../../.agents/review-checklists/jest/code-quality.md), [.agents/review-checklists/jest/performance.md](../../../.agents/review-checklists/jest/performance.md), [.agents/review-checklists/jest/business-logic.md](../../../.agents/review-checklists/jest/business-logic.md) for the living checklist split by category—treat it as the canonical set of rules to follow.
+See [review-priority-and-format.md](../review-priority-and-format.md) for reviewer priority and standard review format, and [code-quality.md](code-quality.md), [performance.md](performance.md), [business-logic.md](business-logic.md) for the living checklist split by category—treat it as the canonical set of rules to follow.
 
 Use the rule's `Urgency` to place findings in the "urgent issues" vs "suggestions" sections.
 

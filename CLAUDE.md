@@ -22,12 +22,6 @@ LabKey Server is a large Java web application platform for biomedical research d
 # Build a specific module
 ./gradlew :server:modules:platform:core:build
 
-# Build with a predefined module set
-./gradlew -PmoduleSet=community build
-
-# Exclude test modules for faster builds
-./gradlew -PexcludeTestModules build
-
 # Build a distribution
 ./gradlew -PmoduleSet=distributions :distributions:base:dist
 ```

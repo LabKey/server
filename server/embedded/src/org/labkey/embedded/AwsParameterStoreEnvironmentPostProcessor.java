@@ -91,6 +91,7 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
     private static final String SECRETS_PREFIX_PROPERTY = "context.awsParameterStore.secretsPrefix";
     private static final String REGION_PROPERTY = "context.awsParameterStore.region";
     private static final String DEFAULT_PREFIX = "/";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /** Parsed reference to an SSM parameter, optionally with a dot-path into a JSON value. */
     private record SsmRef(String paramPath, String jsonPath) {}
@@ -105,8 +106,20 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application)
     {
         String prefix = environment.getProperty(PREFIX_PROPERTY, DEFAULT_PREFIX);
-        String secretsPrefix = environment.getProperty(SECRETS_PREFIX_PROPERTY);
 
+        // Scan for "ssm:" references in the values of any property, which is an instruction to get the real value
+        // from AWS's SSM parameter store
+        Map<String, SsmRef> ssmRefs = findSsmReferences(environment, prefix);
+
+        // Determine whether the operator explicitly opted into AWS config.
+        boolean hasExplicitConfig = environment.containsProperty(PREFIX_PROPERTY) ||
+                                    environment.containsProperty(SECRETS_PREFIX_PROPERTY);
+
+        // On-premise deployments with no explicit AWS config and no ssm: values incur zero overhead.
+        if (!hasExplicitConfig && ssmRefs.isEmpty())
+            return;
+
+        String secretsPrefix = environment.getProperty(SECRETS_PREFIX_PROPERTY);
         if (secretsPrefix != null)
         {
             // A relative path (no leading /) is resolved against the main prefix so operators
@@ -126,7 +139,6 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
         System.setProperty("labkey.aws.ssm.region", region.id());
         System.setProperty("labkey.aws.ssm.secretsPrefix", secretsPrefix);
 
-        Map<String, SsmRef> ssmRefs = findSsmReferences(environment, prefix);
         if (ssmRefs.isEmpty())
             return;
 
@@ -134,24 +146,21 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
 
         try (SsmClient ssmClient = buildSsmClient(region))
         {
-            if (!ssmRefs.isEmpty())
+            Map<String, Object> resolved = new LinkedHashMap<>();
+            // Fetch each unique SSM parameter path once to avoid redundant calls when multiple
+            // properties reference different JSON keys within the same parameter.
+            Map<String, String> fetchedParams = new LinkedHashMap<>();
+            for (Map.Entry<String, SsmRef> entry : ssmRefs.entrySet())
             {
-                Map<String, Object> resolved = new LinkedHashMap<>();
-                // Fetch each unique SSM parameter path once to avoid redundant calls when multiple
-                // properties reference different JSON keys within the same parameter.
-                Map<String, String> fetchedParams = new LinkedHashMap<>();
-                for (Map.Entry<String, SsmRef> entry : ssmRefs.entrySet())
-                {
-                    String propName = entry.getKey();
-                    SsmRef ref = entry.getValue();
-                    String rawValue = fetchedParams.computeIfAbsent(ref.paramPath(), p -> fetchRequired(ssmClient, p));
-                    String resolvedValue = ref.jsonPath() != null ? extractFromJson(rawValue, ref.jsonPath(), ref.paramPath()) : rawValue;
-                    resolved.put(propName, resolvedValue);
-                    System.out.println("[LabKey AWS] Resolved property '" + propName + "' from SSM parameter '" + ref.paramPath() +
-                        (ref.jsonPath() != null ? "::" + ref.jsonPath() : "") + "'");
-                }
-                environment.getPropertySources().addFirst(new MapPropertySource("awsParameterStore", resolved));
+                String propName = entry.getKey();
+                SsmRef ref = entry.getValue();
+                String rawValue = fetchedParams.computeIfAbsent(ref.paramPath(), p -> fetchRequired(ssmClient, p));
+                String resolvedValue = ref.jsonPath() != null ? extractFromJson(rawValue, ref.jsonPath(), ref.paramPath()) : rawValue;
+                resolved.put(propName, resolvedValue);
+                System.out.println("[LabKey AWS] Resolved property '" + propName + "' from SSM parameter '" + ref.paramPath() +
+                    (ref.jsonPath() != null ? "::" + ref.jsonPath() : "") + "'");
             }
+            environment.getPropertySources().addFirst(new MapPropertySource("awsParameterStore", resolved));
         }
     }
 
@@ -193,7 +202,7 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
         JsonNode node;
         try
         {
-            node = new ObjectMapper().readTree(json);
+            node = OBJECT_MAPPER.readTree(json);
         }
         catch (JsonProcessingException e)
         {

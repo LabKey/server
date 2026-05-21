@@ -282,6 +282,9 @@ def main():
         ("git branch -C (force copy)", "git branch -C oldname newname", "ASK"),
         ("git branch --move (long rename)", "git branch --move oldname newname", "ASK"),
         ("git branch --copy (long copy)", "git branch --copy oldname newname", "ASK"),
+        ("git branch -f (force reset existing)", "git branch -f existing HEAD~1", "ASK"),
+        ("git branch --force (long force)", "git branch --force existing HEAD~1", "ASK"),
+        ("git branch -f bare", "git branch -f newname", "ASK"),
 
         # ASK: gh pr write actions
         ("gh pr create", "gh pr create --title foo --body bar", "ASK"),
@@ -303,6 +306,14 @@ def main():
         # incorrectly matched reset --hard / branch -D.
         ("compound: reset HEAD then unrelated --hard", "git reset HEAD && other --hard", "ALLOW"),
         ("compound: branch list then unrelated -D", "git branch && other -D", "ALLOW"),
+
+        # ALLOW: dotted git-config keys must not match the bare-verb patterns. `\bpush\b` etc.
+        # treat `.` as a word boundary, so `(?=\s|$)` after each verb is what excludes these.
+        ("git config push.default", "git config push.default simple", "ALLOW"),
+        ("git config commit.gpgsign", "git config commit.gpgsign true", "ALLOW"),
+        ("git config reset.quiet", "git config reset.quiet true", "ALLOW"),
+        ("git log --since quoted 'commit'", "git log --since=\"last commit\"", "ALLOW"),
+        ("git log --grep commit", "git log --grep=commit", "ALLOW"),
 
         # ALLOW: read-only or non-destructive git/gh ops should pass through
         ("git log", "git log --oneline", "ALLOW"),

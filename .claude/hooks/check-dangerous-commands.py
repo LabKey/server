@@ -29,9 +29,10 @@ def _log(detail: str) -> None:
         pass
 
 
-# Mask the password segment of basic-auth URLs (e.g. https://user:TOKEN@host) before logging.
-# Only applies to scheme://user:pass@ forms; SSH-style git@host:path URLs have no password to scrub.
-_CRED_URL_RE = re.compile(r'(://[^/:\s]+:)[^@\s]+(@)')
+# Mask the entire user-info section of scheme://...@host URLs before logging. Covers all
+# three common forms: user:pass@ (basic auth), TOKEN@ (token-as-user), and TOKEN:x-oauth-basic@
+# (GitHub PAT convention). SSH-style git@host:path URLs have no scheme://, so they're untouched.
+_CRED_URL_RE = re.compile(r'(://)[^@\s/]+(@)')
 
 
 def _safe_command(command: str) -> str:
@@ -77,22 +78,25 @@ def command_touches_secret(command: str) -> bool:
 GIT_ASK_PATTERNS = [
     # Leading gap is [^\n;&|]*? so flags that take a separate-token value (e.g. `git -C <path>`,
     # `git -c key=value`) don't bypass the match. The gap is constrained to a single logical
-    # command (no pipe/semicolon/&&) and non-greedy to keep matches tight.
+    # command (no pipe/semicolon/&&) and non-greedy to keep matches tight. Each verb is wrapped
+    # with (?<=\s)<verb>(?=\s|$) so it must be a standalone token: dotted config keys like
+    # `push.default` are rejected by the trailing lookahead, and trailing patterns inside flag
+    # values like `--grep=commit` are rejected by the leading lookbehind.
     # Force push: match before plain push so we emit the more specific reason.
     (
-        r'\bgit\s+[^\n;&|]*?\bpush\b[^\n;&|]*(?:--force\b|--force-with-lease\b|\s-f\b)',
+        r'\bgit\s+[^\n;&|]*?(?<=\s)push(?=\s|$)[^\n;&|]*(?:--force\b|--force-with-lease\b|\s-f\b)',
         "git force-push detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+[^\n;&|]*?\bpush\b',
+        r'\bgit\s+[^\n;&|]*?(?<=\s)push(?=\s|$)',
         "git push detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+[^\n;&|]*?\bcommit\b',
+        r'\bgit\s+[^\n;&|]*?(?<=\s)commit(?=\s|$)',
         "git commit detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+[^\n;&|]*?\breset\b[^\n;&|]*\s--hard\b',
+        r'\bgit\s+[^\n;&|]*?(?<=\s)reset(?=\s|$)[^\n;&|]*\s--hard\b',
         "git reset --hard detected — confirm before proceeding",
     ),
     (
@@ -100,7 +104,7 @@ GIT_ASK_PATTERNS = [
         "git branch -D detected — confirm before proceeding",
     ),
     (
-        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-[bB]|switch\s+(?:-[cC]|--(?:force-)?create)|branch\s+(?:(?!-)\S+|-t|--track|-[mMcC]|--(?:move|copy)))\b',
+        r'\bgit\s+[^\n;&|]*?(?:checkout\s+-[bB]|switch\s+(?:-[cC]|--(?:force-)?create)|branch\s+(?:(?!-)\S+|-t|--track|-[mMcCfF]|--(?:move|copy|force)))\b',
         "git branch creation detected — confirm name before proceeding",
     ),
     (

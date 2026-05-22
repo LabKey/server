@@ -80,6 +80,8 @@ import java.util.Map;
  * <ul>
  *   <li>An {@code ssm:} reference names a parameter that does not exist in Parameter Store</li>
  *   <li>The AWS SDK cannot obtain credentials (no IAM role, no env vars, no profile)</li>
+ *   <li>{@code context.awsParameterStore.prefix} or the resolved {@code secretsPrefix} does not
+ *       end with {@code /} or {@code ::}</li>
  * </ul>
  */
 @SuppressWarnings("SSBasedInspection") // This runs before Log4J is initialized, so use System.out and System.err
@@ -107,6 +109,10 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
     {
         String prefix = environment.getProperty(PREFIX_PROPERTY, DEFAULT_PREFIX);
 
+        if (!prefix.endsWith("/") && !prefix.endsWith("::"))
+            throw new IllegalStateException(
+                "[LabKey AWS] " + PREFIX_PROPERTY + " must end with '/' or '::' (got: '" + prefix + "')");
+
         // Scan for "ssm:" references in the values of any property, which is an instruction to get the real value
         // from AWS's SSM parameter store
         Map<String, SsmRef> ssmRefs = findSsmReferences(environment, prefix);
@@ -130,6 +136,11 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
         {
             secretsPrefix = prefix;
         }
+
+        if (!secretsPrefix.isEmpty() && !secretsPrefix.endsWith("/") && !secretsPrefix.endsWith("::"))
+            throw new IllegalStateException(
+                "[LabKey AWS] Resolved secretsPrefix must end with '/' or '::' (got: '" + secretsPrefix +
+                "'). Check " + SECRETS_PREFIX_PROPERTY + " and " + PREFIX_PROPERTY + " in application.properties");
 
         String regionOverride = environment.getProperty(REGION_PROPERTY);
         Region region = resolveRegion(regionOverride);

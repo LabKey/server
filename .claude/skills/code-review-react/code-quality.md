@@ -1,6 +1,6 @@
 # Rule Catalog — Code Quality
 
-> **Prerequisite:** Review and apply the common guidelines in [`common.md`](../common.md) before using this checklist.
+> **Prerequisite:** Review and apply the shared guidelines in [`review-priority-and-format.md`](../review-priority-and-format.md) before using this checklist.
 
 ## Props interface should be declared separately
 

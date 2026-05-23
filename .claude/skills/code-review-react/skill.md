@@ -18,7 +18,7 @@ Use this skill whenever the user asks to review frontend code (especially `.tsx`
 Stick to the checklist below for every applicable file and mode. Apply only the React/frontend checklist rules — do not apply Jest test rules to test code that may be co-located or visible in the same file.
 
 ## Checklist
-See [.agents/review-checklists/common.md](../../../.agents/review-checklists/common.md) for reviewer priority and standard review format, and [.agents/review-checklists/react/code-quality.md](../../../.agents/review-checklists/react/code-quality.md), [.agents/review-checklists/react/performance.md](../../../.agents/review-checklists/react/performance.md), [.agents/review-checklists/react/business-logic.md](../../../.agents/review-checklists/react/business-logic.md) for the living checklist split by category—treat it as the canonical set of rules to follow.
+See [review-priority-and-format.md](../review-priority-and-format.md) for reviewer priority and standard review format, and [code-quality.md](code-quality.md), [performance.md](performance.md), [business-logic.md](business-logic.md) for the living checklist split by category—treat it as the canonical set of rules to follow.
 
 Additionally, check for WCAG 2.2 Level AA accessibility violations using [wcag-22-checklist.md](../wcag-compliance/wcag-22-checklist.md). Use category **Accessibility** for these findings. Prioritize urgent WCAG criteria (missing alt text, keyboard traps, no focus indicators, missing form labels, broken ARIA) alongside Correctness-level issues.
 

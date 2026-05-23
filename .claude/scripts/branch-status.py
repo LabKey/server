@@ -478,6 +478,21 @@ class BuildStatus:
     stale_repos: list[str] = field(default_factory=list)  # repos with commits newer than build queue time
 
 
+MAX_FAILED_TESTS_IN_OUTPUT = 20
+
+
+def _compress_test_name(name: str) -> str:
+    """Strip verbose gradle cache paths from OWASP-style test names.
+
+    Input:  azure-core-1.57.1.jar./home/teamcity-agent/.gradle/.../azure-core-1.57.1.jar: CVE-2026-33117.pkg:maven/com.azure/azure-core@1.57.1
+    Output: azure-core-1.57.1.jar: CVE-2026-33117 (maven/com.azure/azure-core@1.57.1)
+    """
+    m = re.match(r'^(.+?\.jar)\..+: (CVE-[\d-]+)\.pkg:(.+)$', name)
+    if m:
+        return f"{m.group(1)}: {m.group(2)} ({m.group(3)})"
+    return name
+
+
 def _fetch_failing_tests(build_id: int, token: str, max_tests: int = 500) -> list[str]:
     try:
         data = tc_get(
@@ -754,22 +769,26 @@ def print_report(
                 if not bs.failed_tests:
                     print(f"         {bs.failure_count} failure(s) — test names unavailable")
                 else:
-                    new_failures = [ft for ft in bs.failed_tests if ft.fails_on_primary is False]
-                    preexisting = [ft for ft in bs.failed_tests if ft.fails_on_primary is True]
-                    unknown = [ft for ft in bs.failed_tests if ft.fails_on_primary is None]
+                    displayed = bs.failed_tests[:MAX_FAILED_TESTS_IN_OUTPUT]
+                    truncated = len(bs.failed_tests) > MAX_FAILED_TESTS_IN_OUTPUT
+                    new_failures = [ft for ft in displayed if ft.fails_on_primary is False]
+                    preexisting = [ft for ft in displayed if ft.fails_on_primary is True]
+                    unknown = [ft for ft in displayed if ft.fails_on_primary is None]
 
                     if new_failures:
                         print(f"         NEW failures ({len(new_failures)}):")
                         for ft in new_failures:
-                            print(f"           - {ft.name}")
+                            print(f"           - {_compress_test_name(ft.name)}")
                     if preexisting:
                         print(f"         Pre-existing on {primary_branch} ({len(preexisting)}):")
                         for ft in preexisting:
-                            print(f"           - {ft.name}")
+                            print(f"           - {_compress_test_name(ft.name)}")
                     if unknown:
                         print(f"         Unknown status ({len(unknown)}):")
                         for ft in unknown:
-                            print(f"           - {ft.name}")
+                            print(f"           - {_compress_test_name(ft.name)}")
+                    if truncated:
+                        print(f"         ... and {len(bs.failed_tests) - MAX_FAILED_TESTS_IN_OUTPUT} more (see failure_count)")
 
     if not_started:
         print()
@@ -836,9 +855,10 @@ def to_dict(
                 "stale_repos": bs.stale_repos,
                 "failure_count": bs.failure_count,
                 "failed_tests": [
-                    {"name": ft.name, "fails_on_primary": ft.fails_on_primary}
-                    for ft in bs.failed_tests
+                    {"name": _compress_test_name(ft.name), "fails_on_primary": ft.fails_on_primary}
+                    for ft in bs.failed_tests[:MAX_FAILED_TESTS_IN_OUTPUT]
                 ],
+                "failed_tests_truncated": len(bs.failed_tests) > MAX_FAILED_TESTS_IN_OUTPUT,
             }
             for bs in sorted(
                 builds,

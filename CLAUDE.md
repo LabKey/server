@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LabKey Server is a large Java web application platform for biomedical research data management. It uses a modular monolith architecture with 150+ Gradle modules, built on Spring Boot 4 / Spring Framework 7 with embedded Tomcat 11. It targets Java 25 and supports both PostgreSQL and MS SQL Server databases.
+LabKey Server is a large Java web application platform for biomedical research data management. It uses a modular monolith architecture with 150+ Gradle modules, built on Spring Boot 4 / Spring Framework 7 with embedded Tomcat 11. It targets Java 25 and supports PostgreSQL, and for some modules, MS SQL Server.
 
 ## Build Commands
 
@@ -91,12 +91,10 @@ The `distributions/` directory defines 60+ distribution configurations that sele
 
 ### Dependency Management
 
-All external library versions are centralized in `gradle.properties` (200+ version properties). The root `build.gradle` forces consistent versions across all modules via `resolutionStrategy`. Always consult before adding, removing, or updating a third-party dependency.
+All external library versions are centralized in `gradle.properties`. The root `build.gradle` forces consistent versions across all modules via `resolutionStrategy`. Always consult before adding, removing, or updating a third-party dependency.
 
 ## Java Coding Conventions
 
-- **Java Streams**: Prefer `Stream` API over traditional for-loops for collection processing.
-- **Resources**: Use try-with-resources for automatic resource management.
 - **Nullability**: Use `org.jetbrains.annotations.NotNull` and `org.jetbrains.annotations.Nullable` annotations. Be explicit in public API signatures.
 - **Logging**: Use Log4J2. Never use System.out or System.err. Name the static logger `LOG`, initialized via `LogHelper.getLogger()`:
   ```java
@@ -124,10 +122,7 @@ PRs should include sections for: **Rationale** (why the change is needed), **Rel
 
 ## TeamCity
 
-The TeamCity MCP server at `https://teamcity.labkey.org/app/mcp` can be used to query build results. Add it with:
-```
-claude mcp add teamcity https://teamcity.labkey.org/app/mcp --transport http --scope user --header "Authorization: Bearer <token>"
-```
+Use the TeamCity MCP server to query build results.
 
 ### Branch and project naming
 
@@ -154,5 +149,6 @@ When navigating or searching this codebase, prefer IntelliJ MCP tools over shell
 - **Checking errors/warnings** → use `get_file_problems` MCP tool, NOT manual inspection
 - **Project structure** → use `get_project_modules` and `list_dependencies` MCP tools
 - **Running Tomcat** → use `run_configuration` MCP tool, NOT shell
+- **Reading dependency/library source** → use `ide_read_file` with `qualifiedName` (e.g., `org.postgresql.core.Tuple`), NOT `jar xf` + `javap`. Gradle caches source JARs under `~/.gradle/caches/` and IntelliJ indexes them.
 
 Only fall back to shell commands if the MCP tool fails or is unavailable.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Usage: branch-status.py <branch-name> [--json] [--summary] [--log-errors]
+Usage: branch-status.py <branch-name> [--summary] [--log-errors]
 
 Reports the PR approval status and TeamCity CI status for a feature branch
 spanning multiple LabKey GitHub repos.
@@ -845,6 +845,16 @@ def print_report(
             print(f"  {ps.repo:<52}  {ps.state}  {review_str}{flag_str}")
             print(f"    {ps.pr_title}")
             print(f"    {ps.pr_url}")
+
+            all_task_items = [(ti, "PR") for ti in ps.task_items]
+            for li in ps.linked_issues:
+                for ti in li.task_items:
+                    all_task_items.append((ti, f"Issue #{li.number}"))
+            if all_task_items:
+                for ti, source in all_task_items:
+                    mark = "x" if ti.checked else " "
+                    src = f" [{source}]" if len(set(s for _, s in all_task_items)) > 1 else ""
+                    print(f"    [{mark}] {ti.text}{src}")
     print()
 
     print("=== TeamCity Builds ===")
@@ -868,7 +878,8 @@ def print_report(
         for bs in sorted(finished, key=lambda x: (0 if x.status == "FAILURE" else 1, x.suite_name)):
             mark = {"SUCCESS": "PASS", "FAILURE": "FAIL"}.get(bs.status, bs.status[:4])
             stale_tag = "  [stale]" if bs.has_newer_commits else ""
-            print(f"  [{mark}] {bs.suite_name:<62} {bs.finished_at}{stale_tag}")
+            build_id_tag = f"  [id:{bs.build_id}]" if bs.build_id else ""
+            print(f"  [{mark}] {bs.suite_name:<62} {bs.finished_at}{stale_tag}{build_id_tag}")
 
             if bs.status == "FAILURE":
                 if bs.build_problems:
@@ -994,88 +1005,6 @@ def print_summary(
         print(f"PASSING ({len(passing)}): {names}")
 
 
-def to_dict(
-    branch: str,
-    tc_branch: str,
-    primary_branch: str,
-    github: list[PRStatus],
-    builds: list[BuildStatus],
-    latest_commit_date: Optional[str] = None,
-) -> dict:
-    return {
-        "branch": branch,
-        "tc_branch": tc_branch,
-        "primary_branch": primary_branch,
-        "latest_branch_commit_date": _format_iso_local(latest_commit_date) if latest_commit_date else None,
-        "github": [
-            {
-                "repo": ps.repo,
-                "pr_url": ps.pr_url,
-                "pr_title": ps.pr_title,
-                "state": ps.state,
-                "is_draft": ps.is_draft,
-                "approved": ps.approved,
-                "changes_requested": ps.changes_requested,
-                "pending_reviewers": ps.pending_reviewers,
-                "mergeable": ps.mergeable,
-                "ci_rollup": ps.ci_rollup,
-                "task_items": [
-                    {"text": ti.text, "checked": ti.checked}
-                    for ti in ps.task_items
-                ],
-                "linked_issues": [
-                    {
-                        "number": li.number,
-                        "title": li.title,
-                        "url": li.url,
-                        "task_items": [
-                            {"text": ti.text, "checked": ti.checked}
-                            for ti in li.task_items
-                        ],
-                    }
-                    for li in ps.linked_issues
-                ],
-            }
-            for ps in sorted(github, key=lambda x: x.repo)
-        ],
-        "teamcity": [
-            {
-                "suite_name": bs.suite_name,
-                "project_name": bs.project_name,
-                "build_id": bs.build_id,
-                "build_type_id": bs.build_type_id,
-                "status": bs.status,
-                "state": bs.state,
-                "finished_at": bs.finished_at,
-                "queued_at": _parse_tc_date(bs.queued_at) if bs.queued_at else "",
-                "has_newer_commits": bs.has_newer_commits,
-                "stale_repos": bs.stale_repos,
-                "failure_count": bs.failure_count,
-                "build_problems": bs.build_problems,
-                "failed_tests": [
-                    {
-                        "name": _compress_test_name(ft.name),
-                        "fails_on_primary": ft.fails_on_primary,
-                        "details": ft.details,
-                    }
-                    for ft in bs.failed_tests[:MAX_FAILED_TESTS_IN_OUTPUT]
-                ],
-                "failed_tests_truncated": len(bs.failed_tests) > MAX_FAILED_TESTS_IN_OUTPUT,
-                "error_log": bs.error_log,
-            }
-            for bs in sorted(
-                builds,
-                key=lambda x: (
-                    0 if x.status == "FAILURE" else
-                    1 if x.state in ("running", "queued") else
-                    2 if x.has_newer_commits else
-                    3 if x.status == "NOT_STARTED" else
-                    4,
-                    x.suite_name,
-                ),
-            )
-        ],
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -1089,8 +1018,6 @@ def main() -> None:
     parser.add_argument("branch", nargs="?",
                         help="Feature branch name (e.g. fb_fixNPE or 26.3_fb_fixNPE). "
                              "Omit to list candidate branches.")
-    parser.add_argument("--json", dest="as_json", action="store_true",
-                        help="Output structured JSON (includes test details, build problems, error_log)")
     parser.add_argument("--summary", action="store_true",
                         help="Compact single-screen output — no inline parsing needed (good for loop monitoring)")
     parser.add_argument("--suggest", action="store_true",
@@ -1107,20 +1034,17 @@ def main() -> None:
 
     if args.suggest or not args.branch:
         candidates = suggest_branches(repo_root)
-        if args.as_json:
-            print(json.dumps({"candidates": candidates}, indent=2))
+        if not candidates:
+            print("No candidate feature branches found.")
+            print("Run with a branch name: branch-status.py <branch>")
         else:
-            if not candidates:
-                print("No candidate feature branches found.")
-                print("Run with a branch name: branch-status.py <branch>")
-            else:
-                print("Candidate feature branches:")
-                print()
-                for c in candidates:
-                    sources = "+".join(c["sources"])
-                    repos = ", ".join(c["repos"][:2])
-                    date = (c.get("last_pushed") or "")[:10]
-                    print(f"  {c['branch']:<55}  {sources:<20}  {repos}  {date}")
+            print("Candidate feature branches:")
+            print()
+            for c in candidates:
+                sources = "+".join(c["sources"])
+                repos = ", ".join(c["repos"][:2])
+                date = (c.get("last_pushed") or "")[:10]
+                print(f"  {c['branch']:<55}  {sources:<20}  {repos}  {date}")
         return
 
     tc_branch, tc_project_id, primary_branch = derive_tc_params(args.branch)
@@ -1154,9 +1078,7 @@ def main() -> None:
                     bs.stale_repos = sorted(stale)
                     bs.has_newer_commits = bool(stale)
 
-    if args.as_json:
-        print(json.dumps(to_dict(args.branch, tc_branch, primary_branch, github, builds, latest_commit_date), indent=2))
-    elif args.summary:
+    if args.summary:
         print_summary(args.branch, github, builds, latest_commit_date)
     else:
         print_report(args.branch, tc_branch, primary_branch, github, builds, latest_commit_date)

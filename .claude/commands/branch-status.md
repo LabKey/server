@@ -18,19 +18,15 @@ Find the repo root: `git rev-parse --show-toplevel` (call it REPO_ROOT).
 
 Run:
 ```
-python3 REPO_ROOT/.claude/scripts/branch-status.py --suggest --json
+python3 REPO_ROOT/.claude/scripts/branch-status.py --suggest
 ```
 
-This returns `{"candidates": [...]}`. Each candidate has:
-- `branch`: the branch name
-- `repos`: repos where it was found (list of `owner/repo` strings)
-- `last_pushed`: ISO 8601 date of most recent commit or push event
-- `sources`: list containing `"local"` (currently checked out in workspace) and/or `"github_recent"` (found in recent GitHub push events)
+This prints a plain-text table. Each data line has four space-aligned columns: branch name, source tags (`local`, `github_recent`, or `local+github_recent`), up to two repos, and the last-pushed date (YYYY-MM-DD). If the output starts with "No candidate feature branches found." there are no candidates.
 
 - If there are no candidates, tell the user to re-run with a branch name and stop.
-- If there is exactly 1 candidate, use it directly — do not call `AskUserQuestion`. State which branch was auto-selected and proceed to Step 1.
-- If there are 2–4 candidates, use `AskUserQuestion` to let the user pick. Label each option as the branch name; describe it as `{repos[0]} — {last_pushed[:10]} ({sources joined with "+"})`.
-- If there are 5 or more candidates, show only the first 4.
+- If there is exactly 1 data line, use that branch directly — do not call `AskUserQuestion`. State which branch was auto-selected and proceed to Step 1.
+- If there are 2–4 data lines, use `AskUserQuestion` to let the user pick. Label each option as the branch name; describe it as `{first repo} — {date} ({sources})`.
+- If there are 5 or more data lines, show only the first 4.
 
 Use the selected (or auto-selected) branch as $ARGUMENTS and continue to Step 1.
 

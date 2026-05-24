@@ -1,5 +1,5 @@
 ---
-name: submodule-feature-branch
+name: upgrade-test-author
 description: Create a LabKey upgrade test that runs setup on an old release and verification on a new release, using the correct submodule feature branch workflow for TeamCity CI. Use when the user asks to add an upgrade test, create a feature branch for a schema migration, or stage changes across release branches.
 ---
 

@@ -1,8 +1,53 @@
 {
+  "permissions": {
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git branch -f:*)",
+      "Bash(git branch --force:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git checkout -B:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git switch -C:*)",
+      "Bash(git switch --create:*)",
+      "Bash(git switch --force-create:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr close:*)",
+      "PowerShell(git push:*)",
+      "PowerShell(git commit:*)",
+      "PowerShell(git reset --hard:*)",
+      "PowerShell(git branch -D:*)",
+      "PowerShell(git branch -f:*)",
+      "PowerShell(git branch --force:*)",
+      "PowerShell(git checkout -b:*)",
+      "PowerShell(git checkout -B:*)",
+      "PowerShell(git switch -c:*)",
+      "PowerShell(git switch -C:*)",
+      "PowerShell(git switch --create:*)",
+      "PowerShell(git switch --force-create:*)",
+      "PowerShell(gh pr create:*)",
+      "PowerShell(gh pr edit:*)",
+      "PowerShell(gh pr merge:*)",
+      "PowerShell(gh pr close:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && if command -v python3 >/dev/null 2>&1; then python3 .claude/hooks/check-dangerous-commands.py; else python .claude/hooks/check-dangerous-commands.py; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
         "hooks": [
           {
             "type": "command",
@@ -22,4 +67,3 @@
     ]
   }
 }
-

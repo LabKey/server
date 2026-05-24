@@ -66,8 +66,8 @@ def load_hook_commands():
     return commands
 
 
-def run_hook_test(script_name, tool_input, description, should_block):
-    """Run a single hook test case."""
+def run_hook_test(script_name, tool_input, description, expected):
+    """Run a single hook test case. expected is one of 'BLOCK', 'ASK', 'ALLOW'."""
     hook_input = json.dumps({"tool_input": tool_input})
     script_path = os.path.join(SCRIPT_DIR, script_name)
 
@@ -78,21 +78,28 @@ def run_hook_test(script_name, tool_input, description, should_block):
         text=True,
     )
 
-    was_blocked = result.returncode == 2
-    passed = was_blocked == should_block
-
-    status = "PASS" if passed else "FAIL"
-    expected = "BLOCK" if should_block else "ALLOW"
-    actual = "BLOCK" if was_blocked else "ALLOW"
-
+    actual = "ALLOW"
     detail = ""
-    if was_blocked and result.stdout.strip():
+    if result.returncode == 2:
+        actual = "BLOCK"
+        if result.stdout.strip():
+            try:
+                resp = json.loads(result.stdout.strip())
+                detail = f" -- {resp.get('reason', '')}"
+            except json.JSONDecodeError:
+                detail = f" -- {result.stdout.strip()}"
+    elif result.returncode == 0 and result.stdout.strip():
         try:
             resp = json.loads(result.stdout.strip())
-            detail = f" -- {resp.get('reason', '')}"
+            hso = resp.get("hookSpecificOutput") or {}
+            if hso.get("permissionDecision") == "ask":
+                actual = "ASK"
+                detail = f" -- {hso.get('permissionDecisionReason', '')}"
         except json.JSONDecodeError:
-            detail = f" -- {result.stdout.strip()}"
+            pass
 
+    passed = actual == expected
+    status = "PASS" if passed else "FAIL"
     print(f"  [{status}] {description:45s}  expected={expected}  actual={actual}{detail}")
     return passed
 
@@ -231,7 +238,106 @@ def main():
             "check-dangerous-commands.py",
             {"command": cmd},
             desc,
-            should_block,
+            "BLOCK" if should_block else "ALLOW",
+        ))
+
+    # =========================================================================
+    print()
+    print("--- check-dangerous-commands.py git-ask patterns ---")
+    print()
+
+    GIT_ASK_TESTS = [
+        # ASK: git commit variants
+        ("git commit (bare)", "git commit", "ASK"),
+        ("git commit -m", "git commit -m 'msg'", "ASK"),
+        ("git commit -am", "git commit -am 'msg'", "ASK"),
+        ("git commit --amend", "git commit --amend", "ASK"),
+        ("git commit --allow-empty", "git commit --allow-empty -m hi", "ASK"),
+
+        # ASK: git push variants
+        ("git push (bare)", "git push", "ASK"),
+        ("git push origin main", "git push origin main", "ASK"),
+        ("git push --force", "git push --force origin main", "ASK"),
+        ("git push --force-with-lease", "git push --force-with-lease", "ASK"),
+        ("git push -f", "git push -f origin main", "ASK"),
+
+        # ASK: git reset --hard
+        ("git reset --hard", "git reset --hard", "ASK"),
+        ("git reset --hard HEAD~1", "git reset --hard HEAD~1", "ASK"),
+        ("git reset --hard origin/main", "git reset --hard origin/main", "ASK"),
+
+        # ASK: git branch -D (force delete)
+        ("git branch -D", "git branch -D feature/foo", "ASK"),
+
+        # ASK: branch creation/reset variants beyond the basic -b / -c
+        ("git checkout -B (force create/reset)", "git checkout -B foo", "ASK"),
+        ("git checkout -B with start point", "git checkout -B foo origin/foo", "ASK"),
+        ("git switch --create (long form)", "git switch --create foo", "ASK"),
+        ("git switch --force-create (long force)", "git switch --force-create foo origin/foo", "ASK"),
+        ("git branch -t (track + create)", "git branch -t newname origin/main", "ASK"),
+        ("git branch --track (long form)", "git branch --track newname origin/main", "ASK"),
+        ("git branch -m (rename)", "git branch -m oldname newname", "ASK"),
+        ("git branch -M (force rename)", "git branch -M oldname newname", "ASK"),
+        ("git branch -c (copy)", "git branch -c oldname newname", "ASK"),
+        ("git branch -C (force copy)", "git branch -C oldname newname", "ASK"),
+        ("git branch --move (long rename)", "git branch --move oldname newname", "ASK"),
+        ("git branch --copy (long copy)", "git branch --copy oldname newname", "ASK"),
+        ("git branch -f (force reset existing)", "git branch -f existing HEAD~1", "ASK"),
+        ("git branch --force (long force)", "git branch --force existing HEAD~1", "ASK"),
+        ("git branch -f bare", "git branch -f newname", "ASK"),
+
+        # ASK: gh pr write actions
+        ("gh pr create", "gh pr create --title foo --body bar", "ASK"),
+        ("gh pr edit", "gh pr edit 123 --body foo", "ASK"),
+        ("gh pr merge", "gh pr merge 123 --squash", "ASK"),
+        ("gh pr close", "gh pr close 123", "ASK"),
+
+        # ASK: compound commands should surface every matched op
+        ("compound: commit && push", "git commit -m hi && git push", "ASK"),
+        ("compound: force-push && commit", "git push --force && git commit -m hi", "ASK"),
+
+        # ASK: dangerous flag on a later command in a compound. The leading git verb still triggers
+        # ASK via its own pattern (plain push); the regression is that the trailing -f must NOT be
+        # attributed to the push and reported as a force-push.
+        ("compound: push then unrelated -f", "git push origin main && gradle test -f", "ASK"),
+
+        # ALLOW: a dangerous-looking flag on an UNRELATED later command must not cross the shell
+        # separator and false-positive on the leading git verb. Before the [^\n;&|] fix these
+        # incorrectly matched reset --hard / branch -D.
+        ("compound: reset HEAD then unrelated --hard", "git reset HEAD && other --hard", "ALLOW"),
+        ("compound: branch list then unrelated -D", "git branch && other -D", "ALLOW"),
+
+        # ALLOW: dotted git-config keys must not match the bare-verb patterns. `\bpush\b` etc.
+        # treat `.` as a word boundary, so `(?=\s|$)` after each verb is what excludes these.
+        ("git config push.default", "git config push.default simple", "ALLOW"),
+        ("git config commit.gpgsign", "git config commit.gpgsign true", "ALLOW"),
+        ("git config reset.quiet", "git config reset.quiet true", "ALLOW"),
+        ("git log --since quoted 'commit'", "git log --since=\"last commit\"", "ALLOW"),
+        ("git log --grep commit", "git log --grep=commit", "ALLOW"),
+
+        # ALLOW: read-only or non-destructive git/gh ops should pass through
+        ("git log", "git log --oneline", "ALLOW"),
+        ("git diff", "git diff HEAD~1", "ALLOW"),
+        ("git fetch", "git fetch origin", "ALLOW"),
+        ("git pull", "git pull origin main", "ALLOW"),
+        ("git branch -d (lowercase, soft delete)", "git branch -d feature/foo", "ALLOW"),
+        ("git reset --soft", "git reset --soft HEAD~1", "ALLOW"),
+        ("git reset HEAD~1 (no --hard)", "git reset HEAD~1", "ALLOW"),
+        ("git stash", "git stash", "ALLOW"),
+        ("git checkout main", "git checkout main", "ALLOW"),
+        ("git switch --no-track (no create flag)", "git switch --no-track foo", "ALLOW"),
+        ("git switch existing branch", "git switch main", "ALLOW"),
+        ("gh pr view", "gh pr view 123", "ALLOW"),
+        ("gh pr diff", "gh pr diff 123", "ALLOW"),
+        ("gh pr list", "gh pr list", "ALLOW"),
+    ]
+
+    for desc, cmd, expected in GIT_ASK_TESTS:
+        tally(run_hook_test(
+            "check-dangerous-commands.py",
+            {"command": cmd},
+            desc,
+            expected,
         ))
 
     hook_commands = load_hook_commands()
@@ -328,7 +434,7 @@ def main():
             "check-secrets-file.py",
             tool_input,
             desc,
-            should_block,
+            "BLOCK" if should_block else "ALLOW",
         ))
 
     # =========================================================================

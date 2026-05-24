@@ -116,9 +116,29 @@ All external library versions are centralized in `gradle.properties`. The root `
 
 When searching for Java method usages, always include `*.jsp` and `*.jspf` files in addition to `*.java`. JSP files contain inline Java code and are significant callers of API methods (especially anything in `JspBase`).
 
-## Pull Request Format
+## Git Branch Naming
 
-PRs should include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items).
+- `develop` — primary development branch (protected; no direct commits).
+- `fb_<label>_<id>` — feature/bug-fix branch off `develop`. `label` is a short snake_case description (use underscores to separate words, not dashes); `id` is the issue or Scrumwise ID. Omit `_<id>` only when no ID exists (e.g., test fixes); coordinate the label to avoid collisions.
+- `XX.Y_fb_<label>_<id>` — feature/bug-fix branch targeting a specific release.
+- `releaseXX.Y-SNAPSHOT` — beta release branch (protected); base release-targeted feature branches from it.
+- `releaseXX.Y` — final release branch (protected); receives merges from the SNAPSHOT branch only. Patch releases are tagged `XX.Y.Z`.
+
+Use an identical branch name across every repo involved in a story. Branches matching these patterns are built by TeamCity — pick a non-matching name to opt out.
+
+Before creating a branch, always propose the name and confirm it with the user. Do not run `git checkout -b` (or equivalent) until the user approves.
+
+## Commit and PR Body Formatting
+
+Applies to every commit body and every PR body, without exception. Do not hard-wrap. Write each paragraph and each bullet as a single physical line, no matter how long. Separate paragraphs with one blank line. This applies to text passed via `-m`, `--body`, here-docs, `gh pr edit`, GitHub MCP tools — every channel that produces commit or PR body text.
+
+**Why:** GitHub renders commit and PR bodies as GFM with hard-line-break enabled. Every mid-paragraph `\n` becomes a visible `<br>` in the rendered output, producing ragged, broken-looking text. Soft-wrap is the renderer's job, not yours.
+
+**Self-check before invoking `git commit`, `gh pr create`, or `gh pr edit`:** look at the body text you are about to pass. If any paragraph spans more than one line in your tool call, that is a bug — collapse it to a single line first. Long lines are correct. Wrapped lines are wrong.
+
+## Commit Messages
+
+Subject: short imperative (≈70 chars). Body: follow the formatting rule above — one physical line per paragraph, blank lines between paragraphs.
 
 ## TeamCity
 
@@ -152,3 +172,9 @@ When navigating or searching this codebase, prefer IntelliJ MCP tools over shell
 - **Reading dependency/library source** → use `ide_read_file` with `qualifiedName` (e.g., `org.postgresql.core.Tuple`), NOT `jar xf` + `javap`. Gradle caches source JARs under `~/.gradle/caches/` and IntelliJ indexes them.
 
 Only fall back to shell commands if the MCP tool fails or is unavailable.
+
+## Pull Request Format
+
+If the repo has a `pull_request_template.md` (typically under `.github/`), follow it. Otherwise, include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items). Keep descriptions brief. Follow the formatting rule above — one physical line per paragraph and per bullet.
+
+Before opening a PR, always draft the title and description and confirm them with the user. Do not run `gh pr create` until the user approves.

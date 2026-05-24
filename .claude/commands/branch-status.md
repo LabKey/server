@@ -120,6 +120,17 @@ If only `--monitor` (no `--fix`): describe the fix in detail (which file, which 
 
 Do not investigate suites where all failures have `fails_on_primary: true` — those pre-existed this branch and don't need attention.
 
+### Send a push notification on meaningful change
+
+After each re-check (not the first run), compare the current results to the previous iteration and send a `PushNotification` if something meaningful changed:
+
+- A previously failing suite now passes → "fb_X: <suite> now passing"
+- A new failure appeared that wasn't there before → "fb_X: new failure in <suite> — <test name>"
+- A fix was applied and pushed (when `--fix` is active) → "fb_X: fix pushed for <suite>"
+- All suites now passing and PRs approved → "fb_X: all green, ready to merge"
+
+Keep the message under 200 characters. Do **not** notify for: routine progress with no change, suites moving from not_started to in-progress, or stale/staleness changes alone.
+
 ### Schedule the next wakeup
 
 Choose the delay based on the current build state from the JSON:

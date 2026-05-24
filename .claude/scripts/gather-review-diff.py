@@ -26,6 +26,7 @@ Local mode (--local): diff working-tree changes across all repos in the workspac
 """
 
 import argparse
+import base64
 import json
 import re
 import subprocess
@@ -313,6 +314,207 @@ def fetch_pr_diff(pr_url: str) -> str:
     return result.stdout
 
 
+# Extension policy for full-file content inclusion.
+# _ALWAYS_FULL_EXTS: include regardless of line count — declarative/config files where
+#   cross-file consistency matters more than diff-level context.
+# _FULL_IF_SHORT_EXTS: include only when the file is at or under the line-count limit —
+#   scripts and docs where a small file is self-contained but a large one is noise.
+_ALWAYS_FULL_EXTS = frozenset({'.json', '.yaml', '.yml', '.properties', '.toml', '.xml'})
+_FULL_IF_SHORT_EXTS: dict[str, int] = {'.py': 200, '.sh': 200, '.md': 200}
+
+_SUPPORTED_EXTENSIONS = frozenset({'.java', '.py', '.js', '.ts', '.tsx', '.kt'})
+_SKIP_NAMES = frozenset({
+    'if', 'while', 'for', 'switch', 'catch', 'new', 'return',
+    'class', 'interface', 'enum', 'try', 'synchronized', 'else',
+    'function', 'const', 'let', 'var', 'public', 'private', 'protected',
+})
+_MAX_METHOD_LINES = 120
+
+
+def _find_callable_name(context: str) -> str | None:
+    """Extract the most likely method/function name from a git hunk-header context string."""
+    context = context.strip()
+    if not context:
+        return None
+    # Python: def foo(...)
+    m = re.search(r'\bdef\s+(\w+)', context)
+    if m:
+        return m.group(1)
+    # Java / JS / Kotlin: last word immediately before '('
+    m = re.search(r'(\w+)\s*\(', context)
+    if m and m.group(1) not in _SKIP_NAMES:
+        return m.group(1)
+    return None
+
+
+def _parse_diff_changed_files(diff: str) -> list[str]:
+    """Return changed file paths from a unified diff, in order of first appearance."""
+    seen: set[str] = set()
+    result: list[str] = []
+    for line in diff.splitlines():
+        if line.startswith('+++ b/'):
+            fp = line[6:].strip()
+            if fp not in seen:
+                seen.add(fp)
+                result.append(fp)
+    return result
+
+
+def _parse_diff_method_contexts(diff: str) -> list[tuple[str, int, str]]:
+    """
+    Parse a unified diff and return (file_path, new_start_line, callable_name) tuples,
+    one per distinct (file, callable) pair in supported file types.
+    """
+    results: list[tuple[str, int, str]] = []
+    seen: set[tuple[str, str]] = set()
+    current_file: str | None = None
+
+    for line in diff.splitlines():
+        if line.startswith('+++ b/'):
+            current_file = line[6:].strip()
+        elif line.startswith('@@ ') and current_file:
+            if Path(current_file).suffix not in _SUPPORTED_EXTENSIONS:
+                continue
+            m = re.match(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@ ?(.*)$', line)
+            if not m:
+                continue
+            new_start = int(m.group(1))
+            name = _find_callable_name(m.group(2))
+            if name and (current_file, name) not in seen:
+                seen.add((current_file, name))
+                results.append((current_file, new_start, name))
+
+    return results
+
+
+def _fetch_file_lines(owner_repo: str, ref: str, file_path: str) -> list[str] | None:
+    """Fetch a file from GitHub at the given ref and return its lines."""
+    result = subprocess.run(
+        ["gh", "api", f"repos/{owner_repo}/contents/{file_path}?ref={ref}"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+    )
+    if result.returncode != 0:
+        return None
+    try:
+        data = json.loads(result.stdout)
+        content = base64.b64decode(data["content"]).decode("utf-8", errors="replace")
+        return content.splitlines()
+    except Exception:
+        return None
+
+
+def _extract_method_body(lines: list[str], near_line: int, method_name: str) -> str | None:
+    """
+    Search backwards from near_line (1-indexed) for a line containing method_name(,
+    then brace-match forward to find the full method body.
+
+    The brace counter does not account for braces in string literals or comments,
+    which is acceptable for code-review context.
+    """
+    pattern = re.compile(r'\b' + re.escape(method_name) + r'\s*\(')
+    search_start = min(near_line - 1, len(lines) - 1)
+
+    method_start: int | None = None
+    for i in range(search_start, max(0, search_start - 200), -1):
+        if pattern.search(lines[i]):
+            method_start = i
+            break
+    if method_start is None:
+        return None
+
+    depth = 0
+    entered = False
+    for i in range(method_start, len(lines)):
+        for ch in lines[i]:
+            if ch == '{':
+                depth += 1
+                entered = True
+            elif ch == '}':
+                depth -= 1
+        if entered and depth == 0:
+            body = lines[method_start:i + 1]
+            if len(body) > _MAX_METHOD_LINES:
+                kept = _MAX_METHOD_LINES - 10
+                omitted = len(body) - kept
+                return '\n'.join(body[:kept]) + f'\n    // ... {omitted} lines omitted ...'
+            return '\n'.join(body)
+
+    return None
+
+
+def _collect_full_method_bodies(diff: str, owner_repo: str, branch: str) -> str:
+    """
+    For each changed method visible in the diff, fetch the complete method body
+    from the branch on GitHub and return a formatted section string.
+    Returns '' if nothing useful is found or all fetches fail.
+    """
+    contexts = _parse_diff_method_contexts(diff)
+    if not contexts:
+        return ""
+
+    # Group by file so we fetch each file at most once.
+    by_file: dict[str, list[tuple[int, str]]] = {}
+    for file_path, new_start, name in contexts:
+        by_file.setdefault(file_path, []).append((new_start, name))
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {fp: pool.submit(_fetch_file_lines, owner_repo, branch, fp)
+                   for fp in by_file}
+        file_lines = {fp: f.result() for fp, f in futures.items()}
+
+    sections: list[str] = []
+    for file_path, hunks in by_file.items():
+        lines = file_lines.get(file_path)
+        if lines is None:
+            continue
+        for near_line, method_name in hunks:
+            body = _extract_method_body(lines, near_line, method_name)
+            if body:
+                sections.append(f"--- {Path(file_path).name}  {method_name}() ---\n{body}")
+
+    if not sections:
+        return ""
+    return "\n=== Full method bodies for context ===\n\n" + "\n\n".join(sections) + "\n"
+
+
+def _collect_full_file_contents(diff: str, owner_repo: str, branch: str) -> str:
+    """
+    For each changed file that qualifies by extension/size policy, fetch its complete
+    content from the branch on GitHub and return a formatted section string.
+
+    Complements _collect_full_method_bodies: that function surfaces specific changed
+    methods; this one provides the whole-file view needed to spot cross-file
+    consistency gaps (e.g. settings.json entries vs hook patterns).
+    """
+    candidates = [
+        fp for fp in _parse_diff_changed_files(diff)
+        if Path(fp).suffix.lower() in _ALWAYS_FULL_EXTS
+        or Path(fp).suffix.lower() in _FULL_IF_SHORT_EXTS
+    ]
+    if not candidates:
+        return ""
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {fp: pool.submit(_fetch_file_lines, owner_repo, branch, fp)
+                   for fp in candidates}
+        file_lines = {fp: f.result() for fp, f in futures.items()}
+
+    sections: list[str] = []
+    for fp in candidates:
+        lines = file_lines.get(fp)
+        if not lines:
+            continue
+        ext = Path(fp).suffix.lower()
+        limit = _FULL_IF_SHORT_EXTS.get(ext)
+        if ext not in _ALWAYS_FULL_EXTS and (limit is None or len(lines) > limit):
+            continue
+        sections.append(f"--- {fp} ---\n" + "\n".join(lines))
+
+    if not sections:
+        return ""
+    return "\n=== Full file content for context ===\n\n" + "\n\n".join(sections) + "\n"
+
+
 def _print_diff_block(
     owner_repo: str, branch: str, pr_info: PRInfo, diff: str
 ) -> None:
@@ -325,6 +527,12 @@ def _print_diff_block(
     print()
     if diff:
         print(diff, end="")
+        method_bodies = _collect_full_method_bodies(diff, owner_repo, branch)
+        if method_bodies:
+            print(method_bodies, end="")
+        file_contents = _collect_full_file_contents(diff, owner_repo, branch)
+        if file_contents:
+            print(file_contents, end="")
     print()
 
 

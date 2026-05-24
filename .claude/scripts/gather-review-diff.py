@@ -322,7 +322,7 @@ def fetch_pr_diff(pr_url: str) -> str:
 _ALWAYS_FULL_EXTS = frozenset({'.json', '.yaml', '.yml', '.properties', '.toml', '.xml'})
 _FULL_IF_SHORT_EXTS: dict[str, int] = {'.py': 200, '.sh': 200, '.md': 200}
 
-_SUPPORTED_EXTENSIONS = frozenset({'.java', '.py', '.js', '.ts', '.tsx', '.kt'})
+_SUPPORTED_EXTENSIONS = frozenset({'.java', '.js', '.ts', '.tsx', '.kt'})
 _SKIP_NAMES = frozenset({
     'if', 'while', 'for', 'switch', 'catch', 'new', 'return',
     'class', 'interface', 'enum', 'try', 'synchronized', 'else',

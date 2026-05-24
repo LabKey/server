@@ -165,10 +165,10 @@ Letter suffixes like `[A]`, `[B]`, `[C]` on suite names indicate shards of the s
 
 When navigating or searching this codebase, prefer IntelliJ MCP tools over shell commands:
 
-- **Finding a class or symbol** → use `find_usages` or `search_in_project` MCP tool, NOT `grep` or `find`
-- **Checking errors/warnings** → use `get_file_problems` MCP tool, NOT manual inspection
-- **Project structure** → use `get_project_modules` and `list_dependencies` MCP tools
-- **Running Tomcat** → use `run_configuration` MCP tool, NOT shell
+- **Finding a class or symbol** → use `ide_find_references` or `ide_search_text` MCP tool, NOT `grep` or `find`
+- **Checking errors/warnings** → use `ide_diagnostics` MCP tool, NOT manual inspection
+- **Project structure** → use `get_project_modules` and `get_project_dependencies` MCP tools
+- **Running Tomcat** → use `mcp__idea__execute_run_configuration` MCP tool, NOT shell
 - **Reading dependency/library source** → use `ide_read_file` with `qualifiedName` (e.g., `org.postgresql.core.Tuple`), NOT `jar xf` + `javap`. Gradle caches source JARs under `~/.gradle/caches/` and IntelliJ indexes them.
 
 Only fall back to shell commands if the MCP tool fails or is unavailable.

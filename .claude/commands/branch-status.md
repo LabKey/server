@@ -1,7 +1,16 @@
 Report the PR approval and CI status for a feature branch across all LabKey repos.
 
-$ARGUMENTS is an optional feature branch name matching `fb_*` or `\d+\.\d+_fb_*`
-(e.g. `fb_fixNPE` or `26.3_fb_Item1045`). If omitted, run Step 0 first.
+$ARGUMENTS is an optional feature branch name matching `fb_*` or `\d+\.\d+_fb_*`,
+optionally followed by flags:
+- `--monitor` — after reporting, loop: re-check every few minutes, investigate new failures, and report changes
+- `--fix` — (requires `--monitor`) automatically apply fixes for new compilation/API failures and push them
+
+Examples:
+- `/branch-status fb_myFeature`
+- `/branch-status fb_myFeature --monitor`
+- `/branch-status fb_myFeature --monitor --fix`
+
+Parse these flags out of $ARGUMENTS before using the branch name in Step 1.
 
 ## Step 0: Pick a branch (only when $ARGUMENTS is empty)
 
@@ -29,9 +38,9 @@ Use the selected (or auto-selected) branch as $ARGUMENTS and continue to Step 1.
 
 Find the repo root if not already known: `git rev-parse --show-toplevel` (call it REPO_ROOT).
 
-Run:
+Run (using only the branch name, not the `--monitor`/`--fix` flags):
 ```
-python3 REPO_ROOT/.claude/scripts/branch-status.py $ARGUMENTS --json
+python3 REPO_ROOT/.claude/scripts/branch-status.py <branch-name> --json
 ```
 
 The script discovers all repos with that branch (local workspace + GitHub `labkey-module-container` topic repos), fetches PR metadata in parallel via `gh`, and queries TeamCity for the latest build per suite. For failed suites it also fetches the failing test names and checks whether each test also fails on the primary branch. It also detects stale builds (newer commits exist since the build was queued) and lists suites within known sub-projects that haven't been triggered yet.
@@ -84,6 +93,49 @@ Group suites into four categories (show non-empty categories only):
 ### Overall Assessment
 
 End with a one-paragraph verdict: is this branch ready to merge? Factor in: PR approvals, CI/TC results (and whether they are current or stale), and PR task list completion. Call out any unchecked blocker tasks (manual test, automated test, etc.) as merge blockers even if the PR is already approved. Deferrable tasks (TeamCity verify and merge, user education handoff, etc.) should not block the verdict. If not ready, state specifically what needs to happen first.
+
+---
+
+## Step 3: Monitor Mode (only when `--monitor` is in $ARGUMENTS)
+
+After completing the Step 2 report, if `--monitor` was passed, do the following before ending your turn.
+
+### Investigate new failures
+
+For each suite where `status: FAILURE` and `state: finished`, check whether it has any **new failures** — tests where `fails_on_primary: false`. For each such suite, fetch the build log:
+
+```
+teamcity_build_log(buildId=<build_id>, filter="errors", count=100)
+```
+
+Diagnose the root cause from the error output. Common patterns and how to handle them:
+
+- **Compilation error — cannot find symbol / method not found**: A method or class was removed or renamed on this branch. Search the codebase for the broken call site (use `mcp__intellij-index__ide_find_references` or `grep -rn` across `server/modules/`) and migrate it to the new API. Check all modules, not just the one that appeared in the build log — the same removed API may be called from multiple places.
+- **Test assertion failure**: Read the failing test class to understand what it asserts, then read the relevant production code changes (`git diff develop..HEAD`) to identify what broke.
+- **Gradle / build configuration error**: Read the relevant `build.gradle` or `gradle.properties` for missing dependency or task configuration.
+
+If `--fix` was also passed: apply the fix, commit to the appropriate subrepo on the feature branch, and push. Use the commit message format `Migrate <old API> callers to <new API>` (or equivalent). After pushing, note that TeamCity will pick up the fix on the next build trigger.
+
+If only `--monitor` (no `--fix`): describe the fix in detail (which file, which lines, what the replacement call should be) but do not modify any files.
+
+Do not investigate suites where all failures have `fails_on_primary: true` — those pre-existed this branch and don't need attention.
+
+### Schedule the next wakeup
+
+Choose the delay based on the current build state from the JSON:
+
+| Condition | Delay |
+|---|-------|
+| Any suite has `state: running` or `state: queued` | 270s  |
+| All suites are finished or not_started, at least one result exists | 900s  |
+| No suites triggered yet (all `state: not_started`) | 1200s |
+
+Call `ScheduleWakeup` with:
+- `delaySeconds`: per the table above
+- `reason`: one sentence describing the current state (e.g. "3 suites still running, checking back soon")
+- `prompt`: the exact slash command to re-enter this skill, preserving the branch name and flags — `/branch-status <branch> --monitor` (include `--fix` if it was originally passed)
+
+The loop runs until the user explicitly asks you to stop.
 
 ---
 

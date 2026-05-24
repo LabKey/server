@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Usage: branch-status.py <branch-name> [--json]
+Usage: branch-status.py <branch-name> [--json] [--summary] [--log-errors]
 
 Reports the PR approval status and TeamCity CI status for a feature branch
 spanning multiple LabKey GitHub repos.
@@ -12,10 +12,17 @@ GitHub section:
 TeamCity section:
   - Derives TC project and stripped branch from the git branch name
   - Finds the latest build per suite for that branch
-  - For failed suites: failure count, failed test names, and whether each test
-    also fails on the primary branch (pre-existing vs new failure)
+  - For failed suites: failure count, failed test names + stack traces, and whether each
+    test also fails on the primary branch (pre-existing vs new failure)
+  - For zero-test failures (compilation, infra): fetches build problem descriptions
   - Detects stale builds (branch has newer commits since the build was queued)
   - Lists suites not yet triggered on this branch (within known sub-projects)
+
+Output modes:
+  (default)    Human-readable text report
+  --json       Structured JSON (includes test details, build problems, error_log)
+  --summary    Compact single-screen summary suitable for Claude loop monitoring
+  --log-errors Also fetch raw error lines from the TC build log for each failing build
 
 When called without a branch argument (or with --suggest), lists candidate feature
 branches from local checkouts and recent GitHub push events.
@@ -40,6 +47,9 @@ from typing import Optional
 
 
 FEATURE_BRANCH_RE = re.compile(r'^(\d+\.\d+_)?fb_')
+
+MAX_FAILED_TESTS_IN_OUTPUT = 20
+MAX_DETAILS_LENGTH = 2000   # chars; stack traces are truncated to this in output
 
 
 # ---------------------------------------------------------------------------
@@ -439,6 +449,20 @@ def tc_get(path: str, token: str) -> dict:
         raise RuntimeError(f"TC API {path}: HTTP {e.code}") from e
 
 
+def tc_get_text(path: str, token: str) -> str:
+    """Fetch a TC REST endpoint as plain text (used for build logs)."""
+    url = f"{TC_BASE}/app/rest{path}"
+    req = urllib.request.Request(
+        url,
+        headers={"Authorization": f"Bearer {token}", "Accept": "text/plain"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return resp.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"TC API {path}: HTTP {e.code}") from e
+
+
 def derive_tc_params(branch: str) -> tuple[str, str, str]:
     """
     Returns (tc_branch, tc_project_id, primary_branch).
@@ -460,6 +484,7 @@ def derive_tc_params(branch: str) -> tuple[str, str, str]:
 class FailedTest:
     name: str
     fails_on_primary: Optional[bool] = None  # None = could not determine
+    details: str = ""                         # truncated stack trace / error message
 
 
 @dataclass
@@ -474,11 +499,10 @@ class BuildStatus:
     queued_at: str = ""
     failure_count: int = 0
     failed_tests: list[FailedTest] = field(default_factory=list)
+    build_problems: list[str] = field(default_factory=list)  # compilation/infra errors (no test names)
+    error_log: list[str] = field(default_factory=list)       # populated only with --log-errors
     has_newer_commits: Optional[bool] = None  # True = branch has commits newer than this build's queue time
     stale_repos: list[str] = field(default_factory=list)  # repos with commits newer than build queue time
-
-
-MAX_FAILED_TESTS_IN_OUTPUT = 20
 
 
 def _compress_test_name(name: str) -> str:
@@ -493,22 +517,24 @@ def _compress_test_name(name: str) -> str:
     return name
 
 
-def _fetch_failing_tests(build_id: int, token: str, max_tests: int = 500) -> list[str]:
+def _fetch_failing_tests(build_id: int, token: str, max_tests: int = 500) -> list[tuple[str, str]]:
+    """Return list of (name, details) for failed tests. Details is the stack trace (may be empty)."""
     try:
         data = tc_get(
             f"/testOccurrences?locator=build:(id:{build_id}),status:FAILURE,count:{max_tests}"
-            "&fields=testOccurrence(name)",
+            "&fields=testOccurrence(name,details)",
             token,
         )
         # Deduplicate while preserving order (retried tests can appear more than once).
         seen: set[str] = set()
-        names: list[str] = []
+        results: list[tuple[str, str]] = []
         for t in data.get("testOccurrence", []):
             name = t.get("name", "")
+            details = (t.get("details") or "").strip()
             if name and name not in seen:
                 seen.add(name)
-                names.append(name)
-        return names
+                results.append((name, details))
+        return results
     except RuntimeError:
         return []
 
@@ -530,9 +556,54 @@ def _fetch_primary_failing_tests(build_type_id: str, primary_branch: str, token:
             return set()
         primary_build_id = b["id"]
         failures = _fetch_failing_tests(primary_build_id, token, max_tests=2000)
-        return set(failures)
+        return {name for name, _details in failures}
     except RuntimeError:
         return None
+
+
+def _fetch_build_problems(build_id: int, token: str) -> list[str]:
+    """Fetch build problem descriptions for builds that failed with no test failures.
+
+    Covers compilation errors, Gradle failures, and other infrastructure problems
+    that don't produce TC test occurrences.
+    """
+    try:
+        data = tc_get(
+            f"/problemOccurrences?locator=build:(id:{build_id})"
+            "&fields=problemOccurrence(description,type)",
+            token,
+        )
+        return [
+            p.get("description", "")
+            for p in data.get("problemOccurrence", [])
+            if p.get("description")
+        ]
+    except RuntimeError:
+        return []
+
+
+def _fetch_build_log_errors(build_id: int, token: str, max_lines: int = 100) -> list[str]:
+    """Fetch error/failure lines from the TC build log (plain text).
+
+    Only called when --log-errors is set. Falls back gracefully if the endpoint
+    is unavailable or returns an unexpected format.
+    """
+    try:
+        text = tc_get_text(f"/builds/id:{build_id}/buildLog", token)
+        errors = []
+        for line in text.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            upper = stripped.upper()
+            if any(kw in upper for kw in (
+                "ERROR:", " ERROR ", "FAILURE", "CANNOT FIND SYMBOL",
+                "COMPILATION FAILED", "BUILD FAILED",
+            )):
+                errors.append(stripped)
+        return errors[:max_lines]
+    except RuntimeError:
+        return []
 
 
 def _parse_tc_offset(raw: str) -> timezone:
@@ -612,8 +683,14 @@ def _fetch_all_build_type_ids(project_id: str, token: str) -> list[tuple[str, st
         return []
 
 
-def collect_tc_builds(tc_branch: str, tc_project_id: str, primary_branch: str, token: str) -> list[BuildStatus]:
-    """Fetch the latest build per suite for tc_branch, then enrich with test failure details."""
+def collect_tc_builds(
+    tc_branch: str,
+    tc_project_id: str,
+    primary_branch: str,
+    token: str,
+    log_errors: bool = False,
+) -> list[BuildStatus]:
+    """Fetch the latest build per suite for tc_branch, then enrich with failure details."""
     if not token:
         print("Warning: no TeamCity token found; skipping TC section.", file=sys.stderr)
         return []
@@ -649,7 +726,7 @@ def collect_tc_builds(tc_branch: str, tc_project_id: str, primary_branch: str, t
     builds = list(seen_bt.values())
     failed_builds = [bs for bs in builds if bs.status == "FAILURE"]
 
-    # Fetch test failures, primary-branch baselines, and full build-type list — all in parallel.
+    # Fetch test failures, primary-branch baselines, build problems, and build types — all in parallel.
     with ThreadPoolExecutor(max_workers=8) as ex:
         test_futures = {
             bs.build_id: ex.submit(_fetch_failing_tests, bs.build_id, token)
@@ -666,13 +743,41 @@ def collect_tc_builds(tc_branch: str, tc_project_id: str, primary_branch: str, t
         primary_results = {bt_id: f.result() for bt_id, f in primary_futures.items()}
         all_build_types = all_bt_future.result()
 
+    # Enrich failed builds with test details and primary comparison.
+    zero_test_failed: list[BuildStatus] = []
     for bs in failed_builds:
-        failing_names = test_results.get(bs.build_id, [])
+        failing = test_results.get(bs.build_id, [])
         primary_set = primary_results.get(bs.build_type_id)
-        bs.failure_count = len(failing_names)
-        for name in failing_names:
+        bs.failure_count = len(failing)
+        for name, details in failing:
             fails_on_primary = (name in primary_set) if primary_set is not None else None
-            bs.failed_tests.append(FailedTest(name=name, fails_on_primary=fails_on_primary))
+            bs.failed_tests.append(FailedTest(
+                name=name,
+                fails_on_primary=fails_on_primary,
+                details=details[:MAX_DETAILS_LENGTH] if details else "",
+            ))
+        if not failing:
+            zero_test_failed.append(bs)
+
+    # Fetch build problems for zero-test failures (compilation errors, Gradle failures, etc.).
+    if zero_test_failed:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            prob_futures = {
+                bs.build_id: ex.submit(_fetch_build_problems, bs.build_id, token)
+                for bs in zero_test_failed
+            }
+            for bs in zero_test_failed:
+                bs.build_problems = prob_futures[bs.build_id].result()
+
+    # Optionally fetch raw error log lines for all failed builds.
+    if log_errors and failed_builds:
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            log_futures = {
+                bs.build_id: ex.submit(_fetch_build_log_errors, bs.build_id, token)
+                for bs in failed_builds
+            }
+            for bs in failed_builds:
+                bs.error_log = log_futures[bs.build_id].result()
 
     # Add NOT_STARTED entries for build types that haven't run on this branch,
     # scoped to projects where we already saw at least one build (to avoid noise).
@@ -766,7 +871,11 @@ def print_report(
             print(f"  [{mark}] {bs.suite_name:<62} {bs.finished_at}{stale_tag}")
 
             if bs.status == "FAILURE":
-                if not bs.failed_tests:
+                if bs.build_problems:
+                    print(f"         Build problems ({len(bs.build_problems)}):")
+                    for prob in bs.build_problems:
+                        print(f"           ! {prob[:200]}")
+                if not bs.failed_tests and not bs.build_problems:
                     print(f"         {bs.failure_count} failure(s) — test names unavailable")
                 else:
                     displayed = bs.failed_tests[:MAX_FAILED_TESTS_IN_OUTPUT]
@@ -779,6 +888,9 @@ def print_report(
                         print(f"         NEW failures ({len(new_failures)}):")
                         for ft in new_failures:
                             print(f"           - {_compress_test_name(ft.name)}")
+                            if ft.details:
+                                first_line = ft.details.splitlines()[0].strip()
+                                print(f"             {first_line[:120]}")
                     if preexisting:
                         print(f"         Pre-existing on {primary_branch} ({len(preexisting)}):")
                         for ft in preexisting:
@@ -790,11 +902,96 @@ def print_report(
                     if truncated:
                         print(f"         ... and {len(bs.failed_tests) - MAX_FAILED_TESTS_IN_OUTPUT} more (see failure_count)")
 
+                if bs.error_log:
+                    print(f"         Error log ({len(bs.error_log)} lines):")
+                    for line in bs.error_log[:20]:
+                        print(f"           | {line[:160]}")
+
     if not_started:
         print()
         print(f"  -- Not Yet Triggered ({len(not_started)}) --")
         for bs in sorted(not_started, key=lambda x: x.suite_name):
             print(f"  [ --- ] {bs.suite_name}")
+
+
+def print_summary(
+    branch: str,
+    github: list[PRStatus],
+    builds: list[BuildStatus],
+    latest_commit_date: Optional[str] = None,
+) -> None:
+    """Compact single-screen summary — no inline Python needed to parse."""
+    active = [bs for bs in builds if bs.state in ("running", "queued")]
+    failures = [bs for bs in builds if bs.status == "FAILURE" and bs.state == "finished"]
+    passing = [bs for bs in builds if bs.status == "SUCCESS" and bs.state == "finished"]
+    not_started = [bs for bs in builds if bs.status == "NOT_STARTED"]
+
+    new_count = sum(
+        1 for bs in failures
+        for ft in bs.failed_tests
+        if ft.fails_on_primary is False
+    )
+    # Zero-test failures (compilation, infra) always count as "new" unless we know otherwise.
+    new_count += sum(1 for bs in failures if not bs.failed_tests)
+
+    commit_str = f"  latest commit: {_format_iso_local(latest_commit_date)}" if latest_commit_date else ""
+    print(f"RUNNING:{len(active)}  FAILURES:{len(failures)} ({new_count} new)  PASSING:{len(passing)}  NOT_STARTED:{len(not_started)}{commit_str}")
+    print()
+
+    # GitHub PR summary
+    prs = [ps for ps in github if ps.state != "NO_PR"]
+    if prs:
+        for ps in sorted(prs, key=lambda x: x.repo):
+            ci = f"CI:{ps.ci_rollup}" if ps.ci_rollup else "CI:none"
+            draft = " [DRAFT]" if ps.is_draft else ""
+            print(f"PR: {ps.repo} — {ps.pr_title} [{ps.state}, {ps.approved} approved, {ci}]{draft}")
+    else:
+        print("NO_PR: all repos")
+    print()
+
+    # In-progress
+    if active:
+        print("IN PROGRESS:")
+        for bs in active:
+            print(f"  [{bs.state.upper()}] {bs.suite_name} (build {bs.build_id})")
+        print()
+
+    # New failures — most actionable section
+    new_fail_lines: list[str] = []
+    for bs in failures:
+        stale = " [STALE]" if bs.has_newer_commits else ""
+        new_tests = [ft for ft in bs.failed_tests if ft.fails_on_primary is False]
+        if new_tests:
+            for ft in new_tests:
+                detail = ""
+                if ft.details:
+                    first = ft.details.splitlines()[0].strip()
+                    detail = f" — {first[:100]}"
+                new_fail_lines.append(f"  {bs.suite_name} [{bs.build_id}]{stale}: {_compress_test_name(ft.name)}{detail}")
+        elif not bs.failed_tests:
+            # Zero-test failure — show build problems if available
+            prob_str = "; ".join(p[:120] for p in bs.build_problems[:2]) if bs.build_problems else "no test names (compilation/infra?)"
+            new_fail_lines.append(f"  {bs.suite_name} [{bs.build_id}]{stale}: BUILD_PROBLEM: {prob_str}")
+
+    if new_fail_lines:
+        print("NEW FAILURES:")
+        for line in new_fail_lines:
+            print(line)
+        print()
+
+    # Pre-existing only
+    preexisting_suites = [
+        bs.suite_name for bs in failures
+        if bs.failed_tests and all(ft.fails_on_primary is True for ft in bs.failed_tests)
+    ]
+    if preexisting_suites:
+        print(f"PRE-EXISTING ONLY ({len(preexisting_suites)}): {', '.join(preexisting_suites)}")
+        print()
+
+    # Passing
+    if passing:
+        names = ", ".join(bs.suite_name for bs in sorted(passing, key=lambda x: x.suite_name))
+        print(f"PASSING ({len(passing)}): {names}")
 
 
 def to_dict(
@@ -854,11 +1051,17 @@ def to_dict(
                 "has_newer_commits": bs.has_newer_commits,
                 "stale_repos": bs.stale_repos,
                 "failure_count": bs.failure_count,
+                "build_problems": bs.build_problems,
                 "failed_tests": [
-                    {"name": _compress_test_name(ft.name), "fails_on_primary": ft.fails_on_primary}
+                    {
+                        "name": _compress_test_name(ft.name),
+                        "fails_on_primary": ft.fails_on_primary,
+                        "details": ft.details,
+                    }
                     for ft in bs.failed_tests[:MAX_FAILED_TESTS_IN_OUTPUT]
                 ],
                 "failed_tests_truncated": len(bs.failed_tests) > MAX_FAILED_TESTS_IN_OUTPUT,
+                "error_log": bs.error_log,
             }
             for bs in sorted(
                 builds,
@@ -887,9 +1090,13 @@ def main() -> None:
                         help="Feature branch name (e.g. fb_fixNPE or 26.3_fb_fixNPE). "
                              "Omit to list candidate branches.")
     parser.add_argument("--json", dest="as_json", action="store_true",
-                        help="Output structured JSON instead of human-readable text")
+                        help="Output structured JSON (includes test details, build problems, error_log)")
+    parser.add_argument("--summary", action="store_true",
+                        help="Compact single-screen output — no inline parsing needed (good for loop monitoring)")
     parser.add_argument("--suggest", action="store_true",
                         help="List candidate branches from local checkouts and GitHub activity, then exit")
+    parser.add_argument("--log-errors", dest="log_errors", action="store_true",
+                        help="Also fetch raw error lines from TC build log for each failing build")
     args = parser.parse_args()
 
     repo_root_str, ok = run("git", "rev-parse", "--show-toplevel")
@@ -921,7 +1128,9 @@ def main() -> None:
 
     with ThreadPoolExecutor(max_workers=2) as ex:
         github_future = ex.submit(collect_github_statuses, args.branch, repo_root)
-        tc_future = ex.submit(collect_tc_builds, tc_branch, tc_project_id, primary_branch, token)
+        tc_future = ex.submit(
+            collect_tc_builds, tc_branch, tc_project_id, primary_branch, token, args.log_errors
+        )
         github = github_future.result()
         builds = tc_future.result()
 
@@ -947,6 +1156,8 @@ def main() -> None:
 
     if args.as_json:
         print(json.dumps(to_dict(args.branch, tc_branch, primary_branch, github, builds, latest_commit_date), indent=2))
+    elif args.summary:
+        print_summary(args.branch, github, builds, latest_commit_date)
     else:
         print_report(args.branch, tc_branch, primary_branch, github, builds, latest_commit_date)
 

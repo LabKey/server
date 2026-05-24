@@ -165,7 +165,8 @@ Letter suffixes like `[A]`, `[B]`, `[C]` on suite names indicate shards of the s
 
 When navigating or searching this codebase, prefer IntelliJ MCP tools over shell commands:
 
-- **Finding a class or symbol** → use `ide_find_references` or `ide_search_text` MCP tool, NOT `grep` or `find`
+- **Finding a class by name** → use `ide_find_class` MCP tool, NOT `grep` or `find`
+- **Finding usages of a known symbol** → use `ide_find_references` MCP tool, NOT `grep` or `find`
 - **Checking errors/warnings** → use `ide_diagnostics` MCP tool, NOT manual inspection
 - **Project structure** → use `get_project_modules` and `get_project_dependencies` MCP tools
 - **Running Tomcat** → use `mcp__idea__execute_run_configuration` MCP tool, NOT shell

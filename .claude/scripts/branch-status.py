@@ -20,7 +20,6 @@ TeamCity section:
 
 Output modes:
   (default)    Human-readable text report
-  --json       Structured JSON (includes test details, build problems, error_log)
   --summary    Compact single-screen summary suitable for Claude loop monitoring
   --log-errors Also fetch raw error lines from the TC build log for each failing build
 

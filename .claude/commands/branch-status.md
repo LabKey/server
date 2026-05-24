@@ -39,7 +39,7 @@ Run (using only the branch name, not the `--monitor`/`--fix` flags):
 python3 REPO_ROOT/.claude/scripts/branch-status.py <branch-name>
 ```
 
-The default output is a full human-readable report: PR state, approval counts, task list items, and TC builds with new vs pre-existing failure classification and build IDs. Read it directly — no JSON parsing needed. Use the build IDs in the output to call `teamcity_build_log` when investigating failures.
+The default output is a full human-readable report: PR state, approval counts, task list items, and TC builds with new vs pre-existing failure classification and build IDs. Use the build IDs in the output to call `teamcity_build_log` when investigating failures.
 
 For the monitor loop (Step 3), use `--summary` instead for a compact single-screen digest. If any needed data is missing from the text output, add a flag to the script rather than adding ad-hoc parsing.
 
@@ -47,7 +47,7 @@ The script discovers all repos with that branch (local workspace + GitHub `labke
 
 ## Step 2: Summarize
 
-Parse the JSON and produce a report with two sections.
+Read the text output and produce a report with two sections.
 
 ### GitHub PRs
 
@@ -135,7 +135,7 @@ Keep the message under 200 characters. Do **not** notify for: routine progress w
 
 ### Schedule the next wakeup
 
-Choose the delay based on the current build state from the JSON:
+Choose the delay based on the current build state:
 
 | Condition | Delay |
 |---|-------|

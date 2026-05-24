@@ -415,7 +415,7 @@ def _extract_method_body(lines: list[str], near_line: int, method_name: str) -> 
     search_start = min(near_line - 1, len(lines) - 1)
 
     method_start: int | None = None
-    for i in range(search_start, max(0, search_start - 200), -1):
+    for i in range(search_start, max(-1, search_start - 200), -1):
         if pattern.search(lines[i]):
             method_start = i
             break

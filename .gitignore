@@ -53,5 +53,12 @@ clientAPIs/*
 .idea/vcs.xml
 .idea/sqldialects.xml
 
-# Local Claude settings
+# AI files
 .claude/settings.local.json
+.claude/hooks/*.log
+.playwright-mcp/
+.vscode/
+
+# Python bytecode
+__pycache__/
+*.pyc

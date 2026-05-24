@@ -75,4 +75,4 @@ After all cancellations are attempted, report:
 
 - If the discovery script exits non-zero, show the error and stop before asking for confirmation.
 - If an individual `teamcity run cancel` fails, log the failure and continue with the remaining builds — do not abort the whole operation.
-- If the `teamcity` CLI is not on PATH, tell the user to install it or check their PATH.
+- If the `teamcity` CLI is not on PATH, tell the user to add it to their PATH or install it by following the instructions at https://www.jetbrains.com/help/teamcity/teamcity-cli.html#installing

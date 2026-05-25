@@ -134,7 +134,7 @@ When searching for Java method usages, always include `*.jsp` and `*.jspf` files
 ## Git Branch Naming
 
 - `develop` — primary development branch (protected; no direct commits).
-- `fb_<label>_<id>` — feature/bug-fix branch off `develop`. `label` is a short snake_case description (use underscores to separate words, not dashes); `id` is the issue or GitHub issue ID. Omit `_<id>` only when no ID exists (e.g., test fixes); coordinate the label to avoid collisions.
+- `fb_<label>_<id>` — feature/bug-fix branch off `develop`. `label` is a short snake_case description (use underscores to separate words, not dashes); `id` is the GitHub issue ID. Omit `_<id>` only when no ID exists (e.g., test fixes); coordinate the label to avoid collisions.
 - `XX.Y_fb_<label>_<id>` — feature/bug-fix branch targeting a specific release.
 - `releaseXX.Y-SNAPSHOT` — beta release branch (protected); base release-targeted feature branches from it.
 - `releaseXX.Y` — final release branch (protected); receives merges from the SNAPSHOT branch only. Patch releases are tagged `XX.Y.Z`.

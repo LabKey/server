@@ -5,9 +5,9 @@ Usage: gather-review-diff.py <branch-name> [--skip owner/repo]
        gather-review-diff.py --local
 
 Branch mode: for every repo in the LabKey workspace that has BRANCH:
-  Pass 1 – check existence and fetch changed-file counts via the GitHub compare API.
-  Pass 2 – print a summary table, then for each repo stream any PR title/description
-           as a preamble followed by the raw diff.
+  Concurrently checks existence and fetches changed-file counts via the GitHub compare
+  API, then prints a summary table followed by each repo's PR title/description as a
+  preamble and the raw diff.
 
   Local repos checked: REPO_ROOT, server/testAutomation, server/modules/*, clientAPIs/*
   Remote repos checked: all GitHub repos tagged with the topic "labkey-module-container"
@@ -336,10 +336,6 @@ def _find_callable_name(context: str) -> str | None:
     context = context.strip()
     if not context:
         return None
-    # Python: def foo(...)
-    m = re.search(r'\bdef\s+(\w+)', context)
-    if m:
-        return m.group(1)
     # Java / JS / Kotlin: last word immediately before '('
     m = re.search(r'(\w+)\s*\(', context)
     if m and m.group(1) not in _SKIP_NAMES:
@@ -506,7 +502,7 @@ def _collect_full_file_contents(diff: str, owner_repo: str, branch: str) -> str:
             continue
         ext = Path(fp).suffix.lower()
         limit = _FULL_IF_SHORT_EXTS.get(ext)
-        if ext not in _ALWAYS_FULL_EXTS and (limit is None or len(lines) > limit):
+        if ext not in _ALWAYS_FULL_EXTS and len(lines) > limit:
             continue
         sections.append(f"--- {fp} ---\n" + "\n".join(lines))
 
@@ -659,8 +655,23 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Normalize the positional argument: accept "local", full GitHub PR/tree URLs,
+    # or bare branch names so callers don't have to parse the input themselves.
+    if args.branch == "local":
+        args.local = True
+        args.branch = None
+    elif args.branch and "/pull/" in args.branch:
+        args.pr_url = args.branch
+        args.branch = None
+    elif args.branch and "/tree/" in args.branch:
+        # https://github.com/{owner}/{repo}/tree/{branch}
+        m = re.search(r"/tree/(.+)$", args.branch)
+        if not m:
+            parser.error(f"Cannot parse branch name from URL: {args.branch}")
+        args.branch = m.group(1)
+
     if sum([bool(args.local), bool(args.pr_url), bool(args.branch)]) != 1:
-        parser.error("Provide exactly one of: branch, --local, or --pr-url")
+        parser.error("Provide exactly one of: branch name, 'local', a GitHub PR URL, or a GitHub tree URL")
 
     repo_root_str, ok = run("git", "rev-parse", "--show-toplevel")
     if not ok:

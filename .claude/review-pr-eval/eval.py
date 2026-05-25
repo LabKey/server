@@ -19,6 +19,7 @@ import sys
 import threading
 import time
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
@@ -30,24 +31,25 @@ RESULTS_DIR = SCRIPT_DIR.parent.parent / "build" / "review-lk-output"
 CACHE_DIR = RESULTS_DIR / "cache"
 REPOS_DIR = SCRIPT_DIR.parent.parent / "build" / "pr-eval-repos"
 LIVE_PROMPT = SCRIPT_DIR.parent / "commands" / "review-lk.md"
+GATHER_SCRIPT = SCRIPT_DIR.parent / "scripts" / "gather-review-diff.py"
 
 JUDGE_MODEL = "claude-haiku-4-5"
 
 
-JUDGE_PROMPT = """You are evaluating whether a code review successfully identified a known critical issue.
+JUDGE_PROMPT = """You are evaluating whether a code review identified known critical issues.
 
-Known critical issue to find:
-{expected_issue}
+Known critical issues to find:
+{expected_issues}
 
 Code review output to evaluate:
 {review_output}
 
-Did the code review identify this issue or a substantially equivalent problem?
-
-Respond with exactly one of these verdicts, followed by a colon and brief explanation:
+For each numbered issue, respond with exactly one line using one of these verdicts:
 CAUGHT: <explanation> — the review clearly identified this issue or its root cause
 PARTIAL: <explanation> — the review hinted at related concerns but didn't pinpoint the specific issue
-MISSED: <explanation> — the review did not identify this issue"""
+MISSED: <explanation> — the review did not identify this issue
+
+Respond with exactly {n} lines, one per issue, in order."""
 
 
 def pr_label(url: str) -> str:
@@ -57,18 +59,21 @@ def pr_label(url: str) -> str:
     return f"{parts[-4]}/{parts[-3]}#{parts[-1]}"
 
 
-def get_pr_data(url: str) -> tuple[dict, str]:
+def get_pr_metadata(url: str) -> dict:
+    """Fetch the PR fields needed for display and merge-commit checkout."""
     view_json = subprocess.check_output(
-        ["gh", "pr", "view", url, "--json", "title,body,author,number,url,mergeCommit"],
+        ["gh", "pr", "view", url, "--json", "title,number,url,mergeCommit"],
         text=True,
     )
-    pr_view = json.loads(view_json)
-    pr_diff = subprocess.check_output(
-        ["gh", "pr", "diff", url],
-        text=True,
-    )
-    return pr_view, pr_diff
+    return json.loads(view_json)
 
+
+def run_gather_script(url: str) -> str:
+    """Run gather-review-diff.py for a PR URL and return its stdout."""
+    return subprocess.check_output(
+        ["python3", str(GATHER_SCRIPT), "--pr-url", url],
+        text=True,
+    )
 
 
 @contextmanager
@@ -162,49 +167,50 @@ def run_claude(prompt: str, extra_args: list[str] = None, cwd: str = None, skip_
         return stdout.strip(), {}
 
 
-def run_review(prompt_template: str, pr_view: dict, pr_diff: str, cwd: str = None, model: str = None) -> str:
-    pr_summary = (
-        f"PR #{pr_view['number']}: {pr_view['title']}\n"
-        f"URL: {pr_view.get('url', '')}\n"
-        f"Author: {pr_view['author']['login']}\n\n"
-        f"Description:\n{pr_view.get('body', '(no description)')}"
+def run_review(prompt_template: str, script_output: str, cwd: str = None, model: str = None, label: str = "") -> str:
+    # Inject the gather-review-diff.py output in place of the script call the prompt would normally make
+    full_prompt = (
+        f"{prompt_template}\n\n---\n"
+        "Note: The gather-review-diff.py script has already been run for this PR. "
+        "Use the following output instead of running the script:\n\n"
+        f"{script_output}"
     )
-    # Inject the PR data in place of the gh CLI calls the prompt would normally make
-    full_prompt = f"""{prompt_template}
 
----
-Note: The PR data has already been fetched. Use the following instead of running gh commands:
-
-## PR Details
-{pr_summary}
-
-## Diff
-{pr_diff}"""
-
+    prefix = f"  {label}" if label else "  "
     model_label = f" [{model}]" if model else ""
-    print(f"  [{datetime.now().strftime('%H:%M:%S')}] reviewing{model_label}... ", end="", flush=True)
+    print(f"{prefix}[{datetime.now().strftime('%H:%M:%S')}] reviewing{model_label}...")
     t0 = time.time()
     extra_args = ["--model", model] if model else None
     result, usage = run_claude(full_prompt, extra_args=extra_args, cwd=cwd, skip_permissions=True)
     elapsed = int(time.time() - t0)
-    print(f"done in {elapsed}s ({len(result.splitlines())} lines){_format_usage(usage)}")
+    print(f"{prefix}done in {elapsed}s ({len(result.splitlines())} lines){_format_usage(usage)}")
     return result
 
 
-def judge_review(review_output: str, expected_issue: str) -> tuple[str, str]:
-    prompt = JUDGE_PROMPT.format(
-        expected_issue=expected_issue,
-        review_output=review_output,
-    )
-    print(f"    [{datetime.now().strftime('%H:%M:%S')}] {expected_issue[:70]}... ", end="", flush=True)
+def judge_all_issues(review_output: str, issues: list[str], label: str = "") -> list[dict]:
+    """Judge all expected issues for one review in a single batched Haiku call."""
+    prefix = f"  {label}" if label else "  "
+    numbered = "\n".join(f"{i + 1}. {issue}" for i, issue in enumerate(issues))
+    prompt = JUDGE_PROMPT.format(expected_issues=numbered, review_output=review_output, n=len(issues))
+    print(f"{prefix}[{datetime.now().strftime('%H:%M:%S')}] judging {len(issues)} issues...")
     t0 = time.time()
     text, usage = run_claude(prompt, extra_args=["--model", JUDGE_MODEL])
     elapsed = int(time.time() - t0)
-    verdict = text.split(":")[0].strip().upper()
-    if verdict not in ("CAUGHT", "PARTIAL", "MISSED"):
-        verdict = "UNKNOWN"
-    print(f"{verdict} ({elapsed}s){_format_usage(usage)}")
-    return verdict, text
+    print(f"{prefix}done in {elapsed}s{_format_usage(usage)}")
+
+    verdict_lines = [
+        line.strip() for line in text.splitlines()
+        if any(line.strip().upper().startswith(v) for v in ("CAUGHT", "PARTIAL", "MISSED"))
+    ]
+    findings = []
+    for i, issue in enumerate(issues):
+        if i < len(verdict_lines):
+            line = verdict_lines[i]
+            verdict = next((v for v in ("CAUGHT", "PARTIAL", "MISSED") if line.upper().startswith(v)), "UNKNOWN")
+        else:
+            verdict, line = "UNKNOWN", ""
+        findings.append({"expected_issue": issue, "verdict": verdict, "judge_explanation": line})
+    return findings
 
 
 def _cache_key(prompt_template: str, url: str, model: str = "") -> str:
@@ -259,41 +265,45 @@ def evaluate_prompt(prompt_file: Path, training_set: list, num_runs: int = 1, mo
         print(f"  [{short}] fetching... ", end="", flush=True)
 
         try:
-            pr_view, pr_diff = get_pr_data(url)
+            pr_view = get_pr_metadata(url)
             print(f"{pr_view['title']}")
-            print(f"  diff: {len(pr_diff):,} chars")
+            script_output = run_gather_script(url)
+            print(f"  script output: {len(script_output):,} chars")
 
-            all_run_findings = []
-            last_review = None
+            run_label = (lambda i: f"run {i + 1}/{num_runs}: ") if num_runs > 1 else (lambda i: "")
+
             with get_merge_commit(pr_view, url) as cwd:
-                for run_idx in range(num_runs):
-                    if num_runs > 1:
-                        print(f"  run {run_idx + 1}/{num_runs}:")
-                    last_review = run_review(prompt_template, pr_view, pr_diff, cwd=cwd, model=model)
+                # Run all reviews in parallel — same cwd (same commit, read-only), safe to share
+                with ThreadPoolExecutor(max_workers=num_runs) as executor:
+                    review_futures = [
+                        executor.submit(run_review, prompt_template, script_output,
+                                        cwd=cwd, model=model, label=run_label(i))
+                        for i in range(num_runs)
+                    ]
+                    reviews = [f.result() for f in review_futures]
 
-                    print(f"  --- judging ---")
-                    run_findings = []
-                    for issue in entry["expected_issues"]:
-                        verdict, judge_explanation = judge_review(last_review, issue)
-                        run_findings.append({
-                            "expected_issue": issue,
-                            "verdict": verdict,
-                            "judge_explanation": judge_explanation,
-                        })
-                    all_run_findings.append(run_findings)
-                    save_cached_pr_result(prompt_template, url, {
-                        "url": url,
-                        "title": pr_view["title"],
-                        "findings": run_findings,
-                        "review": last_review,
-                    }, model or "")
+            # Judge all reviews in parallel (one batched call per run)
+            with ThreadPoolExecutor(max_workers=num_runs) as executor:
+                judge_futures = [
+                    executor.submit(judge_all_issues, review, entry["expected_issues"], run_label(i))
+                    for i, review in enumerate(reviews)
+                ]
+                all_run_findings = [f.result() for f in judge_futures]
+
+            for run_findings, review in zip(all_run_findings, reviews):
+                save_cached_pr_result(prompt_template, url, {
+                    "url": url,
+                    "title": pr_view["title"],
+                    "findings": run_findings,
+                    "review": review,
+                }, model or "")
 
             findings = _aggregate_findings(all_run_findings) if num_runs > 1 else all_run_findings[0]
             results.append({
                 "url": url,
                 "title": pr_view["title"],
                 "findings": findings,
-                "review": last_review,
+                "review": reviews[-1],
             })
         except Exception as e:
             print(f"ERROR: {e}")
@@ -383,7 +393,7 @@ def _main():
         args = args[:idx] + args[idx + 2:]
 
     run_label = f" ({num_runs} runs each)" if num_runs > 1 else ""
-    print(f"Warning: this evaluation runs Claude on {len(training_set)} PRs{run_label} and will take 10+ minutes.")
+    print(f"Warning: this evaluation runs Claude on {len(training_set)} PRs{run_label} and typically takes ~5 minutes per PR.")
 
     single_model = None
     if "--model" in args:

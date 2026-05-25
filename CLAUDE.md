@@ -26,13 +26,13 @@ LabKey Server is a large Java web application platform for biomedical research d
 ./gradlew -PmoduleSet=distributions :distributions:base:dist
 ```
 
-## Running Tests
+## Tests
 
 **Unit tests** are static `TestCase` inner classes within production source files. They are registered via the module's `getUnitTests()` method and run within the server JVM.
 
 **Integration tests** require a running server and database. They are registered via `getIntegrationTests()`.
 
-**Selenium UI tests** (in `server/testAutomation/`):
+**Selenium UI tests** (in `server/testAutomation/` and the `test` directory of many modules):
 ```bash
 ./gradlew :server:testAutomation:initProperties    # Generate test.properties
 ./gradlew :server:testAutomation:uiTests -Psuite=DRT   # Run a test suite
@@ -100,8 +100,15 @@ All external library versions are centralized in `gradle.properties`. The root `
   ```java
   private static final Logger LOG = LogHelper.getLogger(MyClass.class, "optional description");
   ```
-- **Unit tests**: Create a static `TestCase` inner class extending `Assert` in the same file as production code. Use JUnit 4 annotations (`@Test`). Register new test classes in the owning module's `getUnitTests()`.
-- **Selenium tests**: Subclass `BaseWebDriverTest`. Use a `@BeforeClass` for setup and override `doCleanup()` for cleanup. See `SecurityTest` as an example.
+- **Unit tests**: Create a static `TestCase` inner class extending `Assert` in the same file as production code. Use JUnit 4 annotations (`@Test`). Register new test classes in the owning module's `getUnitTests()` (or `getIntegrationTests()` if the test requires the server to be running).
+- **Selenium tests**
+  - Subclass `BaseWebDriverTest`. Use a `@BeforeClass` for setup and override `doCleanup()` for cleanup. See `SecurityTest` as an example.
+  - Templates for Selenium test classes and page objects are in '.idea/fileTemplates/'
+  - **Page/component objects over raw locators**: When a `DataRegionTable`, `CustomizeView`, or other component method returns a typed page or component object, use that object's API rather than falling back to `setFormElement`/`Locator` calls. For example, `DataRegionTable.clickInsertNewRow()` returns an insert-row page object whose fields should be set through its typed methods.
+  - **Remote API library over UI for setup**: When setting up a project for testing, use classes from `org.labkey.remoteapi` for setup rather than navigating through the UI. Create test-specific API wrappers for actions that are not yet exposed in the `labkey-api-java` library.
+  - **Use API helpers over raw Commands**: Helpers such as `org.labkey.test.params.assay.AssayDesign` and `org.labkey.test.params.experiment.SampleTypeDefinition` wrap multiple API calls into a single operation or add additional functionality.
+  - **Never navigate in 'finally' blocks or JUnit '@After'/'@AfterClass' methods**: It prevents the base class from collecting failure screenshots. These sorts of cleanup methods should exclusively use API calls.
+  - Take screenshots of errors collected by `DeferredErrorCollector` before taking any actions that modify the page state.
 - **Formatting**: Follow IntelliJ IDEA project settings in `.idea/codeStyles/Project.xml`.
 
 ## Key Build Properties (`gradle.properties`)
@@ -119,7 +126,7 @@ When searching for Java method usages, always include `*.jsp` and `*.jspf` files
 ## Git Branch Naming
 
 - `develop` — primary development branch (protected; no direct commits).
-- `fb_<label>_<id>` — feature/bug-fix branch off `develop`. `label` is a short snake_case description (use underscores to separate words, not dashes); `id` is the issue or Scrumwise ID. Omit `_<id>` only when no ID exists (e.g., test fixes); coordinate the label to avoid collisions.
+- `fb_<label>_<id>` — feature/bug-fix branch off `develop`. `label` is a short snake_case description (use underscores to separate words, not dashes); `id` is the GitHub issue ID. Omit `_<id>` only when no ID exists (e.g., test fixes); coordinate the label to avoid collisions.
 - `XX.Y_fb_<label>_<id>` — feature/bug-fix branch targeting a specific release.
 - `releaseXX.Y-SNAPSHOT` — beta release branch (protected); base release-targeted feature branches from it.
 - `releaseXX.Y` — final release branch (protected); receives merges from the SNAPSHOT branch only. Patch releases are tagged `XX.Y.Z`.
@@ -179,3 +186,22 @@ Only fall back to shell commands if the MCP tool fails or is unavailable.
 If the repo has a `pull_request_template.md` (typically under `.github/`), follow it. Otherwise, include sections for: **Rationale** (why the change is needed), **Related Pull Requests**, and **Changes** (notable items). Keep descriptions brief. Follow the formatting rule above — one physical line per paragraph and per bullet.
 
 Before opening a PR, always draft the title and description and confirm them with the user. Do not run `gh pr create` until the user approves.
+
+## Enlistment Structure
+```
+./                                ← root repo (https://github.com/LabKey/server)
+├── distributions/                ← optional; distribution configurations
+├── remoteapi/                    ← optional; Java API repos
+│   ├── labkey-api-java/          ← LabKey Java Client API
+│   └── labkey-api-jdbc/          ← LabKey JDBC Driver
+├── server/
+│   ├── modules/
+│   │   ├── platform/             ← core platform modules
+│   │   └── */                    ← additional module repos cloned here
+│   └── testAutomation/           ← core Selenium tests
+└── clientAPIs/                   ← optional; front-end packages cloned here or via env vars
+    ├── labkey-api-js/
+    ├── labkey-ui-components/     ← $LABKEY_UI_COMPONENTS_HOME
+    └── labkey-ui-premium/        ← $LABKEY_UI_PREMIUM_HOME
+```
+All repositories are under the `LabKey` GitHub organization (https://github.com/LabKey), with the root repo at `LabKey/server`.

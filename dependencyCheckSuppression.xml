@@ -387,17 +387,6 @@
     </suppress>
 
     <!--
-    Checker is confusing json-schema-validator with Nu Html Checker
-    -->
-    <suppress>
-        <notes><![CDATA[
-    file name: json-schema-validator-3.0.1.jar
-    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.networknt/json-schema-validator@.*$</packageUrl>
-        <cve>CVE-2025-15104</cve>
-    </suppress>
-
-    <!--
     CVE-2026-33117 against "Azure SDK for Java" might affect these libraries, but we ship the latest and our use case
     (requiring server admins to provide credentials) is certainly not vulnerable. Newer versions may allow us to remove
     this suppression.
@@ -437,4 +426,16 @@
         <packageUrl regex="true">^pkg:maven/com\.azure/azure-json@.*$</packageUrl>
         <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
     </suppress>
+    <!--
+    Checker is confusing json-schema-validator with Nu Html Checker
+    https://www.sentinelone.com/vulnerability-database/cve-2025-15104/
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: json-schema-validator-3.0.1.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.networknt/json-schema-validator@.*$</packageUrl>
+        <cve>CVE-2025-15104</cve>
+    </suppress>
+
 </suppressions>

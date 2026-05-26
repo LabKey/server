@@ -26,7 +26,7 @@ Output modes:
 When called without a branch argument (or with --suggest), lists candidate feature
 branches from local checkouts and recent GitHub push events.
 
-TeamCity token is read from ~/.claude/mcp.json (same as MCP server config).
+TeamCity token is read from ~/.claude.json or ~/.claude/mcp.json (MCP server config).
 Override with TEAMCITY_TOKEN env var.
 """
 
@@ -420,18 +420,18 @@ TC_BASE = "https://teamcity.labkey.org"
 
 
 def get_tc_token() -> str:
-    """Read TC Bearer token from ~/.claude/mcp.json; fall back to TEAMCITY_TOKEN env var."""
-    mcp_path = Path.home() / ".claude" / "mcp.json"
-    if mcp_path.exists():
-        try:
-            data = json.loads(mcp_path.read_text())
-            for server in data.get("mcpServers", {}).values():
-                url = server.get("url", "")
-                auth = server.get("headers", {}).get("Authorization", "")
-                if "teamcity" in url.lower() and auth.startswith("Bearer "):
-                    return auth.removeprefix("Bearer ")
-        except (json.JSONDecodeError, KeyError):
-            pass
+    """Read TC Bearer token from ~/.claude.json or ~/.claude/mcp.json; fall back to TEAMCITY_TOKEN env var."""
+    for mcp_path in [Path.home() / ".claude.json", Path.home() / ".claude" / "mcp.json"]:
+        if mcp_path.exists():
+            try:
+                data = json.loads(mcp_path.read_text())
+                for server in data.get("mcpServers", {}).values():
+                    url = server.get("url", "")
+                    auth = server.get("headers", {}).get("Authorization", "")
+                    if "teamcity" in url.lower() and auth.startswith("Bearer "):
+                        return auth.removeprefix("Bearer ")
+            except (json.JSONDecodeError, KeyError):
+                pass
     return os.environ.get("TEAMCITY_TOKEN", "")
 
 

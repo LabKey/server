@@ -304,4 +304,16 @@
         <cpe>cpe:/a:vmware:vmware_server</cpe>
     </suppress>
 
+    <!--
+    Checker is confusing json-schema-validator with Nu Html Checker
+    https://www.sentinelone.com/vulnerability-database/cve-2025-15104/
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: json-schema-validator-3.0.1.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.networknt/json-schema-validator@.*$</packageUrl>
+        <cve>CVE-2025-15104</cve>
+    </suppress>
+
 </suppressions>

@@ -47,6 +47,11 @@ Compare what the code *actually does* (from Phase 2) against what it *should do*
 - Are there other places in the codebase that should have been updated alongside this change?
 - Are tests updated to cover the new behavior?
 
+## Phase 6: Accessibility 
+
+- Are there missing labels, empty buttons, missing alt text, missing or inappropriate tab indexes, or other problems that make the new functionality
+  not accessible to all users and prevent us from being WCAG 2.2 A and AA compliant?
+
 ---
 
 ## Output Format

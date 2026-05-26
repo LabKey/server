@@ -193,6 +193,7 @@ These patterns are common in the LabKey codebase and deserve extra attention:
 - Check `Modal`/`ModalDialog` components trap focus and are dismissible via Escape.
 - Ensure `Grid`/`QueryGrid` table components use proper `<table>` semantics with headers.
 - Check custom dropdown/select components for keyboard navigation (arrow keys, Escape, Enter).
+- Ensure tags other than buttons that have an `onClick` include an `onKeyDown` handler
 
 ### JSP Pages
 - Verify `<labkey:form>` and `<labkey:input>` render with proper label associations.

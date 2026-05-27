@@ -25,7 +25,7 @@ If no branch name is provided, ask the user for one before proceeding.
 Run the discovery script to find all queued and running builds for the branch:
 
 ```bash
-python3 .claude/scripts/tc_branch_builds.py <branch> --json
+python3 .claude/scripts/tc-branch-builds.py <branch> --json
 ```
 
 Parse the JSON output. It has the shape:

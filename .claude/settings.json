@@ -3,16 +3,16 @@
     "allow": [
       "Bash(python3 .claude/scripts/branch-status.py*)",
       "Bash(python3 .claude/scripts/gather-review-diff.py*)",
-      "Bash(python3 .claude/scripts/tc_branch_builds.py*)",
+      "Bash(python3 .claude/scripts/tc-branch-builds.py*)",
       "Bash(python .claude/scripts/branch-status.py*)",
       "Bash(python .claude/scripts/gather-review-diff.py*)",
-      "Bash(python .claude/scripts/tc_branch_builds.py*)",
+      "Bash(python .claude/scripts/tc-branch-builds.py*)",
       "PowerShell(python3 .claude/scripts/branch-status.py*)",
       "PowerShell(python3 .claude/scripts/gather-review-diff.py*)",
-      "PowerShell(python3 .claude/scripts/tc_branch_builds.py*)",
+      "PowerShell(python3 .claude/scripts/tc-branch-builds.py*)",
       "PowerShell(python .claude/scripts/branch-status.py*)",
       "PowerShell(python .claude/scripts/gather-review-diff.py*)",
-      "PowerShell(python .claude/scripts/tc_branch_builds.py*)"
+      "PowerShell(python .claude/scripts/tc-branch-builds.py*)"
     ],
     "ask": [
       "Bash(git push:*)",

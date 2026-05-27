@@ -28,7 +28,7 @@ Use a helper class (e.g. `TargetedMSHelper`) to access setup utilities without s
 // For 26.6+: class-level annotation covers all @Test methods
 @Category({})
 @EarliestVersion("26.6")
-public class MyModuleUpgradeTest extends BaseUpgradeTest { ... }
+public class MyModuleUpgradeTest extends BaseUpgradeTest { /*...*/ }
 
 // For 26.3 or earlier: annotate EVERY @Test method individually
 // (class-level is ignored in older BaseUpgradeTest)
@@ -45,7 +45,7 @@ public class MyModuleUpgradeTest extends BaseUpgradeTest
 
     @Test
     @EarliestVersion("26.3")   // skip when upgrading from < 26.3
-    public void testNewMigration() throws Exception
+    public void testNewMigration()
     {
         // query new columns / UI state that the 26.3 upgrade script created
     }
@@ -53,7 +53,7 @@ public class MyModuleUpgradeTest extends BaseUpgradeTest
     @Test
     @EarliestVersion("26.3")   // must repeat on every method for pre-26.6 releases
     @LatestVersion("26.3")     // additionally cap if only relevant for this exact version
-    public void testLegacyBehavior() throws Exception
+    public void testLegacyBehavior()
     {
         // verify behavior that only applies to data created on exactly 26.3
     }
@@ -72,11 +72,11 @@ on the **old/setup version** — the version the server was running when `doSetu
 new version being upgraded to. The version string is a LabKey release version like `"26.3"` or
 `"25.11"`.
 
-| Annotation | Meaning | When to use |
-|---|---|---|
-| `@EarliestVersion("X")` | Skip if old version < X | Test requires data/config only added to `doSetup()` in version X |
-| `@LatestVersion("X")` | Skip if old version > X | Test only applies to setups done on X or earlier (legacy check) |
-| Both together | Skip if old version outside [earliest, latest] | Narrow version window, e.g. a migration that was back-ported |
+| Annotation              | Meaning                                        | When to use                                                      |
+|-------------------------|------------------------------------------------|------------------------------------------------------------------|
+| `@EarliestVersion("X")` | Skip if old version < X                        | Test requires data/config only added to `doSetup()` in version X |
+| `@LatestVersion("X")`   | Skip if old version > X                        | Test only applies to setups done on X or earlier (legacy check)  |
+| Both together           | Skip if old version outside [earliest, latest] | Narrow version window, e.g. a migration that was back-ported     |
 
 Method-level annotations are ignored during the setup phase — they only filter during the verify phase.
 
@@ -90,10 +90,10 @@ placing them on the class has no effect and tests will run (or fail) uncondition
 
 Rule of thumb by target release:
 
-| Writing a test for… | Use |
-|---|---|
-| 26.6+ | `@EarliestVersion` on the **class** (covers all methods at once) |
-| 26.3 or earlier | `@EarliestVersion` on **every `@Test` method** individually |
+| Writing a test for… | Use                                                              |
+|---------------------|------------------------------------------------------------------|
+| 26.6+               | `@EarliestVersion` on the **class** (covers all methods at once) |
+| 26.3 or earlier     | `@EarliestVersion` on **every `@Test` method** individually      |
 
 For a release older than 26.6, annotate every `@Test` method — omitting even one means that
 method runs regardless of the old version.

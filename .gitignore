@@ -55,6 +55,7 @@ clientAPIs/*
 
 # AI files
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 .claude/hooks/*.log
 .playwright-mcp/
 .vscode/

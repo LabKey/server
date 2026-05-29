@@ -21,7 +21,7 @@ import java.util.List;
 
 public class RemoteServerBootstrap
 {
-    static void main(String... rawArgs)
+    public static void main(String... rawArgs)
     {
         try
         {

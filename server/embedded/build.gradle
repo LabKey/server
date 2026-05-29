@@ -1,8 +1,8 @@
-import org.labkey.gradle.util.BuildUtils
-import org.labkey.gradle.util.PomFileHelper
-import org.labkey.gradle.util.GroupNames
-import org.labkey.gradle.task.CheckForVersionConflicts
 import org.labkey.gradle.plugin.extension.ServerDeployExtension
+import org.labkey.gradle.task.CheckForVersionConflicts
+import org.labkey.gradle.util.BuildUtils
+import org.labkey.gradle.util.GroupNames
+import org.labkey.gradle.util.PomFileHelper
 
 plugins {
     id "java"
@@ -13,6 +13,7 @@ plugins {
 
 // 'dependency-management' plugin doesn't allow us to use 'resolutionStrategy.force' to lock versions
 ext['log4j2.version'] = log4j2Version
+ext['netty.version'] = nettyVersion
 
 sourceSets {
     main {
@@ -130,6 +131,10 @@ dependencies {
     implementation ("org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}") {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
+
+    implementation "software.amazon.awssdk:ssm:${awsSdkVersion}"
+    implementation "software.amazon.awssdk:sso:${awsSdkVersion}"
+    implementation "software.amazon.awssdk:ssooidc:${awsSdkVersion}"
 
     implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"

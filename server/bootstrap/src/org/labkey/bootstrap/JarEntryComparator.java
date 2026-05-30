@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 LabKey Corporation
+ * Copyright (c) 2008-2026 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,6 @@ import java.util.jar.JarEntry;
 import java.util.Comparator;
 import java.io.File;
 
-/*
-* User: Dave
-* Date: Dec 9, 2008
-* Time: 10:58:14 AM
-*/
 public class JarEntryComparator extends BaseComparator implements Comparator<JarEntry>
 {
     @Override

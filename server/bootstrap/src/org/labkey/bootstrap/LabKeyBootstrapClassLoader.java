@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 LabKey Corporation
+ * Copyright (c) 2017-2026 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * User: jeckels
- * Date: Jun 8, 2006
- */
 public class LabKeyBootstrapClassLoader extends WebappClassLoader implements ExplodedModuleService
 {
     private final static Logger _log = LogManager.getLogger(LabKeyBootstrapClassLoader.class);

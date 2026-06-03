@@ -99,12 +99,12 @@ public class LabKeyServer
         // Add upgrade_insecure_requests substitution, frame-ancestors, and enforce version
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
-                frame-ancestors 'self' ;
-                /* cspVersion=e15 */
+                frame-ancestors 'self' ${FRAMEANCESTORS.SOURCES} ;
+                /* cspVersion=e16 */
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                /* cspVersion=r15 */
+                /* cspVersion=r16 */
             """;
 
         application.setDefaultProperties(new HashMap<>()

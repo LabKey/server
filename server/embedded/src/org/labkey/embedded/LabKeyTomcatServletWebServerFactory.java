@@ -1,18 +1,3 @@
-/*
- * Copyright (c) 2024-2026 LabKey Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.labkey.embedded;
 
 import org.apache.catalina.Container;
@@ -170,9 +155,8 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 // Add extra resources to context (e.g. LDAP, JMS)
                 addExtraContextResources(contextProperties, context);
 
-                // Add the mail transport config (SMTP or Microsoft Graph)
+                // Add the SMTP config
                 addSmtpProperties(context);
-                addGraphProperties(context);
 
                 // Add the encryption key(s)
                 context.addParameter("EncryptionKey", contextProperties.getEncryptionKey());
@@ -409,12 +393,12 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     {
         if (propValues == null)
         {
-            LOG.debug("{} property was not provided, using default", propName);
+            LOG.debug(String.format("%1$s property was not provided, using default", propName));
             return defaultValue;
         }
 
         if (!propValues.containsKey(resourceKey))
-            LOG.debug("{} property was not provided for resource [{}], using default [{}]", propName, resourceKey, defaultValue);
+            LOG.debug(String.format("%1$s property was not provided for resource [%2$s], using default [%3$s]", propName, resourceKey, defaultValue));
 
         String val = propValues.getOrDefault(resourceKey, defaultValue);
         return val != null && !val.isBlank() ? val.trim() : defaultValue;
@@ -425,18 +409,10 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         // Get session/mail properties
         LabKeyServer.MailProperties mailProps = _server.smtpSource();
 
-        if (mailProps.getSmtpHost() != null)
-        {
-            context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
-        }
-        if (mailProps.getSmtpUser() != null)
-        {
-            context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
-        }
-        if (mailProps.getSmtpPort() != null)
-        {
-            context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
-        }
+        context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
+        context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
+        context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
+
         if (mailProps.getSmtpFrom() != null)
         {
             context.addParameter("mail.smtp.from", mailProps.getSmtpFrom());
@@ -456,29 +432,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         if (mailProps.getSmtpAuth() != null)
         {
             context.addParameter("mail.smtp.auth", mailProps.getSmtpAuth());
-        }
-    }
-
-    private void addGraphProperties(StandardContext context)
-    {
-        // Get Microsoft Graph mail properties
-        LabKeyServer.GraphMailProperties graphProps = _server.graphSource();
-
-        if (graphProps.getTenantId() != null)
-        {
-            context.addParameter("mail.graph.tenantId", graphProps.getTenantId());
-        }
-        if (graphProps.getClientId() != null)
-        {
-            context.addParameter("mail.graph.clientId", graphProps.getClientId());
-        }
-        if (graphProps.getClientSecret() != null)
-        {
-            context.addParameter("mail.graph.clientSecret", graphProps.getClientSecret());
-        }
-        if (graphProps.getFromAddress() != null)
-        {
-            context.addParameter("mail.graph.fromAddress", graphProps.getFromAddress());
         }
     }
 }

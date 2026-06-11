@@ -9,7 +9,6 @@
       <name>com.sun.istack.Nullable</name>
       <name>common.Logger</name>
       <name>edu.umd.cs.findbugs.annotations.Nullable</name>
-      <name>groovyjarjarantlr4.v4.runtime.misc.NotNull</name>
       <name>io.micrometer.common.lang.NonNull</name>
       <name>io.micrometer.common.lang.Nullable</name>
       <name>jakarta.annotation.Nullable</name>

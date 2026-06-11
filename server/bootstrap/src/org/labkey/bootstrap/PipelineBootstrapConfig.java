@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2026 LabKey Corporation
+ * Copyright (c) 2008-2018 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/*
+* User: jeckels
+* Date: Jun 26, 2008
+*/
 public class PipelineBootstrapConfig
 {
     public static final String CONFIG_DIR = "configdir";

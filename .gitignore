@@ -20,8 +20,6 @@ remoteapi/
 server/modules/ 
 server/testAutomation/
 tools/
-clientAPIs/*
-!clientAPIs/README.md
 
 # Include the remoteapi README -- this line will override previous exclusion
 !remoteapi/README.md
@@ -52,13 +50,3 @@ clientAPIs/*
 .idea/misc.xml
 .idea/vcs.xml
 .idea/sqldialects.xml
-
-# AI files
-.claude/settings.local.json
-.claude/hooks/*.log
-.playwright-mcp/
-.vscode/
-
-# Python bytecode
-__pycache__/
-*.pyc

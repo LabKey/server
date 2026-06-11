@@ -1,18 +1,3 @@
-/*
- * Copyright (c) 2021-2026 LabKey Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.labkey.embedded;
 
 import org.apache.catalina.connector.Connector;
@@ -99,12 +84,12 @@ public class LabKeyServer
         // Add upgrade_insecure_requests substitution, frame-ancestors, and enforce version
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
-                frame-ancestors 'self' ${FRAMEANCESTORS.SOURCES} ;
-                /* cspVersion=e16 */
+                frame-ancestors 'self' ;
+                /* cspVersion=e15 */
             """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                /* cspVersion=r16 */
+                /* cspVersion=r15 */
             """;
 
         application.setDefaultProperties(new HashMap<>()
@@ -200,12 +185,6 @@ public class LabKeyServer
     public MailProperties smtpSource()
     {
         return new MailProperties();
-    }
-
-    @Bean
-    public GraphMailProperties graphSource()
-    {
-        return new GraphMailProperties();
     }
 
     @Bean
@@ -897,56 +876,6 @@ public class LabKeyServer
         public void setSmtpAuth(String smtpAuth)
         {
             this.smtpAuth = smtpAuth;
-        }
-    }
-
-    @Configuration
-    @ConfigurationProperties("mail.graph")
-    public static class GraphMailProperties
-    {
-        private String tenantId;
-        private String clientId;
-        private String clientSecret;
-        private String fromAddress;
-
-        public String getTenantId()
-        {
-            return tenantId;
-        }
-
-        public void setTenantId(String tenantId)
-        {
-            this.tenantId = tenantId;
-        }
-
-        public String getClientId()
-        {
-            return clientId;
-        }
-
-        public void setClientId(String clientId)
-        {
-            this.clientId = clientId;
-        }
-
-        public String getClientSecret()
-        {
-            return clientSecret;
-        }
-
-        public void setClientSecret(String clientSecret)
-        {
-            this.clientSecret = clientSecret;
-        }
-
-        public String getFromAddress()
-        {
-            return fromAddress;
-        }
-
-        public void setFromAddress(String fromAddress)
-        {
-            this.fromAddress = fromAddress;
         }
     }
 

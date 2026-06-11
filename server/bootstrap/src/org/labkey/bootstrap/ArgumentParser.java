@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2026 LabKey Corporation
+ * Copyright (c) 2008-2013 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@ package org.labkey.bootstrap;
 
 import java.util.*;
 
+/**
+ * User: jeckels
+ * Date: Apr 16, 2008
+ */
 public class ArgumentParser
 {
     private final List<String> _params = new ArrayList<>();

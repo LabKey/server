@@ -1,22 +1,16 @@
 import org.apache.commons.lang3.SystemUtils
+import org.labkey.gradle.plugin.NpmRun
 import org.labkey.gradle.task.PurgeNpmAlphaVersions
 import org.labkey.gradle.task.PurgeNpmVersions
 import org.labkey.gradle.task.ShowDiscrepancies
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 
-buildscript {
-    dependencies {
-        // Not necessary but makes IntelliJ able to resolve class imports from our plugins
-        classpath "org.labkey.build:gradlePlugins:${gradlePluginsVersion}"
-    }
-}
-
 plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
-    id "com.github.ben-manes.versions" version "0.54.0"
+//    id "com.github.ben-manes.versions" version "0.39.0"
     id "org.labkey.build.multiGit"
 }
 
@@ -48,7 +42,7 @@ allprojects {
                 analyzers.ossIndex.enabled = false
             }
             formats = ['HTML', 'JUNIT']
-            skipConfigurations = ['dedupe', 'developmentOnly']
+            skipConfigurations = ['dedupe', 'gwtCompileClasspath', 'gwtRuntimeClasspath', 'developmentOnly']
             skipProjects = [':server:testAutomation']
 
             nvd {
@@ -79,6 +73,7 @@ allprojects {
     configurations
             {
                 driver
+                utilities
             }
     configurations.configureEach {
         // exclude log4j 1.x, which may come in transitively, from all configurations to avoid its potential vulnerabilities
@@ -87,11 +82,17 @@ allprojects {
         exclude group: "org.springframework.boot", module:"spring-boot-starter-logging"
     }
     configurations.driver.setDescription("Dependencies used for Gradle SetUpProperties task")
+    configurations.utilities.setDescription("Utility binaries for use on Windows platform")
 
     dependencies
             {
                 driver "org.postgresql:postgresql:${postgresqlDriverVersion}"
                 driver "com.microsoft.sqlserver:mssql-jdbc:${mssqlJdbcVersion}"
+
+                if (SystemUtils.IS_OS_WINDOWS)
+                {
+                    utilities "org.labkey.tools.windows:utils:${windowsUtilsVersion}@zip"
+                }
             }
 
     // We apply the base module here so we get the configurations (in particular external and modules)
@@ -221,12 +222,10 @@ allprojects {
                     force "org.apache.logging.log4j:log4j-core:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-api:${log4j2Version}"
                     force "org.apache.logging.log4j:log4j-1.2-api:${log4j2Version}"
-                    // brought in by SequenceAnalysis, jbrowse
-                    force "org.apache.logging.log4j:log4j-slf4j-impl:${log4j2Version}"
                     force "org.apache.commons:commons-vfs2:${commonsVfs2Version}"
-                    // force version for consistency with query, LDK, and pipeline
+                    // force version for consistency with saml, query, LDK, and pipeline
                     force "commons-lang:commons-lang:${commonsLangVersion}"
-                    // force version for consistency with api, SequenceAnalysis
+                    // force version for consistency with workflow, api, SequenceAnalysis
                     force "org.apache.commons:commons-lang3:${commonsLang3Version}"
                     force "commons-dbcp:commons-dbcp:${commonsDbcpVersion}"
                     force "commons-io:commons-io:${commonsIoVersion}"
@@ -236,9 +235,9 @@ allprojects {
                     force "org.apache.commons:commons-text:${commonsTextVersion}"
                     // force version for consistency with search, premium, api
                     force "org.apache.commons:commons-collections4:${commonsCollections4Version}"
-                    // force version for consistency with LDK, api
+                    // force version for consistency with query, saml, LDK, api
                     force "commons-collections:commons-collections:${commonsCollectionsVersion}"
-                    // force version for ms2, fileTransfer, harvest, api, accounts, docker
+                    // force version for ms2, saml, fileTransfer, harvest, api, accounts, docker
                     force "commons-codec:commons-codec:${commonsCodecVersion}"
                     // force version consistency in TCRdb, SequenceAnalysis, API
                     force "org.apache.commons:commons-math3:${commonsMath3Version}"
@@ -249,7 +248,7 @@ allprojects {
                     // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
                     force "org.apache.httpcomponents.client5:httpclient5:${httpclient5Version}"
-                    // force version for postgresql jdbc, cloud, docker, fileTransfer, GoogleDrive, WNPRC_EHR
+                    // force version for postgresql jdbc, cloud, docker, fileTransfer, saml, query, GoogleDrive, WNPRC_EHR
                     force "org.checkerframework:checker-qual:${checkerQualVersion}"
                     // force version for SequenceAnalysis, api, cloud
                     force "com.google.guava:guava:${guavaVersion}"
@@ -266,15 +265,17 @@ allprojects {
                     force "jakarta.xml.bind:jakarta.xml.bind-api:${jaxbApiVersion}"
                     // force version for accounts, api, query
                     force "javax.validation:validation-api:${validationApiVersion}"
-                    // force version for accounts, docker, api
+                    // force version for accounts, docker, api, workflow
                     force "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
+                    // saml and query bring in different versions transitively; we force the later one
+                    force "xalan:xalan:${xalanVersion}"
                     // genotyping brings in a much older version of this, so we force a newer version for compatibility
                     force "org.apache.commons:commons-compress:${commonsCompressVersion}"
                     // Force ant to be a newer version (transitive dependency of query > eigenbase-resgen > eigenbase-xom)
                     force "org.apache.ant:ant:${antVersion}"
                     // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk which references an older version
                     force "org.tukaani:xz:${tukaaniXZVersion}"
-                    // force version for api and LDK, but not for the xsdDoc configuration, which requires
+                    // force version for api, LDK, pipeline, query, saml, but not for the xsdDoc configuration, which requires
                     // an older version for the docflex library we use
                     if (!config.name.equals('xsdDoc'))
                         force "xml-apis:xml-apis:${xmlApisVersion}"
@@ -309,34 +310,6 @@ allprojects {
                     force "io.grpc:grpc-stub:${grpcVersion}"
                     force "io.grpc:grpc-xds:${grpcVersion}"
 
-                    // JNA - transitive dependency via azure-identity and docker; force for consistency
-                    force "net.java.dev.jna:jna:${jnaVersion}"
-                    force "net.java.dev.jna:jna-platform:${jnaVersion}"
-
-                    // Reactor - transitive dependency via azure-core; force for version consistency across modules
-                    force "io.projectreactor:reactor-core:${reactorCoreVersion}"
-
-                    // Netty - transitive dependency via azure-core-http-netty; force for various CVEs
-                    force "io.netty:netty-buffer:${nettyVersion}"
-                    force "io.netty:netty-codec:${nettyVersion}"
-                    force "io.netty:netty-codec-dns:${nettyVersion}"
-                    force "io.netty:netty-codec-http:${nettyVersion}"
-                    force "io.netty:netty-codec-http2:${nettyVersion}"
-                    force "io.netty:netty-codec-socks:${nettyVersion}"
-                    force "io.netty:netty-common:${nettyVersion}"
-                    force "io.netty:netty-handler:${nettyVersion}"
-                    force "io.netty:netty-handler-proxy:${nettyVersion}"
-                    force "io.netty:netty-resolver:${nettyVersion}"
-                    force "io.netty:netty-resolver-dns:${nettyVersion}"
-                    force "io.netty:netty-resolver-dns-classes-macos:${nettyVersion}"
-                    force "io.netty:netty-resolver-dns-native-macos:${nettyVersion}"
-                    force "io.netty:netty-transport:${nettyVersion}"
-                    force "io.netty:netty-transport-classes-epoll:${nettyVersion}"
-                    force "io.netty:netty-transport-classes-kqueue:${nettyVersion}"
-                    force "io.netty:netty-transport-native-epoll:${nettyVersion}"
-                    force "io.netty:netty-transport-native-kqueue:${nettyVersion}"
-                    force "io.netty:netty-transport-native-unix-common:${nettyVersion}"
-
                     // tcrdb, cloud, SequenceAnalysis, recipe mfa, pipeline, fileTransfer, docker mcc, DiscvrLabKeyModules:Studies and api have differnet versions of these libraries, so we need to force these versions
                     force "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
                     force "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
@@ -348,6 +321,9 @@ allprojects {
                     force "org.apache.tika:tika-core:${tikaVersion}"
                     // OpenLDAPSync and premium have transitive dependency on a broken version of MINA
                     force "org.apache.mina:mina-core:${apacheMinaVersion}"
+                    // saml has transitive dependencies on old versions of batik and xmlgraphics-commons, which conflict with more recent versions in api
+                    force "org.apache.xmlgraphics:batik-css:${batikVersion}"
+                    force "org.apache.xmlgraphics:xmlgraphics-commons:${fopVersion}"
                     // force consistency in TCRdb, WNPRC
                     force "org.javassist:javassist:${javassistVersion}"
                     force "org.jetbrains:annotations:${annotationsVersion}"
@@ -360,11 +336,12 @@ allprojects {
                     // The hamcrest dependencies come through transitively from jackson, junit, jmock
                     force "org.hamcrest:hamcrest:${hamcrestVersion}"
                     force "junit:junit:${junitVersion}"
-                    // SAML brings these in transitively
+                    // force consistency in nlp and saml that bring these in transitively
                     force "org.codehaus.woodstox:stax2-api:${stax2ApiVersion}"
                     force "com.fasterxml.woodstox:woodstox-core:${woodstoxCoreVersion}"
-                    // force consistency in docker, connectors, and saml
+                    // force consistency in docker and connectors, saml, nlp
                     force "org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}"
+                    // force consistency in docker and connectors and saml
                     force "org.bouncycastle:bcpkix-jdk18on:${bouncycastleVersion}"
 
                     // Force consistency for dependencies from pipeline and query
@@ -381,7 +358,7 @@ allprojects {
                     // Force snappy-java version for CVE-2023-43642. Remove once HTSJDK bumps its preferred version.
                     force "org.xerial.snappy:snappy-java:${snappyJavaVersion}"
 
-                    // Consistency between cloud, pipeline
+                    // Consistency between cloud, pipeline, and query
                     force "javax.xml.bind:jaxb-api:${jaxbApiOldVersion}"
 
                     // Force consistency for dependencies from cloud
@@ -582,7 +559,7 @@ project.tasks.register('ijConfigure') {
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
 }
 
-if (BuildUtils.hasArtifactoryProperties(project as Project))
+if (project.hasProperty('artifactory_contextUrl') && project.hasProperty('artifactory_user') && project.hasProperty('artifactory_password'))
 {
     project.tasks.register('purgeNpmAlphaVersions', PurgeNpmAlphaVersions) {
         group = GroupNames.NPM_RUN

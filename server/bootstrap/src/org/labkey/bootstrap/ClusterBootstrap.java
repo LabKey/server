@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2026 LabKey Corporation
+ * Copyright (c) 2008-2014 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+/**
+ * User: jeckels
+ * Date: Apr 10, 2008
+ */
 @SuppressWarnings("ALL")
 public class ClusterBootstrap
 {

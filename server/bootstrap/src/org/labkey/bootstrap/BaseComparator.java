@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2026 LabKey Corporation
+ * Copyright (c) 2008-2018 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
  */
 package org.labkey.bootstrap;
 
+/*
+* User: Dave
+* Date: Dec 9, 2008
+* Time: 10:56:03 AM
+*/
 public class BaseComparator
 {
     public static final int FILE_TIMESTAMP_ERROR = 2000;

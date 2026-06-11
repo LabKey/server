@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 LabKey Corporation
+ * Copyright (c) 2009 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package org.labkey.bootstrap;
 
+/**
+ * User: jeckels
+ * Date: Mar 11, 2009
+ */
 public class StdOutLogger implements SimpleLogger
 {
     @Override

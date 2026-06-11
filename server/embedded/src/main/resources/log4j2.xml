@@ -222,9 +222,6 @@
         <!-- Suppress POI's PackageRelationshipCollection's "Cannot convert {} in a valid relationship URI" URISyntaxExceptions, Issue 51960 -->
         <Logger name="org.apache.poi.openxml4j.opc.PackageRelationshipCollection" level="fatal"/>
 
-        <!-- Suppress IOUtils logging of errors in closeQuietly(). (I'm curious, what's your definition of "quiet", IOUtils?) GitHub Issue 1089 -->
-        <Logger name="org.apache.poi.util.IOUtils" level="fatal"/>
-
         <!-- Suppress some noisy FontBox and POI classes that log warnings during document text extraction -->
         <Logger name="org.apache.fontbox.ttf.CmapSubtable" level="error"/>
         <Logger name="org.apache.fontbox.ttf.PostScriptTable" level="error"/>

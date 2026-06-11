@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2026 LabKey Corporation
+ * Copyright (c) 2008-2014 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 
+/*
+* User: jeckels
+* Date: Jun 26, 2008
+*/
 public class RemoteServerBootstrap
 {
     public static void main(String... rawArgs)

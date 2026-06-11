@@ -151,7 +151,7 @@ public class LabKeyDeleteAction extends AbstractPathAction
         if (logToRetain != null && !_copiedOriginal && logToRetain.getAttributes().size() > 0)
         {
             Path target = logToRetain.getPath().getParent().resolve("labkey-errors-" + DATE_FORMAT.format(new Date()) + ".log");
-            LOGGER.info("Retaining labkey-errors.log file before it gets deleted by rotation. Copying to {}", target);
+            LOGGER.info("Retaining labkey-errors.log file before it gets deleted by rotation. Copying to " + target);
 
             try
             {
@@ -161,7 +161,7 @@ public class LabKeyDeleteAction extends AbstractPathAction
             }
             catch (IOException e)
             {
-                LOGGER.warn("Failed to retain error log file {}", logToRetain.getPath(), e);
+                LOGGER.warn("Failed to retain error log file " + logToRetain.getPath(), e);
             }
             _copiedOriginal = true;
         }

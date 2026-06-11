@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 LabKey Corporation
+ * Copyright (c) 2017-2026 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.apache.tools.ant;
 /**
  * LabKey's stub version of AntClassLoader. Tomcat's JspC requires this class; providing it and a few others in our
  * bootstrap jar eliminates the need to distribute and deploy ant.jar into the /tomcat/lib directory.
- *
- * Created by adam on 5/27/2017.
  */
 @SuppressWarnings("unused")
 public class AntClassLoader extends ClassLoader

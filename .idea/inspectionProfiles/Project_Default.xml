@@ -2,6 +2,8 @@
   <profile version="1.0">
     <option name="myName" value="Project Default" />
     <inspection_tool class="35f0afe5-6749-3bcd-88fe-638b65ec3b43" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
+    <inspection_tool class="4343478d-72f3-35b1-a08b-33b2219c1ba0" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
+    <inspection_tool class="9c4146d5-e6f9-3c25-a503-0c0b81240a75" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
     <inspection_tool class="ArraysAsListWithZeroOrOneArgument" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -16,6 +18,7 @@
     <inspection_tool class="Java8CollectionsApi" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JavadocBlankLines" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JavadocLinkAsPlainText" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="JavadocReference" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="MissingOverrideAnnotation" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreObjectMethods" value="true" />
       <option name="ignoreAnonymousClassMethods" value="false" />
@@ -112,6 +115,22 @@
         <constraint name="argument1" nameOfExprType="java\.io\.File" within="" contains="" />
         <constraint name="argument2" nameOfExprType="String" within="" contains="" />
       </searchConfiguration>
+      <replaceConfiguration name="new ProcessBuilder() - use LabKeyProcessBuilder to strip secrets from subprocess environment" problemDescriptor="Use LabKeyProcessBuilder instead to prevent secrets from leaking to child processes" text="new ProcessBuilder($args$)" recursive="false" caseInsensitive="false" type="JAVA" pattern_context="default" reformatAccordingToStyle="true" shortenFQN="true" replacement="new org.labkey.api.util.LabKeyProcessBuilder($args$)">
+        <constraint name="args" minCount="0" maxCount="2147483647" within="" contains="" />
+        <constraint name="__context__" within="" contains="" />
+      </replaceConfiguration>
+      <searchConfiguration name="new SQLFragment() with string concatenation (left operand)" problemDescriptor="Avoid string concatenation in SQL; use parameterized queries or multiple append() calls" text="new org.labkey.api.data.SQLFragment($a$ + $b$, $params$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="a" nameOfExprType="java.lang.String" within="" contains="" />
+        <constraint name="b" within="" contains="" />
+        <constraint name="params" minCount="0" maxCount="2147483647" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="new SQLFragment() with string concatenation (right operand)" problemDescriptor="Avoid string concatenation in SQL; use parameterized queries or multiple append() calls" text="new org.labkey.api.data.SQLFragment($a$ + $b$, $params$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="a" within="" contains="" />
+        <constraint name="b" nameOfExprType="java.lang.String" within="" contains="" />
+        <constraint name="params" minCount="0" maxCount="2147483647" within="" contains="" />
+      </searchConfiguration>
       <replaceConfiguration name="OutputStreamWriter used without specifying character encoding" text="new OutputStreamWriter($Arg$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="PrintWriters.getPrintWriter($Arg$)">
         <constraint name="Arg" script="&quot;&quot;" nameOfExprType="java.io.OutputStream" exprTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
@@ -119,6 +138,12 @@
       <searchConfiguration name="PrintWriter used without specifying encoding" text="new PrintWriter($Parameter$, $Parameter2$)" recursive="false" caseInsensitive="false" type="JAVA">
         <constraint name="Parameter" script="&quot;&quot;" nameOfExprType="java.io.File|java.io.OutputStream|java.lang.String" exprTypeWithinHierarchy="true" formalTypeWithinHierarchy="true" within="" contains="" />
         <constraint name="Parameter2" script="&quot;&quot;" nameOfExprType="boolean" minCount="0" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="SQLFragment.append() with string concatenation" problemDescriptor="Avoid string concatenation in SQL; use parameterized queries or multiple append() calls" text="$SQLFragment$.append($a$ + $b$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="SQLFragment" nameOfExprType="org.labkey.api.data.SQLFragment" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="a" within="" contains="" />
+        <constraint name="b" within="" contains="" />
       </searchConfiguration>
       <replaceConfiguration name="String.getBytes() used without specifying character encoding" text="$String$.getBytes()" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="$String$.getBytes(StringUtilsLabKey.DEFAULT_CHARSET)">
         <constraint name="String" script="&quot;&quot;" nameOfExprType="java.lang.String" within="" contains="" />
@@ -145,5 +170,6 @@
     <inspection_tool class="UnnecessaryBoxing" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UnnecessaryUnboxing" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UseOfObsoleteAssert" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="d56d8310-07b3-3ff8-b7d2-615687fc1df2" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
   </profile>
 </component>

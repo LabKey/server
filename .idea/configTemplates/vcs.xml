@@ -29,6 +29,10 @@
           <option name="issueRegexp" value="(GitHub Issue|GH Issue)( +#?)([0-9]+)" />
           <option name="linkRegexp" value="https://github.com/LabKey/internal-issues/issues/$3" />
         </IssueNavigationLink>
+        <IssueNavigationLink>
+          <option name="issueRegexp" value="(Kanban|Kanban Issue)( +#)([0-9]+)" />
+          <option name="linkRegexp" value="https://github.com/LabKey/kanban/issues/$3" />
+        </IssueNavigationLink>
       </list>
     </option>
   </component>

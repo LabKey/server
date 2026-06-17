@@ -84,7 +84,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     }
 
     @Override
-    protected void prepareContext(Host host, ServletContextInitializer[] initializers)
+    protected void prepareContext(Host host, ServletContextInitializer[] initializers, TempDirs tempDirs)
     {
         // Prevent the Spring Boot webapp from trying to deserialize the LabKey sessions
         getSettings().getSession().setPersistent(false);
@@ -92,7 +92,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         // Don't use Spring Boot's error pages, as we want to render our own
         setErrorPages(Collections.emptySet());
 
-        super.prepareContext(host, initializers);
+        super.prepareContext(host, initializers, tempDirs);
     }
 
     @Override

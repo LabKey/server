@@ -205,6 +205,8 @@ allprojects {
                 resolutionStrategy {
                     //  spring-ai pulls a different version of antr-ST4 than the version pulled by query (via antlr)
                     force "org.antlr:ST4:${antlrST4Version}"
+                    // different spring-ai artifacts (e.g. spring-ai-transformers) pull different antlr4-runtime versions than ST4 does
+                    force "org.antlr:antlr4-runtime:${antlr4RuntimeVersion}"
                     // also it pulls in a bunch of com.google.api dependencies which conflict with DiscvrLabKeyModules:SequenceAnalysis and wnprc-modules:WNPRC_EHR
                     force "com.google.api:api-common:${googleApiVersion}"
                     force "com.google.auth:google-auth-library-oauth2-http:${googleAuthVersion}"

@@ -395,6 +395,9 @@ allprojects {
                     // Spring AI 2.0 brings in Jackson3. Force it to match embedded and mitigate CVEs.
                     force "tools.jackson.core:jackson-core:${jackson3Version}"
 
+                    // Spring AI's pgvector-store brings in its own PostgreSQL JDBC driver; force ours
+                    force "org.postgresql:postgresql:${postgresqlDriverVersion}"
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

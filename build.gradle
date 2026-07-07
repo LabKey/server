@@ -246,6 +246,8 @@ allprojects {
                     // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpcore:${httpcoreVersion}"
                     force "org.apache.httpcomponents.core5:httpcore5:${httpcore5Version}"
+                    // httpcore5-h2 arrives transitively (not pinned before); force to the fixed version for CVE-2026-54399
+                    force "org.apache.httpcomponents.core5:httpcore5-h2:${httpcore5Version}"
                     // force version for cloud, docker, fileTransfer, googledrive, tcrb, wnprc_ehr
                     force "org.apache.httpcomponents:httpclient:${httpclientVersion}"
                     force "org.apache.httpcomponents.client5:httpclient5:${httpclient5Version}"

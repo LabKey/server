@@ -328,14 +328,14 @@
         <cve>CVE-2026-53914</cve>
     </suppress>
     <!--
-    CVE-2026-54399 is scoped to Apache HttpComponents Core 5.x only. The classic httpcore 4.x line (org.apache.httpcomponents:httpcore) is EOL, is not listed as affected, and has no fixed 4.4.x release. False positive for the 4.x artifact.
-    -->
+    CVE-2026-54399 (httpcore5 HTTP/1.1 parser) and CVE-2026-54428 (httpcore5-h2 HTTP/2 HPACK decoder) are both scoped to Apache HttpComponents Core 5.x only. The classic httpcore 4.x line (org.apache.httpcomponents:httpcore) is EOL, has no HTTP/2 module, is not listed as affected, and has no fixed 4.4.x release. False positives for the 4.x artifact.    -->
     <suppress>
         <notes><![CDATA[
-    file name: httpcore-4.4.16.jar (classic 4.x, not affected by the 5.x-scoped CVE)
+    file name: httpcore-4.4.16.jar (classic 4.x, not affected by the 5.x-scoped CVEs)
     ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
         <cve>CVE-2026-54399</cve>
+        <cve>CVE-2026-54428</cve>
     </suppress>
     <!--
     CVE-2026-53914 is an unsafe-deserialization flaw in Kotlin build-cache metadata (build tooling); JetBrains (the CNA) scores it 6.7 MEDIUM (AV:L/AC:H/PR:H), not NVD's auto-assigned 9.8, and the advisory names no runtime package. The shipped Kotlin runtime jars (kotlin-stdlib, kotlin-reflect, etc.) do not execute the affected code, and no stable fixed release exists yet (only 2.4.20-Beta1). False positive for the runtime artifacts.

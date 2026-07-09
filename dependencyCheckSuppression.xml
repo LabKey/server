@@ -448,12 +448,13 @@
         <cve>CVE-2026-54399</cve>
     </suppress>
     <!--
-    CVE-2026-53914 is an unsafe-deserialization flaw in Kotlin build-cache metadata (build tooling); JetBrains (the CNA) scores it 6.7 MEDIUM (AV:L/AC:H/PR:H), not NVD's auto-assigned 9.8, and the advisory names no runtime package. The shipped Kotlin runtime jars (kotlin-stdlib, kotlin-reflect, etc.) do not execute the affected code, and no stable fixed release exists yet (only 2.4.20-Beta1). False positive for the runtime artifacts.
+    CVE-2026-53914 is in the Kotlin compiler's build-cache deserialization. We don't compile Kotlin or use the Kotlin build
+    cache; these jars are only transitive runtime dependencies of OkHttp (via the Duo SDK in mfa, and TCRdb). Not applicable.
     -->
     <suppress>
         <notes><![CDATA[
-    Kotlin runtime jars (kotlin-stdlib, kotlin-reflect, kotlin-stdlib-jdk7/jdk8) - build-tooling CVE, not applicable to runtime.
-    ]]></notes>
+   file names: kotlin-reflect, kotlin-stdlib, kotlin-stdlib-jdk7, kotlin-stdlib-jdk8
+   ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
         <cve>CVE-2026-53914</cve>
     </suppress>

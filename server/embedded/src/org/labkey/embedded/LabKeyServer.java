@@ -96,17 +96,16 @@ public class LabKeyServer
                 frame-src 'self' ${FRAME.SOURCES} ;
                 report-to csp-report ;
             """;
-        int cspVersion = 17;
         // Add upgrade_insecure_requests substitution, frame-ancestors, and enforce version
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ${FRAMEANCESTORS.SOURCES} ;
-                /* cspVersion=e%d */
-            """.formatted(cspVersion);
+                /* cspVersion=e17 */
+            """;
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                /* cspVersion=r%d */
-            """.formatted(cspVersion);
+                /* cspVersion=r17 */
+            """;
 
         application.setDefaultProperties(new HashMap<>()
              {{

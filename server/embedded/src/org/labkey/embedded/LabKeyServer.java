@@ -94,18 +94,19 @@ public class LabKeyServer
                 script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ${SCRIPT.SOURCES} ;
                 base-uri 'self' ;
                 frame-src 'self' ${FRAME.SOURCES} ;
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api ;
+                report-to csp-report ;
             """;
+        int cspVersion = 17;
         // Add upgrade_insecure_requests substitution, frame-ancestors, and enforce version
         String enforceCsp = baseCsp + """
                 ${UPGRADE.INSECURE.REQUESTS}
                 frame-ancestors 'self' ${FRAMEANCESTORS.SOURCES} ;
-                /* cspVersion=e16 */
-            """;
+                /* cspVersion=e%d */
+            """.formatted(cspVersion);
         // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
         String reportCsp = baseCsp + """
-                /* cspVersion=r16 */
-            """;
+                /* cspVersion=r%d */
+            """.formatted(cspVersion);
 
         application.setDefaultProperties(new HashMap<>()
              {{

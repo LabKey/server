@@ -41,11 +41,7 @@ public class LabKeyServer
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String JARS_TO_SKIP = "tomcat.util.scan.StandardJarScanFilter.jarsToSkip";
     private static final String JARS_TO_SCAN = "tomcat.util.scan.StandardJarScanFilter.jarsToScan";
-    private static final String SERVER_GUID = "serverGUID";
-    public static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
-    public static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
-    public static final String CUSTOM_LOG4J_CONFIG = "org.labkey.customLog4JConfig";
-    public static final String CORS_PREFIX = "cors.";
+
     static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
     static final String MAX_IDLE_DEFAULT = "10";
     static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
@@ -818,6 +814,9 @@ public class LabKeyServer
         private String smtpStartTlsEnable;
         private String smtpSocketFactoryClass;
         private String smtpAuth;
+        private String smtpConnectionTimeout = "10000";  // Default to 10 seconds
+        private String smtpTimeout = "60000";            // Default to 60 seconds
+        private String smtpWriteTimeout = "60000";       // Default to 60 seconds
 
         public String getSmtpHost()
         {
@@ -897,6 +896,36 @@ public class LabKeyServer
         public void setSmtpAuth(String smtpAuth)
         {
             this.smtpAuth = smtpAuth;
+        }
+
+        public String getSmtpConnectionTimeout()
+        {
+            return smtpConnectionTimeout;
+        }
+
+        public void setSmtpConnectionTimeout(String smtpConnectionTimeout)
+        {
+            this.smtpConnectionTimeout = smtpConnectionTimeout;
+        }
+
+        public String getSmtpTimeout()
+        {
+            return smtpTimeout;
+        }
+
+        public void setSmtpTimeout(String smtpTimeout)
+        {
+            this.smtpTimeout = smtpTimeout;
+        }
+
+        public String getSmtpWriteTimeout()
+        {
+            return smtpWriteTimeout;
+        }
+
+        public void setSmtpWriteTimeout(String smtpWriteTimeout)
+        {
+            this.smtpWriteTimeout = smtpWriteTimeout;
         }
     }
 

@@ -445,7 +445,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         if (value != null)
         {
             context.addParameter("mail.smtp." + name, value);
-            context.addParameter("mail.smtps." + name, value);
         }
     }
 

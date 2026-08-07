@@ -1,6 +1,5 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
-    <option name="myName" value="Project Default" />
     <inspection_tool class="35f0afe5-6749-3bcd-88fe-638b65ec3b43" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
     <inspection_tool class="4343478d-72f3-35b1-a08b-33b2219c1ba0" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
     <inspection_tool class="9c4146d5-e6f9-3c25-a503-0c0b81240a75" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
@@ -164,6 +163,10 @@
       </searchConfiguration>
       <searchConfiguration name="XMLInputFactory.newInstance()" text="javax.xml.parsers.DocumentBuilderFactory.newInstance()" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
         <constraint name="__context__" within="" contains="" />
+      </searchConfiguration>
+      <searchConfiguration name="SchemaFactory.newInstance()" description="XML parsers should always be configured to protect against XXE — use XmlBeansUtil.getHardenedSchemaFactory()" suppressId="SchemaFactory" text="javax.xml.validation.SchemaFactory.newInstance($schemaLanguage$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="schemaLanguage" minCount="0" maxCount="2147483647" within="" contains="" />
       </searchConfiguration>
     </inspection_tool>
     <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />

@@ -820,9 +820,9 @@ public class LabKeyServer
         private String smtpStartTlsEnable;
         private String smtpSocketFactoryClass;
         private String smtpAuth;
-        private String smtpConnectionTimeout;
-        private String smtpTimeout;
-        private String smtpWriteTimeout;
+        private Integer smtpConnectionTimeout;
+        private Integer smtpTimeout;
+        private Integer smtpWriteTimeout;
 
         public String getSmtpHost()
         {
@@ -904,32 +904,32 @@ public class LabKeyServer
             this.smtpAuth = smtpAuth;
         }
 
-        public String getSmtpConnectionTimeout()
+        public Integer getSmtpConnectionTimeout()
         {
             return smtpConnectionTimeout;
         }
 
-        public void setSmtpConnectionTimeout(String smtpConnectionTimeout)
+        public void setSmtpConnectionTimeout(Integer smtpConnectionTimeout)
         {
             this.smtpConnectionTimeout = smtpConnectionTimeout;
         }
 
-        public String getSmtpTimeout()
+        public Integer getSmtpTimeout()
         {
             return smtpTimeout;
         }
 
-        public void setSmtpTimeout(String smtpTimeout)
+        public void setSmtpTimeout(Integer smtpTimeout)
         {
             this.smtpTimeout = smtpTimeout;
         }
 
-        public String getSmtpWriteTimeout()
+        public Integer getSmtpWriteTimeout()
         {
             return smtpWriteTimeout;
         }
 
-        public void setSmtpWriteTimeout(String smtpWriteTimeout)
+        public void setSmtpWriteTimeout(Integer smtpWriteTimeout)
         {
             this.smtpWriteTimeout = smtpWriteTimeout;
         }

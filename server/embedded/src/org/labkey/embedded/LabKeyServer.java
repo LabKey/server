@@ -182,9 +182,10 @@ public class LabKeyServer
                 put("server.ssl.use-cipher-suites-order", "true");
 
                 // GitHub Issue #1416 - default values for SMTP timeouts
-                put("mail.smtpConnectionTimeout", 10 * 1000); // 10 seconds
-                put("mail.smtpTimeout", 60 * 1000);           // 60 seconds
-                put("mail.smtpWriteTimeout", 60 * 1000);      // 60 seconds
+                put("mail.smtpConnectionTimeout", 10 * 1000);
+                put("mail.smtpTimeout", 60 * 1000);
+                // Unlike the socket-level timeouts above, JavaMail implements writetimeout with a ScheduledThreadPool per connection - one per message, since Transport.send() doesn't pool
+                put("mail.smtpWriteTimeout", 60 * 1000);
             }}
         );
         application.setBannerMode(Banner.Mode.OFF);

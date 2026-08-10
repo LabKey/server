@@ -435,9 +435,9 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         addSmtpProperty(context, "starttls.enable", mailProps.getSmtpStartTlsEnable());
         addSmtpProperty(context, "socketFactory.class", mailProps.getSmtpSocketFactoryClass());
         addSmtpProperty(context, "auth", mailProps.getSmtpAuth());
-        addSmtpProperty(context, "connectiontimeout", String.valueOf(mailProps.getSmtpConnectionTimeout()));
-        addSmtpProperty(context, "timeout", String.valueOf(mailProps.getSmtpTimeout()));
-        addSmtpProperty(context, "writetimeout", String.valueOf(mailProps.getSmtpWriteTimeout()));
+        addSmtpProperty(context, "connectiontimeout", mailProps.getSmtpConnectionTimeout());
+        addSmtpProperty(context, "timeout", mailProps.getSmtpTimeout());
+        addSmtpProperty(context, "writetimeout", mailProps.getSmtpWriteTimeout());
     }
 
     private void addSmtpProperty(StandardContext context, String name, String value)
@@ -446,6 +446,12 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
         {
             context.addParameter("mail.smtp." + name, value);
         }
+    }
+
+    private void addSmtpProperty(StandardContext context, String name, Integer value)
+    {
+        if (value != null)
+            addSmtpProperty(context, name, String.valueOf(value));
     }
 
     private void addGraphProperties(StandardContext context)

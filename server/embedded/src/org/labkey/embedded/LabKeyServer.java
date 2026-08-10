@@ -182,9 +182,9 @@ public class LabKeyServer
                 put("server.ssl.use-cipher-suites-order", "true");
 
                 // GitHub Issue #1416 - default values for SMTP timeouts
-                put("mail.smtp.connectiontimeout", 10 * 1000); // 10 seconds
-                put("mail.smtp.timeout", 60 * 1000);           // 60 seconds
-                put("mail.smtp.writetimeout", 60 * 1000);      // 60 seconds
+                put("mail.smtpConnectionTimeout", 10 * 1000); // 10 seconds
+                put("mail.smtpTimeout", 60 * 1000);           // 60 seconds
+                put("mail.smtpWriteTimeout", 60 * 1000);      // 60 seconds
             }}
         );
         application.setBannerMode(Banner.Mode.OFF);

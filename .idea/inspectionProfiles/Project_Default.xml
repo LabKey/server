@@ -165,6 +165,10 @@
       <searchConfiguration name="XMLInputFactory.newInstance()" text="javax.xml.parsers.DocumentBuilderFactory.newInstance()" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
         <constraint name="__context__" within="" contains="" />
       </searchConfiguration>
+      <searchConfiguration name="SchemaFactory.newInstance()" description="XML parsers should always be configured to protect against XXE — use XmlBeansUtil.schemaFactory()" suppressId="SchemaFactory" text="javax.xml.validation.SchemaFactory.newInstance($schemaLanguage$)" recursive="true" caseInsensitive="true" type="JAVA" pattern_context="default">
+        <constraint name="__context__" within="" contains="" />
+        <constraint name="schemaLanguage" minCount="0" maxCount="2147483647" within="" contains="" />
+      </searchConfiguration>
     </inspection_tool>
     <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="TestMethodIsPublicVoidNoArg" enabled="true" level="ERROR" enabled_by_default="true" />

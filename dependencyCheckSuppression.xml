@@ -479,4 +479,30 @@
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
         <cve>CVE-2026-53914</cve>
     </suppress>
+
+    <!--
+    [FP]: 'dev.cel/protobuf' collides with other protobuf libraries
+    https://github.com/dependency-check/DependencyCheck/issues/8735
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: protobuf-0.13.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/dev\.cel/protobuf@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: protobuf-0.13.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/dev\.cel/protobuf@.*$</packageUrl>
+        <cpe>cpe:/a:google:protobuf-java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: protobuf-0.13.0.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/dev\.cel/protobuf@.*$</packageUrl>
+        <cpe>cpe:/a:protobuf:protobuf</cpe>
+    </suppress>
 </suppressions>

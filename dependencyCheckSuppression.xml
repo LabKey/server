@@ -505,4 +505,5 @@
         <packageUrl regex="true">^pkg:maven/dev\.cel/protobuf@.*$</packageUrl>
         <cpe>cpe:/a:protobuf:protobuf</cpe>
     </suppress>
+
 </suppressions>

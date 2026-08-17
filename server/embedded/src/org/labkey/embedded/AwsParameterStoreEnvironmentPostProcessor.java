@@ -138,7 +138,7 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
             secretsPrefix = prefix;
         }
 
-        if (!secretsPrefix.isEmpty() && !secretsPrefix.endsWith("/") && !secretsPrefix.endsWith("::"))
+        if (!secretsPrefix.endsWith("/") && !secretsPrefix.endsWith("::"))
             throw new IllegalStateException(
                 "[LabKey AWS] Resolved secretsPrefix must end with '/' or '::' (got: '" + secretsPrefix +
                 "'). Check " + SECRETS_PREFIX_PROPERTY + " and " + PREFIX_PROPERTY + " in application.properties");
@@ -146,9 +146,8 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
         String regionOverride = environment.getProperty(REGION_PROPERTY);
         Region region = resolveRegion(regionOverride);
 
-        // Publish config as system properties so the CloudServices module can create its own
-        // SsmClient for on-demand SecretProperty lookups via SecretService at runtime. The enabled
-        // flag carries the hasExplicitConfig decision above for use in SsmSecretProvider
+        // Publish config as system properties so the CloudServices module can create its own SsmClient
+        //  for on-demand SecretProperty lookups via SecretService at runtime, enabled per the class-level JavaDoc
         System.setProperty("labkey.aws.ssm.enabled", "true");
         System.setProperty("labkey.aws.ssm.region", region.id());
         System.setProperty("labkey.aws.ssm.secretsPrefix", secretsPrefix);

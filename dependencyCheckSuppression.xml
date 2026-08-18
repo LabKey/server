@@ -479,4 +479,23 @@
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
         <cve>CVE-2026-53914</cve>
     </suppress>
+
+    <!--
+    CVE in example code. New version not yet available.
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: tomcat-*-11.0.24.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat/tomcat-.*@.*$</packageUrl>
+        <cve>CVE-2026-66299</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: tomcat-embed-*-11.0.24.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-embed-.*@.*$</packageUrl>
+        <cve>CVE-2026-66299</cve>
+    </suppress>
+
 </suppressions>

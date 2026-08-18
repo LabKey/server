@@ -41,11 +41,7 @@ public class LabKeyServer
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
     private static final String JARS_TO_SKIP = "tomcat.util.scan.StandardJarScanFilter.jarsToSkip";
     private static final String JARS_TO_SCAN = "tomcat.util.scan.StandardJarScanFilter.jarsToScan";
-    private static final String SERVER_GUID = "serverGUID";
-    public static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
-    public static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
-    public static final String CUSTOM_LOG4J_CONFIG = "org.labkey.customLog4JConfig";
-    public static final String CORS_PREFIX = "cors.";
+
     static final String MAX_TOTAL_CONNECTIONS_DEFAULT = "50";
     static final String MAX_IDLE_DEFAULT = "10";
     static final String MAX_WAIT_MILLIS_DEFAULT = "120000";
@@ -108,83 +104,89 @@ public class LabKeyServer
             """;
 
         application.setDefaultProperties(new HashMap<>()
-             {{
+            {{
                 // GitHub Issue 796: JSON logging stopped after Tomcat/Spring update
-                 // Propagate log4j configuration to Spring Boot config, which is necessary with Spring Boot 4.x
-                 String log4JConfig = System.getProperty("log4j.configurationFile");
-                 if (log4JConfig != null)
-                 {
-                     String[] log4JConfigParts = log4JConfig.split(",");
-                     if (log4JConfigParts.length > 0)
-                     {
-                         if ("log4j2.xml".equals(log4JConfigParts[0]))
-                         {
-                             // Assume this is the one packaged with our embedded build and on the classpath
-                             put("logging.config", "classpath:log4j2.xml");
-                         }
-                         else
-                         {
-                             put("logging.config", log4JConfigParts[0]);
-                         }
-                         if (log4JConfigParts.length > 1)
-                         {
+                // Propagate log4j configuration to Spring Boot config, which is necessary with Spring Boot 4.x
+                String log4JConfig = System.getProperty("log4j.configurationFile");
+                if (log4JConfig != null)
+                {
+                    String[] log4JConfigParts = log4JConfig.split(",");
+                    if (log4JConfigParts.length > 0)
+                    {
+                        if ("log4j2.xml".equals(log4JConfigParts[0]))
+                        {
+                            // Assume this is the one packaged with our embedded build and on the classpath
+                            put("logging.config", "classpath:log4j2.xml");
+                        }
+                        else
+                        {
+                            put("logging.config", log4JConfigParts[0]);
+                        }
+                        if (log4JConfigParts.length > 1)
+                        {
                             put("logging.log4j2.config.override", String.join(",", Arrays.asList(log4JConfigParts).subList(1, log4JConfigParts.length)));
-                         }
-                     }
-                 }
+                        }
+                    }
+                }
 
-                 put("server.tomcat.basedir", ".");
-                 put("server.tomcat.accesslog.directory", logHome);
+                put("server.tomcat.basedir", ".");
+                put("server.tomcat.accesslog.directory", logHome);
 
-                 // Boost limits imposed by Tomcat v10.1.42
-                 put("server.tomcat.max-part-count", 500);
-                 put("server.tomcat.max-part-header-size", 1024);  // GitHub Issue 161: LKS insert forms can't handle long file field names
-                 put("server.tomcat.max-connections", 250);
+                // Boost limits imposed by Tomcat v10.1.42
+                put("server.tomcat.max-part-count", 500);
+                put("server.tomcat.max-part-header-size", 1024);  // GitHub Issue 161: LKS insert forms can't handle long file field names
+                put("server.tomcat.max-connections", 250);
                 // Boost limit back to Tomcat 10 level
-                 put("server.tomcat.max-parameter-count", 10_000);
+                put("server.tomcat.max-parameter-count", 10_000);
 
-                 // Enable HTTP compression for response content
-                 put("server.compression.enabled", "true");
-                 // Spring Boot compresses HTML, JSON and other types by default, but not TSV, CSV, or SVG.
-                 // We have to duplicate the defaults and add those types
-                 put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,text/tab-separated-values,text/csv,image/svg+xml");
+                // Enable HTTP compression for response content
+                put("server.compression.enabled", "true");
+                // Spring Boot compresses HTML, JSON and other types by default, but not TSV, CSV, or SVG.
+                // We have to duplicate the defaults and add those types
+                put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,text/tab-separated-values,text/csv,image/svg+xml");
 
-                 put("server.tomcat.accesslog.enabled", "true");
-                 put("server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
-                 put("jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
+                put("server.tomcat.accesslog.enabled", "true");
+                put("server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
+                put("jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
 
-                 // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
-                 put("server.error.include-stacktrace", "never");
-                 put("server.error.include-message", "always");
+                // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
+                put("server.error.include-stacktrace", "never");
+                put("server.error.include-message", "always");
 
-                 put("csp.enforce", enforceCsp);
-                 put("csp.report", reportCsp);
+                put("csp.enforce", enforceCsp);
+                put("csp.report", reportCsp);
 
-                 // GitHub Issue 692: Stop using CBC in HTTPS ciphers
-                 // These settings configure HTTPS. Admins must opt in with additional settings
-                 // in application.properties, like the key store. Without those other settings,
-                 // HTTP-only startup fails unless "server.ssl.enabled" is explicitly set to false here
-                 put("server.ssl.enabled", "false");
-                 put("server.ssl.protocol", "TLS");
-                 put("server.ssl.enabled-protocols", "TLSv1.3,TLSv1.2");
-                 // Use explicit JSSE cipher suite names to avoid CBC-mode suites
-                 put("server.ssl.ciphers",
-                     String.join(",",
-                         // TLS 1.3
-                         "TLS_AES_256_GCM_SHA384",
-                         "TLS_AES_128_GCM_SHA256",
-                         "TLS_CHACHA20_POLY1305_SHA256",
-                         // TLS 1.2 (AEAD only, no CBC)
-                         "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-                         "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-                         "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-                         "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                         "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
-                     )
-                 );
-                 put("server.ssl.use-cipher-suites-order", "true");
-             }}
+                // GitHub Issue 692: Stop using CBC in HTTPS ciphers
+                // These settings configure HTTPS. Admins must opt in with additional settings
+                // in application.properties, like the key store. Without those other settings,
+                // HTTP-only startup fails unless "server.ssl.enabled" is explicitly set to false here
+                put("server.ssl.enabled", "false");
+                put("server.ssl.protocol", "TLS");
+                put("server.ssl.enabled-protocols", "TLSv1.3,TLSv1.2");
+                // Use explicit JSSE cipher suite names to avoid CBC-mode suites
+                put("server.ssl.ciphers",
+                    String.join(",",
+                        // TLS 1.3
+                        "TLS_AES_256_GCM_SHA384",
+                        "TLS_AES_128_GCM_SHA256",
+                        "TLS_CHACHA20_POLY1305_SHA256",
+                        // TLS 1.2 (AEAD only, no CBC)
+                        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                        "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+                        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                        "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
+                    )
+                );
+                put("server.ssl.use-cipher-suites-order", "true");
+
+                // GitHub Issue #1416 - default values for SMTP timeouts
+                put("mail.smtpConnectionTimeout", 10 * 1000);
+                put("mail.smtpTimeout", 60 * 1000);
+                // Unlike the socket-level timeouts above, JavaMail implements writetimeout with a ScheduledThreadPool per connection - one per message, since Transport.send() doesn't pool
+                put("mail.smtpWriteTimeout", 60 * 1000);
+            }}
         );
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
@@ -818,6 +820,9 @@ public class LabKeyServer
         private String smtpStartTlsEnable;
         private String smtpSocketFactoryClass;
         private String smtpAuth;
+        private Integer smtpConnectionTimeout;
+        private Integer smtpTimeout;
+        private Integer smtpWriteTimeout;
 
         public String getSmtpHost()
         {
@@ -897,6 +902,36 @@ public class LabKeyServer
         public void setSmtpAuth(String smtpAuth)
         {
             this.smtpAuth = smtpAuth;
+        }
+
+        public Integer getSmtpConnectionTimeout()
+        {
+            return smtpConnectionTimeout;
+        }
+
+        public void setSmtpConnectionTimeout(Integer smtpConnectionTimeout)
+        {
+            this.smtpConnectionTimeout = smtpConnectionTimeout;
+        }
+
+        public Integer getSmtpTimeout()
+        {
+            return smtpTimeout;
+        }
+
+        public void setSmtpTimeout(Integer smtpTimeout)
+        {
+            this.smtpTimeout = smtpTimeout;
+        }
+
+        public Integer getSmtpWriteTimeout()
+        {
+            return smtpWriteTimeout;
+        }
+
+        public void setSmtpWriteTimeout(Integer smtpWriteTimeout)
+        {
+            this.smtpWriteTimeout = smtpWriteTimeout;
         }
     }
 

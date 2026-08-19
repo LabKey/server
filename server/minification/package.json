@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "cssnano": "5.1.15",
-    "postcss": "8.5.10",
+    "cssnano": "8.0.6",
+    "postcss": "8.5.26",
     "postcss-cli": "11.0.1",
-    "terser": "5.46.2"
+    "terser": "5.50.0"
   }
 }

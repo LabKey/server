@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
+import org.labkey.embedded.LabKeyServer.MailProperties;
 import org.springframework.boot.tomcat.TomcatWebServer;
 import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
@@ -39,14 +40,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.labkey.embedded.LabKeyServer.CORS_PREFIX;
-import static org.labkey.embedded.LabKeyServer.CUSTOM_LOG4J_CONFIG;
-import static org.labkey.embedded.LabKeyServer.SERVER_GUID_PARAMETER_NAME;
-import static org.labkey.embedded.LabKeyServer.SERVER_SSL_KEYSTORE;
-
 class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
 {
     private static final Logger LOG = LogManager.getLogger(LabKeyTomcatServletWebServerFactory.class);
+    private static final String SERVER_GUID = "serverGUID";
+    private static final String SERVER_GUID_PARAMETER_NAME = "org.labkey.mothership." + SERVER_GUID;
+    private static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
+    private static final String CUSTOM_LOG4J_CONFIG = "org.labkey.customLog4JConfig";
+    private static final String CORS_PREFIX = "cors.";
+
     private final LabKeyServer _server;
 
     public LabKeyTomcatServletWebServerFactory(LabKeyServer server)
@@ -423,40 +425,33 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     private void addSmtpProperties(StandardContext context)
     {
         // Get session/mail properties
-        LabKeyServer.MailProperties mailProps = _server.smtpSource();
+        MailProperties mailProps = _server.smtpSource();
 
-        if (mailProps.getSmtpHost() != null)
+        addSmtpProperty(context, "host", mailProps.getSmtpHost());
+        addSmtpProperty(context, "user", mailProps.getSmtpUser());
+        addSmtpProperty(context, "port", mailProps.getSmtpPort());
+        addSmtpProperty(context, "from", mailProps.getSmtpFrom());
+        addSmtpProperty(context, "password", mailProps.getSmtpPassword());
+        addSmtpProperty(context, "starttls.enable", mailProps.getSmtpStartTlsEnable());
+        addSmtpProperty(context, "socketFactory.class", mailProps.getSmtpSocketFactoryClass());
+        addSmtpProperty(context, "auth", mailProps.getSmtpAuth());
+        addSmtpProperty(context, "connectiontimeout", mailProps.getSmtpConnectionTimeout());
+        addSmtpProperty(context, "timeout", mailProps.getSmtpTimeout());
+        addSmtpProperty(context, "writetimeout", mailProps.getSmtpWriteTimeout());
+    }
+
+    private void addSmtpProperty(StandardContext context, String name, String value)
+    {
+        if (value != null)
         {
-            context.addParameter("mail.smtp.host", mailProps.getSmtpHost());
+            context.addParameter("mail.smtp." + name, value);
         }
-        if (mailProps.getSmtpUser() != null)
-        {
-            context.addParameter("mail.smtp.user", mailProps.getSmtpUser());
-        }
-        if (mailProps.getSmtpPort() != null)
-        {
-            context.addParameter("mail.smtp.port", mailProps.getSmtpPort());
-        }
-        if (mailProps.getSmtpFrom() != null)
-        {
-            context.addParameter("mail.smtp.from", mailProps.getSmtpFrom());
-        }
-        if (mailProps.getSmtpPassword() != null)
-        {
-            context.addParameter("mail.smtp.password", mailProps.getSmtpPassword());
-        }
-        if (mailProps.getSmtpStartTlsEnable() != null)
-        {
-            context.addParameter("mail.smtp.starttls.enable", mailProps.getSmtpStartTlsEnable());
-        }
-        if (mailProps.getSmtpSocketFactoryClass() != null)
-        {
-            context.addParameter("mail.smtp.socketFactory.class", mailProps.getSmtpSocketFactoryClass());
-        }
-        if (mailProps.getSmtpAuth() != null)
-        {
-            context.addParameter("mail.smtp.auth", mailProps.getSmtpAuth());
-        }
+    }
+
+    private void addSmtpProperty(StandardContext context, String name, Integer value)
+    {
+        if (value != null)
+            addSmtpProperty(context, name, String.valueOf(value));
     }
 
     private void addGraphProperties(StandardContext context)

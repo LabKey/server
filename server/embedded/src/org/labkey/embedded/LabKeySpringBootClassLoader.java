@@ -102,6 +102,17 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
         {
             return true;
         }
+        // The AWS SDK is bundled both by the embedded boot classpath (e.g., for the SSM-backed
+        // application.properties/secrets support) and by modules that call the SDK directly (e.g.,
+        // CloudServices, professional). Independently defining the same classes in both classloaders
+        // -- even at identical versions -- triggers a loader constraint violation whenever code loaded by
+        // one side hands an AWS SDK type to code loaded by the other. Deferring here means the module
+        // classloader reuses whichever copy the parent already loaded, falling back to its own bundled
+        // jars only for SDK modules (e.g., Bedrock) that the parent doesn't carry.
+        if (name.startsWith("software.amazon.awssdk."))
+        {
+            return true;
+        }
         return super.filter(name, isClassName);
     }
 

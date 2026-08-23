@@ -402,6 +402,17 @@ allprojects {
                     // Spring AI's pgvector-store brings in its own PostgreSQL JDBC driver; force ours
                     force "org.postgresql:postgresql:${postgresqlDriverVersion}"
 
+                    // professional's spring-ai-bedrock/spring-ai-bedrock-converse pull a newer software.amazon.awssdk
+                    // release than awsSdkVersion (used directly by embedded, cloudServices, and professional itself).
+                    // Every software.amazon.awssdk artifact must be the same version -- that's why AWS publishes an
+                    // SDK-wide BOM -- so a skew here leaves two different copies of classes like
+                    // software.amazon.awssdk.regions.Region loaded across the embedded/module classloader boundary,
+                    // which surfaces at runtime as a LinkageError (loader constraint violation), not a build failure.
+                    eachDependency { DependencyResolveDetails details ->
+                        if (details.requested.group == "software.amazon.awssdk")
+                            details.useVersion(awsSdkVersion)
+                    }
+
                     dependencySubstitution {
                         // Because the client api artifact name is not the same as the directory structure, we use
                         // Gradle's dependency substitution so the dependency will appear correctly in the pom files that

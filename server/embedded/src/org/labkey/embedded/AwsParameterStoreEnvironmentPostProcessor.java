@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jspecify.annotations.NonNull;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.EnvironmentPostProcessor;
+import org.springframework.boot.SpringApplication;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -58,8 +58,9 @@ import java.util.Map;
  * <p>SSM initialization also runs when {@code context.awsParameterStore.prefix} is explicitly
  * configured (even with no {@code ssm:} values), so that the CloudServices module can create its
  * own {@code SsmClient} for on-demand {@code SecretService} lookups. When active, this processor
- * publishes {@code labkey.aws.ssm.region} and optionally {@code labkey.aws.ssm.secretsPrefix} as
- * JVM system properties without any cross-classloader reflection.
+ * publishes {@code labkey.aws.ssm.enabled}, {@code labkey.aws.ssm.region}, and
+ * {@code labkey.aws.ssm.secretsPrefix} as JVM system properties without any cross-classloader
+ * reflection.
  *
  * <p>{@code context.awsParameterStore.secretsPrefix} controls where {@code SecretProperty}
  * values are looked up at runtime. A relative value (no leading {@code /}) is resolved against
@@ -137,7 +138,7 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
             secretsPrefix = prefix;
         }
 
-        if (!secretsPrefix.isEmpty() && !secretsPrefix.endsWith("/") && !secretsPrefix.endsWith("::"))
+        if (!secretsPrefix.endsWith("/") && !secretsPrefix.endsWith("::"))
             throw new IllegalStateException(
                 "[LabKey AWS] Resolved secretsPrefix must end with '/' or '::' (got: '" + secretsPrefix +
                 "'). Check " + SECRETS_PREFIX_PROPERTY + " and " + PREFIX_PROPERTY + " in application.properties");
@@ -145,8 +146,9 @@ public class AwsParameterStoreEnvironmentPostProcessor implements EnvironmentPos
         String regionOverride = environment.getProperty(REGION_PROPERTY);
         Region region = resolveRegion(regionOverride);
 
-        // Publish config as system properties so the CloudServices module can create its own
-        // SsmClient for on-demand SecretProperty lookups via SecretService at runtime.
+        // Publish config as system properties so the CloudServices module can create its own SsmClient
+        //  for on-demand SecretProperty lookups via SecretService at runtime, enabled per the class-level JavaDoc
+        System.setProperty("labkey.aws.ssm.enabled", "true");
         System.setProperty("labkey.aws.ssm.region", region.id());
         System.setProperty("labkey.aws.ssm.secretsPrefix", secretsPrefix);
 

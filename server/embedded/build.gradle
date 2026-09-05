@@ -41,7 +41,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
 
-    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
+    // Pull in Tomcat as a servlet container, without Spring MVC
+    implementation("org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}") {
         exclude group: "jakarta.annotation", module: "jakarta.annotation-api" // Already present in tomcat-annotations-api
         exclude group: "org.apache.tomcat.embed", module: "tomcat-embed-core" // We want to force apacheTomcatVersion
     }
@@ -90,11 +91,6 @@ dependencies {
         }
     }
     implementation('org.springframework:spring-web') {
-        version {
-            strictly "${springVersion}"
-        }
-    }
-    implementation('org.springframework:spring-webmvc') {
         version {
             strictly "${springVersion}"
         }
@@ -167,6 +163,99 @@ project.tasks.register(
             task.extension = "jar"
             task.cleanTask = "server:cleanEmbeddedDeploy"
             task.collection = project.tasks.bootJar.outputs.files
+        }
+
+// A module that ships classes BOOT-INF/lib already defines gets a second, distinct copy of those types, so handing an
+// instance across the classloader boundary throws LinkageError. LabKeySpringBootClassLoader.filter() defers the
+// packages we knowingly share; this catches everything else at build time instead of at startup.
+project.tasks.register("checkBootClasspathDuplicates")
+        { Task task ->
+            task.group = GroupNames.VERIFICATION
+            task.description = "Fail when a deployed module ships a jar whose classes are already in the embedded jar's BOOT-INF/lib and " +
+                    "aren't listed in bootClasspathDuplicates.txt. Use -PbootClasspathDuplicatesAction=[fail|warn] to change the behavior."
+
+            File baselineFile = project.file("bootClasspathDuplicates.txt")
+            File modulesDir = new File(ServerDeployExtension.getModulesDeployDirectory(project))
+            String action = project.hasProperty("bootClasspathDuplicatesAction") ? project.property("bootClasspathDuplicatesAction") : "fail"
+            FileCollection bootJarFiles = project.tasks.bootJar.outputs.files
+
+            task.inputs.files(bootJarFiles)
+            task.inputs.file(baselineFile)
+            task.inputs.files(project.fileTree(dir: modulesDir, include: "*.module"))
+            task.outputs.file(project.layout.buildDirectory.file("bootClasspathDuplicates-report.txt"))
+
+            task.doLast {
+                def classNames = { InputStream is ->
+                    Set<String> names = new HashSet<>()
+                    new java.util.zip.ZipInputStream(is).withCloseable { jar ->
+                        for (def entry = jar.nextEntry; entry != null; entry = jar.nextEntry)
+                        {
+                            String name = entry.name
+                            if (name.endsWith(".class") && !name.endsWith("module-info.class") && !name.startsWith("META-INF/"))
+                                names.add(name)
+                        }
+                    }
+                    return names
+                }
+                // Strip the version so the baseline survives routine version bumps
+                def baseName = { String fileName -> fileName.replaceFirst(/-\d[^\/]*\.(jar|module)$/, "").replaceFirst(/\.(jar|module)$/, "") }
+
+                if (!modulesDir.isDirectory())
+                {
+                    logger.lifecycle("No deployed modules in ${modulesDir}, skipping boot classpath duplicate check")
+                    return
+                }
+
+                Set<String> bootClasses = new HashSet<>()
+                new java.util.zip.ZipFile(bootJarFiles.singleFile).withCloseable { zip ->
+                    zip.entries().each { entry ->
+                        if (entry.name.startsWith("BOOT-INF/lib/") && entry.name.endsWith(".jar"))
+                            bootClasses.addAll(classNames(zip.getInputStream(entry)))
+                    }
+                }
+
+                Set<String> found = new TreeSet<>()
+                modulesDir.listFiles({ File dir, String name -> name.endsWith(".module") } as FilenameFilter).each { File moduleFile ->
+                    new java.util.zip.ZipFile(moduleFile).withCloseable { zip ->
+                        zip.entries().each { entry ->
+                            if (entry.name.startsWith("lib/") && entry.name.endsWith(".jar") &&
+                                    !Collections.disjoint(classNames(zip.getInputStream(entry)), bootClasses))
+                                found.add(baseName(moduleFile.name) + ":" + baseName(new File(entry.name).name))
+                        }
+                    }
+                }
+
+                Set<String> baseline = new TreeSet<>()
+                baselineFile.eachLine("UTF-8") { String line ->
+                    String trimmed = line.trim()
+                    if (!trimmed.isEmpty() && !trimmed.startsWith("#"))
+                        baseline.add(trimmed)
+                }
+
+                Set<String> added = new TreeSet<>(found)
+                added.removeAll(baseline)
+                Set<String> stale = new TreeSet<>(baseline)
+                stale.removeAll(found)
+
+                File report = task.outputs.files.singleFile
+                report.parentFile.mkdirs()
+                report.text = found.join("\n") + "\n"
+
+                if (!stale.isEmpty())
+                    logger.info("These bootClasspathDuplicates.txt entries no longer duplicate anything in BOOT-INF/lib and can be removed once every module that could contribute them is enlisted: {}", stale.join(", "))
+
+                if (!added.isEmpty())
+                {
+                    String message = "These modules ship jars whose classes are already in the embedded jar's BOOT-INF/lib:\n    " +
+                            added.join("\n    ") +
+                            "\nEither exclude the jar from the module's dependencies, or -- if both copies are genuinely needed -- defer the " +
+                            "package to the parent in LabKeySpringBootClassLoader.filter() and add these lines to " + baselineFile
+                    if ("warn".equalsIgnoreCase(action))
+                        logger.warn(message)
+                    else
+                        throw new GradleException(message)
+                }
+            }
         }
 
 project.publishing {

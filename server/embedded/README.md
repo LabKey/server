@@ -34,6 +34,14 @@ Shutdown command exited with non-zero status 7.
 The following task has been added as well
 + `cleanEmbeddedDeploy` - This task is really only incidental. It is a dependency of `deployDistribution` and `deployApp` so likely won’t be called individually. It removes the `build/deploy/embedded` directory.
 
+### Shared libraries between the boot layer and the webapp
+
+The boot layer (this project, packaged as `BOOT-INF/lib` inside the executable jar) **owns SLF4J, Log4J and the AWS SDK**. The webapp classloader defers those packages to its parent -- see `LabKeySpringBootClassLoader.filter()` -- so there is exactly one copy of each at runtime.
+
+Any other library that ends up in both layers is a bug waiting to happen. The two copies are distinct types to the JVM even at identical versions, so the moment code loaded by one layer hands an instance to code loaded by the other, the JVM throws a `LinkageError`. That is how the Bedrock SDK regression happened: a module picked up the AWS SDK transitively, and the server failed at startup.
+
+`gradlew :server:embedded:checkBootClasspathDuplicates` (a finalizer of `deployApp`) compares the class names in every deployed module's `lib/*.jar` against those in `BOOT-INF/lib` and fails on anything not listed in `server/embedded/bootClasspathDuplicates.txt`. When it fires, the fix is usually to exclude the jar from the module's dependencies. If both copies are genuinely required, defer the package to the parent in `filter()` and add the module/jar pair to the baseline file. Use `-PbootClasspathDuplicatesAction=warn` to downgrade the failure while you work, and expect to add baseline entries the first time you enlist a module that no one has run the check against.
+
 #### Troubleshooting
 + If starting your server from the LabKeyEmbedded_Dev configuration fails, this is likely due to IntelliJ not being able to find the embedded project on which the configuration depends. There are a few things you should check:
   + Within the Gradle window, ensure that the `:server:embedded` project is listed. If it is not, run the task `gradle projects` on the command line to see if it appears in that listing. If it does, try a Gradle refresh within IntelliJ. If it is not in the output from the `projects` command, look at your `settings.gradle` file to see why this might be.

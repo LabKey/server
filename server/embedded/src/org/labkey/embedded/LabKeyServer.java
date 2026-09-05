@@ -17,25 +17,38 @@ package org.labkey.embedded;
 
 import org.apache.catalina.connector.Connector;
 import org.labkey.bootstrap.PipelineBootstrapConfig;
+import org.labkey.bootstrap.StartupEnvironment;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNullElse;
+
 @SpringBootApplication
+@EnableConfigurationProperties({
+    LabKeyServer.ContextProperties.class,
+    LabKeyServer.MailProperties.class,
+    LabKeyServer.GraphMailProperties.class,
+    LabKeyServer.CSPFilterProperties.class,
+    LabKeyServer.ServerSslProperties.class,
+    LabKeyServer.JsonAccessLog.class,
+    LabKeyServer.ManagementServerProperties.class,
+    LabKeyServer.LoggingProperties.class,
+    LabKeyServer.TomcatProperties.class
+})
 public class LabKeyServer
 {
     private static final String TERMINATE_ON_STARTUP_FAILURE = "terminateOnStartupFailure";
@@ -64,7 +77,9 @@ public class LabKeyServer
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
         }
 
-        String logHome = PipelineBootstrapConfig.ensureLogHomeSet("logs");
+        StartupEnvironment.ensureLabKeyHomeSet(new File("").getAbsoluteFile());
+        // Resolves the labkey.log.home system property that application.properties reads
+        PipelineBootstrapConfig.ensureLogHomeSet("logs");
 
         // Restrict Tomcat's jar scanning to the absolute minimum to speed up server startup. Downside is we need to
         // update the jarsToScan list any time we add a new @WebListener annotation... but this happens very rarely.
@@ -79,153 +94,45 @@ public class LabKeyServer
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
-        // A strong Content Security Policy
-        String baseCsp = """
-                default-src 'self' ;
-                connect-src 'self' ${CONNECTION.SOURCES} ;
-                object-src ${OBJECT.SOURCES} ;  /* Substitution value defaults to 'none' unless overridden by an admin */
-                style-src 'self' 'unsafe-inline' ${STYLE.SOURCES} ;
-                img-src 'self' data: ${IMAGE.SOURCES} ;
-                font-src 'self' data: ${FONT.SOURCES} ;
-                script-src 'unsafe-eval' 'strict-dynamic' 'nonce-${REQUEST.SCRIPT.NONCE}' ${SCRIPT.SOURCES} ;
-                base-uri 'self' ;
-                frame-src 'self' ${FRAME.SOURCES} ;
-                report-uri ${context.contextPath:}/admin-contentSecurityPolicyReport.api ;
-            """;
-        // Add upgrade_insecure_requests substitution, frame-ancestors, and enforce version
-        String enforceCsp = baseCsp + """
-                ${UPGRADE.INSECURE.REQUESTS}
-                frame-ancestors 'self' ${FRAMEANCESTORS.SOURCES} ;
-                /* cspVersion=e16 */
-            """;
-        // Leave out upgrade_insecure_requests and frame-ancestors directives, since they produce warnings on some browsers
-        String reportCsp = baseCsp + """
-                /* cspVersion=r16 */
-            """;
-
-        application.setDefaultProperties(new HashMap<>()
-            {{
-                // GitHub Issue 796: JSON logging stopped after Tomcat/Spring update
-                // Propagate log4j configuration to Spring Boot config, which is necessary with Spring Boot 4.x
-                String log4JConfig = System.getProperty("log4j.configurationFile");
-                if (log4JConfig != null)
-                {
-                    String[] log4JConfigParts = log4JConfig.split(",");
-                    if (log4JConfigParts.length > 0)
-                    {
-                        if ("log4j2.xml".equals(log4JConfigParts[0]))
-                        {
-                            // Assume this is the one packaged with our embedded build and on the classpath
-                            put("logging.config", "classpath:log4j2.xml");
-                        }
-                        else
-                        {
-                            put("logging.config", log4JConfigParts[0]);
-                        }
-                        if (log4JConfigParts.length > 1)
-                        {
-                            put("logging.log4j2.config.override", String.join(",", Arrays.asList(log4JConfigParts).subList(1, log4JConfigParts.length)));
-                        }
-                    }
-                }
-
-                put("server.tomcat.basedir", ".");
-                put("server.tomcat.accesslog.directory", logHome);
-
-                // Boost limits imposed by Tomcat v10.1.42
-                put("server.tomcat.max-part-count", 500);
-                put("server.tomcat.max-part-header-size", 1024);  // GitHub Issue 161: LKS insert forms can't handle long file field names
-                put("server.tomcat.max-connections", 250);
-                // Boost limit back to Tomcat 10 level
-                put("server.tomcat.max-parameter-count", 10_000);
-
-                // Enable HTTP compression for response content
-                put("server.compression.enabled", "true");
-                // Spring Boot compresses HTML, JSON and other types by default, but not TSV, CSV, or SVG.
-                // We have to duplicate the defaults and add those types
-                put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml,text/tab-separated-values,text/csv,image/svg+xml");
-
-                put("server.tomcat.accesslog.enabled", "true");
-                put("server.tomcat.accesslog.pattern", "%h %l %u %t \"%r\" %s %b %D %S %I \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
-                put("jsonaccesslog.pattern", "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s %{X-Forwarded-For}i");
-
-                // Issue 52415: Omit stack traces from Tomcat error pages by default, but propagate error messages
-                put("server.error.include-stacktrace", "never");
-                put("server.error.include-message", "always");
-
-                put("csp.enforce", enforceCsp);
-                put("csp.report", reportCsp);
-
-                // GitHub Issue 692: Stop using CBC in HTTPS ciphers
-                // These settings configure HTTPS. Admins must opt in with additional settings
-                // in application.properties, like the key store. Without those other settings,
-                // HTTP-only startup fails unless "server.ssl.enabled" is explicitly set to false here
-                put("server.ssl.enabled", "false");
-                put("server.ssl.protocol", "TLS");
-                put("server.ssl.enabled-protocols", "TLSv1.3,TLSv1.2");
-                // Use explicit JSSE cipher suite names to avoid CBC-mode suites
-                put("server.ssl.ciphers",
-                    String.join(",",
-                        // TLS 1.3
-                        "TLS_AES_256_GCM_SHA384",
-                        "TLS_AES_128_GCM_SHA256",
-                        "TLS_CHACHA20_POLY1305_SHA256",
-                        // TLS 1.2 (AEAD only, no CBC)
-                        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-                        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
-                    )
-                );
-                put("server.ssl.use-cipher-suites-order", "true");
-
-                // GitHub Issue #1416 - default values for SMTP timeouts
-                put("mail.smtpConnectionTimeout", 10 * 1000);
-                put("mail.smtpTimeout", 60 * 1000);
-                // Unlike the socket-level timeouts above, JavaMail implements writetimeout with a ScheduledThreadPool per connection - one per message, since Transport.send() doesn't pool
-                put("mail.smtpWriteTimeout", 60 * 1000);
-            }}
-        );
+        application.setDefaultProperties(getLog4JProperties());
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
     }
 
-    @Bean
-    public ContextProperties contextSource()
+    /**
+     * GitHub Issue 796: JSON logging stopped after Tomcat/Spring update
+     * Propagate log4j configuration to Spring Boot config, which is necessary with Spring Boot 4.x. Can't live in
+     * application.properties because it's derived from a system property.
+     */
+    private static Map<String, Object> getLog4JProperties()
     {
-        return new ContextProperties();
+        Map<String, Object> properties = new HashMap<>();
+        String log4JConfig = System.getProperty("log4j.configurationFile");
+
+        if (log4JConfig != null)
+        {
+            String[] parts = log4JConfig.split(",");
+            if (parts.length > 0)
+            {
+                // "log4j2.xml" is the one packaged with our embedded build and on the classpath
+                properties.put("logging.config", "log4j2.xml".equals(parts[0]) ? "classpath:log4j2.xml" : parts[0]);
+                if (parts.length > 1)
+                {
+                    properties.put("logging.log4j2.config.override", String.join(",", Arrays.asList(parts).subList(1, parts.length)));
+                }
+            }
+        }
+
+        return properties;
     }
 
     @Bean
-    public MailProperties smtpSource()
+    public BootProperties bootProperties(ContextProperties context, MailProperties mail, GraphMailProperties graphMail,
+                                         CSPFilterProperties csp, ServerSslProperties serverSsl, JsonAccessLog jsonAccessLog,
+                                         ManagementServerProperties managementServer, LoggingProperties logging,
+                                         TomcatProperties tomcat)
     {
-        return new MailProperties();
-    }
-
-    @Bean
-    public GraphMailProperties graphSource()
-    {
-        return new GraphMailProperties();
-    }
-
-    @Bean
-    public CSPFilterProperties cspSource()
-    {
-        return new CSPFilterProperties();
-    }
-
-    @Bean
-    public ServerSslProperties serverSslSource()
-    {
-        return new ServerSslProperties();
-    }
-
-    @Bean
-    public JsonAccessLog jsonAccessLog()
-    {
-        return new JsonAccessLog();
+        return new BootProperties(context, mail, graphMail, csp, serverSsl, jsonAccessLog, managementServer, logging, tomcat);
     }
 
     @Bean
@@ -236,801 +143,157 @@ public class LabKeyServer
     }
 
     @Bean
-    public TomcatServletWebServerFactory servletContainerFactory()
+    public TomcatServletWebServerFactory servletContainerFactory(BootProperties properties)
     {
-        var result = new LabKeyTomcatServletWebServerFactory(this);
+        var result = new LabKeyTomcatServletWebServerFactory(properties);
 
-        var contextProperties = contextSource();
+        Integer httpPort = properties.context().httpPort();
 
-        if (contextProperties.getHttpPort() != null)
+        if (httpPort != null)
         {
             Connector httpConnector = new Connector();
             httpConnector.setScheme("http");
-            httpConnector.setPort(contextProperties.getHttpPort());
+            httpConnector.setPort(httpPort);
             result.addAdditionalConnectors(httpConnector);
         }
 
         return result;
     }
 
-    @Configuration
+    /** Everything the boot layer binds from application.properties and hands to the webapp */
+    public record BootProperties(
+        ContextProperties context,
+        MailProperties mail,
+        GraphMailProperties graphMail,
+        CSPFilterProperties csp,
+        ServerSslProperties serverSsl,
+        JsonAccessLog jsonAccessLog,
+        ManagementServerProperties managementServer,
+        LoggingProperties logging,
+        TomcatProperties tomcat
+    ) {}
+
     @ConfigurationProperties("jsonaccesslog")
-    public static class JsonAccessLog
-    {
-        private boolean enabled;
-        private String pattern = "%h %t %m %U %s %b %D %S \"%{Referer}i\" \"%{User-Agent}i\" %{LABKEY.username}s";
-        private String conditionIf;
-        private String conditionUnless;
-
-        public boolean isEnabled()
-        {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled)
-        {
-            this.enabled = enabled;
-        }
-
-        public String getPattern()
-        {
-            return pattern;
-        }
-
-        public void setPattern(String pattern)
-        {
-            this.pattern = pattern;
-        }
-
-        public String getConditionIf()
-        {
-            return conditionIf;
-        }
-
-        public void setConditionIf(String conditionIf)
-        {
-            this.conditionIf = conditionIf;
-        }
-
-        public String getConditionUnless()
-        {
-            return conditionUnless;
-        }
-
-        public void setConditionUnless(String conditionUnless)
-        {
-            this.conditionUnless = conditionUnless;
-        }
-    }
-
-    @Bean
-    public ManagementServerProperties managementServerSource()
-    {
-        return new ManagementServerProperties();
-    }
-
-    @Bean
-    public LoggingProperties loggingSource()
-    {
-        return new LoggingProperties();
-    }
-
-    @Bean
-    public TomcatProperties tomcatProperties()
-    {
-        return new TomcatProperties();
-    }
+    public record JsonAccessLog(
+        @DefaultValue("false") boolean enabled,
+        String pattern,
+        String conditionIf,
+        String conditionUnless
+    ) {}
 
     /**
      * This lets us snoop on the Spring Boot config for deploying the management endpoint on a different port, as
      * we don't want to deploy LK on that port
      */
-    @Configuration
     @ConfigurationProperties("management.server")
-    public static class ManagementServerProperties
-    {
-        private int _port;
-
-        public int getPort()
-        {
-            return _port;
-        }
-
-        public void setPort(int port)
-        {
-            _port = port;
-        }
-    }
+    public record ManagementServerProperties(@DefaultValue("0") int port) {}
 
     /** Values that we'll propagate to org.apache.catalina.filters.CorsFilter */
-    public static class CorsProperties
-    {
-        private String _allowedOrigins;
-        private String _allowedMethods;
-        private String _allowedHeaders;
-        private String _exposedHeaders;
-        private String _supportCredentials;
-        private String _urlPattern;
-        private String _preflightMaxAge;
-        private String _requestDecorate;
-
-        public String getAllowedOrigins()
-        {
-            return _allowedOrigins;
-        }
-
-        public void setAllowedOrigins(String allowedOrigins)
-        {
-            _allowedOrigins = allowedOrigins;
-        }
-
-        public String getAllowedMethods()
-        {
-            return _allowedMethods;
-        }
-
-        public void setAllowedMethods(String allowedMethods)
-        {
-            _allowedMethods = allowedMethods;
-        }
-
-        public String getAllowedHeaders()
-        {
-            return _allowedHeaders;
-        }
-
-        public void setAllowedHeaders(String allowedHeaders)
-        {
-            _allowedHeaders = allowedHeaders;
-        }
-
-        public String getExposedHeaders()
-        {
-            return _exposedHeaders;
-        }
-
-        public void setExposedHeaders(String exposedHeaders)
-        {
-            _exposedHeaders = exposedHeaders;
-        }
-
-        public String getSupportCredentials()
-        {
-            return _supportCredentials;
-        }
-
-        public void setSupportCredentials(String supportCredentials)
-        {
-            _supportCredentials = supportCredentials;
-        }
-
-        public String getUrlPattern()
-        {
-            return _urlPattern;
-        }
-
-        public void setUrlPattern(String urlPattern)
-        {
-            _urlPattern = urlPattern;
-        }
-
-        public String getPreflightMaxAge()
-        {
-            return _preflightMaxAge;
-        }
-
-        public void setPreflightMaxAge(String preflightMaxAge)
-        {
-            _preflightMaxAge = preflightMaxAge;
-        }
-
-        public String getRequestDecorate()
-        {
-            return _requestDecorate;
-        }
-
-        public void setRequestDecorate(String requestDecorate)
-        {
-            _requestDecorate = requestDecorate;
-        }
-    }
+    public record CorsProperties(
+        String allowedOrigins,
+        String allowedMethods,
+        String allowedHeaders,
+        String exposedHeaders,
+        String supportCredentials,
+        String urlPattern,
+        String preflightMaxAge,
+        String requestDecorate
+    ) {}
 
     /** Add some properties that Spring Boot doesn't support setting. See issue 50690 */
-    @Configuration
     @ConfigurationProperties("server.tomcat")
-    public static class TomcatProperties
-    {
-        private Boolean _useSendfile;
-        private Boolean _disableUploadTimeout;
-        private Boolean _useBodyEncodingForURI;
-
-        private CorsProperties _cors;
-
-        public Boolean getUseSendfile()
-        {
-            return _useSendfile;
-        }
-
-        public void setUseSendfile(Boolean useSendfile)
-        {
-            _useSendfile = useSendfile;
-        }
-
-        public Boolean getDisableUploadTimeout()
-        {
-            return _disableUploadTimeout;
-        }
-
-        public void setDisableUploadTimeout(Boolean disableUploadTimeout)
-        {
-            _disableUploadTimeout = disableUploadTimeout;
-        }
-
-        public Boolean getUseBodyEncodingForURI()
-        {
-            return _useBodyEncodingForURI;
-        }
-
-        public void setUseBodyEncodingForURI(Boolean useBodyEncodingForURI)
-        {
-            _useBodyEncodingForURI = useBodyEncodingForURI;
-        }
-
-        public CorsProperties getCors()
-        {
-            return _cors;
-        }
-
-        public void setCors(CorsProperties cors)
-        {
-            _cors = cors;
-        }
-    }
+    public record TomcatProperties(
+        Boolean useSendfile,
+        Boolean disableUploadTimeout,
+        Boolean useBodyEncodingForURI,
+        CorsProperties cors
+    ) {}
 
     /**
      * This lets us snoop on the Spring Boot config for log4j so we can report it via a mothership metric
      */
-    @Configuration
     @ConfigurationProperties("logging")
-    public static class LoggingProperties
-    {
-        private String _config;
+    public record LoggingProperties(String config) {}
 
-        public String getConfig()
-        {
-            return _config;
-        }
-
-        public void setConfig(String config)
-        {
-            _config = config;
-        }
-    }
-
-
-    @Validated
-    @Configuration
     @ConfigurationProperties("context")
-    public static class ContextProperties
+    public record ContextProperties(
+        List<String> dataSourceName,
+        List<String> url,
+        List<String> username,
+        List<String> password,
+        List<String> driverClassName,
+        String webAppLocation,
+        String workDirLocation,
+        String encryptionKey,
+        String oldEncryptionKey,
+        String legacyContextPath,
+        @DefaultValue("") String contextPath,
+        String pipelineConfig,
+        String requiredModules,
+        // Path to external modules directory
+        String externalModules,
+        @DefaultValue("false") boolean bypass2FA,
+        String serverGUID,
+        Integer httpPort,
+        Map<Integer, String> maxTotal,
+        Map<Integer, String> maxIdle,
+        Map<Integer, String> maxWaitMillis,
+        Map<Integer, String> accessToUnderlyingConnectionAllowed,
+        Map<Integer, String> validationQuery,
+        Map<Integer, String> displayName,
+        Map<Integer, String> logQueries,
+        Map<String, Map<String, Map<String, String>>> resources,
+        Map<String, String> additionalWebapps
+    )
     {
-        private List<String> dataSourceName = new ArrayList<>();
-        private List<String> url = new ArrayList<>();
-        private List<String> username = new ArrayList<>();
-        private List<String> password = new ArrayList<>();
-        private List<String> driverClassName = new ArrayList<>();
-
-        private String webAppLocation;
-        private String workDirLocation;
-        private String encryptionKey;
-        private String oldEncryptionKey;
-        private String legacyContextPath;
-
-        // Default to deploying to the root context path
-        private String contextPath = "";
-        private String pipelineConfig;
-        private String requiredModules;
-        /** Path to external modules directory */
-        private String externalModules;
-        private boolean bypass2FA = false;
-        private String serverGUID;
-        private Integer httpPort;
-        private Map<Integer, String> maxTotal;
-        private Map<Integer, String> maxIdle;
-        private Map<Integer, String> maxWaitMillis;
-        private Map<Integer, String> accessToUnderlyingConnectionAllowed;
-        private Map<Integer, String> validationQuery;
-        private Map<Integer, String> displayName;
-        private Map<Integer, String> logQueries;
-        private Map<String, Map<String, Map<String, String>>> resources;
-        private Map<String, String> additionalWebapps;
-
-        public List<String> getDataSourceName()
+        public ContextProperties
         {
-            return dataSourceName;
+            dataSourceName = requireNonNullElse(dataSourceName, List.of());
+            url = requireNonNullElse(url, List.of());
+            username = requireNonNullElse(username, List.of());
+            password = requireNonNullElse(password, List.of());
+            driverClassName = requireNonNullElse(driverClassName, List.of());
         }
 
-        public void setDataSourceName(List<String> dataSourceName)
-        {
-            this.dataSourceName = dataSourceName;
-        }
-
-        public List<String> getUrl()
-        {
-            return url;
-        }
-
-        public void setUrl(List<String> url)
-        {
-            this.url = url;
-        }
-
-        public List<String> getUsername()
-        {
-            return username;
-        }
-
-        public void setUsername(List<String> username)
-        {
-            this.username = username;
-        }
-
-        public List<String> getPassword()
-        {
-            return password;
-        }
-
-        public void setPassword(List<String> password)
-        {
-            this.password = password;
-        }
-
-        public List<String> getDriverClassName()
-        {
-            return driverClassName;
-        }
-
-        public void setDriverClassName(List<String> driverClassName)
-        {
-            this.driverClassName = driverClassName;
-        }
-
-        public String getWebAppLocation()
-        {
-            return webAppLocation;
-        }
-
-        public void setWebAppLocation(String webAppLocation)
-        {
-            this.webAppLocation = webAppLocation;
-        }
-
-        public String getWorkDirLocation()
-        {
-            return workDirLocation;
-        }
-
-        public void setWorkDirLocation(String workDirLocation)
-        {
-            this.workDirLocation = workDirLocation;
-        }
-
-        public String getEncryptionKey()
+        /** The server can't start without it, but nothing validates it until we're actually deploying the webapp */
+        public String requireEncryptionKey()
         {
             if (null == encryptionKey)
                 throw new RuntimeException("Must provide encryptionKey");
             return encryptionKey;
         }
-
-        public void setEncryptionKey(String encryptionKey)
-        {
-            this.encryptionKey = encryptionKey;
-        }
-
-        public String getOldEncryptionKey()
-        {
-            return oldEncryptionKey;
-        }
-
-        public void setOldEncryptionKey(String oldEncryptionKey)
-        {
-            this.oldEncryptionKey = oldEncryptionKey;
-        }
-
-        public String getLegacyContextPath()
-        {
-            return legacyContextPath;
-        }
-
-        public void setLegacyContextPath(String legacyContextPath)
-        {
-            this.legacyContextPath = legacyContextPath;
-        }
-
-        public String getContextPath()
-        {
-            return contextPath;
-        }
-
-        public void setContextPath(String contextPath)
-        {
-            this.contextPath = contextPath;
-        }
-
-        public String getPipelineConfig()
-        {
-            return pipelineConfig;
-        }
-
-        public void setPipelineConfig(String pipelineConfig)
-        {
-            this.pipelineConfig = pipelineConfig;
-        }
-
-        public String getRequiredModules()
-        {
-            return requiredModules;
-        }
-
-        public void setRequiredModules(String requiredModules)
-        {
-            this.requiredModules = requiredModules;
-        }
-
-        public String getExternalModules()
-        {
-            return externalModules;
-        }
-
-        public void setExternalModules(String externalModules)
-        {
-            this.externalModules = externalModules;
-        }
-
-        public boolean isBypass2FA()
-        {
-            return bypass2FA;
-        }
-
-        public void setBypass2FA(boolean bypass2FA)
-        {
-            this.bypass2FA = bypass2FA;
-        }
-
-        public Integer getHttpPort()
-        {
-            return httpPort;
-        }
-
-        public void setHttpPort(Integer httpPort)
-        {
-            this.httpPort = httpPort;
-        }
-
-        public String getServerGUID()
-        {
-            return serverGUID;
-        }
-
-        public void setServerGUID(String serverGUID)
-        {
-            this.serverGUID = serverGUID;
-        }
-
-        public Map<Integer, String> getMaxTotal()
-        {
-            return maxTotal;
-        }
-
-        public void setMaxTotal(Map<Integer, String> maxTotal)
-        {
-            this.maxTotal = maxTotal;
-        }
-
-
-        public void setMaxIdle(Map<Integer, String> maxIdle)
-        {
-            this.maxIdle = maxIdle;
-        }
-
-        public Map<Integer, String> getMaxIdle()
-        {
-            return this.maxIdle;
-        }
-
-        public void setAccessToUnderlyingConnectionAllowed(Map<Integer, String> accessToUnderlyingConnectionAllowed)
-        {
-            this.accessToUnderlyingConnectionAllowed = accessToUnderlyingConnectionAllowed;
-        }
-
-        public Map<Integer, String> getAccessToUnderlyingConnectionAllowed()
-        {
-            return this.accessToUnderlyingConnectionAllowed;
-        }
-
-        public void setMaxWaitMillis(Map<Integer, String> maxWaitMillis)
-        {
-            this.maxWaitMillis = maxWaitMillis;
-        }
-
-        public Map<Integer, String> getMaxWaitMillis()
-        {
-            return this.maxWaitMillis;
-        }
-
-        public Map<Integer, String> getValidationQuery()
-        {
-            return validationQuery;
-        }
-
-        public void setValidationQuery(Map<Integer, String> validationQuery)
-        {
-            this.validationQuery = validationQuery;
-        }
-
-        public Map<Integer, String> getDisplayName()
-        {
-            return displayName;
-        }
-
-        public void setDisplayName(Map<Integer, String> displayName)
-        {
-            this.displayName = displayName;
-        }
-
-        public Map<Integer, String> getLogQueries()
-        {
-            return logQueries;
-        }
-
-        public void setLogQueries(Map<Integer, String> logQueries)
-        {
-            this.logQueries = logQueries;
-        }
-
-        public Map<String, Map<String, Map<String, String>>> getResources()
-        {
-            return resources;
-        }
-
-        public void setResources(Map<String, Map<String, Map<String, String>>> resources)
-        {
-            this.resources = resources;
-        }
-
-        public Map<String, String> getAdditionalWebapps()
-        {
-            return additionalWebapps;
-        }
-
-        public void setAdditionalWebapps(Map<String, String> additionalWebapps)
-        {
-            this.additionalWebapps = additionalWebapps;
-        }
     }
 
-    @Configuration
     @ConfigurationProperties("mail")
-    public static class MailProperties
-    {
-        private String smtpHost;
-        private String smtpUser;
-        private String smtpPort;
-        private String smtpFrom;
-        private String smtpPassword;
-        private String smtpStartTlsEnable;
-        private String smtpSocketFactoryClass;
-        private String smtpAuth;
-        private Integer smtpConnectionTimeout;
-        private Integer smtpTimeout;
-        private Integer smtpWriteTimeout;
+    public record MailProperties(
+        String smtpHost,
+        String smtpUser,
+        String smtpPort,
+        String smtpFrom,
+        String smtpPassword,
+        String smtpStartTlsEnable,
+        String smtpSocketFactoryClass,
+        String smtpAuth,
+        Integer smtpConnectionTimeout,
+        Integer smtpTimeout,
+        Integer smtpWriteTimeout
+    ) {}
 
-        public String getSmtpHost()
-        {
-            return smtpHost;
-        }
-
-        public void setSmtpHost(String smtpHost)
-        {
-            this.smtpHost = smtpHost;
-        }
-
-        public String getSmtpUser()
-        {
-            return smtpUser;
-        }
-
-        public void setSmtpUser(String smtpUser)
-        {
-            this.smtpUser = smtpUser;
-        }
-
-        public String getSmtpPort()
-        {
-            return smtpPort;
-        }
-
-        public void setSmtpPort(String smtpPort)
-        {
-            this.smtpPort = smtpPort;
-        }
-
-        public String getSmtpFrom()
-        {
-            return smtpFrom;
-        }
-
-        public void setSmtpFrom(String smtpFrom)
-        {
-            this.smtpFrom = smtpFrom;
-        }
-
-        public String getSmtpPassword()
-        {
-            return smtpPassword;
-        }
-
-        public void setSmtpPassword(String smtpPassword)
-        {
-            this.smtpPassword = smtpPassword;
-        }
-
-        public String getSmtpStartTlsEnable()
-        {
-            return smtpStartTlsEnable;
-        }
-
-        public void setSmtpStartTlsEnable(String smtpStartTlsEnable)
-        {
-            this.smtpStartTlsEnable = smtpStartTlsEnable;
-        }
-
-        public String getSmtpSocketFactoryClass()
-        {
-            return smtpSocketFactoryClass;
-        }
-
-        public void setSmtpSocketFactoryClass(String smtpSocketFactoryClass)
-        {
-            this.smtpSocketFactoryClass = smtpSocketFactoryClass;
-        }
-
-        public String getSmtpAuth()
-        {
-            return smtpAuth;
-        }
-
-        public void setSmtpAuth(String smtpAuth)
-        {
-            this.smtpAuth = smtpAuth;
-        }
-
-        public Integer getSmtpConnectionTimeout()
-        {
-            return smtpConnectionTimeout;
-        }
-
-        public void setSmtpConnectionTimeout(Integer smtpConnectionTimeout)
-        {
-            this.smtpConnectionTimeout = smtpConnectionTimeout;
-        }
-
-        public Integer getSmtpTimeout()
-        {
-            return smtpTimeout;
-        }
-
-        public void setSmtpTimeout(Integer smtpTimeout)
-        {
-            this.smtpTimeout = smtpTimeout;
-        }
-
-        public Integer getSmtpWriteTimeout()
-        {
-            return smtpWriteTimeout;
-        }
-
-        public void setSmtpWriteTimeout(Integer smtpWriteTimeout)
-        {
-            this.smtpWriteTimeout = smtpWriteTimeout;
-        }
-    }
-
-    @Configuration
     @ConfigurationProperties("mail.graph")
-    public static class GraphMailProperties
-    {
-        private String tenantId;
-        private String clientId;
-        private String clientSecret;
-        private String fromAddress;
+    public record GraphMailProperties(
+        String tenantId,
+        String clientId,
+        String clientSecret,
+        String fromAddress
+    ) {}
 
-        public String getTenantId()
-        {
-            return tenantId;
-        }
-
-        public void setTenantId(String tenantId)
-        {
-            this.tenantId = tenantId;
-        }
-
-        public String getClientId()
-        {
-            return clientId;
-        }
-
-        public void setClientId(String clientId)
-        {
-            this.clientId = clientId;
-        }
-
-        public String getClientSecret()
-        {
-            return clientSecret;
-        }
-
-        public void setClientSecret(String clientSecret)
-        {
-            this.clientSecret = clientSecret;
-        }
-
-        public String getFromAddress()
-        {
-            return fromAddress;
-        }
-
-        public void setFromAddress(String fromAddress)
-        {
-            this.fromAddress = fromAddress;
-        }
-    }
-
-    @Configuration
     @ConfigurationProperties("csp")
-    public static class CSPFilterProperties
-    {
-        private String enforce;
-        private String report;
-
-        public String getEnforce()
-        {
-            return enforce;
-        }
-
-        public void setEnforce(String enforce)
-        {
-            this.enforce = enforce;
-        }
-
-        public String getReport()
-        {
-            return report;
-        }
-
-        public void setReport(String report)
-        {
-            this.report = report;
-        }
-    }
+    public record CSPFilterProperties(String enforce, String report) {}
 
     /**
      * Spring Boot doesn't propagate the keystore path into Tomcat's SSL config so we need to grab it and stash
      * it for potential use via the Connectors module.
      */
-    @Configuration
     @ConfigurationProperties("server.ssl")
-    public static class ServerSslProperties
-    {
-        private String keyStore;
-
-        public String getKeyStore()
-        {
-            return keyStore;
-        }
-
-        public void setKeyStore(String keyStore)
-        {
-            this.keyStore = keyStore;
-        }
-    }
+    public record ServerSslProperties(String keyStore) {}
 }

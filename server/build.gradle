@@ -232,3 +232,6 @@ project.node {
     npmWorkDir = project.file("${project.rootProject.projectDir}/.node")
 }
 project.tasks.named('deployApp').configure { dependsOn(project.tasks.npmSetup) }
+
+// Runs after deployApp so the check sees every module that was just deployed
+project.tasks.named('deployApp').configure { finalizedBy(':server:embedded:checkBootClasspathDuplicates') }

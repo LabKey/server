@@ -200,9 +200,14 @@ project.tasks.register("checkBootClasspathDuplicates")
                 // Strip the version so the baseline survives routine version bumps
                 def baseName = { String fileName -> fileName.replaceFirst(/-\d[^\/]*\.(jar|module)$/, "").replaceFirst(/\.(jar|module)$/, "") }
 
+                // Gradle can't call the task up to date unless the declared output exists, even with nothing to check
+                File report = task.outputs.files.singleFile
+                report.parentFile.mkdirs()
+
                 if (!modulesDir.isDirectory())
                 {
                     logger.lifecycle("No deployed modules in ${modulesDir}, skipping boot classpath duplicate check")
+                    report.text = ""
                     return
                 }
 
@@ -237,9 +242,7 @@ project.tasks.register("checkBootClasspathDuplicates")
                 Set<String> stale = new TreeSet<>(baseline)
                 stale.removeAll(found)
 
-                File report = task.outputs.files.singleFile
-                report.parentFile.mkdirs()
-                report.text = found.join("\n") + "\n"
+                report.text = found.isEmpty() ? "" : found.join("\n") + "\n"
 
                 if (!stale.isEmpty())
                     logger.info("These bootClasspathDuplicates.txt entries no longer duplicate anything in BOOT-INF/lib and can be removed once every module that could contribute them is enlisted: {}", stale.join(", "))

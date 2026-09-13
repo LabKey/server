@@ -544,4 +544,23 @@
         <cpe>cpe:/a:protobuf:protobuf</cpe>
     </suppress>
 
+    <!--
+    Azure Identity pulls in reactor-netty 1.2.18 which has DOS CVE-2026-47874. The Graph Email Transport isn't
+    deployed anywhere (yet) and medium-level DOS vulnerabilities have not been a big concern. Suppress for now,
+    until a newer Azure Identity that pulls in a fixed reactor-netty is available.
+    -->
+    <suppress>
+        <notes><![CDATA[
+    file name: reactor-netty-core-1.2.18.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.projectreactor\.netty/reactor-netty-core@.*$</packageUrl>
+        <cpe>cpe:/a:pivotal:reactor_netty</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+    file name: reactor-netty-http-1.2.18.jar
+    ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.projectreactor\.netty/reactor-netty-http@.*$</packageUrl>
+        <cpe>cpe:/a:pivotal:reactor_netty</cpe>
+    </suppress>
 </suppressions>

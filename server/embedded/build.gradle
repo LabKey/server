@@ -135,6 +135,9 @@ dependencies {
     implementation "software.amazon.awssdk:ssm:${awsSdkVersion}"
     implementation "software.amazon.awssdk:sso:${awsSdkVersion}"
     implementation "software.amazon.awssdk:ssooidc:${awsSdkVersion}"
+    // Used by cloudServices to stage remote R jobs. Belongs here, not in the module: see the awssdk note in the root
+    // build.gradle resolutionStrategy -- two copies across the classloader boundary is a LinkageError, not a conflict.
+    implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
 
     implementation "commons-io:commons-io:${commonsIoVersion}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"

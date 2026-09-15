@@ -157,6 +157,15 @@ class RenamedDependencyRule implements ComponentMetadataRule {
                 }
             }
 
+            // ehCache drops the '-core' variant in 2.7
+            else if (id.group == 'net.sf.ehcache' && id.name == 'ehcache-core') {
+                allVariants {
+                    it.withCapabilities {
+                        it.addCapability('net.sf.ehcache', 'ehcache', id.version)
+                    }
+                }
+            }
+
             // Normalize bouncycastle dependencies to detect conflict across jdk variants
             else if (id.group == 'bouncycastle' || id.group == 'org.bouncycastle') {
                 var fixedName = id.name

@@ -509,7 +509,6 @@ project.tasks.register("showDiscrepancies", ShowDiscrepancies) {
     task ->
         task.group = "Help"
         task.description = "Report external dependencies that have more than one version referenced in the modules in this build"
-        task.notCompatibleWithConfigurationCache("Walks the project tree")
 }
 
 project.tasks.register('getModulesManifest', DefaultTask) {

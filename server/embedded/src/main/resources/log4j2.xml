@@ -216,9 +216,6 @@
         <!-- don't need to log PDFBox errors (e.g., FlateFilter, PDCIDFontType2) -->
         <Logger name="org.apache.pdfbox" level="fatal"/>
 
-        <!-- Suppress warnings for Tika parsers whose libraries we deliberately don't ship (e.g., RarParser, OutlookPSTParser) -->
-        <Logger name="org.apache.tika.config.ServiceLoader" level="error"/>
-
         <!-- Suppress EHCache "maxElementsInMemory of 0" warnings, Issue 49593 -->
         <Logger name="net.sf.ehcache.config.CacheConfiguration" level="error"/>
 

@@ -31,6 +31,12 @@ public class StdOutLogger implements SimpleLogger
     }
 
     @Override
+    public void warn(Object message)
+    {
+        System.err.println(message);
+    }
+
+    @Override
     public void info(Object message)
     {
         System.out.println(message);

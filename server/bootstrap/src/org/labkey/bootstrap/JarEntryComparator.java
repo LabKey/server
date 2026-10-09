@@ -37,16 +37,17 @@ public class JarEntryComparator extends BaseComparator implements Comparator<Jar
     /**
      * Compares a JarEntry against a target file in the file system
      * @param e the JarEntry
+     * @param time the time the entry is stamped with when extracted
      * @param f the target file
      * @return 0 if e == f; -1 if e < f; 1 if e > f
      */
-    public int compare(JarEntry e, File f)
+    public int compare(JarEntry e, long time, File f)
     {
         if(!f.exists())
             return -1;
 
         //first check lastmod (available for both files and directories)
-        int ret = compareTimes(e.getTime(), f.lastModified());
+        int ret = compareTimes(time, f.lastModified());
 
         //if still equal, check size if they are files (not directories)
         if(0 == ret && !e.isDirectory() && !f.isDirectory())

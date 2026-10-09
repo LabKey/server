@@ -22,5 +22,6 @@ public interface SimpleLogger
 {
     void error(Object message, Throwable t);
     void error(Object message);
+    void warn(Object message);
     void info(Object message);
 }

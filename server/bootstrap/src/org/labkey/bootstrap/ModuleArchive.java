@@ -23,15 +23,19 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -230,7 +234,9 @@ public class ModuleArchive
 
         // delete existing directory so that files that are
         // no longer in the archive are removed
-        ExplodedModule.deleteDirectory(targetDirectory, false);
+        List<File> undeleted = new ArrayList<>();
+        ExplodedModule.deleteDirectory(targetDirectory, false, undeleted);
+        Set<File> unreplaced = new LinkedHashSet<>(undeleted);
 
         long startTime = System.currentTimeMillis();
         int fileCount = 0;
@@ -240,13 +246,22 @@ public class ModuleArchive
             Enumeration<JarEntry> entries = jar.entries();
             while(entries.hasMoreElements())
             {
-                extractEntry(jar, entries.nextElement(), targetDirectory);
+                extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced);
                 fileCount++;
             }
         }
         catch (IOException e)
         {
+            targetDirectory.setLastModified(0);
             throw new IOException("Failed to process " + archiveFile, e);
+        }
+
+        if (!unreplaced.isEmpty())
+        {
+            // A timestamp no archive has, so the next startup retries the extraction
+            targetDirectory.setLastModified(0);
+            throw new StaleFilesException("Failed to replace " + unreplaced.size() + " file(s) extracted from an earlier " + archiveFile.getName() +
+                ", probably because the running server holds them open. Stop the server and redeploy. Stale files: " + unreplaced);
         }
 
         //set last mod on target directory to match module file
@@ -267,7 +282,11 @@ public class ModuleArchive
     }
 
 
-    public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory) throws IOException
+    /**
+     * @param lastModified stamped on the extracted file; entry times are fixed across builds, so they can't tell builds apart
+     * @param unreplaced files left over from a previous extraction; this entry's file is removed once it's current, or added if it can't be replaced
+     */
+    public File extractEntry(JarFile jar, JarEntry entry, File targetDirectory, long lastModified, Set<File> unreplaced) throws IOException
     {
         @SuppressWarnings({"SSBasedInspection", "JvmTaintAnalysis"}) File destFile = new File(targetDirectory, entry.getName());
         ensureChild(targetDirectory, destFile);
@@ -284,27 +303,49 @@ public class ModuleArchive
         if(entry.isDirectory())
         {
             destFile.mkdirs();
-            if (entry.getTime() != -1)
-                destFile.setLastModified(entry.getTime());
+            destFile.setLastModified(lastModified);
             return destFile;
         }
 
-        if (0 != _jarEntryComparator.compare(entry, destFile))
+        if (0 == _jarEntryComparator.compare(entry, lastModified, destFile))
         {
-            try (BufferedInputStream bIn = new BufferedInputStream(jar.getInputStream(entry)); BufferedOutputStream bOut = new BufferedOutputStream(new FileOutputStream(destFile)))
-            {
-                byte[] b = new byte[8192];
-                int i;
-                while ((i = bIn.read(b)) != -1)
-                {
-                    bOut.write(b, 0, i);
-                }
-            }
+            unreplaced.remove(destFile);
+            return destFile;
+        }
 
-            if (entry.getTime() != -1)
+        if (!destFile.exists())
+        {
+            try (InputStream in = jar.getInputStream(entry))
             {
-                destFile.setLastModified(entry.getTime());
+                Files.copy(in, destFile.toPath());
             }
+            Files.setLastModifiedTime(destFile.toPath(), FileTime.fromMillis(lastModified));
+            return destFile;
+        }
+
+        // Never write over an existing file in place: rewriting a jar the JVM holds open corrupts it for readers sharing the cached zip index
+        Path temp = Files.createTempFile(entryParent.toPath(), destFile.getName(), ".tmp");
+        try
+        {
+            try (InputStream in = jar.getInputStream(entry))
+            {
+                Files.copy(in, temp, StandardCopyOption.REPLACE_EXISTING);
+            }
+            Files.setLastModifiedTime(temp, FileTime.fromMillis(lastModified));
+
+            try
+            {
+                Files.move(temp, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                unreplaced.remove(destFile);
+            }
+            catch (IOException e)
+            {
+                unreplaced.add(destFile);
+            }
+        }
+        finally
+        {
+            Files.deleteIfExists(temp);
         }
 
         return destFile;
@@ -313,5 +354,14 @@ public class ModuleArchive
     public File getDefaultExplodedLocation()
     {
         return new File(getFile().getParentFile(), getModuleName());
+    }
+
+    /** The message names every stale file, so callers log it without a stack trace */
+    public static class StaleFilesException extends IOException
+    {
+        public StaleFilesException(String message)
+        {
+            super(message);
+        }
     }
 }

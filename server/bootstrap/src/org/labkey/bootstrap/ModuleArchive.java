@@ -312,7 +312,17 @@ public class ModuleArchive
             return destFile;
         }
 
-        // Never write in place: rewriting a jar the JVM holds open corrupts it for readers sharing the cached zip index
+        if (!destFile.exists())
+        {
+            try (InputStream in = jar.getInputStream(entry))
+            {
+                Files.copy(in, destFile.toPath());
+            }
+            Files.setLastModifiedTime(destFile.toPath(), FileTime.fromMillis(lastModified));
+            return destFile;
+        }
+
+        // Never write over an existing file in place: rewriting a jar the JVM holds open corrupts it for readers sharing the cached zip index
         Path temp = Files.createTempFile(entryParent.toPath(), destFile.getName(), ".tmp");
         try
         {

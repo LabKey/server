@@ -252,6 +252,7 @@ public class ModuleArchive
         }
         catch (IOException e)
         {
+            targetDirectory.setLastModified(0);
             throw new IOException("Failed to process " + archiveFile, e);
         }
 

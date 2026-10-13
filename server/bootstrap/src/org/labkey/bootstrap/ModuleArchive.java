@@ -26,6 +26,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -39,6 +40,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 
 /**
  * Represents a compressed module archive file. Use this to explode the module
@@ -48,7 +51,6 @@ public class ModuleArchive
 {
     public static final String FILE_EXTENSION = ".module";
 
-    protected static final JarEntryComparator _jarEntryComparator = new JarEntryComparator();
     protected static final FileComparator _fileComparator = new FileComparator();
 
     private final File _file;
@@ -307,12 +309,6 @@ public class ModuleArchive
             return destFile;
         }
 
-        if (0 == _jarEntryComparator.compare(entry, lastModified, destFile))
-        {
-            unreplaced.remove(destFile);
-            return destFile;
-        }
-
         if (!destFile.exists())
         {
             try (InputStream in = jar.getInputStream(entry))
@@ -320,6 +316,13 @@ public class ModuleArchive
                 Files.copy(in, destFile.toPath());
             }
             Files.setLastModifiedTime(destFile.toPath(), FileTime.fromMillis(lastModified));
+            return destFile;
+        }
+
+        // Only files the pre-extraction delete couldn't remove get here, typically jars the JVM holds open on Windows
+        if (hasSameContent(entry, destFile))
+        {
+            unreplaced.remove(destFile);
             return destFile;
         }
 
@@ -349,6 +352,20 @@ public class ModuleArchive
         }
 
         return destFile;
+    }
+
+    /** Entry timestamps are fixed across builds, so only content tells an unchanged file from a changed one */
+    private static boolean hasSameContent(JarEntry entry, File file) throws IOException
+    {
+        if (entry.getCrc() == -1 || entry.getSize() != file.length())
+            return false;
+
+        CRC32 crc = new CRC32();
+        try (InputStream in = new CheckedInputStream(Files.newInputStream(file.toPath()), crc))
+        {
+            in.transferTo(OutputStream.nullOutputStream());
+        }
+        return crc.getValue() == entry.getCrc();
     }
 
     public File getDefaultExplodedLocation()

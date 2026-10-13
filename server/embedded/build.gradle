@@ -1,4 +1,5 @@
 import org.labkey.gradle.plugin.extension.ServerDeployExtension
+import org.labkey.gradle.task.CheckForEmbeddedJarDuplicates
 import org.labkey.gradle.task.CheckForVersionConflicts
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
@@ -168,6 +169,19 @@ project.tasks.register(
             task.cleanTask = "server:cleanEmbeddedDeploy"
             task.collection = project.tasks.bootJar.outputs.files
         }
+
+
+// Java modules add their external jars to this task's moduleJars (see JavaModule plugin)
+project.tasks.register(
+    "checkEmbeddedJarDuplicates", CheckForEmbeddedJarDuplicates)
+        { CheckForEmbeddedJarDuplicates task ->
+            task.group = GroupNames.BUILD
+            task.description = "Check that no jar files included in the Spring Boot jar are also included, in any version, in a module. " +
+                    "Default action on detecting a duplicate is to fail. Use -PversionConflictAction=warn to only warn."
+            task.embeddedJars.from(project.configurations.named("productionRuntimeClasspath"))
+        }
+
+project.tasks.named("checkVersionConflicts").configure { dependsOn(project.tasks.named("checkEmbeddedJarDuplicates")) }
 
 project.publishing {
     publications {

@@ -65,7 +65,7 @@ public class LabKeyServer
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
         }
 
-        // Cached jar: URL connections keep module jars open across restarts, so Windows can't replace them
+        // Matches Tomcat's JreMemoryLeakPreventionListener (absent when embedded): cached jar: connections hold module jars open, blocking replacement on Windows
         URLConnection.setDefaultUseCaches("jar", false);
 
         String logHome = PipelineBootstrapConfig.ensureLogHomeSet("logs");

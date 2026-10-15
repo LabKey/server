@@ -105,6 +105,11 @@ public class ModuleExtractor
                     _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
                     mapModuleDirToArchive.put(dir.getAbsoluteFile(), moduleArchive);
                 }
+                catch (ModuleArchive.StaleFilesException e)
+                {
+                    _log.warn(e.getMessage());
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
+                }
                 catch (IOException e)
                 {
                     _log.error("Unable to extract module archive " + moduleArchiveFile.getPath() + "!", e);
@@ -245,9 +250,16 @@ public class ModuleExtractor
                         _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
                     }
                 }
+                catch (ModuleArchive.StaleFilesException e)
+                {
+                    _log.warn(e.getMessage());
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
+                    modified = true;
+                }
                 catch (IOException e)
                 {
                     logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "Could not re-extract module " + (null==moduleArchive?moduleArchiveFile.getName():moduleArchive.getModuleName()) + ".", e);
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                     modified = true;
                 }
             }

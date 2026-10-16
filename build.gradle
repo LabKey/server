@@ -192,6 +192,15 @@ allprojects {
                             includeGroup "javacup"
                         }
                     }
+                    maven {
+                        // OpenSAML (used by the SAML module) is published to Maven Central only through 4.0.1;
+                        // later releases are only in the Shibboleth Consortium's repository.
+                        url = "https://build.shibboleth.net/maven/releases/"
+                        content {
+                            includeGroup "org.opensaml"
+                            includeGroup "net.shibboleth"
+                        }
+                    }
                 }
 
             }

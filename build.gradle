@@ -566,7 +566,7 @@ project.tasks.register('getModulesManifest', DefaultTask) {
 
 project.tasks.register('ijWorkspaceSetup', Copy) {
     Copy copy ->
-        copy.group = "IntelliJ"
+        copy.group = GroupNames.INIT
         copy.description = "Copy the workspace template file. Used only once, for initial setup of the IntelliJ project."
         copy.from(".idea/configTemplates/workspace.xml")
         copy.into('.idea')
@@ -574,7 +574,7 @@ project.tasks.register('ijWorkspaceSetup', Copy) {
 
 project.tasks.register("ijRunConfigurationsSetup", Copy) {
     Copy copy ->
-        copy.group = "IntelliJ"
+        copy.group = GroupNames.INIT
         copy.description = "Copy run configurations from templates, substituting path separators for this OS"
         copy.from(".idea/runConfigurations/templates")
         copy.into(".idea/runConfigurations")
@@ -586,36 +586,20 @@ project.tasks.register("ijRunConfigurationsSetup", Copy) {
 
 project.tasks.register("ijCodeSetup", Copy) {
     Copy copy ->
-        copy.group = "IntelliJ"
+        copy.group = GroupNames.INIT
         copy.description = "Copy template files from .idea/configTemplates to .idea directory (excluding the workspace.xml file)"
         copy.from(".idea/configTemplates")
         copy.into(".idea/")
         copy.exclude("workspace.xml")
 }
 
-def configSetupTask = project.tasks.register("configSetup", Copy) {
-    Copy copy ->
-        copy.group = "IntelliJ"
-        copy.description = "Create server properties files from templates"
-        File configsDir = project.file('server/configs')
-        copy.from(new File(configsDir, 'templates'))
-        copy.include("*.template")
-        copy.exclude("pg.properties.template") // TODO: need to stop tracking pg.properties. Postponing to avoid scope creep.
-        copy.into(configsDir)
-        copy.eachFile { FileCopyDetails details ->
-            details.name = details.name - ~/\.template$/
-            if (new File(configsDir, details.relativePath.pathString).exists())
-                details.exclude()
-        }
-}
-
 project.tasks.register('ijConfigure') {
     DefaultTask task ->
-        task.group = "IntelliJ"
+        task.group = GroupNames.INIT
         task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
         task.dependsOn(project.tasks.ijCodeSetup)
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
-        task.dependsOn(configSetupTask)
+        task.dependsOn(project.tasks.configSetup)
 }
 
 if (BuildUtils.hasArtifactoryProperties(project as Project))

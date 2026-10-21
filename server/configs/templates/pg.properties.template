@@ -1,0 +1,24 @@
+# Properties that tend to change between machines and system instances
+# Uses the PostgreSQL JDBC driver
+
+smtpHost=localhost
+smtpUser=Anonymous
+smtpPort=25
+
+#graphTenantId=
+#graphFromAddress=
+#graphClientId=
+#graphClientSecret=<this should be a client secret value>
+
+databaseDefault=labkey
+databaseBootstrap=labkey2
+databaseDefaultHost=localhost
+databaseDefaultPort=5432
+
+jdbcDriverClassName=org.postgresql.Driver
+jdbcURL=jdbc:postgresql://${jdbcHost}:${jdbcPort}/${jdbcDatabase}${jdbcURLParameters}
+jdbcUser=postgres
+jdbcPassword=sasa
+
+# key for the encrypted property store and other potentially sensitive content
+encryptionKey=defaultKey

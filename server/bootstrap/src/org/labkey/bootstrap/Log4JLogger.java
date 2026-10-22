@@ -39,6 +39,12 @@ public class Log4JLogger implements SimpleLogger
     }
 
     @Override
+    public void warn(Object message)
+    {
+        _logger.warn(message);
+    }
+
+    @Override
     public void info(Object message)
     {
         _logger.info(message);

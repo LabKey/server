@@ -30,6 +30,7 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 
 import java.io.File;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -77,12 +78,16 @@ public class LabKeyServer
             System.setProperty(TERMINATE_ON_STARTUP_FAILURE, "true");
         }
 
+        // Matches Tomcat's JreMemoryLeakPreventionListener (absent when embedded): cached jar: connections hold module jars open, blocking replacement on Windows
+        URLConnection.setDefaultUseCaches("jar", false);
+
         StartupEnvironment.ensureLabKeyHomeSet(new File("").getAbsoluteFile());
         // Resolves the labkey.log.home system property that application.properties reads
         PipelineBootstrapConfig.ensureLogHomeSet("logs");
 
-        // Restrict Tomcat's jar scanning to the absolute minimum to speed up server startup. Downside is we need to
-        // update the jarsToScan list any time we add a new @WebListener annotation... but this happens very rarely.
+        // Tomcat scans all jars matching the patterns below to find @ServerEndpoint and @WebListener annotations and
+        // auto-register them. We restrict jar scanning to the absolute minimum to speed up server startup. Downside is
+        // we need to update this list any time we add another use of either annotation, but this happens very rarely.
         // More elegant approaches (e.g., constructing, configuring, and setting a JarScanner/JarScanFilter pair in
         // LabKeyTomcatServletWebServerFactory.postProcessContext()) don't seem to work. There's evidence that Spring
         // Boot overwrites settings and also that Tomcat's property vs. code behavior differs.

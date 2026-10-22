@@ -241,6 +241,11 @@
         <Logger name="org.apache.poi.ooxml.POIXMLDocumentPart" level="error"/>
         <Logger name="org.apache.poi.xssf.usermodel.XSSFDrawing" level="error"/>
 
+        <!-- MCP SDK logs a keep-alive write to an abandoned listening stream at ERROR; dropping that session is the intent. GitHub Issue 1574 -->
+        <Logger name="io.modelcontextprotocol.spec.McpTransport">
+            <StringMatchFilter text="Client disconnected" onMatch="DENY" onMismatch="NEUTRAL"/>
+        </Logger>
+
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--
             <Logger name="org.labkey.api.security.SecurityManager" level="debug"/>

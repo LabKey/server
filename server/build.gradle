@@ -5,6 +5,7 @@ import org.labkey.gradle.task.CreateJsDocs
 import org.labkey.gradle.util.BuildUtils
 import org.labkey.gradle.util.GroupNames
 import org.labkey.gradle.util.PomFileHelper
+import org.labkey.gradle.plugin.extension.TeamCityExtension
 
 plugins {
     id 'maven-publish'
@@ -193,7 +194,7 @@ project.tasks.register("reportVersionToTeamCity", DefaultTask) {
         })
 }
 
-if (project.hasProperty("teamcity"))
+if (TeamCityExtension.isOnTeamCity(project))
 {
     project.tasks.named('stageApp').configure { dependsOn(project.tasks.named('reportVersionToTeamCity')) }
 }

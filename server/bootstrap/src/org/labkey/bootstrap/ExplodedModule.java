@@ -228,6 +228,12 @@ public class ExplodedModule
 
     public static void deleteDirectory(File dir, boolean onlyDeleteFiles)
     {
+        deleteDirectory(dir, onlyDeleteFiles, new ArrayList<>());
+    }
+
+    /** @param undeleted collects files that couldn't be deleted, e.g., jars a running server holds open on Windows */
+    public static void deleteDirectory(File dir, boolean onlyDeleteFiles, List<File> undeleted)
+    {
         //can't delete a directory unless everything inside it is deleted
         if (dir.isDirectory())
         {
@@ -237,9 +243,9 @@ public class ExplodedModule
                 for (File child : list)
                 {
                     if (child.isDirectory())
-                        deleteDirectory(child, onlyDeleteFiles);
-                    else
-                        child.delete();
+                        deleteDirectory(child, onlyDeleteFiles, undeleted);
+                    else if (!child.delete())
+                        undeleted.add(child);
                 }
             }
         }

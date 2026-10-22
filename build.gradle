@@ -599,6 +599,7 @@ project.tasks.register('ijConfigure') {
         task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
         task.dependsOn(project.tasks.ijCodeSetup)
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
+        task.dependsOn(BuildUtils.getConfigsProject(project).tasks.configSetup)
 }
 
 if (BuildUtils.hasArtifactoryProperties(project as Project))

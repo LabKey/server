@@ -26,6 +26,9 @@ public class StartupEnvironment
     /** Directory the server was launched from, and where labkeyBootstrap.jar and ./logs live. */
     public static final String LABKEY_HOME_PROPERTY_NAME = "labkey.home";
 
+    /** Servlet context parameter that the embedded boot layer sets from context.bypass2FA */
+    public static final String BYPASS_2FA_PARAMETER = "bypass2FA";
+
     private static final String HEADLESS_PROPERTY_NAME = "java.awt.headless";
 
     private StartupEnvironment()

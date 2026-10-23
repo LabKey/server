@@ -28,13 +28,20 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNullElse;
 
@@ -82,7 +89,7 @@ public class LabKeyServer
         URLConnection.setDefaultUseCaches("jar", false);
 
         StartupEnvironment.ensureLabKeyHomeSet(new File("").getAbsoluteFile());
-        // Resolves the labkey.log.home system property that application.properties reads
+        // Resolves the labkey.log.home system property that labkey-defaults.properties reads
         PipelineBootstrapConfig.ensureLogHomeSet("logs");
 
         // Tomcat scans all jars matching the patterns below to find @ServerEndpoint and @WebListener annotations and
@@ -99,15 +106,33 @@ public class LabKeyServer
 
         SpringApplication application = new SpringApplication(LabKeyServer.class);
         application.addListeners(new ApplicationPidFileWriter("./labkey.pid"));
-        application.setDefaultProperties(getLog4JProperties());
+        Map<String, Object> defaultProperties = loadBundledDefaults();
+        defaultProperties.putAll(getLog4JProperties());
+        application.setDefaultProperties(defaultProperties);
         application.setBannerMode(Banner.Mode.OFF);
         application.run(args);
+    }
+
+    /** Not named application.properties, because spring.config.location would then drop it from the search path */
+    private static Map<String, Object> loadBundledDefaults()
+    {
+        try
+        {
+            Properties properties = PropertiesLoaderUtils.loadProperties(new ClassPathResource("labkey-defaults.properties"));
+            Map<String, Object> result = new HashMap<>();
+            properties.forEach((key, value) -> result.put((String) key, value));
+            return result;
+        }
+        catch (IOException e)
+        {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**
      * GitHub Issue 796: JSON logging stopped after Tomcat/Spring update
      * Propagate log4j configuration to Spring Boot config, which is necessary with Spring Boot 4.x. Can't live in
-     * application.properties because it's derived from a system property.
+     * labkey-defaults.properties because it's derived from a system property.
      */
     private static Map<String, Object> getLog4JProperties()
     {
@@ -129,6 +154,24 @@ public class LabKeyServer
         }
 
         return properties;
+    }
+
+    /** Record toString() that masks secret components, so logging a property holder can't leak credentials */
+    private static String redactedToString(Record record, Set<String> secrets)
+    {
+        return Arrays.stream(record.getClass().getRecordComponents())
+            .map(component -> {
+                try
+                {
+                    Object value = secrets.contains(component.getName()) ? "****" : component.getAccessor().invoke(record);
+                    return component.getName() + "=" + value;
+                }
+                catch (ReflectiveOperationException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(Collectors.joining(", ", record.getClass().getSimpleName() + "[", "]"));
     }
 
     @Bean
@@ -180,7 +223,7 @@ public class LabKeyServer
 
     @ConfigurationProperties("jsonaccesslog")
     public record JsonAccessLog(
-        @DefaultValue("false") boolean enabled,
+        boolean enabled,
         String pattern,
         String conditionIf,
         String conditionUnless
@@ -191,7 +234,7 @@ public class LabKeyServer
      * we don't want to deploy LK on that port
      */
     @ConfigurationProperties("management.server")
-    public record ManagementServerProperties(@DefaultValue("0") int port) {}
+    public record ManagementServerProperties(int port) {}
 
     /** Values that we'll propagate to org.apache.catalina.filters.CorsFilter */
     public record CorsProperties(
@@ -237,7 +280,7 @@ public class LabKeyServer
         String requiredModules,
         // Path to external modules directory
         String externalModules,
-        @DefaultValue("false") boolean bypass2FA,
+        boolean bypass2FA,
         String serverGUID,
         Integer httpPort,
         Map<Integer, String> maxTotal,
@@ -267,6 +310,12 @@ public class LabKeyServer
                 throw new RuntimeException("Must provide encryptionKey");
             return encryptionKey;
         }
+
+        @Override
+        public String toString()
+        {
+            return redactedToString(this, Set.of("password", "encryptionKey", "oldEncryptionKey"));
+        }
     }
 
     @ConfigurationProperties("mail")
@@ -282,7 +331,14 @@ public class LabKeyServer
         Integer smtpConnectionTimeout,
         Integer smtpTimeout,
         Integer smtpWriteTimeout
-    ) {}
+    )
+    {
+        @Override
+        public String toString()
+        {
+            return redactedToString(this, Set.of("smtpPassword"));
+        }
+    }
 
     @ConfigurationProperties("mail.graph")
     public record GraphMailProperties(
@@ -290,7 +346,14 @@ public class LabKeyServer
         String clientId,
         String clientSecret,
         String fromAddress
-    ) {}
+    )
+    {
+        @Override
+        public String toString()
+        {
+            return redactedToString(this, Set.of("clientSecret"));
+        }
+    }
 
     @ConfigurationProperties("csp")
     public record CSPFilterProperties(String enforce, String report) {}

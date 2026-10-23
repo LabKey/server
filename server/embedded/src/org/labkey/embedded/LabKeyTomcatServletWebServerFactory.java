@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.descriptor.web.ContextResource;
 import org.labkey.bootstrap.ConfigException;
+import org.labkey.bootstrap.StartupEnvironment;
 import org.labkey.embedded.LabKeyServer.BootProperties;
 import org.labkey.embedded.LabKeyServer.ContextProperties;
 import org.labkey.embedded.LabKeyServer.CorsProperties;
@@ -55,7 +56,6 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
     private static final String SERVER_SSL_KEYSTORE = "org.labkey.serverSslKeystore";
     private static final String CUSTOM_LOG4J_CONFIG = "org.labkey.customLog4JConfig";
     private static final String CORS_PREFIX = "cors.";
-    private static final String BYPASS_2FA = "bypass2FA";
 
     private final BootProperties _properties;
 
@@ -194,7 +194,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 addContextProperty(context, contextProperties.pipelineConfig(), "org.labkey.api.pipeline.config");
                 if (contextProperties.bypass2FA())
                 {
-                    context.addParameter(BYPASS_2FA, "true");
+                    context.addParameter(StartupEnvironment.BYPASS_2FA_PARAMETER, "true");
                 }
 
                 boolean customLog4J = System.getProperty("log4j.configurationFile") != null;

@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 
 /**
  * LabKey's stripped down version of ant's FileUtils. Tomcat's JspC requires this class; providing it and a few others in
- * our bootstrap jar eliminates the need to distribute and deploy ant.jar into the /tomcat/lib directory.
+ * our bootstrap jar eliminates the need to distribute ant.jar.
  */
 public class FileUtils
 {

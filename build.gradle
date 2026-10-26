@@ -378,7 +378,9 @@ allprojects {
 
                     // Force spring-ai components to bring in spring-* versions that match the rest of spring
                     force "org.springframework:spring-context-support:${springVersion}"
+                    force "org.springframework:spring-jdbc:${springVersion}"
                     force "org.springframework:spring-messaging:${springVersion}"
+                    force "org.springframework:spring-tx:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
 
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies

@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 /**
  * LabKey's stripped down version of ant's FileUtils. Tomcat's JspC requires this class; providing it and a few others in
  * our bootstrap jar eliminates the need to distribute ant.jar.
+ * Methods refreshed from Ant master (commit f4ca034) on 2026-10-27.
  */
 public class FileUtils
 {
@@ -36,9 +37,9 @@ public class FileUtils
     // This portion of FileUtils used org.apache.tools.ant.taskdefs.condition.Os to determine a bunch of OS system
     // constants, for use in subsequent code (e.g., resolveFile()). These simplified versions should be identical.
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase(Locale.US);
-    private static final String PATH_SEP = System.getProperty("path.separator");
-    private static final boolean onNetWare = OS_NAME.contains("netware");     // Essentially what Os.isFamily("netware") does
-    private static final boolean onDos = PATH_SEP.equals(";") && !onNetWare;  // Essentially what Os.isFamily("dos") does
+    private static final String PATH_SEP = File.pathSeparator;
+    private static final boolean ON_NETWARE = OS_NAME.contains("netware");      // Essentially what Os.isFamily("netware") does
+    private static final boolean ON_DOS = PATH_SEP.equals(";") && !ON_NETWARE;  // Essentially what Os.isFamily("dos") does
 
     /**
      * Method to retrieve The FileUtils, which is shared by all users of this
@@ -109,7 +110,7 @@ public class FileUtils
      * @since Ant 1.7
      */
     public static boolean isContextRelativePath(String filename) {
-        if (!(onDos || onNetWare) || filename.isEmpty()) {
+        if (!(ON_DOS || ON_NETWARE) || filename.isEmpty()) {
             return false;
         }
         char sep = File.separatorChar;
@@ -118,7 +119,7 @@ public class FileUtils
         int len = filename.length();
         return (c == sep && (len == 1 || filename.charAt(1) != sep))
                 || (Character.isLetter(c) && len > 1
-                && filename.indexOf(':') == 1
+                && filename.charAt(1) == ':'
                 && (len == 2 || filename.charAt(2) != sep));
     }
 
@@ -133,18 +134,20 @@ public class FileUtils
      * @since Ant 1.6.3
      */
     public static boolean isAbsolutePath(String filename) {
-        int len = filename.length();
-        if (len == 0) {
+        if (filename.isEmpty()) {
             return false;
         }
+        if (!ON_DOS && !ON_NETWARE) {
+            // Not upstream's startsWithPathSeparator(), which wrongly accepts File.pathSeparatorChar (':' on Unix)
+            char c = filename.charAt(0);
+            return c == '/' || c == '\\';
+        }
+        int len = filename.length();
         char sep = File.separatorChar;
         filename = filename.replace('/', sep).replace('\\', sep);
         char c = filename.charAt(0);
-        if (!(onDos || onNetWare)) {
-            return (c == sep);
-        }
         if (c == sep) {
-            if (!(onDos && len > 4 && filename.charAt(1) == sep)) {
+            if (!ON_DOS || len <= 4 || filename.charAt(1) != sep) {
                 return false;
             }
             int nextsep = filename.indexOf(sep, 2);
@@ -153,7 +156,7 @@ public class FileUtils
         int colon = filename.indexOf(':');
         return (Character.isLetter(c) && colon == 1
                 && filename.length() > 2 && filename.charAt(2) == sep)
-                || (onNetWare && colon > 0);
+                || (ON_NETWARE && colon > 0);
     }
 
     /**
@@ -167,8 +170,12 @@ public class FileUtils
      *   <li>DOS style paths that start with a drive letter will have
      *     \ as the separator.</li>
      * </ul>
-     * Unlike {@link File#getCanonicalPath()} this method
-     * specifically does not resolve symbolic links.
+     * <p>Unlike {@link File#getCanonicalPath()} this method
+     * specifically does not resolve symbolic links or Windows junctions.</p>
+     *
+     * <p>If the path tries to go beyond the file system root (i.e. it
+     * contains more ".." segments than can be travelled up) the
+     * method will return the original path unchanged.</p>
      *
      * @param path the path to be normalized.
      * @return the normalized version of the path.
@@ -176,7 +183,7 @@ public class FileUtils
      * @throws java.lang.NullPointerException if path is null.
      */
     public File normalize(final String path) {
-        Stack s = new Stack();
+        Stack<String> s = new Stack<>();
         String[] dissect = dissect(path);
         s.push(dissect[0]);
 
@@ -185,7 +192,8 @@ public class FileUtils
             String thisToken = tok.nextToken();
             if (".".equals(thisToken)) {
                 continue;
-            } else if ("..".equals(thisToken)) {
+            }
+            if ("..".equals(thisToken)) {
                 if (s.size() < 2) {
                     // Cannot resolve it, so skip it.
                     return new File(path);
@@ -195,8 +203,9 @@ public class FileUtils
                 s.push(thisToken);
             }
         }
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < s.size(); i++) {
+        StringBuilder sb = new StringBuilder();
+        final int size = s.size();
+        for (int i = 0; i < size; i++) {
             if (i > 1) {
                 // not before the filesystem root and not after it, since root
                 // already contains one
@@ -224,7 +233,7 @@ public class FileUtils
         }
         String root;
         int colon = path.indexOf(':');
-        if (colon > 0 && (onDos || onNetWare)) {
+        if (colon > 0 && (ON_DOS || ON_NETWARE)) {
 
             int next = colon + 1;
             root = path.substring(0, next);
@@ -233,7 +242,7 @@ public class FileUtils
             //remove the initial separator; the root has it.
             next = (ca[next] == sep) ? next + 1 : next;
 
-            StringBuffer sbPath = new StringBuffer();
+            final StringBuilder sbPath = new StringBuilder();
             // Eliminate consecutive slashes after the drive spec:
             for (int i = next; i < ca.length; i++) {
                 if (ca[i] != sep || ca[i - 1] != sep) {

@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.labkey.bootstrap.ConfigException;
 import org.labkey.bootstrap.ModuleArchive;
+import org.labkey.bootstrap.StartupEnvironment;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -239,7 +240,8 @@ public class EmbeddedExtractor
     @SuppressWarnings("unused") /* Called via reflection by PipelineServiceImpl.getClusterStartupArguments() */
     public File extractRemotePipelineJars()
     {
-        return extractExecutableJar(new File("."), false, true);
+        File labkeyHome = StartupEnvironment.getLabKeyHome();
+        return extractExecutableJar(labkeyHome == null ? new File(".") : labkeyHome, false, true);
     }
 
     public void extractExecutableJar(File destDirectory, boolean remotePipeline)

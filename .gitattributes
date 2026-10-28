@@ -23,6 +23,7 @@
 # Keep unix endings
 *.bash          text eol=lf
 *.sh            text eol=lf
+/gradlew        text eol=lf
 
 # Keep Windows endings
 *.bat           text eol=crlf

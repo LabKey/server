@@ -16,6 +16,7 @@ plugins {
     id "com.jfrog.artifactory" version "${artifactoryPluginVersion}" apply false
     id "com.github.node-gradle.node" version "${gradleNodePluginVersion}" apply false
     id "org.owasp.dependencycheck" version "${owaspDependencyCheckPluginVersion}" apply false
+    id "net.ltgt.errorprone" version "${errorPronePluginVersion}" apply false
     id "io.github.ben-manes.versions" version "0.61.0"
     id "org.labkey.build.multiGit"
 }
@@ -65,6 +66,27 @@ allprojects {
             compile.options.incremental = true  // Gradle 3.4
             compile.options.encoding = 'UTF-8'
             compile.options.compilerArgs << '-parameters'  // Preserve method parameter names for Spring AI reflection
+    }
+    // -PerrorProne enforces @CompileTimeConstant at call sites
+    if (project.hasProperty('errorProne'))
+    {
+        project.pluginManager.withPlugin('java') {
+            project.apply plugin: 'net.ltgt.errorprone'
+            project.dependencies {
+                errorprone "com.google.errorprone:error_prone_core:${googleErrorProneAnnotationsVersion}"
+                errorprone "com.uber.nullaway:nullaway:${nullAwayVersion}"
+            }
+            project.tasks.withType(JavaCompile).configureEach {
+                options.errorprone {
+                    disableAllChecks = true
+                    disableWarningsInGeneratedCode = true
+                    error("CompileTimeConstant", "DereferenceWithNullBranch", "EqualsIncompatibleType", "WaitNotInLoop", "LockNotBeforeTry")
+                    warn("MustBeClosedChecker", "StreamResourceLeak", "NullAway", "ClassInitializationDeadlock", "NonAtomicVolatileUpdate")
+                    option("NullAway:OnlyNullMarked", "true")
+                    option("NullAway:AcknowledgeRestrictiveAnnotations", "true")
+                }
+            }
+        }
     }
 }
 

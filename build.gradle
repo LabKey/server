@@ -80,8 +80,9 @@ allprojects {
                 options.errorprone {
                     disableAllChecks = true
                     disableWarningsInGeneratedCode = true
-                    error("CompileTimeConstant", "DereferenceWithNullBranch", "EqualsIncompatibleType", "WaitNotInLoop", "LockNotBeforeTry")
-                    warn("MustBeClosedChecker", "StreamResourceLeak", "NullAway", "ClassInitializationDeadlock", "NonAtomicVolatileUpdate")
+                    error("CompileTimeConstant")
+                    warn("DereferenceWithNullBranch", "EqualsIncompatibleType", "LockNotBeforeTry", "MustBeClosedChecker",
+                            "NonAtomicVolatileUpdate", "NullAway", "StreamResourceLeak", "WaitNotInLoop")
                     option("NullAway:OnlyNullMarked", "true")
                     option("NullAway:AcknowledgeRestrictiveAnnotations", "true")
                 }

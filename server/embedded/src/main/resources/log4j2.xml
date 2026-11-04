@@ -245,6 +245,10 @@
         <Logger name="io.modelcontextprotocol.spec.McpTransport">
             <StringMatchFilter text="Client disconnected" onMatch="DENY" onMismatch="NEUTRAL"/>
         </Logger>
+        <!-- Late client reply to a keep-alive ping whose stream already closed; the SDK's non-streaming session logs this at WARN -->
+        <Logger name="io.modelcontextprotocol.server.transport.HttpServletStreamableServerTransportProvider">
+            <StringMatchFilter text="Unexpected response for unknown id" onMatch="DENY" onMismatch="NEUTRAL"/>
+        </Logger>
 
         <!-- this is a very verbose logger for security/permissions checking -->
         <!--

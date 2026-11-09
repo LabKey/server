@@ -381,6 +381,10 @@ allprojects {
                     force "org.springframework:spring-tx:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
 
+                    // Spring AI, its MCP SDK, and saml request different versions of these
+                    force "com.networknt:json-schema-validator:${jsonSchemaValidatorVersion}"
+                    force "io.micrometer:micrometer-observation:${micrometerVersion}"
+
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"
 

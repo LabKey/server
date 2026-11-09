@@ -41,6 +41,7 @@ clientAPIs/*
 .idea/dataSources/
 .idea/dataSources.xml
 .idea/dataSources.local.xml
+.idea/db-forest-config.xml
 .idea/.name
 # Files installed from templates
 .idea/runConfigurations/LabKey_Dev.xml
@@ -52,6 +53,14 @@ clientAPIs/*
 .idea/misc.xml
 .idea/vcs.xml
 .idea/sqldialects.xml
+server/configs/startup.properties
 
-# Local Claude settings
+# AI files
 .claude/settings.local.json
+.claude/hooks/*.log
+.playwright-mcp/
+.vscode/
+
+# Python bytecode
+__pycache__/
+*.pyc

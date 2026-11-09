@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2019 LabKey Corporation
+ * Copyright (c) 2008-2026 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,6 +104,11 @@ public class ModuleExtractor
                     File dir = moduleArchive.extractAll();
                     _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
                     mapModuleDirToArchive.put(dir.getAbsoluteFile(), moduleArchive);
+                }
+                catch (ModuleArchive.StaleFilesException e)
+                {
+                    _log.warn(e.getMessage());
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                 }
                 catch (IOException e)
                 {
@@ -245,9 +250,16 @@ public class ModuleExtractor
                         _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
                     }
                 }
+                catch (ModuleArchive.StaleFilesException e)
+                {
+                    _log.warn(e.getMessage());
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
+                    modified = true;
+                }
                 catch (IOException e)
                 {
                     logModuleMessage(moduleArchiveFile.getName(), previouslyLoggedModules, "Could not re-extract module " + (null==moduleArchive?moduleArchiveFile.getName():moduleArchive.getModuleName()) + ".", e);
+                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
                     modified = true;
                 }
             }

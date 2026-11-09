@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 LabKey Corporation
+ * Copyright (c) 2008-2026 LabKey Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,6 @@ package org.labkey.bootstrap;
 
 import java.io.File;
 import java.util.Comparator;
-
-/*
-* User: Dave
-* Date: Dec 9, 2008
-* Time: 10:54:30 AM
-*/
 
 /**
  * Compares two files (or directories)

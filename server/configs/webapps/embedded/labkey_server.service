@@ -1,5 +1,5 @@
 # Systemd unit file for labkey_server.
-# This default will require customization. Confirm or edit the LABKEY_HOME path.
+# This default will require customization. Update LABKEY_HOME and JAVA_HOME to match the deployment.
 # You must always edit the ExecStart line to start with the full path to java.
 # <JAVA_HOME> is shown for clarity, but will not be substituted.
 # Learn more here: https://www.labkey.org/Documentation/wiki-page.view?name=serviceFile
@@ -10,7 +10,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-Environment="JAVA_HOME=/usr/lib/jvm/jdk-17.0.10+7"
+Environment="JAVA_HOME=/usr/lib/jvm/jdk-version"
 Environment="LABKEY_HOME=/labkey/labkey"
 Environment="JAVA_FLAGS_JAR_OPS=-Dorg.apache.catalina.startup.EXIT_ON_INIT_FAILURE=true -DterminateOnStartupFailure=true"
 Environment="JAVA_REFLECTION_JAR_OPS=--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED"

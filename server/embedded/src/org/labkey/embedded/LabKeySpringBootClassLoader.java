@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2021-2026 LabKey Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.labkey.embedded;
 
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +58,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
                         if (is != null)
                         {
                             addURL(url);
-                            LOG.info("Added URL that resolves log4j2.xml to class loader: " + url);
+                            LOG.info("Added URL that resolves log4j2.xml to class loader: {}", url);
                         }
                     }
                     catch (IOException e)
@@ -65,7 +80,7 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
             ClassLoader parent = getParent();
             while (parent != null)
             {
-                LOG.debug("Looking for SessionAppending - checking ClassLoader " + parent);
+                LOG.debug("Looking for SessionAppending - checking ClassLoader {}", parent);
                 if (parent.getClass().getName().equals("jdk.internal.loader.ClassLoaders$AppClassLoader") ||
                         parent.getClass().getName().equals("org.springframework.boot.loader.launch.LaunchedClassLoader"))
                 {
@@ -84,6 +99,17 @@ public class LabKeySpringBootClassLoader extends LabKeyBootstrapClassLoader
         // Defer to the Spring Boot classloader for SLF4J and Log4J classes to avoid problems with double-loading.
         // Eventually we should shift to only shipping SLF4J and Log4J via Spring Boot and not inside the webapp.
         if (name.startsWith("org.slf4j.") || name.startsWith("org.apache.logging.log4j."))
+        {
+            return true;
+        }
+        // The AWS SDK is bundled both by the embedded boot classpath (e.g., for the SSM-backed
+        // application.properties/secrets support) and by modules that call the SDK directly (e.g.,
+        // CloudServices, professional). Independently defining the same classes in both classloaders
+        // -- even at identical versions -- triggers a loader constraint violation whenever code loaded by
+        // one side hands an AWS SDK type to code loaded by the other. Deferring here means the module
+        // classloader reuses whichever copy the parent already loaded, falling back to its own bundled
+        // jars only for SDK modules (e.g., Bedrock) that the parent doesn't carry.
+        if (name.startsWith("software.amazon.awssdk."))
         {
             return true;
         }

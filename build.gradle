@@ -276,8 +276,6 @@ allprojects {
                     force "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotationsVersion}"
                     // genotyping brings in a much older version of this, so we force a newer version for compatibility
                     force "org.apache.commons:commons-compress:${commonsCompressVersion}"
-                    // Force ant to be a newer version (transitive dependency of query > eigenbase-resgen > eigenbase-xom)
-                    force "org.apache.ant:ant:${antVersion}"
                     // Transitive dependency of commons-compress -- Transitive dependency com.github.samtools:htsjdk which references an older version
                     force "org.tukaani:xz:${tukaaniXZVersion}"
                     // force version for api and LDK, but not for the xsdDoc configuration, which requires
@@ -568,7 +566,7 @@ project.tasks.register('getModulesManifest', DefaultTask) {
 
 project.tasks.register('ijWorkspaceSetup', Copy) {
     Copy copy ->
-        copy.group = "IntelliJ"
+        copy.group = GroupNames.INIT
         copy.description = "Copy the workspace template file. Used only once, for initial setup of the IntelliJ project."
         copy.from(".idea/configTemplates/workspace.xml")
         copy.into('.idea')
@@ -576,7 +574,7 @@ project.tasks.register('ijWorkspaceSetup', Copy) {
 
 project.tasks.register("ijRunConfigurationsSetup", Copy) {
     Copy copy ->
-        copy.group = "IntelliJ"
+        copy.group = GroupNames.INIT
         copy.description = "Copy run configurations from templates, substituting path separators for this OS"
         copy.from(".idea/runConfigurations/templates")
         copy.into(".idea/runConfigurations")
@@ -588,7 +586,7 @@ project.tasks.register("ijRunConfigurationsSetup", Copy) {
 
 project.tasks.register("ijCodeSetup", Copy) {
     Copy copy ->
-        copy.group = "IntelliJ"
+        copy.group = GroupNames.INIT
         copy.description = "Copy template files from .idea/configTemplates to .idea directory (excluding the workspace.xml file)"
         copy.from(".idea/configTemplates")
         copy.into(".idea/")
@@ -597,10 +595,11 @@ project.tasks.register("ijCodeSetup", Copy) {
 
 project.tasks.register('ijConfigure') {
     DefaultTask task ->
-        task.group = "IntelliJ"
+        task.group = GroupNames.INIT
         task.description = "Install IntelliJ template files as files for IntelliJ to use in .idea directory"
         task.dependsOn(project.tasks.ijCodeSetup)
         task.dependsOn(project.tasks.ijRunConfigurationsSetup)
+        task.dependsOn(BuildUtils.getConfigsProject(project).tasks.configSetup)
 }
 
 if (BuildUtils.hasArtifactoryProperties(project as Project))

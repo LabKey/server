@@ -1,0 +1,2 @@
+# Define startup properties for the application
+# './gradlew pickPg' will copy this file to the deployed server

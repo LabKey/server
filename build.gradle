@@ -203,6 +203,8 @@ allprojects {
     configurations.configureEach
             {Configuration config ->
                 resolutionStrategy {
+                    //  spring-ai pulls a different version of open-telemetry than graphMailTransport and selenium-web-driver
+                    force "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
                     //  spring-ai pulls a different version of antr-ST4 than the version pulled by query (via antlr)
                     force "org.antlr:ST4:${antlrST4Version}"
                     // different spring-ai artifacts (e.g. spring-ai-transformers) pull different antlr4-runtime versions than ST4 does
@@ -380,6 +382,10 @@ allprojects {
                     force "org.springframework:spring-messaging:${springVersion}"
                     force "org.springframework:spring-tx:${springVersion}"
                     force "org.springframework:spring-webflux:${springVersion}"
+
+                    // Spring AI, its MCP SDK, and saml request different versions of these
+                    force "com.networknt:json-schema-validator:${jsonSchemaValidatorVersion}"
+                    force "io.micrometer:micrometer-observation:${micrometerVersion}"
 
                     // Force consistency between pipeline's ActiveMQ and cloud's jClouds dependencies
                     force "javax.annotation:javax.annotation-api:${javaxAnnotationVersion}"

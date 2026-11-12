@@ -92,10 +92,10 @@
     </suppress>
 
     <!--
-    False positives - these CVEs cover MSAL libraries across multiple languages (Java, JavaScript, .NET, Python),
+    False positive - this CVE covers MSAL libraries across multiple languages (Java, JavaScript, .NET, Python),
     each versioned independently. The scanner conflates the Java msal4j library with the JavaScript
-    @azure/msal-browser/@azure/msal-node libraries. Both CVEs were fixed in msal4j 1.15.1 and 1.16.1
-    respectively; our version (1.23.1+) is not affected.
+    @azure/msal-browser/@azure/msal-node libraries. It was fixed in msal4j 1.15.1; our version (1.23.1+)
+    is not affected.
     -->
     <suppress>
         <notes><![CDATA[
@@ -103,20 +103,6 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.microsoft\.azure/msal4j@.*$</packageUrl>
         <vulnerabilityName>CVE-2024-35255</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        file name: msal4j-*.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-35255</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        file name: msal4j-*.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-36415</vulnerabilityName>
     </suppress>
 
     <!--

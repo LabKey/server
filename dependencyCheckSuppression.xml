@@ -120,18 +120,6 @@
     </suppress>
 
     <!--
-    Rhino 1.7R3 is getting flagged with a potential DoS issue when toFixed() is called on very small floating point numbers.
-    Upgrading to a fixed version is not trivial. See https://github.com/LabKey/internal-issues/issues/724 for details.
-    -->
-    <suppress>
-       <notes><![CDATA[
-       file name: rhino-1.7R3.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/org\.mozilla/rhino@.*$</packageUrl>
-       <vulnerabilityName>CVE-2025-66453</vulnerabilityName>
-    </suppress>
-
-    <!--
     CVE-2026-33117 against "Azure SDK for Java" might affect these libraries, but we ship the latest and our use case
     (requiring server admins to provide credentials) is certainly not vulnerable. Newer versions may allow us to remove
     this suppression.
@@ -219,7 +207,6 @@
         <packageUrl regex="true">^pkg:maven/io\.opentelemetry/opentelemetry-context@.*$</packageUrl>
         <cpe>cpe:/a:opentelemetry:opentelemetry</cpe>
     </suppress>
-
 
     <!--
     [FP]: 'dev.cel/protobuf' collides with other protobuf libraries

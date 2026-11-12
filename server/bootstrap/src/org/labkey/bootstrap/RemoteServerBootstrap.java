@@ -49,7 +49,8 @@ public class RemoteServerBootstrap
 
             synchronized(runner)
             {
-                runner.wait();
+                while (true)
+                    runner.wait();
             }
         }
         catch (Throwable t)

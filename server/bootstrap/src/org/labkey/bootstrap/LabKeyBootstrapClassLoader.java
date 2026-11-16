@@ -220,9 +220,9 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
         List<Callable<Boolean>> undoList = new ArrayList<>();
 
         // OK we got this far, let's give it a go
+        moduleLoading.lock();
         try
         {
-            moduleLoading.lock();
             Files.move(existingArchive.toPath(), mvExistingArchive.toPath());
             undoList.add(() -> {
                 Files.copy(mvExistingArchive.toPath(), existingArchive.toPath());
@@ -297,9 +297,9 @@ public class LabKeyBootstrapClassLoader extends WebappClassLoader implements Exp
 
         List<Callable<Boolean>> undoList = new ArrayList<>();
 
+        moduleLoading.lock();
         try
         {
-            moduleLoading.lock();
             Files.move(newArchive.toPath(), target.toPath());
             undoList.add(() -> {
                 Files.deleteIfExists(target.toPath());

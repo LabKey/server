@@ -92,10 +92,10 @@
     </suppress>
 
     <!--
-    False positives - these CVEs cover MSAL libraries across multiple languages (Java, JavaScript, .NET, Python),
+    False positive - this CVE covers MSAL libraries across multiple languages (Java, JavaScript, .NET, Python),
     each versioned independently. The scanner conflates the Java msal4j library with the JavaScript
-    @azure/msal-browser/@azure/msal-node libraries. Both CVEs were fixed in msal4j 1.15.1 and 1.16.1
-    respectively; our version (1.23.1+) is not affected.
+    @azure/msal-browser/@azure/msal-node libraries. It was fixed in msal4j 1.15.1; our version (1.23.1+)
+    is not affected.
     -->
     <suppress>
         <notes><![CDATA[
@@ -104,62 +104,35 @@
         <packageUrl regex="true">^pkg:maven/com\.microsoft\.azure/msal4j@.*$</packageUrl>
         <vulnerabilityName>CVE-2024-35255</vulnerabilityName>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-        file name: msal4j-*.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
-        <vulnerabilityName>CVE-2024-35255</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        file name: msal4j-*.jar
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
-        <vulnerabilityName>CVE-2023-36415</vulnerabilityName>
-    </suppress>
 
     <!--
-    Rhino 1.7R3 is getting flagged with a potential DoS issue when toFixed() is called on very small floating point numbers.
-    Upgrading to a fixed version is not trivial. See https://github.com/LabKey/internal-issues/issues/724 for details.
-    -->
-    <suppress>
-       <notes><![CDATA[
-       file name: rhino-1.7R3.jar
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/org\.mozilla/rhino@.*$</packageUrl>
-       <vulnerabilityName>CVE-2025-66453</vulnerabilityName>
-    </suppress>
-
-    <!--
-    CVE-2026-33117 against "Azure SDK for Java" might affect these libraries, but we ship the latest and our use case
-    (requiring server admins to provide credentials) is certainly not vulnerable. Newer versions may allow us to remove
-    this suppression.
+    CVE-2026-33117 is in Key Vault Keys (fixed in 4.10.6), which we don't ship, but NVD's CPE matches every "Azure SDK for
+    Java" artifact below 4.10.6, so all our 1.x Azure libraries match regardless of version.
     -->
     <suppress>
         <notes><![CDATA[
-    file name: azure-core-1.58.0.jar
+    file name: azure-core-1.61.0.jar
     ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.azure/azure-core@.*$</packageUrl>
         <cve>CVE-2026-33117</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-    file name: azure-core-http-netty-1.16.4.jar
+    file name: azure-core-http-netty-1.17.0.jar
     ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.azure/azure-core-http-netty@.*$</packageUrl>
         <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-    file name: azure-identity-1.18.3.jar
+    file name: azure-identity-1.19.0.jar
     ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
         <cpe>cpe:/a:microsoft:azure_identity_sdk</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-    file name: azure-identity-1.18.3.jar
+    file name: azure-identity-1.19.0.jar
     ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.azure/azure-identity@.*$</packageUrl>
         <cpe>cpe:/a:microsoft:azure_sdk_for_java</cpe>
@@ -220,7 +193,6 @@
         <cpe>cpe:/a:opentelemetry:opentelemetry</cpe>
     </suppress>
 
-
     <!--
     [FP]: 'dev.cel/protobuf' collides with other protobuf libraries
     https://github.com/dependency-check/DependencyCheck/issues/8735
@@ -238,25 +210,5 @@
     ]]></notes>
         <packageUrl regex="true">^pkg:maven/dev\.cel/protobuf@.*$</packageUrl>
         <cpe>cpe:/a:protobuf:protobuf</cpe>
-    </suppress>
-
-    <!--
-    Azure Identity pulls in reactor-netty 1.2.18 which has DOS CVE-2026-47874. The Graph Email Transport isn't
-    deployed anywhere (yet) and medium-level DOS vulnerabilities have not been a big concern. Suppress for now,
-    until a newer Azure Identity that pulls in a fixed reactor-netty is available.
-    -->
-    <suppress>
-        <notes><![CDATA[
-    file name: reactor-netty-core-1.2.18.jar
-    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.projectreactor\.netty/reactor-netty-core@.*$</packageUrl>
-        <cpe>cpe:/a:pivotal:reactor_netty</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-    file name: reactor-netty-http-1.2.18.jar
-    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.projectreactor\.netty/reactor-netty-http@.*$</packageUrl>
-        <cpe>cpe:/a:pivotal:reactor_netty</cpe>
     </suppress>
 </suppressions>

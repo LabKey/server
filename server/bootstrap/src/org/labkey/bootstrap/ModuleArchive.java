@@ -34,10 +34,15 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.SequencedSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.CRC32;
@@ -251,17 +256,18 @@ public class ModuleArchive
         SequencedSet<File> previouslyExtracted = new LinkedHashSet<>();
         listTree(targetDirectory, previouslyExtracted);
         Set<File> unreplaced = new LinkedHashSet<>();
+        List<File> extracted = new ArrayList<>();
 
         long startTime = System.currentTimeMillis();
-        int fileCount = 0;
         //extract all entries
         try (JarFile jar = new JarFile(archiveFile))
         {
             Enumeration<JarEntry> entries = jar.entries();
             while(entries.hasMoreElements())
             {
-                previouslyExtracted.remove(extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced));
-                fileCount++;
+                File file = extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced);
+                previouslyExtracted.remove(file);
+                extracted.add(file);
             }
         }
         catch (IOException e)
@@ -270,9 +276,16 @@ public class ModuleArchive
             throw new IOException("Failed to process " + archiveFile, e);
         }
 
+        // File.equals() is case-sensitive, so on a case-insensitive file system a case-only rename lists the just-extracted file as stale
+        Map<String, File> extractedByFoldedPath = previouslyExtracted.isEmpty() ? Map.of() :
+            extracted.stream().collect(Collectors.toMap(ModuleArchive::foldedPath, Function.identity(), (first, _) -> first));
+
         // Remove what the archive no longer contains; listTree() put children after parents, so delete in reverse
         for (File stale : previouslyExtracted.reversed())
         {
+            File current = extractedByFoldedPath.get(foldedPath(stale));
+            if (current != null && isSameFile(stale, current))
+                continue;
             if (!stale.delete() && stale.isFile())
                 unreplaced.add(stale);
         }
@@ -287,7 +300,26 @@ public class ModuleArchive
 
         //set last mod on target directory to match module file
         targetDirectory.setLastModified(archiveFileLastModified);
-        _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+        _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + extracted.size() + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+    }
+
+
+    private static String foldedPath(File file)
+    {
+        return file.getPath().toLowerCase(Locale.ROOT);
+    }
+
+
+    private static boolean isSameFile(File a, File b)
+    {
+        try
+        {
+            return Files.isSameFile(a.toPath(), b.toPath());
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
     }
 
 
@@ -325,6 +357,30 @@ public class ModuleArchive
     {
         @SuppressWarnings({"SSBasedInspection", "JvmTaintAnalysis"}) File destFile = new File(targetDirectory, entry.getName());
         ensureChild(targetDirectory, destFile);
+
+        // Extraction writes over an earlier build's files, which may have a file where this build has a directory or the reverse
+        for (File ancestor = destFile.getParentFile(); ancestor != null && !ancestor.equals(targetDirectory); ancestor = ancestor.getParentFile())
+        {
+            if (ancestor.isFile())
+            {
+                if (!ancestor.delete())
+                {
+                    unreplaced.add(ancestor);
+                    return destFile;
+                }
+                break;
+            }
+        }
+        if (entry.isDirectory() ? destFile.isFile() : destFile.isDirectory())
+        {
+            List<File> undeleted = new ArrayList<>();
+            ExplodedModule.deleteDirectory(destFile, false, undeleted);
+            if (!undeleted.isEmpty())
+            {
+                unreplaced.addAll(undeleted);
+                return destFile;
+            }
+        }
 
         File entryParent = destFile.getParentFile();
         if (!entryParent.isDirectory())

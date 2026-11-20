@@ -53,9 +53,13 @@ public class ModuleArchive
 
     protected static final FileComparator _fileComparator = new FileComparator();
 
+    // Measured on macOS, creating one file costs about as much as writing this many bytes
+    private static final long BYTES_PER_FILE_CREATED = 175_000;
+
     private final File _file;
     private final String _moduleName;
     private final SimpleLogger _log;
+    private final long _extractionCost;
 
     private String stripToNull(String s)
     {
@@ -130,6 +134,7 @@ public class ModuleArchive
         _log = log;
 
         String moduleName = null;
+        long extractionCost = 0;
 
         /* try to find moduleName in archive */
         try (JarFile jar = new JarFile(getFile()))
@@ -139,6 +144,7 @@ public class ModuleArchive
             {
                 JarEntry entry = entries.nextElement();
                 String entryName = entry.getName();
+                extractionCost += Math.max(0, entry.getSize()) + BYTES_PER_FILE_CREATED;
 
                 if ("config/module.properties".equals(entryName))
                 {
@@ -163,6 +169,13 @@ public class ModuleArchive
         }
 
         _moduleName = moduleName;
+        _extractionCost = extractionCost;
+    }
+
+    /** Relative cost of a full extraction, for scheduling the biggest archives first */
+    public long getExtractionCost()
+    {
+        return _extractionCost;
     }
 
     public File getFile()

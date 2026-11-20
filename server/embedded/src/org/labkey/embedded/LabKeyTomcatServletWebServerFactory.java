@@ -229,6 +229,7 @@ class LabKeyTomcatServletWebServerFactory extends TomcatServletWebServerFactory
                 loader.setLoaderClass(LabKeySpringBootClassLoader.class.getName());
                 context.setLoader(loader);
                 context.setParentClassLoader(this.getClass().getClassLoader());
+                context.setResources(new LabKeyWebResourceRoot(context));
             }
             catch (ConfigException e)
             {

@@ -34,8 +34,8 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Properties;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
@@ -53,9 +53,13 @@ public class ModuleArchive
 
     protected static final FileComparator _fileComparator = new FileComparator();
 
+    // Measured on macOS, creating one file costs about as much as writing this many bytes
+    private static final long BYTES_PER_FILE_CREATED = 175_000;
+
     private final File _file;
     private final String _moduleName;
     private final SimpleLogger _log;
+    private final long _extractionCost;
 
     private String stripToNull(String s)
     {
@@ -130,6 +134,7 @@ public class ModuleArchive
         _log = log;
 
         String moduleName = null;
+        long extractionCost = 0;
 
         /* try to find moduleName in archive */
         try (JarFile jar = new JarFile(getFile()))
@@ -139,6 +144,7 @@ public class ModuleArchive
             {
                 JarEntry entry = entries.nextElement();
                 String entryName = entry.getName();
+                extractionCost += Math.max(0, entry.getSize()) + BYTES_PER_FILE_CREATED;
 
                 if ("config/module.properties".equals(entryName))
                 {
@@ -163,6 +169,13 @@ public class ModuleArchive
         }
 
         _moduleName = moduleName;
+        _extractionCost = extractionCost;
+    }
+
+    /** Relative cost of a full extraction, for scheduling the biggest archives first */
+    public long getExtractionCost()
+    {
+        return _extractionCost;
     }
 
     public File getFile()
@@ -234,11 +247,10 @@ public class ModuleArchive
         long archiveFileLastModified = archiveFile.lastModified();
         _log.info("Extracting module " + archiveFile.getName() + ".");
 
-        // delete existing directory so that files that are
-        // no longer in the archive are removed
-        List<File> undeleted = new ArrayList<>();
-        ExplodedModule.deleteDirectory(targetDirectory, false, undeleted);
-        Set<File> unreplaced = new LinkedHashSet<>(undeleted);
+        // Rewrite only entries whose content changed; every build rewrites module.xml, so most entries are unchanged
+        SequencedSet<File> previouslyExtracted = new LinkedHashSet<>();
+        listTree(targetDirectory, previouslyExtracted);
+        Set<File> unreplaced = new LinkedHashSet<>();
 
         long startTime = System.currentTimeMillis();
         int fileCount = 0;
@@ -248,7 +260,7 @@ public class ModuleArchive
             Enumeration<JarEntry> entries = jar.entries();
             while(entries.hasMoreElements())
             {
-                extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced);
+                previouslyExtracted.remove(extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced));
                 fileCount++;
             }
         }
@@ -256,6 +268,13 @@ public class ModuleArchive
         {
             targetDirectory.setLastModified(0);
             throw new IOException("Failed to process " + archiveFile, e);
+        }
+
+        // Remove what the archive no longer contains; listTree() put children after parents, so delete in reverse
+        for (File stale : previouslyExtracted.reversed())
+        {
+            if (!stale.delete() && stale.isFile())
+                unreplaced.add(stale);
         }
 
         if (!unreplaced.isEmpty())
@@ -269,6 +288,20 @@ public class ModuleArchive
         //set last mod on target directory to match module file
         targetDirectory.setLastModified(archiveFileLastModified);
         _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+    }
+
+
+    private static void listTree(File dir, Set<File> files)
+    {
+        File[] children = dir.listFiles();
+        if (null == children)
+            return;
+        for (File child : children)
+        {
+            files.add(child);
+            if (child.isDirectory())
+                listTree(child, files);
+        }
     }
 
 
@@ -319,7 +352,7 @@ public class ModuleArchive
             return destFile;
         }
 
-        // Only files the pre-extraction delete couldn't remove get here, typically jars the JVM holds open on Windows
+        // Unchanged entries keep their file, so a jar the JVM holds open on Windows is only replaced when it changed
         if (hasSameContent(entry, destFile))
         {
             unreplaced.remove(destFile);

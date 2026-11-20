@@ -18,7 +18,12 @@ package org.labkey.bootstrap;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,12 +62,6 @@ public class ModuleExtractor
 
         _log.info("Exploding module archives");
 
-        // Explode each module archive file into its directory, in parallel. Note: Default thread pool uses (CPU - 1) threads.
-
-        // It might be tempting to try replacing .collect().parallelStream() below with .parallel(), but the intermediate
-        // list is critical in this case. File.listFiles() can't estimate the size of its results, so invoking parallel()
-        // directly leads to a terrible splitting strategy that has no parallelization benefit.
-        // https://stackoverflow.com/questions/34341656/why-is-files-list-parallel-stream-performing-so-much-slower-than-using-collect
         var archives = _moduleDirectories.streamAllModuleDirectories()
                 .flatMap(dir -> {
                     File[] files = dir.listFiles(moduleArchiveFilter);
@@ -95,27 +94,28 @@ public class ModuleExtractor
             }
         }
 
-        // extract
-        archives.parallelStream()
-            .forEach(moduleArchive->{
-                File moduleArchiveFile = moduleArchive.getFile();
-                try
-                {
-                    File dir = moduleArchive.extractAll();
-                    _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
-                    mapModuleDirToArchive.put(dir.getAbsoluteFile(), moduleArchive);
-                }
-                catch (ModuleArchive.StaleFilesException e)
-                {
-                    _log.warn(e.getMessage());
-                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
-                }
-                catch (IOException e)
-                {
-                    _log.error("Unable to extract module archive " + moduleArchiveFile.getPath() + "!", e);
-                    _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
-                }
-            });
+        // Biggest first from a FIFO queue so a large archive can't start last; a sorted parallel stream would instead hand the biggest ones to one thread as a contiguous chunk
+        List<Callable<Void>> extractions = archives.stream()
+            .sorted(Comparator.comparingLong(ModuleArchive::getExtractionCost).reversed())
+            .map(moduleArchive -> (Callable<Void>) () -> {
+                extract(moduleArchive, mapModuleDirToArchive);
+                return null;
+            })
+            .toList();
+        try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), Thread.ofPlatform().name("ModuleExtractor-", 0).factory()))
+        {
+            for (Future<Void> extraction : executor.invokeAll(extractions))
+                extraction.get();
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while extracting modules", e);
+        }
+        catch (ExecutionException e)
+        {
+            throw e.getCause() instanceof RuntimeException re ? re : new IllegalStateException(e.getCause());
+        }
 
         _log.info("Deploying resources from exploded modules to web app directory");
         _explodedModules = getConcurrentSet();
@@ -125,7 +125,11 @@ public class ModuleExtractor
         // from a .module archive.
         _moduleDirectories.streamAllModuleDirectories()
             .flatMap(dir-> {File[] files=dir.listFiles(File::isDirectory); return null==files ? null : Stream.of(files);})
-            .toList() // This intermediate list is critical. See comment above.
+            // It might be tempting to try replacing .toList().parallelStream() with .parallel(), but the intermediate
+            // list is critical in this case. File.listFiles() can't estimate the size of its results, so invoking parallel()
+            // directly leads to a terrible splitting strategy that has no parallelization benefit.
+            // https://stackoverflow.com/questions/34341656/why-is-files-list-parallel-stream-performing-so-much-slower-than-using-collect
+            .toList()
             .parallelStream()
             .forEach(dir->{
                 if (dir.isHidden() || dir.getName().startsWith("."))
@@ -154,6 +158,27 @@ public class ModuleExtractor
         _log.info("Module extraction and deployment complete.");
 
         return _explodedModules;
+    }
+
+    private void extract(ModuleArchive moduleArchive, Map<File, ModuleArchive> mapModuleDirToArchive)
+    {
+        File moduleArchiveFile = moduleArchive.getFile();
+        try
+        {
+            File dir = moduleArchive.extractAll();
+            _moduleArchiveFiles.put(moduleArchiveFile, moduleArchive);
+            mapModuleDirToArchive.put(dir.getAbsoluteFile(), moduleArchive);
+        }
+        catch (ModuleArchive.StaleFilesException e)
+        {
+            _log.warn(e.getMessage());
+            _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
+        }
+        catch (IOException e)
+        {
+            _log.error("Unable to extract module archive " + moduleArchiveFile.getPath() + "!", e);
+            _errorArchives.put(moduleArchiveFile, moduleArchiveFile.lastModified());
+        }
     }
 
     private <E> Set<E> getConcurrentSet()

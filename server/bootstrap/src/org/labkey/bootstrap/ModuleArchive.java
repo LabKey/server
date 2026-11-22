@@ -58,8 +58,8 @@ public class ModuleArchive
 
     protected static final FileComparator _fileComparator = new FileComparator();
 
-    // Measured on macOS, creating one file costs about as much as writing this many bytes
-    private static final long BYTES_PER_FILE_CREATED = 175_000;
+    // Rough cost of creating a file, in bytes written; used to figure out an optimal extraction order
+    private static final long BYTES_PER_FILE_CREATED = 100_000;
 
     private final File _file;
     private final String _moduleName;

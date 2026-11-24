@@ -252,7 +252,7 @@ public class ModuleArchive
         long archiveFileLastModified = archiveFile.lastModified();
         _log.info("Extracting module " + archiveFile.getName() + ".");
 
-        // Rewrite only entries whose content changed; every build rewrites module.xml, so most entries are unchanged
+        // Rewrite only entries whose content changed; a rebuilt module is re-extracted over the last one, and most files are usually unchanged
         SequencedSet<File> previouslyExtracted = new LinkedHashSet<>();
         listTree(targetDirectory, previouslyExtracted);
         Set<File> unreplaced = new LinkedHashSet<>();

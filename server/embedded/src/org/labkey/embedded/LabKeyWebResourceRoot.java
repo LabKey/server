@@ -16,20 +16,17 @@
 package org.labkey.embedded;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResource;
 import org.apache.catalina.webresources.EmptyResource;
 import org.apache.catalina.webresources.StandardRoot;
 
 /**
- * Module classes load from module jars, not the webapp, yet Tomcat probes WEB-INF/classes for every class and
- * canonicalizes each missing path on disk. When the webapp supplies no classes, answer those probes without the disk.
+ * Module classes load from module jars, not the webapp, yet Tomcat probes WEB-INF/classes for every class and resource
+ * lookup, canonicalizing the path on disk each time. We don't use WEB-INF/classes or WEB-INF/lib, so short-circuit.
  */
 class LabKeyWebResourceRoot extends StandardRoot
 {
     private static final String WEB_INF_CLASSES = "/WEB-INF/classes";
-
-    private volatile boolean _noWebappClasses = false;
 
     LabKeyWebResourceRoot(Context context)
     {
@@ -37,23 +34,14 @@ class LabKeyWebResourceRoot extends StandardRoot
     }
 
     @Override
-    protected void startInternal() throws LifecycleException
-    {
-        _noWebappClasses = false;
-        super.startInternal();
-        // WEB-INF/lib jars register as class resources; anything else serving WEB-INF/classes shows up in the lookup
-        _noWebappClasses = getClassResources().length == 0 && !getResource(WEB_INF_CLASSES, false, true).exists();
-    }
-
-    @Override
     public WebResource getClassLoaderResource(String path)
     {
-        return _noWebappClasses ? new EmptyResource(this, WEB_INF_CLASSES + path) : super.getClassLoaderResource(path);
+        return new EmptyResource(this, WEB_INF_CLASSES + path);
     }
 
     @Override
     public WebResource[] getClassLoaderResources(String path)
     {
-        return _noWebappClasses ? new WebResource[0] : super.getClassLoaderResources(path);
+        return new WebResource[0];
     }
 }

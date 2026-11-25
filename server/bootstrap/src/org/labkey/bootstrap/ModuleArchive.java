@@ -35,9 +35,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.SequencedSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.CRC32;
@@ -53,9 +58,13 @@ public class ModuleArchive
 
     protected static final FileComparator _fileComparator = new FileComparator();
 
+    // Rough cost of creating a file, in bytes written; used to figure out an optimal extraction order
+    private static final long BYTES_PER_FILE_CREATED = 100_000;
+
     private final File _file;
     private final String _moduleName;
     private final SimpleLogger _log;
+    private final long _extractionCost;
 
     private String stripToNull(String s)
     {
@@ -130,6 +139,7 @@ public class ModuleArchive
         _log = log;
 
         String moduleName = null;
+        long extractionCost = 0;
 
         /* try to find moduleName in archive */
         try (JarFile jar = new JarFile(getFile()))
@@ -139,6 +149,7 @@ public class ModuleArchive
             {
                 JarEntry entry = entries.nextElement();
                 String entryName = entry.getName();
+                extractionCost += Math.max(0, entry.getSize()) + BYTES_PER_FILE_CREATED;
 
                 if ("config/module.properties".equals(entryName))
                 {
@@ -163,6 +174,13 @@ public class ModuleArchive
         }
 
         _moduleName = moduleName;
+        _extractionCost = extractionCost;
+    }
+
+    /** Relative cost of a full extraction, for scheduling the biggest archives first */
+    public long getExtractionCost()
+    {
+        return _extractionCost;
     }
 
     public File getFile()
@@ -234,28 +252,42 @@ public class ModuleArchive
         long archiveFileLastModified = archiveFile.lastModified();
         _log.info("Extracting module " + archiveFile.getName() + ".");
 
-        // delete existing directory so that files that are
-        // no longer in the archive are removed
-        List<File> undeleted = new ArrayList<>();
-        ExplodedModule.deleteDirectory(targetDirectory, false, undeleted);
-        Set<File> unreplaced = new LinkedHashSet<>(undeleted);
+        // Rewrite only entries whose content changed; a rebuilt module is re-extracted over the last one, and most files are usually unchanged
+        SequencedSet<File> previouslyExtracted = new LinkedHashSet<>();
+        listTree(targetDirectory, previouslyExtracted);
+        Set<File> unreplaced = new LinkedHashSet<>();
+        List<File> extracted = new ArrayList<>();
 
         long startTime = System.currentTimeMillis();
-        int fileCount = 0;
         //extract all entries
         try (JarFile jar = new JarFile(archiveFile))
         {
             Enumeration<JarEntry> entries = jar.entries();
             while(entries.hasMoreElements())
             {
-                extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced);
-                fileCount++;
+                File file = extractEntry(jar, entries.nextElement(), targetDirectory, archiveFileLastModified, unreplaced);
+                previouslyExtracted.remove(file);
+                extracted.add(file);
             }
         }
         catch (IOException e)
         {
             targetDirectory.setLastModified(0);
             throw new IOException("Failed to process " + archiveFile, e);
+        }
+
+        // File.equals() is case-sensitive, so on a case-insensitive file system a case-only rename lists the just-extracted file as stale
+        Map<String, File> extractedByFoldedPath = previouslyExtracted.isEmpty() ? Map.of() :
+            extracted.stream().collect(Collectors.toMap(ModuleArchive::foldedPath, Function.identity(), (first, _) -> first));
+
+        // Remove what the archive no longer contains; listTree() put children after parents, so delete in reverse
+        for (File stale : previouslyExtracted.reversed())
+        {
+            File current = extractedByFoldedPath.get(foldedPath(stale));
+            if (current != null && isSameFile(stale, current))
+                continue;
+            if (!stale.delete() && stale.isFile())
+                unreplaced.add(stale);
         }
 
         if (!unreplaced.isEmpty())
@@ -268,7 +300,40 @@ public class ModuleArchive
 
         //set last mod on target directory to match module file
         targetDirectory.setLastModified(archiveFileLastModified);
-        _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + fileCount + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+        _log.info("Done extracting module " + archiveFile.getName() + ". Processed " + extracted.size() + " file(s) in " + (System.currentTimeMillis() - startTime) + "ms.");
+    }
+
+
+    private static String foldedPath(File file)
+    {
+        return file.getPath().toLowerCase(Locale.ROOT);
+    }
+
+
+    private static boolean isSameFile(File a, File b)
+    {
+        try
+        {
+            return Files.isSameFile(a.toPath(), b.toPath());
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
+    }
+
+
+    private static void listTree(File dir, Set<File> files)
+    {
+        File[] children = dir.listFiles();
+        if (null == children)
+            return;
+        for (File child : children)
+        {
+            files.add(child);
+            if (child.isDirectory())
+                listTree(child, files);
+        }
     }
 
 
@@ -292,6 +357,30 @@ public class ModuleArchive
     {
         @SuppressWarnings({"SSBasedInspection", "JvmTaintAnalysis"}) File destFile = new File(targetDirectory, entry.getName());
         ensureChild(targetDirectory, destFile);
+
+        // Extraction writes over an earlier build's files, which may have a file where this build has a directory or the reverse
+        for (File ancestor = destFile.getParentFile(); ancestor != null && !ancestor.equals(targetDirectory); ancestor = ancestor.getParentFile())
+        {
+            if (ancestor.isFile())
+            {
+                if (!ancestor.delete())
+                {
+                    unreplaced.add(ancestor);
+                    return destFile;
+                }
+                break;
+            }
+        }
+        if (entry.isDirectory() ? destFile.isFile() : destFile.isDirectory())
+        {
+            List<File> undeleted = new ArrayList<>();
+            ExplodedModule.deleteDirectory(destFile, false, undeleted);
+            if (!undeleted.isEmpty())
+            {
+                unreplaced.addAll(undeleted);
+                return destFile;
+            }
+        }
 
         File entryParent = destFile.getParentFile();
         if (!entryParent.isDirectory())
@@ -319,7 +408,7 @@ public class ModuleArchive
             return destFile;
         }
 
-        // Only files the pre-extraction delete couldn't remove get here, typically jars the JVM holds open on Windows
+        // Unchanged entries keep their file, so a jar the JVM holds open on Windows is only replaced when it changed
         if (hasSameContent(entry, destFile))
         {
             unreplaced.remove(destFile);

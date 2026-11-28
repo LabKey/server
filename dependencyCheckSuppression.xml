@@ -211,4 +211,14 @@
         <packageUrl regex="true">^pkg:maven/dev\.cel/protobuf@.*$</packageUrl>
         <cpe>cpe:/a:protobuf:protobuf</cpe>
     </suppress>
+
+    <!-- Error Prone's dataflow library shades an old Guava; it runs only inside javac and never ships -->
+    <suppress>
+        <notes><![CDATA[
+   file name: dataflow-errorprone-3.41.0-eisop1.jar (shaded: com.google.guava:guava:30.1.1-jre)
+   ]]></notes>
+        <filePath regex="true">.*/dataflow-errorprone-[^/]*\.jar/META-INF/maven/com\.google\.guava/guava/pom\.xml</filePath>
+        <cve>CVE-2023-2976</cve>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
 </suppressions>

@@ -230,6 +230,9 @@ allprojects {
                     force "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
                     //  spring-ai pulls a different version of antr-ST4 than the version pulled by query (via antlr)
                     force "org.antlr:ST4:${antlrST4Version}"
+                    // api (via Mockito) and mfa (via Duo SDK) pull different byte-buddy versions
+                    force "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
+                    force "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
                     // different spring-ai artifacts (e.g. spring-ai-transformers) pull different antlr4-runtime versions than ST4 does
                     force "org.antlr:antlr4-runtime:${antlr4RuntimeVersion}"
                     // also it pulls in a bunch of com.google.api dependencies which conflict with DiscvrLabKeyModules:SequenceAnalysis and wnprc-modules:WNPRC_EHR
